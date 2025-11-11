@@ -36,7 +36,9 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
   const [bannerImage, setBannerImage] = useState<string | null>(null);
   const [bannerImageUrl, setBannerImageUrl] = useState<string | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [promotionType, setPromotionType] = useState<'icon' | 'banner'>('icon');
+  const [promotionType, setPromotionType] = useState<MarketingCampaignMobileDisplayType>(
+    MarketingCampaignMobileDisplayType.PersonalPromocode
+  );
 
   const { data: mobileDisplayData } = useSWR(
     marketingCampaignId
@@ -51,20 +53,19 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
 
   useEffect(() => {
     if (mobileDisplayData) {
-      if (mobileDisplayData.description) {
+      if (mobileDisplayData.type === MarketingCampaignMobileDisplayType.Promo && mobileDisplayData.description) {
         setEditorContent(mobileDisplayData.description);
+      } else if (mobileDisplayData.type === MarketingCampaignMobileDisplayType.PersonalPromocode) {
+        setEditorContent('');
       }
-
 
       if (mobileDisplayData.imageLink) {
         setBannerImage(mobileDisplayData.imageLink);
         setBannerImageUrl(mobileDisplayData.imageLink);
       }
 
-      if (mobileDisplayData.type === MarketingCampaignMobileDisplayType.PersonalPromocode) {
-        setPromotionType('icon');
-      } else if (mobileDisplayData.type === MarketingCampaignMobileDisplayType.Promo) {
-        setPromotionType('banner');
+      if (mobileDisplayData.type) {
+        setPromotionType(mobileDisplayData.type);
       }
     }
   }, [mobileDisplayData]);
@@ -130,7 +131,6 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
 
   const defaultValues = {
     name: '',
-    promotionType: 'icon',
     description: '',
   };
 
@@ -150,26 +150,20 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
         return;
       }
 
-      const displayType = promotionType === 'icon'
-        ? MarketingCampaignMobileDisplayType.PersonalPromocode
-        : MarketingCampaignMobileDisplayType.Promo;
-
       const request: {
         type: MarketingCampaignMobileDisplayType;
         imageLink: string;
         description?: string;
       } = {
-        type: displayType,
+        type: promotionType,
         imageLink: bannerImageUrl,
       };
 
-      if (displayType === MarketingCampaignMobileDisplayType.Promo) {
+      if (promotionType === MarketingCampaignMobileDisplayType.Promo) {
         if (!editorContent || editorContent.trim() === '') {
           showToast(t('errors.other.errorDuringFormSubmission') || 'Description is required for Promo type', 'error');
           return;
         }
-        request.description = editorContent;
-      } else if (editorContent && editorContent.trim() !== '') {
         request.description = editorContent;
       }
 
@@ -214,15 +208,18 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
               </div>
               <div className="flex space-x-2">
                 <Button
-                  type={promotionType === 'icon' ? 'primary' : 'default'}
-                  onClick={() => setPromotionType('icon')}
+                  type={promotionType === MarketingCampaignMobileDisplayType.PersonalPromocode ? 'primary' : 'default'}
+                  onClick={() => {
+                    setPromotionType(MarketingCampaignMobileDisplayType.PersonalPromocode);
+                    setEditorContent('');
+                  }}
                   disabled={!isEditable}
                 >
                   {t('marketingCampaigns.icon')}
                 </Button>
                 <Button
-                  type={promotionType === 'banner' ? 'primary' : 'default'}
-                  onClick={() => setPromotionType('banner')}
+                  type={promotionType === MarketingCampaignMobileDisplayType.Promo ? 'primary' : 'default'}
+                  onClick={() => setPromotionType(MarketingCampaignMobileDisplayType.Promo)}
                   disabled={!isEditable}
                 >
                   {t('marketingCampaigns.banner')}
@@ -244,15 +241,17 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                     <div style={{ marginBottom: 16 }}>
                       <Text type="secondary">Настройка отображения кампании в приложении</Text>
                     </div>
-                    <div style={{ marginBottom: 16 }}>
-                      <Text strong style={{ display: 'block', marginBottom: 8 }}>
-                        Описание в приложении
-                      </Text>
-                      <TipTapEditor
-                        value={editorContent}
-                        onChange={setEditorContent}
-                      />
-                    </div>
+                    {promotionType === MarketingCampaignMobileDisplayType.Promo && (
+                      <div style={{ marginBottom: 16 }}>
+                        <Text strong style={{ display: 'block', marginBottom: 8 }}>
+                          Описание в приложении
+                        </Text>
+                        <TipTapEditor
+                          value={editorContent}
+                          onChange={setEditorContent}
+                        />
+                      </div>
+                    )}
                     <div>
                       <Text strong style={{ display: 'block', marginBottom: 8 }}>
                         Баннер/иконка в приложении
@@ -307,18 +306,19 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                       <PhonePreview
                         content={editorContent}
                         bannerImage={bannerImage}
-                        type="news"
+                        type={promotionType === MarketingCampaignMobileDisplayType.Promo ? "main" : "promocode"}
                       />
                     </div>
-
-                    <div className="flex items-center">
-                      <div className="transform scale-[0.9] origin-center">
-                        <PhonePreview
-                          content={editorContent}
-                          bannerImage={bannerImage}
-                          type="main"
-                        />
-                      </div>
+                    <div className="flex items-center" style={{ width: '337.5px', flexShrink: 0 }}>
+                      {promotionType === MarketingCampaignMobileDisplayType.Promo ? (
+                        <div className="transform scale-[0.9] origin-center">
+                          <PhonePreview
+                            bannerImage={bannerImage}
+                            type="news"
+                            content={editorContent}
+                          />
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 </Col>
