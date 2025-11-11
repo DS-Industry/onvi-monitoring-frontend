@@ -240,15 +240,7 @@ const ShiftTab: React.FC = () => {
 
   const dailyShiftPayout = calculateDailyShiftPayout();
 
-  const hasPermissionToSend = hasPermission(
-    [
-      { subject: 'ShiftReport', action: 'create' },
-      { subject: 'ShiftReport', action: 'manage' },
-    ],
-    userPermissions
-  );
-
-  const hasPermissionToReturn = hasPermission(
+  const hasPermissionToUpdate = hasPermission(
     [
       { subject: 'ShiftReport', action: 'update' },
       { subject: 'ShiftReport', action: 'manage' },
@@ -396,7 +388,7 @@ const ShiftTab: React.FC = () => {
             )}
 
             {dayShiftData?.status === StatusWorkDayShiftReport.SENT &&
-              hasPermissionToReturn ? (
+              hasPermissionToUpdate ? (
               <Button
                 className="h-[43px]  bg-[#1890FF]"
                 type="primary"
@@ -405,7 +397,7 @@ const ShiftTab: React.FC = () => {
               >
                 {t('finance.return')}
               </Button>
-            ) : hasPermissionToSend ? (
+            ) : hasPermissionToUpdate ? (
               <Button
                 className="h-[43px]  bg-[#1890FF]"
                 type="primary"
