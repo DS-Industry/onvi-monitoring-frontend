@@ -1519,7 +1519,7 @@ export async function getMarketingConditionsById(
   return response.data;
 }
 
-type CreateMarketingCampaignConditionDto = {
+export type CreateMarketingCampaignConditionDto = {
   type: MarketingCampaignConditionType;
   order?: number;
   startTime?: Date;
@@ -1548,12 +1548,12 @@ export async function deleteMarketingCondition(
   id: number
 ): Promise<{ message: string }> {
   const response: AxiosResponse<{ message: string }> = await api.delete(
-    `marketing-campaigns/conditions/${id}`
+    `user/loyalty/marketing-campaigns/conditions/${id}`
   );
   return response.data;
 }
 
-type MarketingCampaignUpdateDto = {
+export type MarketingCampaignUpdateDto = {
   name?: string;
   type?: 'PROMOCODE' | 'DISCOUNT';
   launchDate?: Date;

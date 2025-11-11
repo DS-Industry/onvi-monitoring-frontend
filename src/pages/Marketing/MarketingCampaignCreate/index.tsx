@@ -49,7 +49,15 @@ const MarketingCampaignCreate: React.FC = () => {
   const steps = [
     {
       title: t('warehouse.basic'),
-      content: isUpdate ? <BasicInformationUpdate campaign={marketingCampaign} isLoading={isLoading || isValidating} mutate={mutate} /> : <BasicInformation />,
+      content: isUpdate ? (
+        <BasicInformationUpdate
+          campaign={marketingCampaign}
+          isLoading={isLoading || isValidating}
+          mutate={mutate}
+        />
+      ) : (
+        <BasicInformation />
+      ),
       icon: <SettingOutlined />,
     },
     {
@@ -94,7 +102,9 @@ const MarketingCampaignCreate: React.FC = () => {
           </div>
           <div>
             <span className="text-xl sm:text-3xl font-normal text-text01">
-              {isUpdate ? t('routes.editingCampaign') : t('routes.creatingCampaign')}
+              {isUpdate
+                ? marketingCampaign?.name
+                : t('routes.creatingCampaign')}
             </span>
           </div>
         </div>
@@ -108,7 +118,11 @@ const MarketingCampaignCreate: React.FC = () => {
           onChange={handleStepClick}
         >
           {steps.map((step, index) => (
-            <Step key={index} title={step.title} icon={null} />
+            <Step
+              key={index}
+              title={step.title}
+              icon={isUpdate ? step.icon : undefined}
+            />
           ))}
         </Steps>
         <div className="mt-5">
