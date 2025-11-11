@@ -439,14 +439,16 @@ const EmployeeProfile: React.FC = () => {
             {employee?.name ?? ''}
           </span>
         </div>
-        <Button
-          icon={<SaveOutlined />}
-          className="btn-primary"
-          onClick={() => handleSubmit(onSubmit)()}
-          loading={updatingEmployee}
-        >
-          {screens.md && t('routes.save')}
-        </Button>
+        {allowed && (
+          <Button
+            icon={<SaveOutlined />}
+            className="btn-primary"
+            onClick={() => handleSubmit(onSubmit)()}
+            loading={updatingEmployee}
+          >
+            {screens.md && t('routes.save')}
+          </Button>
+        )}
       </div>
 
       <div className="mt-5">
@@ -685,7 +687,7 @@ const EmployeeProfile: React.FC = () => {
                         {...register('passportSeries')}
                       />
                       <Input
-                        type='number'
+                        type="number"
                         title={t('hr.passportNumber')}
                         classname="w-64"
                         inputType="secondary"
