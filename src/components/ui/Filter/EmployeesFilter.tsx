@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Select, Collapse, Typography, Input } from 'antd';
@@ -30,9 +30,8 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
   const { t } = useTranslation();
   const [activeFilterKey, setActiveFilterKey] = useState<string[]>([]);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [name, setName] = useState<string>('');
-  const timeoutId = useRef<ReturnType<typeof setTimeout> | null>(null);
   const allCategoriesText = t('warehouse.all');
+  const name = searchParams.get('name') || undefined;
   const user = useUser();
 
   const { data: cityData } = useSWR([`get-city`], () => getPlacement(), {
@@ -52,25 +51,7 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
 
   cities.unshift(citiesAllObj);
 
-  useEffect(() => {
-    return () => {
-      if (timeoutId.current) {
-        clearTimeout(timeoutId.current);
-      }
-    };
-  }, [timeoutId]);
-
-  useEffect(() => {
-    timeoutId.current = setTimeout(() => {
-      updateSearchParams(searchParams, setSearchParams, {
-        name: name || undefined,
-        page: 1,
-      });
-    }, 1000);
-  }, [name]);
-
   const resetFilters = () => {
-    setName('');
     updateSearchParams(searchParams, setSearchParams, {
       placementId: undefined,
       hrPositionId: undefined,
@@ -188,7 +169,11 @@ const EmployeesFilter: React.FC<EmployeesFilterProps> = ({
                       className="w-full"
                       placeholder={t('hr.enter')}
                       value={name}
-                      onChange={e => setName(e.target.value)}
+                      onChange={e => {
+                        updateSearchParams(searchParams, setSearchParams, {
+                          name: e.target.value,
+                        });
+                      }}
                     />
                   </div>
                 </div>
