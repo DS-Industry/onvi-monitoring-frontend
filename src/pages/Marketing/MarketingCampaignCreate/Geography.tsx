@@ -121,7 +121,7 @@ const Geography: React.FC = () => {
       };
 
       await triggerUpdate(updateRequest);
-      updateSearchParams(searchParams, setSearchParams, { step: 4 });
+      updateSearchParams(searchParams, setSearchParams, { step: 6 });
     } catch (error) {
       message.error(t('marketing.errorCampaign'));
     }

@@ -1920,6 +1920,9 @@
     "selectEvent": "Enter event",
     "displaying": "Displaying marketing campaign usage statistics",
     "cashback": "Cashback for the promotion period:",
-    "uses": "Number of uses"
+    "uses": "Number of uses",
+    "executionType": "Execution Type",
+    "transactional": "Transactional",
+    "behavioral": "Behavioral"
   }
 }

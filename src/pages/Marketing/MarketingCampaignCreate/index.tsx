@@ -8,9 +8,11 @@ import {
   CarOutlined,
   FireOutlined,
   LineChartOutlined,
+  ThunderboltOutlined,
 } from '@ant-design/icons';
 import BasicInformation from './BasicInformation';
 import Terms from './Terms';
+import ExecutionType from './ExecutionType';
 import Promotion from './Promotion';
 import Geography from './Geography';
 import { Steps } from 'antd';
@@ -59,6 +61,11 @@ const MarketingCampaignCreate: React.FC = () => {
         <BasicInformation />
       ),
       icon: <SettingOutlined />,
+    },
+    {
+      title: t('marketingCampaigns.executionType') || 'Execution Type',
+      content: <ExecutionType />,
+      icon: <ThunderboltOutlined />,
     },
     {
       title: t('marketingCampaigns.terms'),

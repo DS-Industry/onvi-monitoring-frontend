@@ -48,6 +48,11 @@ export enum MarketingDiscountType {
   PERCENTAGE = 'PERCENTAGE',
 }
 
+export enum CampaignExecutionType {
+  TRANSACTIONAL = 'TRANSACTIONAL',
+  BEHAVIORAL = 'BEHAVIORAL',
+}
+
 export type ClientRequestBody = {
   name: string;
   birthday?: Date;
@@ -831,6 +836,7 @@ export type MarketingCampaignResponse = {
   posIds: number[];
   createdAt: string;
   updatedAt: string;
+  executionType?: CampaignExecutionType;
   createdBy: {
     id: number;
     name: string;
@@ -1453,6 +1459,7 @@ type MarketingCampaignResponseBody = {
     id: number;
     name: string;
   };
+  executionType?: CampaignExecutionType;
 };
 
 export async function createNewMarketingCampaign(
@@ -1567,6 +1574,7 @@ export type MarketingCampaignUpdateDto = {
   promocode?: string;
   maxUsage?: number;
   status?: 'DRAFT' | 'ACTIVE' | 'PAUSED' | 'COMPLETED' | 'CANCELLED';
+  executionType?: CampaignExecutionType;
 };
 
 export async function updateMarketingCampaigns(
