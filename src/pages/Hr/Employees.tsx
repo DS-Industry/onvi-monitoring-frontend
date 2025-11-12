@@ -121,7 +121,6 @@ const Employees: React.FC = () => {
   const name = searchParams.get('name') || undefined;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
-  const [rawPhone, setRawPhone] = useState('');
   const [countryCode, setCountryCode] = useState('+7');
 
   const { data: workersData, isLoading: workersLoading } = useSWR(
@@ -261,14 +260,15 @@ const Employees: React.FC = () => {
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const digits = e.target.value.replace(/\D/g, '');
-    setRawPhone(digits);
-    setFormData(prev => ({ ...prev, phone: digits }));
-    setValue('phone', digits);
+
+    const fullNumber = digits ? `${countryCode}${digits}` : '';
+
+    setFormData(prev => ({ ...prev, phone: fullNumber }));
+    setValue('phone', fullNumber);
   };
 
   const handleCountryChange = (newCode: string) => {
     setCountryCode(newCode);
-    setRawPhone('');
     setFormData(prev => ({ ...prev, phone: '' }));
     setValue('phone', '');
   };
@@ -564,7 +564,10 @@ const Employees: React.FC = () => {
             title={t('profile.telephone')}
             label={t('warehouse.enterPhone')}
             classname="w-80"
-            value={formatPhoneByCountry(rawPhone, countryCode)}
+            value={formatPhoneByCountry(
+              String(String(formData.phone).replace(countryCode, '')),
+              countryCode
+            )}
             changeValue={handlePhoneChange}
             countryCode={countryCode}
             onCountryChange={handleCountryChange}

@@ -255,24 +255,24 @@ export const formatPhoneByCountry = (digits: string, countryCode: string) => {
       // Russian number should be 11 digits total (excluding +7)
       if (cleaned.startsWith('7')) cleaned = cleaned.slice(1); // remove leading 7 if present
       cleaned = cleaned.slice(0, 10);
-      if (!cleaned) return '+7';
-      return `+7 (${cleaned.slice(0, 3)}${cleaned.length > 3 ? ') ' : ''}${cleaned.slice(3, 6)}${cleaned.length > 6 ? '-' : ''}${cleaned.slice(6, 8)}${cleaned.length > 8 ? '-' : ''}${cleaned.slice(8, 10)}`;
+      if (!cleaned) return '';
+      return `(${cleaned.slice(0, 3)}${cleaned.length > 3 ? ') ' : ''}${cleaned.slice(3, 6)}${cleaned.length > 6 ? '-' : ''}${cleaned.slice(6, 8)}${cleaned.length > 8 ? '-' : ''}${cleaned.slice(8, 10)}`;
     }
 
     case '+91': {
       // Indian numbers are 10 digits
       if (cleaned.startsWith('91')) cleaned = cleaned.slice(2); // remove extra leading 91
       cleaned = cleaned.slice(0, 10);
-      if (!cleaned) return '+91';
-      return `+91 ${cleaned.slice(0, 5)}${cleaned.length > 5 ? '-' : ''}${cleaned.slice(5)}`;
+      if (!cleaned) return '';
+      return `${cleaned.slice(0, 5)}${cleaned.length > 5 ? '-' : ''}${cleaned.slice(5)}`;
     }
 
     case '+998': {
       // Uzbekistan: 9 digits
       if (cleaned.startsWith('998')) cleaned = cleaned.slice(3); // remove extra 998
       cleaned = cleaned.slice(0, 9);
-      if (!cleaned) return '+998';
-      return `+998 ${cleaned.slice(0, 2)}${cleaned.length > 2 ? ' ' : ''}${cleaned.slice(2, 5)}${cleaned.length > 5 ? '-' : ''}${cleaned.slice(5, 7)}${cleaned.length > 7 ? '-' : ''}${cleaned.slice(7, 9)}`;
+      if (!cleaned) return '';
+      return `${cleaned.slice(0, 2)}${cleaned.length > 2 ? ' ' : ''}${cleaned.slice(2, 5)}${cleaned.length > 5 ? '-' : ''}${cleaned.slice(5, 7)}${cleaned.length > 7 ? '-' : ''}${cleaned.slice(7, 9)}`;
     }
 
     default:
