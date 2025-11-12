@@ -5,6 +5,13 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import AntInput from 'antd/es/input';
+import { Select } from 'antd';
+
+const COUNTRY_CODES = [
+  { code: '+998', name: 'Uzbekistan', flag: '🇺🇿' },
+  { code: '+91', name: 'India', flag: '🇮🇳' },
+  { code: '+7', name: 'Russia', flag: '🇷🇺' },
+];
 
 type InputProps = {
   type?: string;
@@ -22,6 +29,9 @@ type InputProps = {
   title?: string;
   id?: string;
   placeholder?: string;
+  isPhone?: boolean;
+  countryCode?: string;
+  onCountryChange?: (code: string) => void;
 };
 
 const Input: React.FC<InputProps> = ({
@@ -38,6 +48,9 @@ const Input: React.FC<InputProps> = ({
   title,
   id,
   defaultValue,
+  isPhone = false,
+  countryCode = '+7',
+  onCountryChange,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -152,32 +165,81 @@ const Input: React.FC<InputProps> = ({
       )}
 
       <div className="relative">
-        <div>
-          <AntInput
-            id={inputId}
-            value={value}
-            onChange={e => {
-              if (changeValue) {
-                changeValue(e);
-              }
-              setHasValue(e.target.value !== '');
-            }}
-            disabled={disabled}
-            defaultValue={defaultValue}
-            placeholder={isLabelFloating ? '' : label}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            onAnimationStart={(e: React.AnimationEvent<HTMLInputElement>) => {
-              if (e.animationName === 'onAutoFill') {
-                setIsPreFilled(true);
-              }
-            }}
-            {...inputConfig}
-            className={`${error ? 'border-errorFill' : ''}`}
-          />
-          {type === 'password' && <PasswordIcon />}
-          {showIcon && type !== 'date' && type !== 'password' && <CustomIcon />}
-        </div>
+        {isPhone ? (
+          <div className="flex items-center">
+            <Select
+              value={countryCode}
+              disabled={disabled}
+              onChange={onCountryChange}
+              className="!w-28 !mr-2"
+            >
+              {COUNTRY_CODES.map(c => (
+                <Select.Option key={c.code} value={c.code}>
+                  {c.flag} {c.code}
+                </Select.Option>
+              ))}
+            </Select>
+            <div>
+              <AntInput
+                id={inputId}
+                value={value}
+                onChange={e => {
+                  if (changeValue) {
+                    changeValue(e);
+                  }
+                  setHasValue(e.target.value !== '');
+                }}
+                disabled={disabled}
+                defaultValue={defaultValue}
+                placeholder={isLabelFloating ? '' : label}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                onAnimationStart={(
+                  e: React.AnimationEvent<HTMLInputElement>
+                ) => {
+                  if (e.animationName === 'onAutoFill') {
+                    setIsPreFilled(true);
+                  }
+                }}
+                {...inputConfig}
+                className={`${error ? 'border-errorFill' : ''}`}
+              />
+              {type === 'password' && <PasswordIcon />}
+              {showIcon && type !== 'date' && type !== 'password' && (
+                <CustomIcon />
+              )}
+            </div>
+          </div>
+        ) : (
+          <div>
+            <AntInput
+              id={inputId}
+              value={value}
+              onChange={e => {
+                if (changeValue) {
+                  changeValue(e);
+                }
+                setHasValue(e.target.value !== '');
+              }}
+              disabled={disabled}
+              defaultValue={defaultValue}
+              placeholder={isLabelFloating ? '' : label}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
+              onAnimationStart={(e: React.AnimationEvent<HTMLInputElement>) => {
+                if (e.animationName === 'onAutoFill') {
+                  setIsPreFilled(true);
+                }
+              }}
+              {...inputConfig}
+              className={`${error ? 'border-errorFill' : ''}`}
+            />
+            {type === 'password' && <PasswordIcon />}
+            {showIcon && type !== 'date' && type !== 'password' && (
+              <CustomIcon />
+            )}
+          </div>
+        )}
       </div>
       {helperText && (
         <div

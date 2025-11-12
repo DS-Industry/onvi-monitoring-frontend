@@ -29,7 +29,7 @@ import dayjs from 'dayjs';
 import { ArrowRightOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { SaveOutlined } from '@ant-design/icons';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import { formatRussianPhone } from '@/utils/tableUnits';
+import { formatPhoneByCountry } from '@/utils/tableUnits';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
 
@@ -58,7 +58,6 @@ const EmployeeProfile: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedPosIds, setSelectedPosIds] = useState<number[]>([]);
   const { showToast } = useToast();
-
   const [searchParams, setSearchParams] = useSearchParams();
 
   const workerId = searchParams.get('workerId')
@@ -178,6 +177,7 @@ const EmployeeProfile: React.FC = () => {
     hrPositionId: undefined,
     placementId: undefined,
     startWorkDate: undefined,
+    birthday: undefined,
     phone: undefined,
     email: undefined,
     description: undefined,
@@ -219,6 +219,17 @@ const EmployeeProfile: React.FC = () => {
   };
 
   const [formData, setFormData] = useState(defaultValues);
+  const extractCountryCode = (phone: string): string => {
+    if (!phone) return '+7';
+    if (phone.startsWith('+998')) return '+998';
+    if (phone.startsWith('+91')) return '+91';
+    if (phone.startsWith('+7')) return '+7';
+    return '+7';
+  };
+
+  const [countryCode, setCountryCode] = useState(() =>
+    extractCountryCode(formData.phone || '')
+  );
 
   const [scheduleData, setScheduleData] = useState(scheduleValues);
 
@@ -266,6 +277,9 @@ const EmployeeProfile: React.FC = () => {
         startWorkDate: employee.startWorkDate
           ? dayjs(String(employee.startWorkDate).slice(0, 10)).toDate()
           : undefined,
+        birthday: employee.birthday
+          ? dayjs(String(employee.birthday).slice(0, 10)).toDate()
+          : undefined,
         passportDateIssue: employee.passportDateIssue
           ? dayjs(String(employee.passportDateIssue).slice(0, 10)).toDate()
           : undefined,
@@ -285,6 +299,7 @@ const EmployeeProfile: React.FC = () => {
           hrPositionId: formData.hrPositionId,
           placementId: formData.placementId,
           startWorkDate: formData.startWorkDate,
+          birthday: formData.birthday,
           phone: formData.phone,
           email: formData.email,
           description: formData.description,
@@ -343,13 +358,18 @@ const EmployeeProfile: React.FC = () => {
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const input = e.target.value;
+    const digits = e.target.value.replace(/\D/g, '');
 
-    let cleanValue = '+7' + input.replace(/\D/g, '').replace(/^7/, '');
-    if (cleanValue.length > 12) cleanValue = cleanValue.slice(0, 12);
+    const fullNumber = digits ? `${countryCode}${digits}` : '';
 
-    setFormData(prev => ({ ...prev, phone: cleanValue }));
-    setValue('phone', cleanValue);
+    setFormData(prev => ({ ...prev, phone: fullNumber }));
+    setValue('phone', fullNumber);
+  };
+
+  const handleCountryChange = (newCode: string) => {
+    setCountryCode(newCode);
+    setFormData(prev => ({ ...prev, phone: '' }));
+    setValue('phone', '');
   };
 
   const onSubmit = async () => {
@@ -590,13 +610,40 @@ const EmployeeProfile: React.FC = () => {
                           inputType="secondary"
                         />
                       </div>
+                      <div>
+                        <div className="text-sm text-text02">
+                          {t('register.date')}
+                        </div>
+                        <DateInput
+                          classname="w-64"
+                          value={
+                            formData.birthday ? dayjs(formData.birthday) : null
+                          }
+                          changeValue={date =>
+                            handleInputChange(
+                              'birthday',
+                              date ? date.format('YYYY-MM-DD') : ''
+                            )
+                          }
+                          {...register('birthday')}
+                          inputType="secondary"
+                        />
+                      </div>
                       <Input
+                        isPhone
                         type=""
                         title={t('profile.telephone')}
                         label={t('warehouse.enterPhone')}
                         classname="w-64"
-                        value={formatRussianPhone(formData.phone || '')}
+                        value={formatPhoneByCountry(
+                          String(
+                            String(formData.phone).replace(countryCode, '')
+                          ),
+                          countryCode
+                        )}
                         changeValue={handlePhoneChange}
+                        countryCode={countryCode}
+                        onCountryChange={handleCountryChange}
                         {...register('phone')}
                         inputType="secondary"
                       />

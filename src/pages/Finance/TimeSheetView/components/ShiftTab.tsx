@@ -248,6 +248,14 @@ const ShiftTab: React.FC = () => {
     userPermissions
   );
 
+  const hasPermissionToCreate = hasPermission(
+    [
+      { subject: 'ShiftReport', action: 'create' },
+      { subject: 'ShiftReport', action: 'manage' },
+    ],
+    userPermissions
+  );
+
   const hasPermissionToDelete = hasPermission(
     [
       { subject: 'ShiftReport', action: 'manage' },
@@ -397,7 +405,7 @@ const ShiftTab: React.FC = () => {
               >
                 {t('finance.return')}
               </Button>
-            ) : hasPermissionToUpdate ? (
+            ) : hasPermissionToCreate ? (
               <Button
                 className="h-[43px]  bg-[#1890FF]"
                 type="primary"
