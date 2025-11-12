@@ -18,6 +18,7 @@ export type CreateWorkerRequest = {
   hrPositionId: string;
   placementId: string;
   organizationId: number;
+  birthday?: Date;
   startWorkDate?: Date;
   phone?: string;
   email?: string;
@@ -43,6 +44,7 @@ export type TWorker = {
     hrPositionId: number;
     placementId: number;
     organizationId: number;
+    birthday?: Date;
     startWorkDate?: Date;
     phone?: string;
     email?: string;
@@ -69,6 +71,7 @@ export type UpdateWorkerRequest = {
   name?: string;
   hrPositionId?: string;
   placementId?: string;
+  birthday?: Date;
   startWorkDate?: Date;
   phone?: string;
   email?: string;
