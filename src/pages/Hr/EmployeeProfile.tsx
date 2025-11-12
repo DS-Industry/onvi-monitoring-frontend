@@ -178,6 +178,7 @@ const EmployeeProfile: React.FC = () => {
     hrPositionId: undefined,
     placementId: undefined,
     startWorkDate: undefined,
+    birthday: undefined,
     phone: undefined,
     email: undefined,
     description: undefined,
@@ -266,6 +267,9 @@ const EmployeeProfile: React.FC = () => {
         startWorkDate: employee.startWorkDate
           ? dayjs(String(employee.startWorkDate).slice(0, 10)).toDate()
           : undefined,
+        birthday: employee.birthday
+          ? dayjs(String(employee.birthday).slice(0, 10)).toDate()
+          : undefined,
         passportDateIssue: employee.passportDateIssue
           ? dayjs(String(employee.passportDateIssue).slice(0, 10)).toDate()
           : undefined,
@@ -285,6 +289,7 @@ const EmployeeProfile: React.FC = () => {
           hrPositionId: formData.hrPositionId,
           placementId: formData.placementId,
           startWorkDate: formData.startWorkDate,
+          birthday: formData.birthday,
           phone: formData.phone,
           email: formData.email,
           description: formData.description,
@@ -587,6 +592,25 @@ const EmployeeProfile: React.FC = () => {
                             )
                           }
                           {...register('startWorkDate')}
+                          inputType="secondary"
+                        />
+                      </div>
+                      <div>
+                        <div className="text-sm text-text02">
+                          {t('register.date')}
+                        </div>
+                        <DateInput
+                          classname="w-64"
+                          value={
+                            formData.birthday ? dayjs(formData.birthday) : null
+                          }
+                          changeValue={date =>
+                            handleInputChange(
+                              'birthday',
+                              date ? date.format('YYYY-MM-DD') : ''
+                            )
+                          }
+                          {...register('birthday')}
                           inputType="secondary"
                         />
                       </div>
