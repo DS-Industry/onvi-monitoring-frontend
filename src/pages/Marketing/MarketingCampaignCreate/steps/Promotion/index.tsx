@@ -143,12 +143,12 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
   const onSubmit = async () => {
     try {
       if (!marketingCampaignId) {
-        showToast(t('errors.other.errorDuringFormSubmission') || 'Campaign ID is required', 'error');
+        showToast(t('errors.other.errorDuringFormSubmission'), 'error');
         return;
       }
 
       if (!bannerImageUrl) {
-        showToast(t('errors.other.errorDuringFormSubmission') || 'Image is required', 'error');
+        showToast(t('errors.other.errorDuringFormSubmission'), 'error');
         return;
       }
 
@@ -163,7 +163,7 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
 
       if (promotionType === MarketingCampaignMobileDisplayType.Promo) {
         if (!editorContent || editorContent.trim() === '') {
-          showToast(t('errors.other.errorDuringFormSubmission') || 'Description is required for Promo type', 'error');
+          showToast(t('errors.other.errorDuringFormSubmission'), 'error');
           return;
         }
         request.description = editorContent;
@@ -373,3 +373,4 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
 };
 
 export default Promotion;
+

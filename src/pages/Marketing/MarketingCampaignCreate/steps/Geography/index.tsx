@@ -287,3 +287,4 @@ const Geography: React.FC = () => {
 };
 
 export default Geography;
+

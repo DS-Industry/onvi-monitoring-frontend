@@ -10,14 +10,14 @@ import {
   ThunderboltOutlined,
   CalendarOutlined,
 } from '@ant-design/icons';
-import BasicInformation from './BasicInformation';
-import Terms from './Terms';
-import ExecutionType from './ExecutionType';
-import RewardValidityPeriod from './RewardValidityPeriod';
-import Promotion from './Promotion';
-import Geography from './Geography';
+import BasicInformation from './steps/BasicInformationCreate';
+import Terms from './steps/Terms';
+import ExecutionType from './steps/ExecutionType';
+import RewardValidityPeriod from './steps/RewardValidityPeriod';
+import Promotion from './steps/Promotion';
+import Geography from './steps/Geography';
 import { Steps } from 'antd';
-import BasicInformationUpdate from './update/BasicInformationUpdate';
+import BasicInformationUpdate from './steps/BasicInformationUpdate';
 import { getMarketingCampaignById } from '@/services/api/marketing';
 import useSWR from 'swr';
 

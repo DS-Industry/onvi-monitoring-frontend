@@ -39,12 +39,10 @@ const RewardValidityPeriod: React.FC = () => {
 
     useEffect(() => {
         if (marketingCampaign) {
-            // First check for activeDays on the campaign (new way)
             if (marketingCampaign.activeDays !== undefined && marketingCampaign.activeDays !== null) {
                 setDays(marketingCampaign.activeDays);
                 setIsIndefinite(false);
             }
-            // Fall back to actionPayload for backward compatibility
             else if (marketingCampaign.actionPayload) {
                 const payload = marketingCampaign.actionPayload;
                 if (payload.rewardValidityDays !== undefined) {
