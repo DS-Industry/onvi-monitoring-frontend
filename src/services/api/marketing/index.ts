@@ -906,7 +906,7 @@ export type UpdateMarketingCampaignRequest = {
   maxUsage?: number;
   ltyProgramParticipantId?: number;
   status?: MarketingCampaignStatus;
-  activeDays?: number;
+  activeDays?: number | null;
 };
 
 export async function createCorporateClient(

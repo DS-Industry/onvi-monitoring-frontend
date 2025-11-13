@@ -100,7 +100,7 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
     if (isLoading || isValidating) {
         return (
             <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-background02 p-6 rounded-lg">
-                <div className="text-text02">{t('common.loading') || 'Loading...'}</div>
+                <div className="text-text02">{t('common.loading')}</div>
             </div>
         );
     }

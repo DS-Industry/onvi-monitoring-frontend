@@ -48,6 +48,7 @@ const Terms: React.FC = () => {
     const {
         data: marketingCampaign,
         mutate: mutateCampaign,
+        isLoading: isLoadingMarketingCampaign,
     } = useSWR(
         marketingCampaignId
             ? [`get-marketing-campaign-by-id`, marketingCampaignId]
@@ -234,6 +235,14 @@ const Terms: React.FC = () => {
         marketingConditions?.conditions?.some(
             cond => cond.type === MarketingCampaignConditionType.PROMOCODE_ENTRY
         );
+
+    if (isLoadingMarketingCampaign) {
+        return (
+            <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-background02 p-6 rounded-lg">
+                <div className="text-text02">{t('common.loading')}</div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col space-y-6 sm:space-y-8 lg:space-y-10 bg-background02 p-6 rounded-lg">

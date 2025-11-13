@@ -40,6 +40,8 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
     MarketingCampaignMobileDisplayType.PersonalPromocode
   );
 
+  const [isSubmiting, setIsSubmitting] = useState(false);
+
   const { data: mobileDisplayData, isLoading: isLoadingMobileDisplay, isValidating: isValidatingMobileDisplay } = useSWR(
     marketingCampaignId
       ? [`get-marketing-campaign-mobile-display`, marketingCampaignId]
@@ -141,6 +143,7 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
   const { handleSubmit } = useFormHook(formData);
 
   const onSubmit = async () => {
+    setIsSubmitting(true);
     try {
       if (!marketingCampaignId) {
         showToast(t('errors.other.errorDuringFormSubmission'), 'error');
@@ -170,14 +173,16 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
       }
 
       await upsertMarketingCampaignMobileDisplay(marketingCampaignId, request);
+      showToast(t('marketing.loyaltyCreated'), 'success');
 
       updateSearchParams(searchParams, setSearchParams, {
         step: 6,
       });
-      showToast(t('marketing.loyaltyCreated'), 'success');
     } catch (error) {
       console.error('Error during form submission: ', error);
       showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -231,7 +236,7 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
 
 
               <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
-                <Col xs={24} xl={18}>
+                <Col xs={24} lg={18}>
                   {isLoading ? (
                     <Card
                       styles={{
@@ -316,7 +321,7 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                   )}
                 </Col>
 
-                <Col xs={0} xl={6}>
+                <Col xs={0} lg={6}>
                   {isLoading ? (
                     <div className="flex gap-4 items-center transform scale-[0.8] origin-top">
                       <Skeleton.Image active style={{ width: '375px', height: '812px' }} />
@@ -363,6 +368,7 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
             type="primary"
             icon={<RightOutlined />}
             iconPosition="end"
+            disabled={uploadingImage || isLoading || isSubmiting}
           >
             {t('common.next')}
           </Button>

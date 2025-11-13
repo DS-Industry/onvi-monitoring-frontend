@@ -3,10 +3,9 @@ import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { getMarketingCampaignById, getPosesParticipants, PosResponse, updateMarketingCampaign, getLoyaltyPrograms, UpdateMarketingCampaignRequest, MarketingCampaignResponse } from '@/services/api/marketing';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button, message } from 'antd';
 import { GlobalOutlined, PlayCircleFilled } from '@ant-design/icons';
-import { updateSearchParams } from '@/utils/searchParamsUtils';
 import ParticipantsMap from '@/components/ui/ParticipantsMap';
 import GeographyList from './GeographyList';
 import { useUser } from '@/hooks/useUserStore';
@@ -14,10 +13,12 @@ import { MarketingCampaignStatus } from '@/utils/constants';
 
 const Geography: React.FC = () => {
   const { t } = useTranslation();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
   const currentStep = Number(searchParams.get('step')) || 1;
   const user = useUser();
+
+  const navigate = useNavigate()
 
   const { data: marketCampaignByIdData, isLoading: loadingMarketingCampaign, isValidating } = useSWR(
     marketingCampaignId
@@ -91,9 +92,7 @@ const Geography: React.FC = () => {
       };
 
       await triggerUpdate(updateRequest);
-      updateSearchParams(searchParams, setSearchParams, {
-        step: currentStep - 1,
-      });
+      navigate('/marketing/campaigns');
     } catch (error) {
       message.error(t('marketing.errorCampaign'));
     }
@@ -123,6 +122,7 @@ const Geography: React.FC = () => {
       };
 
       await triggerUpdate(updateRequest);
+      navigate('/marketing/campaigns');
     } catch (error) {
       message.error(t('marketing.errorCampaign'));
     }

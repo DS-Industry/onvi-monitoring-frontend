@@ -18,7 +18,7 @@ const RewardValidityPeriod: React.FC = () => {
     const { showToast } = useToast();
     const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
 
-    const [days, setDays] = useState<number | undefined>(undefined);
+    const [days, setDays] = useState<number | null>(null);
     const [isIndefinite, setIsIndefinite] = useState(false);
     const [updating, setUpdating] = useState(false);
 
@@ -50,7 +50,7 @@ const RewardValidityPeriod: React.FC = () => {
                     setIsIndefinite(false);
                 } else if (payload.rewardValidityIndefinite === true) {
                     setIsIndefinite(true);
-                    setDays(undefined);
+                    setDays(null);
                 }
             }
         }
@@ -59,7 +59,7 @@ const RewardValidityPeriod: React.FC = () => {
     const handleDaysChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         if (value === '') {
-            setDays(undefined);
+            setDays(null);
         } else {
             const numValue = parseInt(value, 10);
             if (!isNaN(numValue) && numValue > 0) {
@@ -73,12 +73,8 @@ const RewardValidityPeriod: React.FC = () => {
         const checked = e.target.checked;
         setIsIndefinite(checked);
         if (checked) {
-            setDays(undefined);
+            setDays(null);
         }
-    };
-
-    const handleSkip = () => {
-        updateSearchParams(searchParams, setSearchParams, { step: 5 });
     };
 
     const handleNext = async () => {
@@ -90,11 +86,11 @@ const RewardValidityPeriod: React.FC = () => {
         try {
             setUpdating(true);
 
-            const updatePayload: { activeDays?: number } = {};
+            const updatePayload: { activeDays?: number | null } = {};
 
-            if (!isIndefinite && days !== undefined && days > 0) {
-                updatePayload.activeDays = days;
-            }
+
+            updatePayload.activeDays = days || null;
+
 
             await updateMarketingCampaign(marketingCampaignId, updatePayload);
 
@@ -113,21 +109,8 @@ const RewardValidityPeriod: React.FC = () => {
 
     if (isLoading || isValidating) {
         return (
-            <div className="bg-background02 pb-3">
-                <div className="flex flex-col rounded-lg lg:flex-row">
-                    <div className="mb-3">
-                        <div className="flex items-center justify-center bg-background02">
-                            <div className="flex flex-col rounded-lg w-full space-y-6 sm:space-y-8 lg:space-y-10">
-                                <div className="animate-pulse">
-                                    <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-                                    <div className="h-4 bg-gray-200 rounded w-1/2 mb-8"></div>
-                                    <div className="h-10 bg-gray-200 rounded w-full mb-6"></div>
-                                    <div className="h-6 bg-gray-200 rounded w-1/2"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-background02 p-6 rounded-lg">
+                <div className="text-text02">{t('common.loading')}</div>
             </div>
         );
     }
@@ -162,7 +145,7 @@ const RewardValidityPeriod: React.FC = () => {
                                         type="number"
                                         min={1}
                                         placeholder={t('marketingCampaigns.enterNumberOfDays')}
-                                        value={days !== undefined ? days.toString() : ''}
+                                        value={days ? days.toString() : ''}
                                         onChange={handleDaysChange}
                                         disabled={isIndefinite}
                                         className="max-w-md"
@@ -206,12 +189,6 @@ const RewardValidityPeriod: React.FC = () => {
             </div>
 
             <div className="flex justify-end gap-2 mt-3">
-                <Button
-                    onClick={handleSkip}
-                    disabled={updating}
-                >
-                    {t('common.skip')}
-                </Button>
                 <Button
                     type="primary"
                     icon={<RightOutlined />}
