@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  BoxPlotOutlined,
   CloseOutlined,
-  PercentageOutlined,
   PlusOutlined,
   RightOutlined,
-  RiseOutlined,
 } from '@ant-design/icons';
-import { Button, Input, message, Modal, Spin } from 'antd';
+import { Button, message, Modal, Spin } from 'antd';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useSearchParams } from 'react-router-dom';
 import ConditionModal from './ConditionModal';
+import DiscountReward from './rewards/DiscountReward';
+import CashbackReward from './rewards/CashbackReward';
+import PointsReward from './rewards/PointsReward';
+import PromocodeReward from './rewards/PromocodeReward';
 import useSWR from 'swr';
 import {
   getMarketingConditionsById,
@@ -19,26 +20,21 @@ import {
   deleteMarketingCondition,
   MarketingCampaignConditionType,
   CreateMarketingCampaignConditionDto,
-  updateMarketingCampaigns,
-  MarketingCampaignUpdateDto,
+  updateMarketingCampaignAction,
+  createPromocode,
+  PromocodeType,
+  getMarketingCampaignById,
+  Weekday,
 } from '@/services/api/marketing';
 import dayjs from 'dayjs';
 import { useToast } from '@/components/context/useContext';
-
-enum CardType {
-  percent = 'percent',
-  graph = 'graph',
-  diamond = 'diamond',
-}
 
 const Terms: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [percentage, setPercentage] = useState<number>(0);
-  const [cashback, setCashback] = useState<number>(0);
-  const [points, setPoints] = useState<number>(0);
-  const [card, setCard] = useState<CardType>(CardType.percent);
+  const [rewardValue, setRewardValue] = useState<number>(0);
+  const [discountType, setDiscountType] = useState<'PERCENTAGE' | 'FIXED_AMOUNT'>('PERCENTAGE');
   const [currentCondition, setCurrentCondition] = useState<{
     type?: MarketingCampaignConditionType;
     value?: any;
@@ -49,6 +45,58 @@ const Terms: React.FC = () => {
   const { showToast } = useToast();
 
   const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
+
+  const {
+    data: marketingCampaign,
+  } = useSWR(
+    marketingCampaignId
+      ? [`get-marketing-campaign-by-id`, marketingCampaignId]
+      : null,
+    () => getMarketingCampaignById(marketingCampaignId),
+    {
+      revalidateOnFocus: false,
+    }
+  );
+
+  const actionType = marketingCampaign?.actionType;
+
+  useEffect(() => {
+    if (marketingCampaign && actionType) {
+      const payload = marketingCampaign.actionPayload;
+
+      if (actionType === 'DISCOUNT') {
+        if (payload?.discountValue !== undefined) {
+          setRewardValue(payload.discountValue);
+        } else if (marketingCampaign.discountValue) {
+          setRewardValue(marketingCampaign.discountValue);
+        }
+        if (payload?.discountType) {
+          setDiscountType(payload.discountType as 'PERCENTAGE' | 'FIXED_AMOUNT');
+        } else if (marketingCampaign.discountType) {
+          setDiscountType(marketingCampaign.discountType as 'PERCENTAGE' | 'FIXED_AMOUNT');
+        }
+      } else if (actionType === 'CASHBACK_BOOST') {
+        if (payload?.percentage !== undefined) {
+          setRewardValue(payload.percentage);
+          setDiscountType('PERCENTAGE');
+        } else if (payload?.multiplier !== undefined) {
+          setRewardValue(payload.multiplier);
+          setDiscountType('FIXED_AMOUNT');
+        } else if (marketingCampaign.discountValue) {
+          setRewardValue(marketingCampaign.discountValue);
+          if (marketingCampaign.discountType) {
+            setDiscountType(marketingCampaign.discountType as 'PERCENTAGE' | 'FIXED_AMOUNT');
+          }
+        }
+      } else if (actionType === 'GIFT_POINTS') {
+        if (payload?.points !== undefined) {
+          setRewardValue(payload.points);
+        } else if (marketingCampaign.discountValue) {
+          setRewardValue(marketingCampaign.discountValue);
+        }
+      }
+    }
+  }, [marketingCampaign, actionType]);
 
   const {
     data: marketingConditions,
@@ -65,50 +113,79 @@ const Terms: React.FC = () => {
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
 
-  const handleApply = async () => {
+  const handleApply = async (condition?: { type?: MarketingCampaignConditionType; value?: any }) => {
     setLoadingCondition(true);
-    if (!currentCondition.type) {
+    const conditionToUse = condition || currentCondition;
+
+    if (!conditionToUse.type) {
       message.warning(t('validation.conditionTypeRequired'));
+      setLoadingCondition(false);
       return;
     }
 
-    const payload: CreateMarketingCampaignConditionDto = {
-      type: currentCondition.type,
-    };
-
-    switch (currentCondition.type) {
-      case MarketingCampaignConditionType.TIME_RANGE:
-        payload.startTime = currentCondition.value?.start;
-        payload.endTime = currentCondition.value?.end;
-        break;
-
-      case MarketingCampaignConditionType.WEEKDAY:
-        payload.weekdays = currentCondition.value;
-        break;
-
-      case MarketingCampaignConditionType.VISIT_COUNT:
-        payload.visitCount = Number(currentCondition.value);
-        break;
-
-      case MarketingCampaignConditionType.PURCHASE_AMOUNT:
-        if (typeof currentCondition.value === 'object') {
-          payload.minAmount = currentCondition.value.minAmount;
-          payload.maxAmount = currentCondition.value.maxAmount;
-        } else {
-          payload.minAmount = Number(currentCondition.value);
-        }
-        break;
-
-      case MarketingCampaignConditionType.PROMOCODE_ENTRY:
-        payload.promocodeId = Number(currentCondition.value);
-        break;
-
-      case MarketingCampaignConditionType.EVENT:
-        payload.benefitId = Number(currentCondition.value);
-        break;
-    }
-
     try {
+      let promocodeId: number | undefined;
+
+      if (conditionToUse.type === MarketingCampaignConditionType.PROMOCODE_ENTRY) {
+        const promocodeData = conditionToUse.value;
+
+        if (!promocodeData?.code || !promocodeData?.discountValue || !promocodeData?.maxUsagePerUser) {
+          message.warning(t('validation.promocodeFieldsRequired') || 'Please fill all promocode fields');
+          setLoadingCondition(false);
+          return;
+        }
+
+        const promocodeResponse = await createPromocode({
+          campaignId: marketingCampaignId,
+          code: promocodeData.code,
+          promocodeType: PromocodeType.CAMPAIGN,
+          discountType: promocodeData.discountType,
+          discountValue: promocodeData.discountValue
+            ? Number(promocodeData.discountValue)
+            : undefined,
+          maxUsagePerUser: promocodeData.maxUsagePerUser
+            ? Number(promocodeData.maxUsagePerUser)
+            : undefined,
+        });
+
+        promocodeId = promocodeResponse.id;
+      }
+
+      const payload: CreateMarketingCampaignConditionDto = {
+        type: conditionToUse.type,
+      };
+
+      switch (conditionToUse.type) {
+        case MarketingCampaignConditionType.TIME_RANGE:
+          payload.startTime = conditionToUse.value?.start;
+          payload.endTime = conditionToUse.value?.end;
+          break;
+
+        case MarketingCampaignConditionType.WEEKDAY:
+          payload.weekdays = conditionToUse.value;
+          break;
+
+        case MarketingCampaignConditionType.VISIT_COUNT:
+          payload.visitCount = Number(conditionToUse.value);
+          break;
+
+        case MarketingCampaignConditionType.PURCHASE_AMOUNT:
+          if (typeof conditionToUse.value === 'object') {
+            payload.minAmount = conditionToUse.value.minAmount;
+            payload.maxAmount = conditionToUse.value.maxAmount;
+          } else {
+            payload.minAmount = Number(conditionToUse.value);
+          }
+          break;
+
+        case MarketingCampaignConditionType.PROMOCODE_ENTRY:
+          payload.promocodeId = promocodeId;
+          break;
+
+        case MarketingCampaignConditionType.BIRTHDAY:
+          break;
+      }
+
       await createNewMarketingConditions(payload, marketingCampaignId);
       message.success(t('marketingCampaigns.conditionAdded'));
       setCurrentCondition({});
@@ -122,8 +199,7 @@ const Terms: React.FC = () => {
     }
   };
 
-  // ✅ Delete condition
-  const handleDelete = async (conditionId: number) => {
+  const handleDelete = async (conditionId: number, index: number) => {
     modal.confirm({
       title: t('common.title'),
       content: t('common.content'),
@@ -132,7 +208,7 @@ const Terms: React.FC = () => {
       cancelText: t('common.cancel'),
       async onOk() {
         try {
-          await deleteMarketingCondition(conditionId);
+          await deleteMarketingCondition(conditionId, index);
           showToast(t('success.recordDeleted'), 'success');
           refreshConditions();
         } catch (err) {
@@ -146,7 +222,7 @@ const Terms: React.FC = () => {
     });
   };
 
-  const conditionTypes = [
+  const allConditionTypes = [
     {
       label: t('marketingCampaigns.timePeriod'),
       value: MarketingCampaignConditionType.TIME_RANGE,
@@ -168,10 +244,17 @@ const Terms: React.FC = () => {
       value: MarketingCampaignConditionType.PROMOCODE_ENTRY,
     },
     {
-      label: t('marketingCampaigns.event'),
-      value: MarketingCampaignConditionType.EVENT,
+      label: t('marketing.birth'),
+      value: MarketingCampaignConditionType.BIRTHDAY,
     },
   ];
+
+  const conditionTypes =
+    actionType === 'PROMOCODE_ISSUE'
+      ? allConditionTypes.filter(
+        type => type.value === MarketingCampaignConditionType.PROMOCODE_ENTRY
+      )
+      : allConditionTypes.filter(type => type.value !== MarketingCampaignConditionType.PROMOCODE_ENTRY);
 
   return (
     <div className="flex flex-col space-y-6 sm:space-y-8 lg:space-y-10 bg-background02 p-6 rounded-lg">
@@ -183,6 +266,7 @@ const Terms: React.FC = () => {
         currentCondition={currentCondition}
         setCurrentCondition={setCurrentCondition}
         loading={loadingCondition}
+        allowedConditionTypes={conditionTypes}
       />
 
       {isLoading ? (
@@ -203,17 +287,30 @@ const Terms: React.FC = () => {
                   case MarketingCampaignConditionType.TIME_RANGE:
                     valueDisplay = `${dayjs(cond.startTime).format('HH:mm')} - ${dayjs(cond.endTime).format('HH:mm')}`;
                     break;
-                  case MarketingCampaignConditionType.WEEKDAY:
-                    valueDisplay = cond.weekdays?.join(', ') ?? '';
+                  case MarketingCampaignConditionType.WEEKDAY: {
+                    const weekdayTranslations: Record<Weekday, string> = {
+                      [Weekday.MONDAY]: t('common.monday'),
+                      [Weekday.TUESDAY]: t('common.tuesday'),
+                      [Weekday.WEDNESDAY]: t('common.wednesday'),
+                      [Weekday.THURSDAY]: t('common.thursday'),
+                      [Weekday.FRIDAY]: t('common.friday'),
+                      [Weekday.SATURDAY]: t('common.saturday'),
+                      [Weekday.SUNDAY]: t('common.sunday'),
+                    };
+                    valueDisplay = cond.weekdays?.map(day => weekdayTranslations[day as Weekday] || day).join(', ') ?? '';
                     break;
+                  }
                   case MarketingCampaignConditionType.VISIT_COUNT:
                     valueDisplay = `${cond.visitCount}`;
                     break;
                   case MarketingCampaignConditionType.PURCHASE_AMOUNT:
-                    valueDisplay = `${cond.minAmount} - ${cond.maxAmount}`;
+                    valueDisplay = `${cond.minAmount}`;
                     break;
                   case MarketingCampaignConditionType.PROMOCODE_ENTRY:
                     valueDisplay = cond.promocode?.code ?? '';
+                    break;
+                  case MarketingCampaignConditionType.BIRTHDAY:
+                    valueDisplay = t('marketing.birth');
                     break;
                   default:
                     valueDisplay = '';
@@ -227,7 +324,7 @@ const Terms: React.FC = () => {
                         type="text"
                         icon={<CloseOutlined />}
                         className="!absolute top-1 right-1 text-text02 hover:text-primary02"
-                        onClick={() => handleDelete(cond.id)}
+                        onClick={() => handleDelete(cond.id, index)}
                       />
 
                       <div className="flex flex-col items-center justify-center text-center px-2">
@@ -268,173 +365,120 @@ const Terms: React.FC = () => {
       )}
 
       {/* --------- Reward Cards Section --------- */}
-      <div className="flex flex-wrap gap-4 mt-5 items-start">
-        {/* Discount */}
-        <div className="flex flex-col items-center min-h-[150px]">
-          <div className="h-[48px] flex items-center justify-center">
-            {card === CardType.percent && (
-              <div className="flex items-center space-x-3">
-                <div className="text-text01">
-                  {t('marketingCampaigns.discount')}
-                </div>
-                <Input
-                  type="number"
-                  className="w-28"
-                  value={percentage}
-                  suffix={<div>%</div>}
-                  onChange={e => setPercentage(Number(e.target.value))}
-                />
-              </div>
-            )}
-          </div>
+      {actionType && (
+        <div className="flex flex-wrap gap-4 mt-5 items-start">
+          {actionType === 'DISCOUNT' && (
+            <DiscountReward
+              rewardValue={rewardValue}
+              discountType={discountType}
+              onValueChange={setRewardValue}
+              onTypeChange={setDiscountType}
+            />
+          )}
 
-          <div
-            onClick={() => setCard(CardType.percent)}
-            className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${card === CardType.percent
-              ? 'bg-white border-primary02'
-              : 'bg-opacity02'
-              } rounded-2xl transition-all duration-200 hover:shadow-md`}
-          >
-            <div
-              className={`flex justify-center items-center ${card === CardType.percent ? 'text-primary02' : 'text-text01'
-                }`}
-            >
-              <PercentageOutlined className="font-semibold text-primary02" />
-              <div className="ml-2 font-semibold text-base">
-                {t('marketing.discount')}
-              </div>
-            </div>
-            <div className="px-4 text-sm text-text02 font-normal">
-              {t('marketingCampaigns.give')}
-            </div>
-          </div>
+          {actionType === 'CASHBACK_BOOST' && (
+            <CashbackReward
+              rewardValue={rewardValue}
+              discountType={discountType}
+              onValueChange={setRewardValue}
+              onTypeChange={setDiscountType}
+            />
+          )}
+
+          {actionType === 'GIFT_POINTS' && (
+            <PointsReward
+              rewardValue={rewardValue}
+              onValueChange={setRewardValue}
+            />
+          )}
+
+          {actionType === 'PROMOCODE_ISSUE' && (
+            <PromocodeReward
+              marketingCampaign={marketingCampaign}
+              marketingConditions={marketingConditions}
+            />
+          )}
         </div>
+      )}
 
-        {/* Cashback */}
-        <div className="flex flex-col items-center min-h-[150px]">
-          <div className="h-[48px] flex items-center justify-center">
-            {card === CardType.graph && (
-              <div className="flex items-center space-x-3">
-                <div className="text-text01">
-                  {t('marketingCampaigns.cashbackForPromotionPeriod')}
-                </div>
-                <Input
-                  type="number"
-                  className="w-28"
-                  value={cashback}
-                  onChange={e => setCashback(Number(e.target.value))}
-                />
-              </div>
-            )}
-          </div>
+      {actionType && actionType !== 'PROMOCODE_ISSUE' && (
+        <div className="flex justify-end gap-2 mt-3">
+          <Button
+            type="primary"
+            icon={<RightOutlined />}
+            iconPosition="end"
+            loading={updatingData}
+            disabled={
+              !rewardValue ||
+              rewardValue <= 0 ||
+              (actionType === 'CASHBACK_BOOST' &&
+                discountType === 'PERCENTAGE' &&
+                (rewardValue < 0 || rewardValue > 100))
+            }
+            onClick={async () => {
+              if (!marketingCampaignId) return;
 
-          <div
-            onClick={() => setCard(CardType.graph)}
-            className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${card === CardType.graph
-              ? 'bg-white border-primary02'
-              : 'bg-opacity02'
-              } rounded-2xl transition-all duration-200 hover:shadow-md`}
-          >
-            <div
-              className={`flex justify-center items-center ${card === CardType.graph ? 'text-primary02' : 'text-text01'
-                }`}
-            >
-              <RiseOutlined className="font-semibold text-primary02" />
-              <div className="ml-2 font-semibold text-base">
-                {t('marketingCampaigns.increased')}
-              </div>
-            </div>
-            <div className="px-4 text-sm text-text02 font-normal">
-              {t('marketingCampaigns.increase')}
-            </div>
-          </div>
-        </div>
-
-        {/* Points */}
-        <div className="flex flex-col items-center min-h-[150px]">
-          <div className="h-[48px] flex items-center justify-center">
-            {card === CardType.diamond && (
-              <div className="flex items-center space-x-3">
-                <div className="text-text01">{t('marketing.accrue')}</div>
-                <Input
-                  type="number"
-                  className="w-28"
-                  value={points}
-                  suffix={
-                    <div className="text-text02">
-                      {t('loyaltyRequests.points')}
-                    </div>
-                  }
-                  onChange={e => setPoints(Number(e.target.value))}
-                />
-              </div>
-            )}
-          </div>
-
-          <div
-            onClick={() => setCard(CardType.diamond)}
-            className={`w-full sm:w-64 h-24 flex flex-col justify-center text-center cursor-pointer border-[0.5px] ${card === CardType.diamond
-              ? 'bg-white border-primary02'
-              : 'bg-opacity02'
-              } rounded-2xl transition-all duration-200 hover:shadow-md`}
-          >
-            <div
-              className={`flex justify-center items-center ${card === CardType.diamond ? 'text-primary02' : 'text-text01'
-                }`}
-            >
-              <BoxPlotOutlined className="font-semibold text-primary02" />
-              <div className="ml-2 font-semibold text-base">
-                {t('marketingCampaigns.accrual')}
-              </div>
-            </div>
-            <div className="px-4 text-sm text-text02 font-normal">
-              {t('marketingCampaigns.award')}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex justify-end gap-2 mt-3">
-        <Button
-          type="primary"
-          icon={<RightOutlined />}
-          iconPosition="end"
-          loading={updatingData}
-          onClick={async () => {
-            if (!marketingCampaignId) return;
-
-            try {
-              setUpdatingData(true);
-
-              const payload: MarketingCampaignUpdateDto = {};
-
-              if (card === CardType.percent) {
-                payload.discountType = 'PERCENTAGE';
-                payload.discountValue = percentage;
-              } else if (card === CardType.graph) {
-                payload.discountType = 'FIXED';
-                payload.discountValue = cashback;
-              } else if (card === CardType.diamond) {
-                payload.discountType = 'FIXED';
-                payload.discountValue = points;
+              if (!rewardValue || rewardValue <= 0) {
+                message.warning(t('validation.rewardValueRequired') || 'Please enter a reward value');
+                return;
               }
 
-              await updateMarketingCampaigns(payload, marketingCampaignId);
+              // Validate CASHBACK_BOOST percentage range
+              if (actionType === 'CASHBACK_BOOST' && discountType === 'PERCENTAGE') {
+                if (rewardValue < 0 || rewardValue > 100) {
+                  message.warning(t('validation.percentageRange') || 'Percentage must be between 0 and 100');
+                  return;
+                }
+              }
 
-              message.success(t('marketingCampaigns.rewardUpdated'));
+              try {
+                setUpdatingData(true);
 
-              updateSearchParams(searchParams, setSearchParams, { step: 3 });
-            } catch (error) {
-              console.error(error);
-              message.error(t('common.somethingWentWrong'));
-            } finally {
-              setUpdatingData(false);
-            }
-          }}
-        >
-          {t('common.next')}
-        </Button>
-      </div>
+                let payload: any = {};
+
+                if (actionType === 'DISCOUNT') {
+                  payload = {
+                    discountType,
+                    discountValue: rewardValue,
+                  };
+                } else if (actionType === 'CASHBACK_BOOST') {
+                  // For CASHBACK_BOOST, use percentage if PERCENTAGE, otherwise use multiplier
+                  if (discountType === 'PERCENTAGE') {
+                    payload = {
+                      percentage: rewardValue,
+                    };
+                  } else {
+                    // For fixed amount, use multiplier
+                    payload = {
+                      multiplier: rewardValue,
+                    };
+                  }
+                } else if (actionType === 'GIFT_POINTS') {
+                  payload = {
+                    points: Math.floor(rewardValue), // Ensure it's an integer
+                  };
+                }
+
+                await updateMarketingCampaignAction(marketingCampaignId, {
+                  actionType,
+                  payload,
+                });
+
+                message.success(t('marketingCampaigns.rewardUpdated'));
+
+                updateSearchParams(searchParams, setSearchParams, { step: 3 });
+              } catch (error) {
+                console.error(error);
+                message.error(t('common.somethingWentWrong'));
+              } finally {
+                setUpdatingData(false);
+              }
+            }}
+          >
+            {t('common.next')}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

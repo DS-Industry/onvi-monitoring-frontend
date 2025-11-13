@@ -684,6 +684,10 @@
     "hubRequestSubmitted": "Hub request submitted successfully",
     "per": "Percent",
     "fix": "Fixed",
+    "promoCode": "Promo Code",
+    "discountType": "Discount Type",
+    "discountValue": "Discount Value",
+    "maxUsagePerUser": "Max Usage Per User",
     "enterBon": "Enter bonus amount",
     "enterPer": "Enter bonus percentage",
     "setUp": "Set up events to award additional bonuses and discounts to the client.",
@@ -1934,9 +1938,11 @@
     "discountDescription": "Possibility of providing a discount to the client",
     "promocode": "Promo Code",
     "promocodeDescription": "Possibility of creating and issuing promo codes (ONVI and participants)",
+    "noPromocodeLinked": "No promocode linked to this campaign",
     "points": "Points",
     "pointsDescription": "Possibility of accruing points to the client (ONVI)",
     "cashback": "Cashback",
-    "cashbackDescription": "Possibility of providing cashback to the client"
+    "cashbackDescription": "Possibility of providing cashback to the client",
+    "birthdayNoValueNeeded": "For the 'Birthday' trigger type, no value is needed"
   }
 }

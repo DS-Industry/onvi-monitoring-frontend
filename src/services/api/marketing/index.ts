@@ -837,6 +837,15 @@ export type MarketingCampaignResponse = {
   createdAt: string;
   updatedAt: string;
   executionType?: CampaignExecutionType;
+  actionType?: ACTION_TYPE;
+  actionPayload?: Record<string, any>;
+  actionPromocode?: {
+    code: string;
+    discountType: string;
+    discountValue: number;
+    id: number;
+    maxUsagePerUser: number;
+  }
   createdBy: {
     id: number;
     name: string;
@@ -1475,7 +1484,7 @@ export async function createNewMarketingCampaign(
 export enum MarketingCampaignConditionType {
   TIME_RANGE = 'TIME_RANGE',
   WEEKDAY = 'WEEKDAY',
-  EVENT = 'EVENT',
+  BIRTHDAY = 'BIRTHDAY',
   VISIT_COUNT = 'VISIT_COUNT',
   PURCHASE_AMOUNT = 'PURCHASE_AMOUNT',
   PROMOCODE_ENTRY = 'PROMOCODE_ENTRY',
@@ -1491,7 +1500,7 @@ export enum Weekday {
   SUNDAY = 'SUNDAY',
 }
 
-type MarketingCampaignConditionResponseDto = {
+export type MarketingCampaignConditionResponseDto = {
   id: number;
   type: MarketingCampaignConditionType;
   order: number;
@@ -1513,7 +1522,7 @@ type MarketingCampaignConditionResponseDto = {
   };
 };
 
-type MarketingCampaignConditionsResponseDto = {
+export type MarketingCampaignConditionsResponseDto = {
   campaignId: number;
   conditions: MarketingCampaignConditionResponseDto[];
 };
@@ -1536,7 +1545,6 @@ export type CreateMarketingCampaignConditionDto = {
   minAmount?: number;
   maxAmount?: number;
   promocodeId?: number;
-  benefitId?: number;
 };
 
 export async function createNewMarketingConditions(
@@ -1552,10 +1560,11 @@ export async function createNewMarketingConditions(
 }
 
 export async function deleteMarketingCondition(
-  id: number
+  id: number,
+  index: number
 ): Promise<{ message: string }> {
   const response: AxiosResponse<{ message: string }> = await api.delete(
-    `user/loyalty/marketing-campaigns/conditions/${id}`
+    `user/loyalty/marketing-campaigns/${id}/conditions/${index}`
   );
   return response.data;
 }
@@ -1628,9 +1637,15 @@ export async function upsertMarketingCampaignMobileDisplay(
   return response.data;
 }
 
+export type ACTION_TYPE =
+  | 'DISCOUNT'
+  | 'CASHBACK_BOOST'
+  | 'GIFT_POINTS'
+  | 'PROMOCODE_ISSUE';
+
 export type CreateMarketingCampaignActionDto = {
   campaignId: number;
-  actionType: string;
+  actionType: ACTION_TYPE;
 };
 
 export async function createMarketingCampaignAction(
@@ -1638,6 +1653,75 @@ export async function createMarketingCampaignAction(
 ): Promise<void> {
   const response: AxiosResponse<void> = await api.post(
     'user/loyalty/marketing-campaign/action/create',
+    request
+  );
+  return response.data;
+}
+
+export type UpdateMarketingCampaignActionDto = {
+  actionType?: ACTION_TYPE;
+  payload?: any;
+};
+
+export async function updateMarketingCampaignAction(
+  campaignId: number,
+  request: UpdateMarketingCampaignActionDto
+): Promise<void> {
+  const response: AxiosResponse<void> = await api.put(
+    `user/loyalty/marketing-campaign/action/update/${campaignId}`,
+    request
+  );
+  return response.data;
+}
+
+export enum PromocodeType {
+  CAMPAIGN = 'CAMPAIGN',
+  PERSONAL = 'PERSONAL',
+  STANDALONE = 'STANDALONE',
+}
+
+export enum PromocodeDiscountType {
+  PERCENTAGE = 'PERCENTAGE',
+  FIXED_AMOUNT = 'FIXED_AMOUNT',
+  FREE_SERVICE = 'FREE_SERVICE',
+}
+
+export type CreatePromocodeDto = {
+  campaignId?: number;
+  code: string;
+  promocodeType: PromocodeType;
+  personalUserId?: number;
+  discountType?: PromocodeDiscountType;
+  discountValue?: number;
+  minOrderAmount?: number;
+  maxDiscountAmount?: number;
+  maxUsage?: number;
+  maxUsagePerUser?: number;
+  validFrom?: string;
+  validUntil?: string;
+  isActive?: boolean;
+  createdReason?: string;
+  usageRestrictions?: any;
+  organizationId?: number;
+  posId?: number;
+  placementId?: number;
+};
+
+export type PromocodeResponse = {
+  id: number;
+  code: string;
+  promocodeType: PromocodeType;
+  discountType?: PromocodeDiscountType;
+  discountValue?: number;
+  maxUsagePerUser?: number;
+  [key: string]: any;
+};
+
+export async function createPromocode(
+  request: CreatePromocodeDto
+): Promise<PromocodeResponse> {
+  const response: AxiosResponse<PromocodeResponse> = await api.post(
+    'user/loyalty/promocode',
     request
   );
   return response.data;

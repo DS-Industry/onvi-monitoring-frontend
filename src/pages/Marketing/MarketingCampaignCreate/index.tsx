@@ -63,7 +63,7 @@ const MarketingCampaignCreate: React.FC = () => {
       icon: <SettingOutlined />,
     },
     {
-      title: t('marketingCampaigns.executionType') || 'Execution Type',
+      title: t('marketingCampaigns.executionType'),
       content: <ExecutionType />,
       icon: <ThunderboltOutlined />,
     },

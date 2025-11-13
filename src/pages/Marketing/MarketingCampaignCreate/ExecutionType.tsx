@@ -12,7 +12,9 @@ import {
     CampaignExecutionType,
     getMarketingCampaignById,
     createMarketingCampaignAction,
+    ACTION_TYPE,
 } from '@/services/api/marketing';
+import ActionTypeCard from './ActionTypeCard';
 
 interface ExecutionTypeProps {
     isEditable?: boolean;
@@ -25,7 +27,7 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
     const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
     const [executionType, setExecutionType] = useState<CampaignExecutionType | null>(null);
     const [updating, setUpdating] = useState(false);
-    const [actionType, setActionType] = useState<string | null>(null);
+    const [actionType, setActionType] = useState<ACTION_TYPE | null>(null);
 
     const {
         data: marketingCampaign,
@@ -45,28 +47,25 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
         if (marketingCampaign?.executionType) {
             setExecutionType(marketingCampaign.executionType as CampaignExecutionType);
         }
-    }, [marketingCampaign]);
 
-    useEffect(() => {
-        const promoTypeFromParams = searchParams.get('promoType');
-        if (promoTypeFromParams) {
-            setActionType(promoTypeFromParams);
+        if (marketingCampaign?.actionType) {
+            setActionType(marketingCampaign.actionType as ACTION_TYPE);
         }
-    }, [searchParams]);
+    }, [marketingCampaign]);
 
     const handleNext = async () => {
         if (!marketingCampaignId) {
-            showToast(t('errors.other.errorDuringFormSubmission') || 'Campaign ID is required', 'error');
+            showToast(t('errors.other.errorDuringFormSubmission'), 'error');
             return;
         }
 
         if (!executionType) {
-            message.warning(t('validation.executionTypeRequired') || 'Please select an execution type');
+            message.warning(t('validation.executionTypeRequired'));
             return;
         }
 
         if (!actionType) {
-            message.warning(t('validation.actionTypeRequired') || 'Please select a promo type');
+            message.warning(t('validation.actionTypeRequired'));
             return;
         }
 
@@ -78,12 +77,14 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
 
             await updateMarketingCampaigns(payload, marketingCampaignId);
 
+
             await createMarketingCampaignAction({
                 campaignId: marketingCampaignId,
                 actionType: actionType,
             });
 
-            showToast(t('marketing.loyaltyCreated') || 'Execution type updated successfully', 'success');
+
+            showToast(t('marketing.loyaltyCreated'), 'success');
 
             updateSearchParams(searchParams, setSearchParams, {
                 step: 3,
@@ -131,11 +132,14 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
                             hoverable
                             onClick={() => {
                                 if (isEditable) {
+                                    if (executionType !== CampaignExecutionType.TRANSACTIONAL) {
+                                        setActionType(null)
+                                    }
                                     setExecutionType(CampaignExecutionType.TRANSACTIONAL);
                                 }
                             }}
                             className={`cursor-pointer transition-all ${executionType === CampaignExecutionType.TRANSACTIONAL
-                                ? 'border-primary02 border-2 shadow-md'
+                                ? 'border-primary02 border-2 shadow-md bg-[#F5FBFF]'
                                 : 'border-gray-200'
                                 }`}
                             style={{
@@ -162,11 +166,14 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
                             hoverable
                             onClick={() => {
                                 if (isEditable) {
+                                    if (executionType !== CampaignExecutionType.BEHAVIORAL) {
+                                        setActionType(null)
+                                    }
                                     setExecutionType(CampaignExecutionType.BEHAVIORAL);
                                 }
                             }}
                             className={`cursor-pointer transition-all ${executionType === CampaignExecutionType.BEHAVIORAL
-                                ? 'border-primary02 border-2 shadow-md'
+                                ? 'border-primary02 border-2 shadow-md bg-[#F5FBFF]'
                                 : 'border-gray-200'
                                 }`}
                             style={{
@@ -197,136 +204,53 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <Card
-                            hoverable
-                            onClick={() => {
-                                if (isEditable) {
-                                    setActionType('discount');
-                                    updateSearchParams(searchParams, setSearchParams, {
-                                        promoType: 'discount',
-                                    });
-                                }
-                            }}
-                            className={`cursor-pointer transition-all ${actionType === 'discount'
-                                ? 'border-primary02 border-2 shadow-md'
-                                : 'border-gray-200'
-                                }`}
-                            style={{
-                                borderRadius: 12,
-                                minHeight: 100,
-                            }}
-                        >
-                            <div>
-                                <div className="flex justify-center w-full">
-                                    <div className="flex items-center space-x-3">
-                                        <PercentageOutlined style={{ fontSize: 24, color: '#0B68E1' }} />
-                                        <div className="font-semibold text-[#0B68E1] text-lg">
-                                            {t('marketingCampaigns.discount')}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="text-base03 text-sm mt-4 text-center">
-                                    {t('marketingCampaigns.discountDescription')}
-                                </div>
-                            </div>
-                        </Card>
+                        <ActionTypeCard
+                            actionType="DISCOUNT"
+                            icon={PercentageOutlined}
+                            titleKey="marketingCampaigns.discount"
+                            descriptionKey="marketingCampaigns.discountDescription"
+                            requiredExecutionType={CampaignExecutionType.TRANSACTIONAL}
+                            selectedActionType={actionType}
+                            executionType={executionType}
+                            isEditable={isEditable}
+                            onSelect={setActionType}
+                        />
 
-                        <Card
-                            hoverable
-                            onClick={() => {
-                                if (isEditable) {
-                                    setActionType('promocode');
-                                    updateSearchParams(searchParams, setSearchParams, {
-                                        promoType: 'promocode',
-                                    });
-                                }
-                            }}
-                            className={`cursor-pointer transition-all ${actionType === 'promocode'
-                                ? 'border-primary02 border-2 shadow-md'
-                                : 'border-gray-200'
-                                }`}
-                            style={{
-                                borderRadius: 12,
-                                minHeight: 100,
-                            }}
-                        >
-                            <div className="flex justify-center w-full">
-                                <div className="flex items-center space-x-3">
-                                    <GiftOutlined style={{ fontSize: 24, color: '#0B68E1' }} />
-                                    <div className="font-semibold text-[#0B68E1] text-lg">
-                                        {t('marketingCampaigns.promocode')}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="text-base03 text-sm mt-4 text-center">
-                                {t('marketingCampaigns.promocodeDescription')}
-                            </div>
+                        <ActionTypeCard
+                            actionType="PROMOCODE_ISSUE"
+                            icon={GiftOutlined}
+                            titleKey="marketingCampaigns.promocode"
+                            descriptionKey="marketingCampaigns.promocodeDescription"
+                            requiredExecutionType={CampaignExecutionType.TRANSACTIONAL}
+                            selectedActionType={actionType}
+                            executionType={executionType}
+                            isEditable={isEditable}
+                            onSelect={setActionType}
+                        />
 
-                        </Card>
+                        <ActionTypeCard
+                            actionType="CASHBACK_BOOST"
+                            icon={BankOutlined}
+                            titleKey="marketingCampaigns.cashback"
+                            descriptionKey="marketingCampaigns.cashbackDescription"
+                            requiredExecutionType={CampaignExecutionType.BEHAVIORAL}
+                            selectedActionType={actionType}
+                            executionType={executionType}
+                            isEditable={isEditable}
+                            onSelect={setActionType}
+                        />
 
-                        <Card
-                            hoverable
-                            onClick={() => {
-                                if (isEditable) {
-                                    setActionType('cashback');
-                                    updateSearchParams(searchParams, setSearchParams, {
-                                        promoType: 'cashback',
-                                    });
-                                }
-                            }}
-                            className={`cursor-pointer transition-all ${actionType === 'cashback'
-                                ? 'border-primary02 border-2 shadow-md'
-                                : 'border-gray-200'
-                                }`}
-                            style={{
-                                borderRadius: 12,
-                                minHeight: 140,
-                            }}
-                        >
-                            <div className="flex justify-center w-full">
-                                <div className="flex items-center space-x-3">
-                                    <BankOutlined style={{ fontSize: 24, color: '#0B68E1' }} />
-                                    <div className="font-semibold text-[#0B68E1] text-lg">
-                                        {t('marketingCampaigns.cashback')}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="text-base03 text-sm mt-4 text-center">
-                                {t('marketingCampaigns.cashbackDescription')}
-                            </div>
-                        </Card>
-
-                        <Card
-                            hoverable
-                            onClick={() => {
-                                if (isEditable) {
-                                    setActionType('points');
-                                    updateSearchParams(searchParams, setSearchParams, {
-                                        promoType: 'points',
-                                    });
-                                }
-                            }}
-                            className={`cursor-pointer transition-all ${actionType === 'points'
-                                ? 'border-primary02 border-2 shadow-md'
-                                : 'border-gray-200'
-                                }`}
-                            style={{
-                                borderRadius: 12,
-                                minHeight: 140,
-                            }}
-                        >
-                            <div className="flex justify-center w-full">
-                                <div className="flex items-center space-x-3">
-                                    <DollarOutlined style={{ fontSize: 24, color: '#0B68E1' }} />
-                                    <div className="font-semibold text-[#0B68E1] text-lg">
-                                        {t('marketingCampaigns.points')}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="text-base03 text-sm mt-4 text-center">
-                                {t('marketingCampaigns.pointsDescription')}
-                            </div>
-                        </Card>
+                        <ActionTypeCard
+                            actionType="GIFT_POINTS"
+                            icon={DollarOutlined}
+                            titleKey="marketingCampaigns.points"
+                            descriptionKey="marketingCampaigns.pointsDescription"
+                            requiredExecutionType={CampaignExecutionType.BEHAVIORAL}
+                            selectedActionType={actionType}
+                            executionType={executionType}
+                            isEditable={isEditable}
+                            onSelect={setActionType}
+                        />
                     </div>
                 </div>
 
