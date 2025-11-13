@@ -172,7 +172,7 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
       await upsertMarketingCampaignMobileDisplay(marketingCampaignId, request);
 
       updateSearchParams(searchParams, setSearchParams, {
-        step: 5,
+        step: 6,
       });
       showToast(t('marketing.loyaltyCreated'), 'success');
     } catch (error) {

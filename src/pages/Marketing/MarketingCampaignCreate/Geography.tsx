@@ -10,6 +10,7 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import ParticipantsMap from '@/components/ui/ParticipantsMap';
 import GeographyList from './GeographyList';
 import { useUser } from '@/hooks/useUserStore';
+import { MarketingCampaignStatus } from '@/utils/constants';
 
 const Geography: React.FC = () => {
   const { t } = useTranslation();
@@ -118,10 +119,10 @@ const Geography: React.FC = () => {
       const updateRequest: UpdateMarketingCampaignRequest = {
         posIds: selectedPosIds,
         ltyProgramParticipantId: selectedProgram.props.participantId,
+        status: MarketingCampaignStatus.ACTIVE,
       };
 
       await triggerUpdate(updateRequest);
-      updateSearchParams(searchParams, setSearchParams, { step: 6 });
     } catch (error) {
       message.error(t('marketing.errorCampaign'));
     }

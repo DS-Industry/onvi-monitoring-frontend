@@ -2,7 +2,6 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { GiftOutlined } from '@ant-design/icons';
 import {
-    MarketingCampaignConditionType,
     type MarketingCampaignResponse,
     type MarketingCampaignConditionsResponseDto,
 } from '@/services/api/marketing';
@@ -14,16 +13,8 @@ interface PromocodeRewardProps {
 
 const PromocodeReward: React.FC<PromocodeRewardProps> = ({
     marketingCampaign,
-    marketingConditions,
 }) => {
     const { t } = useTranslation();
-
-    const campaignPromocode = marketingCampaign?.promocode;
-    const conditionPromocode = marketingConditions?.conditions?.find(
-        cond => cond.type === MarketingCampaignConditionType.PROMOCODE_ENTRY
-    )?.promocode?.code;
-
-    const promocodeCode = campaignPromocode || conditionPromocode;
 
     return (
         <div className="flex flex-col items-center min-h-[150px] w-full sm:w-64">
@@ -34,13 +25,13 @@ const PromocodeReward: React.FC<PromocodeRewardProps> = ({
                         {t('marketingCampaigns.promocode')}
                     </div>
                 </div>
-                {promocodeCode ? (
+                {marketingCampaign?.actionPromocode ? (
                     <div className="flex flex-col space-y-2 text-left">
                         <div className="text-sm">
                             <span className="font-semibold text-text01">
                                 {t('marketingCampaigns.promocode')}:{' '}
                             </span>
-                            <span className="text-text02">{promocodeCode}</span>
+                            <span className="text-text02">{marketingCampaign?.actionPromocode.code}</span>
                         </div>
                         {marketingCampaign?.actionPromocode && (
                             <>

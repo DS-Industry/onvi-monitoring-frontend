@@ -827,6 +827,7 @@ export type MarketingCampaignResponse = {
   description?: string;
   ltyProgramId?: number;
   ltyProgramName?: string;
+  ltyProgramHubPlus: boolean;
   discountType: string;
   discountValue: number;
   promocode?: string;
@@ -845,7 +846,8 @@ export type MarketingCampaignResponse = {
     discountValue: number;
     id: number;
     maxUsagePerUser: number;
-  }
+  };
+  activeDays?: number;
   createdBy: {
     id: number;
     name: string;
@@ -902,7 +904,9 @@ export type UpdateMarketingCampaignRequest = {
   discountValue?: number;
   promocode?: string;
   maxUsage?: number;
-  ltyProgramParticipantId: number;
+  ltyProgramParticipantId?: number;
+  status?: MarketingCampaignStatus;
+  activeDays?: number;
 };
 
 export async function createCorporateClient(

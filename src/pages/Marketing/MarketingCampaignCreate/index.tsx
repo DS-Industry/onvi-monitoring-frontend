@@ -7,16 +7,16 @@ import {
   CreditCardOutlined,
   CarOutlined,
   FireOutlined,
-  LineChartOutlined,
   ThunderboltOutlined,
+  CalendarOutlined,
 } from '@ant-design/icons';
 import BasicInformation from './BasicInformation';
 import Terms from './Terms';
 import ExecutionType from './ExecutionType';
+import RewardValidityPeriod from './RewardValidityPeriod';
 import Promotion from './Promotion';
 import Geography from './Geography';
 import { Steps } from 'antd';
-import Stats from './Stats';
 import BasicInformationUpdate from './update/BasicInformationUpdate';
 import { getMarketingCampaignById } from '@/services/api/marketing';
 import useSWR from 'swr';
@@ -48,6 +48,8 @@ const MarketingCampaignCreate: React.FC = () => {
     }
   );
 
+  const isHubPlus = marketingCampaign?.ltyProgramHubPlus;
+
   const steps = [
     {
       title: t('warehouse.basic'),
@@ -73,20 +75,24 @@ const MarketingCampaignCreate: React.FC = () => {
       icon: <CreditCardOutlined />,
     },
     {
-      title: t('marketingCampaigns.promotion'),
-      content: <Promotion />,
-      icon: <CarOutlined />,
+      title: t('marketingCampaigns.rewardValidityPeriod'),
+      content: <RewardValidityPeriod />,
+      icon: <CalendarOutlined />,
     },
+    ...(!isHubPlus
+      ? [
+        {
+          title: t('marketingCampaigns.promotion'),
+          content: <Promotion />,
+          icon: <CarOutlined />,
+        },
+      ]
+      : []),
     {
       title: t('marketingCampaigns.geography'),
       content: <Geography />,
       icon: <FireOutlined />,
-    },
-    {
-      title: t('marketingLoyalty.stats'),
-      content: <Stats />,
-      icon: <LineChartOutlined />,
-    },
+    }
   ];
 
   const handleStepClick = (stepIndex: number) => {

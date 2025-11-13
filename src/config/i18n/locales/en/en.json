@@ -1150,7 +1150,8 @@
     "thursday": "Thursday",
     "friday": "Friday",
     "saturday": "Saturday",
-    "sunday": "Sunday"
+    "sunday": "Sunday",
+    "skip": "Skip"
   },
   "analysis": {
     "search": "Search",
@@ -1943,6 +1944,15 @@
     "pointsDescription": "Possibility of accruing points to the client (ONVI)",
     "cashback": "Cashback",
     "cashbackDescription": "Possibility of providing cashback to the client",
-    "birthdayNoValueNeeded": "For the 'Birthday' trigger type, no value is needed"
+    "birthdayNoValueNeeded": "For the 'Birthday' trigger type, no value is needed",
+    "rewardValidityPeriod": "Reward validity period",
+    "rewardValidityPeriodDescription": "Setting the validity period for the received reward",
+    "numberOfDays": "Number of days",
+    "numberOfDaysDescription": "Specify how many days the bonus or discount will be active after fulfilling the conditions",
+    "enterNumberOfDays": "Enter number of days",
+    "indefiniteWindow": "Indefinite window",
+    "indefiniteWindowDescription": "Do not limit the bonus or discount by time",
+    "rewardValidityPeriodTip": "For example, if you specify 3 days — the client will be able to use the discount within three days after activation.",
+    "rewardValidityUpdated": "Reward validity period updated"
   }
 }

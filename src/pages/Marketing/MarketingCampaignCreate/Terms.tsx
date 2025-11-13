@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  CloseOutlined,
-  PlusOutlined,
-  RightOutlined,
-} from '@ant-design/icons';
-import { Button, message, Modal, Spin } from 'antd';
+import { PlusOutlined, RightOutlined } from '@ant-design/icons';
+import { Button, message, Modal, Skeleton } from 'antd';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useSearchParams } from 'react-router-dom';
 import ConditionModal from './ConditionModal';
+import ConditionCard from './components/ConditionCard';
 import DiscountReward from './rewards/DiscountReward';
 import CashbackReward from './rewards/CashbackReward';
 import PointsReward from './rewards/PointsReward';
@@ -24,10 +21,9 @@ import {
   createPromocode,
   PromocodeType,
   getMarketingCampaignById,
-  Weekday,
 } from '@/services/api/marketing';
-import dayjs from 'dayjs';
 import { useToast } from '@/components/context/useContext';
+import { getFilteredConditionTypes } from './utils/conditionTypes';
 
 const Terms: React.FC = () => {
   const { t } = useTranslation();
@@ -40,14 +36,18 @@ const Terms: React.FC = () => {
     value?: any;
   }>({});
   const [loadingCondition, setLoadingCondition] = useState(false);
+  const [deletingConditionId, setDeletingConditionId] = useState<number | null>(null);
   const [updatingData, setUpdatingData] = useState(false);
   const [modal, contextHolder] = Modal.useModal();
   const { showToast } = useToast();
+
+  const currentStep = (Number(searchParams.get('step')) || 1)
 
   const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
 
   const {
     data: marketingCampaign,
+    mutate: mutateCampaign,
   } = useSWR(
     marketingCampaignId
       ? [`get-marketing-campaign-by-id`, marketingCampaignId]
@@ -102,6 +102,7 @@ const Terms: React.FC = () => {
     data: marketingConditions,
     mutate: refreshConditions,
     isLoading,
+    isValidating,
   } = useSWR(
     marketingCampaignId
       ? [`get-marketing-conditions-by-id`, marketingCampaignId]
@@ -187,6 +188,7 @@ const Terms: React.FC = () => {
       }
 
       await createNewMarketingConditions(payload, marketingCampaignId);
+      mutateCampaign();
       message.success(t('marketingCampaigns.conditionAdded'));
       setCurrentCondition({});
       setIsModalOpen(false);
@@ -208,12 +210,16 @@ const Terms: React.FC = () => {
       cancelText: t('common.cancel'),
       async onOk() {
         try {
+          setDeletingConditionId(conditionId);
           await deleteMarketingCondition(conditionId, index);
+          await mutateCampaign()
           showToast(t('success.recordDeleted'), 'success');
           refreshConditions();
         } catch (err) {
           console.error(err);
           message.error(t('marketing.errorCampaign'));
+        } finally {
+          setDeletingConditionId(null);
         }
       },
       onCancel() {
@@ -222,39 +228,12 @@ const Terms: React.FC = () => {
     });
   };
 
-  const allConditionTypes = [
-    {
-      label: t('marketingCampaigns.timePeriod'),
-      value: MarketingCampaignConditionType.TIME_RANGE,
-    },
-    {
-      label: t('marketingCampaigns.dayOfWeek'),
-      value: MarketingCampaignConditionType.WEEKDAY,
-    },
-    {
-      label: t('marketingCampaigns.purchaseAmount'),
-      value: MarketingCampaignConditionType.PURCHASE_AMOUNT,
-    },
-    {
-      label: t('marketingCampaigns.numberOfVisits'),
-      value: MarketingCampaignConditionType.VISIT_COUNT,
-    },
-    {
-      label: t('marketingCampaigns.promoCodeEntry'),
-      value: MarketingCampaignConditionType.PROMOCODE_ENTRY,
-    },
-    {
-      label: t('marketing.birth'),
-      value: MarketingCampaignConditionType.BIRTHDAY,
-    },
-  ];
+  const conditionTypes = getFilteredConditionTypes(actionType, t);
 
-  const conditionTypes =
-    actionType === 'PROMOCODE_ISSUE'
-      ? allConditionTypes.filter(
-        type => type.value === MarketingCampaignConditionType.PROMOCODE_ENTRY
-      )
-      : allConditionTypes.filter(type => type.value !== MarketingCampaignConditionType.PROMOCODE_ENTRY);
+  const hasPromocodeCondition = actionType === 'PROMOCODE_ISSUE' &&
+    marketingConditions?.conditions?.some(
+      cond => cond.type === MarketingCampaignConditionType.PROMOCODE_ENTRY
+    );
 
   return (
     <div className="flex flex-col space-y-6 sm:space-y-8 lg:space-y-10 bg-background02 p-6 rounded-lg">
@@ -269,9 +248,31 @@ const Terms: React.FC = () => {
         allowedConditionTypes={conditionTypes}
       />
 
-      {isLoading ? (
-        <div className="flex items-center justify-center w-full h-full min-h-[400px]">
-          <Spin size="large" />
+      {isLoading || isValidating ? (
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-3">
+            <div className="flex items-center justify-center h-24 text-lg font-semibold">
+              {t('marketingCampaigns.if')}
+            </div>
+
+            <div className="flex flex-wrap gap-3 flex-1">
+              {[1, 2, 3].map((index) => (
+                <React.Fragment key={index}>
+                  <Skeleton
+                    active
+                    title={false}
+                    paragraph={{ rows: 2, width: ['100%', '60%'] }}
+                    style={{ width: 208, height: 96, borderRadius: 12 }}
+                  />
+                  {index < 3 && (
+                    <div className="flex items-center justify-center text-primary02 font-semibold">
+                      {t('common.and')}
+                    </div>
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
@@ -281,126 +282,90 @@ const Terms: React.FC = () => {
             </div>
 
             <div className="flex flex-wrap gap-3 flex-1">
-              {marketingConditions?.conditions?.map((cond, index) => {
-                let valueDisplay = '';
-                switch (cond.type) {
-                  case MarketingCampaignConditionType.TIME_RANGE:
-                    valueDisplay = `${dayjs(cond.startTime).format('HH:mm')} - ${dayjs(cond.endTime).format('HH:mm')}`;
-                    break;
-                  case MarketingCampaignConditionType.WEEKDAY: {
-                    const weekdayTranslations: Record<Weekday, string> = {
-                      [Weekday.MONDAY]: t('common.monday'),
-                      [Weekday.TUESDAY]: t('common.tuesday'),
-                      [Weekday.WEDNESDAY]: t('common.wednesday'),
-                      [Weekday.THURSDAY]: t('common.thursday'),
-                      [Weekday.FRIDAY]: t('common.friday'),
-                      [Weekday.SATURDAY]: t('common.saturday'),
-                      [Weekday.SUNDAY]: t('common.sunday'),
-                    };
-                    valueDisplay = cond.weekdays?.map(day => weekdayTranslations[day as Weekday] || day).join(', ') ?? '';
-                    break;
-                  }
-                  case MarketingCampaignConditionType.VISIT_COUNT:
-                    valueDisplay = `${cond.visitCount}`;
-                    break;
-                  case MarketingCampaignConditionType.PURCHASE_AMOUNT:
-                    valueDisplay = `${cond.minAmount}`;
-                    break;
-                  case MarketingCampaignConditionType.PROMOCODE_ENTRY:
-                    valueDisplay = cond.promocode?.code ?? '';
-                    break;
-                  case MarketingCampaignConditionType.BIRTHDAY:
-                    valueDisplay = t('marketing.birth');
-                    break;
-                  default:
-                    valueDisplay = '';
-                }
-
-                return (
-                  <React.Fragment key={cond.id}>
-                    <div className="relative flex items-center justify-center w-52 h-24 border-[0.5px] border-primary02 rounded-lg bg-white shadow-sm">
-                      <Button
-                        size="small"
-                        type="text"
-                        icon={<CloseOutlined />}
-                        className="!absolute top-1 right-1 text-text02 hover:text-primary02"
-                        onClick={() => handleDelete(cond.id, index)}
-                      />
-
-                      <div className="flex flex-col items-center justify-center text-center px-2">
-                        <div className="text-sm font-semibold text-text01">
-                          {
-                            conditionTypes.find(
-                              condition => condition.value === cond.type
-                            )?.label
-                          }
-                        </div>
-                        <div className="text-sm text-text02">
-                          {valueDisplay}
-                        </div>
-                      </div>
-                    </div>
-
-                    {index < marketingConditions.conditions.length - 1 && (
-                      <div className="flex items-center justify-center text-primary02 font-semibold">
-                        {t('common.and')}
-                      </div>
-                    )}
-                  </React.Fragment>
-                );
-              })}
-
-              <div
-                onClick={handleOpenModal}
-                className="flex items-center justify-center h-24"
-              >
-                <PlusOutlined
-                  style={{ fontSize: 18 }}
-                  className="w-10 h-10 flex items-center justify-center rounded-full bg-background05 cursor-pointer hover:bg-background04 transition"
+              {marketingConditions?.conditions?.map((cond, index) => (
+                <ConditionCard
+                  key={cond.id}
+                  condition={cond}
+                  index={index}
+                  totalConditions={marketingConditions.conditions.length}
+                  conditionTypes={conditionTypes}
+                  onDelete={handleDelete}
+                  isDeleting={deletingConditionId === cond.id}
                 />
-              </div>
+              ))}
+
+              {!hasPromocodeCondition && (
+                <div
+                  onClick={handleOpenModal}
+                  className="flex items-center justify-center h-24"
+                >
+                  <PlusOutlined
+                    style={{ fontSize: 18 }}
+                    className="w-10 h-10 flex items-center justify-center rounded-full bg-background05 cursor-pointer hover:bg-background04 transition"
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* --------- Reward Cards Section --------- */}
       {actionType && (
         <div className="flex flex-wrap gap-4 mt-5 items-start">
-          {actionType === 'DISCOUNT' && (
-            <DiscountReward
-              rewardValue={rewardValue}
-              discountType={discountType}
-              onValueChange={setRewardValue}
-              onTypeChange={setDiscountType}
+          {!marketingCampaign ? (
+            <Skeleton
+              active
+              paragraph={{ rows: 4 }}
+              title={{ width: 200 }}
+              style={{ width: 300, minHeight: 200 }}
             />
-          )}
+          ) : (
+            <>
+              {actionType === 'DISCOUNT' && (
+                <DiscountReward
+                  rewardValue={rewardValue}
+                  discountType={discountType}
+                  onValueChange={setRewardValue}
+                  onTypeChange={setDiscountType}
+                />
+              )}
 
-          {actionType === 'CASHBACK_BOOST' && (
-            <CashbackReward
-              rewardValue={rewardValue}
-              discountType={discountType}
-              onValueChange={setRewardValue}
-              onTypeChange={setDiscountType}
-            />
-          )}
+              {actionType === 'CASHBACK_BOOST' && (
+                <CashbackReward
+                  rewardValue={rewardValue}
+                  discountType={discountType}
+                  onValueChange={setRewardValue}
+                  onTypeChange={setDiscountType}
+                />
+              )}
 
-          {actionType === 'GIFT_POINTS' && (
-            <PointsReward
-              rewardValue={rewardValue}
-              onValueChange={setRewardValue}
-            />
-          )}
+              {actionType === 'GIFT_POINTS' && (
+                <PointsReward
+                  rewardValue={rewardValue}
+                  onValueChange={setRewardValue}
+                />
+              )}
 
-          {actionType === 'PROMOCODE_ISSUE' && (
-            <PromocodeReward
-              marketingCampaign={marketingCampaign}
-              marketingConditions={marketingConditions}
-            />
+              {actionType === 'PROMOCODE_ISSUE' && (
+                <PromocodeReward
+                  marketingCampaign={marketingCampaign}
+                />
+              )}
+            </>
           )}
         </div>
       )}
 
+      {actionType && actionType === 'PROMOCODE_ISSUE' && (<div className="flex justify-end gap-2 mt-3"><Button
+        type="primary"
+        icon={<RightOutlined />}
+        iconPosition="end"
+        disabled={marketingCampaign.actionPromocode ? false : true}
+        loading={updatingData}
+        onClick={() => {
+          console.log('let: ', currentStep)
+          updateSearchParams(searchParams, setSearchParams, { step: currentStep + 1 });
+        }}> {t('common.next')}</Button></div>)}
       {actionType && actionType !== 'PROMOCODE_ISSUE' && (
         <div className="flex justify-end gap-2 mt-3">
           <Button
@@ -466,7 +431,7 @@ const Terms: React.FC = () => {
 
                 message.success(t('marketingCampaigns.rewardUpdated'));
 
-                updateSearchParams(searchParams, setSearchParams, { step: 3 });
+                updateSearchParams(searchParams, setSearchParams, { step: currentStep + 1 });
               } catch (error) {
                 console.error(error);
                 message.error(t('common.somethingWentWrong'));
