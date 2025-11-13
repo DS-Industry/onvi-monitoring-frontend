@@ -405,18 +405,19 @@ const ShiftTab: React.FC = () => {
             ) : (
               <></>
             )}
-
             {dayShiftData?.status === StatusWorkDayShiftReport.SENT &&
-            hasPermissionToUpdate ? (
-              <Button
-                className="h-[43px]  bg-[#1890FF]"
-                type="primary"
-                onClick={async () => await returnCash()}
-                loading={loadingReturnCash}
-              >
-                {t('finance.return')}
-              </Button>
-            ) : hasPermissionToCreate ? (
+              hasPermissionToUpdate && (
+                <Button
+                  className="h-[43px]  bg-[#1890FF]"
+                  type="primary"
+                  onClick={async () => await returnCash()}
+                  loading={loadingReturnCash}
+                >
+                  {t('finance.return')}
+                </Button>
+              )}{' '}
+            {(dayShiftData?.status === StatusWorkDayShiftReport.SENT) !==
+              hasPermissionToCreate && (
               <Button
                 className="h-[43px]  bg-[#1890FF]"
                 type="primary"
@@ -425,10 +426,7 @@ const ShiftTab: React.FC = () => {
               >
                 {t('finance.send')}
               </Button>
-            ) : (
-              <></>
             )}
-
             {dayShiftData?.status !== StatusWorkDayShiftReport.SENT &&
               hasPermissionToDelete && (
                 <Button
