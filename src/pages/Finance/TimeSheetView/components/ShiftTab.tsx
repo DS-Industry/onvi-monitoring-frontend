@@ -61,7 +61,7 @@ const ShiftTab: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -70,13 +70,13 @@ const ShiftTab: React.FC = () => {
     () =>
       shiftId
         ? sendDayShift(shiftId)
-          .catch(() => {
-            message.error(t('errors.sendFailed'));
-          })
-          .finally(() => {
-            message.success(t('actions.sendSuccess'));
-            refreshDayShiftData();
-          })
+            .catch(() => {
+              message.error(t('errors.sendFailed'));
+            })
+            .finally(() => {
+              message.success(t('actions.sendSuccess'));
+              refreshDayShiftData();
+            })
         : null
   );
 
@@ -85,13 +85,13 @@ const ShiftTab: React.FC = () => {
     () =>
       shiftId
         ? returnDayShift(shiftId)
-          .catch(() => {
-            message.error(t('errors.sendFailed'));
-          })
-          .finally(() => {
-            message.success(t('actions.returnSuccess'));
-            refreshDayShiftData();
-          })
+            .catch(() => {
+              message.error(t('errors.sendFailed'));
+            })
+            .finally(() => {
+              message.success(t('actions.returnSuccess'));
+              refreshDayShiftData();
+            })
         : null
   );
 
@@ -100,8 +100,8 @@ const ShiftTab: React.FC = () => {
     (_, { arg }: { arg: UpdateDayShiftBody }) =>
       shiftId
         ? updateDayShift(arg, shiftId).catch(() => {
-          message.error(t('errors.updateFailed'));
-        })
+            message.error(t('errors.updateFailed'));
+          })
         : null
   );
 
@@ -110,13 +110,13 @@ const ShiftTab: React.FC = () => {
     () =>
       shiftId
         ? deleteDayShift(shiftId)
-          .then(() => {
-            message.success(t('finance.deleteSuccess'));
-            window.history.back();
-          })
-          .catch(() => {
-            message.error(t('finance.deleteFailed'));
-          })
+            .then(() => {
+              message.success(t('finance.deleteSuccess'));
+              window.history.back();
+            })
+            .catch(() => {
+              message.error(t('finance.deleteFailed'));
+            })
         : null
   );
 
@@ -149,7 +149,10 @@ const ShiftTab: React.FC = () => {
     }
   }, [dayShiftData, reset]);
 
-  const handleGradingSave = async (data: GradingFormData, showToast: boolean = true) => {
+  const handleGradingSave = async (
+    data: GradingFormData,
+    showToast: boolean = true
+  ) => {
     try {
       const gradingData = dayShiftData?.gradingParameterInfo?.parameters.map(
         param => ({
@@ -212,7 +215,11 @@ const ShiftTab: React.FC = () => {
     : null;
 
   const calculateDailyShiftPayout = () => {
-    if (!dayShiftData?.dailySalary || !dayShiftData?.bonusPayout || !dayShiftData?.gradingParameterInfo) {
+    if (
+      !dayShiftData?.dailySalary ||
+      !dayShiftData?.bonusPayout ||
+      !dayShiftData?.gradingParameterInfo
+    ) {
       return dayShiftData?.dailySalary || 0;
     }
 
@@ -221,26 +228,39 @@ const ShiftTab: React.FC = () => {
     const totalPercentage = parameters.reduce((sum, param) => {
       if (param.estimationId === null) return sum;
 
-      const estimation = allEstimations.find(est => est.id === param.estimationId);
+      const estimation = allEstimations.find(
+        est => est.id === param.estimationId
+      );
 
       if (!estimation) return sum;
 
       const parameterWeightPercent = param.weightPercent || 0;
       const estimationWeightPercent = estimation.weightPercent || 0;
 
-      const parameterPercent = (parameterWeightPercent * estimationWeightPercent) / 100;
+      const parameterPercent =
+        (parameterWeightPercent * estimationWeightPercent) / 100;
 
       return sum + parameterPercent;
     }, 0);
 
-    const dailyShiftPayout = dayShiftData.dailySalary + (dayShiftData.bonusPayout * totalPercentage) / 100;
+    const dailyShiftPayout =
+      dayShiftData.dailySalary +
+      (dayShiftData.bonusPayout * totalPercentage) / 100;
 
     return Math.round(dailyShiftPayout);
   };
 
   const dailyShiftPayout = calculateDailyShiftPayout();
 
-  const hasPermissionToSend = hasPermission(
+  const hasPermissionToUpdate = hasPermission(
+    [
+      { subject: 'ShiftReport', action: 'update' },
+      { subject: 'ShiftReport', action: 'manage' },
+    ],
+    userPermissions
+  );
+
+  const hasPermissionToCreate = hasPermission(
     [
       { subject: 'ShiftReport', action: 'create' },
       { subject: 'ShiftReport', action: 'manage' },
@@ -248,10 +268,11 @@ const ShiftTab: React.FC = () => {
     userPermissions
   );
 
-  const hasPermissionToReturn = hasPermission(
+  const hasPermissionToDelete = hasPermission(
     [
-      { subject: 'ShiftReport', action: 'update' },
       { subject: 'ShiftReport', action: 'manage' },
+      { subject: 'ShiftReport', action: 'delete' },
+      { subject: 'ShiftReport', action: 'create' },
     ],
     userPermissions
   );
@@ -297,9 +318,7 @@ const ShiftTab: React.FC = () => {
           </div>
           <div>
             <p className="text-bold">{t('finance.dailyShiftPayout')}</p>
-            <p className="font-bold text-[24px]">
-              {dailyShiftPayout} ₽
-            </p>
+            <p className="font-bold text-[24px]">{dailyShiftPayout} ₽</p>
           </div>
         </div>
       </Card>
@@ -386,18 +405,19 @@ const ShiftTab: React.FC = () => {
             ) : (
               <></>
             )}
-
             {dayShiftData?.status === StatusWorkDayShiftReport.SENT &&
-              hasPermissionToReturn ? (
-              <Button
-                className="h-[43px]  bg-[#1890FF]"
-                type="primary"
-                onClick={async () => await returnCash()}
-                loading={loadingReturnCash}
-              >
-                {t('finance.return')}
-              </Button>
-            ) : hasPermissionToSend ? (
+              hasPermissionToUpdate && (
+                <Button
+                  className="h-[43px]  bg-[#1890FF]"
+                  type="primary"
+                  onClick={async () => await returnCash()}
+                  loading={loadingReturnCash}
+                >
+                  {t('finance.return')}
+                </Button>
+              )}{' '}
+            {(dayShiftData?.status === StatusWorkDayShiftReport.SENT) !==
+              hasPermissionToCreate && (
               <Button
                 className="h-[43px]  bg-[#1890FF]"
                 type="primary"
@@ -406,21 +426,19 @@ const ShiftTab: React.FC = () => {
               >
                 {t('finance.send')}
               </Button>
-            ) : (
-              <></>
             )}
-
-            {dayShiftData?.status !== StatusWorkDayShiftReport.SENT && (
-              <Button
-                className="h-[43px] bg-red-500 hover:bg-red-600 border-red-500"
-                type="primary"
-                danger
-                onClick={handleDelete}
-                loading={loadingDelete}
-              >
-                {t('actions.delete')}
-              </Button>
-            )}
+            {dayShiftData?.status !== StatusWorkDayShiftReport.SENT &&
+              hasPermissionToDelete && (
+                <Button
+                  className="h-[43px] bg-red-500 hover:bg-red-600 border-red-500"
+                  type="primary"
+                  danger
+                  onClick={handleDelete}
+                  loading={loadingDelete}
+                >
+                  {t('actions.delete')}
+                </Button>
+              )}
           </div>
         </Form>
       </div>

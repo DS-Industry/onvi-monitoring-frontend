@@ -14,6 +14,8 @@ import { Button, Input, Table, Typography } from 'antd';
 import useSWRMutation from 'swr/mutation';
 import { PlusOutlined } from '@ant-design/icons';
 import SalePriceModal from '@/pages/Warehouse/SalePrice/SalePriceModal.tsx';
+import hasPermission from '@/permissions/hasPermission';
+import { usePermissions } from '@/hooks/useAuthStore';
 
 const SalePrice: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -27,6 +29,7 @@ const SalePrice: React.FC = () => {
   const [editingKey, setEditingKey] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+  const userPermissions = usePermissions();
 
   const isEditing = (record: SALE_PRICE_RESPONSE) => record.id === editingKey;
 
@@ -148,6 +151,11 @@ const SalePrice: React.FC = () => {
     hideSelectAll: true,
   };
 
+  const allowed = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'Warehouse' },
+    { action: 'update', subject: 'Warehouse' },
+  ]);
+
   const baseColumns = [
     {
       title: t('routes.nomenclature'),
@@ -176,7 +184,10 @@ const SalePrice: React.FC = () => {
         );
       },
     },
-    {
+  ];
+
+  if(allowed) {
+    baseColumns.push({
       title: t('marketing.operations'),
       dataIndex: 'operation',
       key: 'operation',
@@ -208,8 +219,9 @@ const SalePrice: React.FC = () => {
           </div>
         );
       },
-    },
-  ];
+      editable: true
+    })
+  }
 
   return (
     <>
@@ -223,26 +235,28 @@ const SalePrice: React.FC = () => {
 
       <GeneralFilters display={['city', 'pos', 'warehouse']} />
 
-      <div className="flex flex-col lg:flex-row lg:justify-between gap-4 py-4">
-        <div className="flex flex-wrap gap-2">
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={openModal}
-            disabled={!warehouseId}
-          >
-            {t('finance.addRow')}
-          </Button>
-          <Button
-            danger
-            disabled={!selectedRowKeys.length}
-            loading={deleting}
-            onClick={handleDeleteRow}
-          >
-            {t('finance.del')} ({selectedRowKeys.length})
-          </Button>
+      {allowed && (
+        <div className="flex flex-col lg:flex-row lg:justify-between gap-4 py-4">
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={openModal}
+              disabled={!warehouseId}
+            >
+              {t('finance.addRow')}
+            </Button>
+            <Button
+              danger
+              disabled={!selectedRowKeys.length}
+              loading={deleting}
+              onClick={handleDeleteRow}
+            >
+              {t('finance.del')} ({selectedRowKeys.length})
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="w-full overflow-x-auto">
         <Table

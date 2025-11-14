@@ -29,7 +29,9 @@ import dayjs from 'dayjs';
 import { ArrowRightOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { SaveOutlined } from '@ant-design/icons';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import { formatRussianPhone } from '@/utils/tableUnits';
+import { formatPhoneByCountry } from '@/utils/tableUnits';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
 
 const VITE_S3_CLOUD = import.meta.env.VITE_S3_CLOUD;
 
@@ -50,12 +52,12 @@ const EmployeeProfile: React.FC = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('info');
   const user = useUser();
+  const userPermissions = usePermissions();
 
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedPosIds, setSelectedPosIds] = useState<number[]>([]);
   const { showToast } = useToast();
-
   const [searchParams, setSearchParams] = useSearchParams();
 
   const workerId = searchParams.get('workerId')
@@ -112,7 +114,9 @@ const EmployeeProfile: React.FC = () => {
 
   const employee = employeeData?.props;
   const { data: workersData, isLoading: loadingWorkers } = useSWR(
-    user.organizationId ? [`get-workers`, employee?.avatar, user.organizationId] : null,
+    user.organizationId
+      ? [`get-workers`, employee?.avatar, user.organizationId]
+      : null,
     () => getWorkers({ organizationId: user.organizationId }),
     {
       revalidateOnFocus: false,
@@ -122,16 +126,19 @@ const EmployeeProfile: React.FC = () => {
     }
   );
 
-  const { data: organizationPoses, isLoading: loadingOrganizationPoses } = useSWR(
-    user.organizationId ? [`get-organization-poses`, user.organizationId] : null,
-    () => getPoses({ organizationId: user.organizationId }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false,
-    }
-  );
+  const { data: organizationPoses, isLoading: loadingOrganizationPoses } =
+    useSWR(
+      user.organizationId
+        ? [`get-organization-poses`, user.organizationId]
+        : null,
+      () => getPoses({ organizationId: user.organizationId }),
+      {
+        revalidateOnFocus: false,
+        revalidateOnReconnect: false,
+        keepPreviousData: true,
+        shouldRetryOnError: false,
+      }
+    );
 
   const { data: connectedPosesData, isLoading: loadingConnectedPoses } = useSWR(
     workerId !== 0 ? [`get-worker-connected-poses`, workerId] : null,
@@ -170,6 +177,7 @@ const EmployeeProfile: React.FC = () => {
     hrPositionId: undefined,
     placementId: undefined,
     startWorkDate: undefined,
+    birthday: undefined,
     phone: undefined,
     email: undefined,
     description: undefined,
@@ -211,6 +219,17 @@ const EmployeeProfile: React.FC = () => {
   };
 
   const [formData, setFormData] = useState(defaultValues);
+  const extractCountryCode = (phone: string): string => {
+    if (!phone) return '+7';
+    if (phone.startsWith('+998')) return '+998';
+    if (phone.startsWith('+91')) return '+91';
+    if (phone.startsWith('+7')) return '+7';
+    return '+7';
+  };
+
+  const [countryCode, setCountryCode] = useState(() =>
+    extractCountryCode(formData.phone || '')
+  );
 
   const [scheduleData, setScheduleData] = useState(scheduleValues);
 
@@ -258,6 +277,9 @@ const EmployeeProfile: React.FC = () => {
         startWorkDate: employee.startWorkDate
           ? dayjs(String(employee.startWorkDate).slice(0, 10)).toDate()
           : undefined,
+        birthday: employee.birthday
+          ? dayjs(String(employee.birthday).slice(0, 10)).toDate()
+          : undefined,
         passportDateIssue: employee.passportDateIssue
           ? dayjs(String(employee.passportDateIssue).slice(0, 10)).toDate()
           : undefined,
@@ -277,6 +299,7 @@ const EmployeeProfile: React.FC = () => {
           hrPositionId: formData.hrPositionId,
           placementId: formData.placementId,
           startWorkDate: formData.startWorkDate,
+          birthday: formData.birthday,
           phone: formData.phone,
           email: formData.email,
           description: formData.description,
@@ -298,14 +321,13 @@ const EmployeeProfile: React.FC = () => {
       )
   );
 
-  const { trigger: updatePosConnections, isMutating: updatingPosConnections } = useSWRMutation(
-    ['update-worker-pos-connections'],
-    async () =>
+  const { trigger: updatePosConnections, isMutating: updatingPosConnections } =
+    useSWRMutation(['update-worker-pos-connections'], async () =>
       updateWorkerPosConnections({
         workerId: workerId,
         posIds: selectedPosIds,
       })
-  );
+    );
 
   type FieldType = keyof typeof defaultValues;
 
@@ -336,13 +358,18 @@ const EmployeeProfile: React.FC = () => {
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const input = e.target.value;
+    const digits = e.target.value.replace(/\D/g, '');
 
-    let cleanValue = '+7' + input.replace(/\D/g, '').replace(/^7/, '');
-    if (cleanValue.length > 12) cleanValue = cleanValue.slice(0, 12);
+    const fullNumber = digits ? `${countryCode}${digits}` : '';
 
-    setFormData(prev => ({ ...prev, phone: cleanValue }));
-    setValue('phone', cleanValue);
+    setFormData(prev => ({ ...prev, phone: fullNumber }));
+    setValue('phone', fullNumber);
+  };
+
+  const handleCountryChange = (newCode: string) => {
+    setCountryCode(newCode);
+    setFormData(prev => ({ ...prev, phone: '' }));
+    setValue('phone', '');
   };
 
   const onSubmit = async () => {
@@ -417,6 +444,11 @@ const EmployeeProfile: React.FC = () => {
     setYear(year + 1);
   };
 
+  const allowed = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'Hr' },
+    { action: 'update', subject: 'Hr' },
+  ]);
+
   return (
     <div className="mt-2">
       <div className="flex items-center justify-between">
@@ -427,14 +459,16 @@ const EmployeeProfile: React.FC = () => {
             {employee?.name ?? ''}
           </span>
         </div>
-        <Button
-          icon={<SaveOutlined />}
-          className="btn-primary"
-          onClick={() => handleSubmit(onSubmit)()}
-          loading={updatingEmployee}
-        >
-          {screens.md && t('routes.save')}
-        </Button>
+        {allowed && (
+          <Button
+            icon={<SaveOutlined />}
+            className="btn-primary"
+            onClick={() => handleSubmit(onSubmit)()}
+            loading={updatingEmployee}
+          >
+            {screens.md && t('routes.save')}
+          </Button>
+        )}
       </div>
 
       <div className="mt-5">
@@ -576,13 +610,40 @@ const EmployeeProfile: React.FC = () => {
                           inputType="secondary"
                         />
                       </div>
+                      <div>
+                        <div className="text-sm text-text02">
+                          {t('register.date')}
+                        </div>
+                        <DateInput
+                          classname="w-64"
+                          value={
+                            formData.birthday ? dayjs(formData.birthday) : null
+                          }
+                          changeValue={date =>
+                            handleInputChange(
+                              'birthday',
+                              date ? date.format('YYYY-MM-DD') : ''
+                            )
+                          }
+                          {...register('birthday')}
+                          inputType="secondary"
+                        />
+                      </div>
                       <Input
+                        isPhone
                         type=""
                         title={t('profile.telephone')}
                         label={t('warehouse.enterPhone')}
                         classname="w-64"
-                        value={formatRussianPhone(formData.phone || '')}
+                        value={formatPhoneByCountry(
+                          String(
+                            String(formData.phone).replace(countryCode, '')
+                          ),
+                          countryCode
+                        )}
                         changeValue={handlePhoneChange}
+                        countryCode={countryCode}
+                        onCountryChange={handleCountryChange}
                         {...register('phone')}
                         inputType="secondary"
                       />
@@ -673,6 +734,7 @@ const EmployeeProfile: React.FC = () => {
                         {...register('passportSeries')}
                       />
                       <Input
+                        type="number"
                         title={t('hr.passportNumber')}
                         classname="w-64"
                         inputType="secondary"
@@ -741,7 +803,10 @@ const EmployeeProfile: React.FC = () => {
                         classname="w-64"
                         value={formData.registrationAddress}
                         changeValue={e =>
-                          handleInputChange('registrationAddress', e.target.value)
+                          handleInputChange(
+                            'registrationAddress',
+                            e.target.value
+                          )
                         }
                         {...register('registrationAddress')}
                         inputType="secondary"
@@ -816,47 +881,60 @@ const EmployeeProfile: React.FC = () => {
                               className="w-full max-w-md"
                               value={selectedPosIds}
                               onChange={setSelectedPosIds}
-                              options={organizationPoses?.map(pos => ({
-                                label: `${pos.name} - ${pos.address}`,
-                                value: pos.id,
-                              })) || []}
+                              options={
+                                organizationPoses?.map(pos => ({
+                                  label: `${pos.name} - ${pos.address}`,
+                                  value: pos.id,
+                                })) || []
+                              }
                               loading={loadingOrganizationPoses}
+                              showSearch={true}
+                              filterOption={(input, option) =>
+                                (option?.label ?? '')
+                                  .toString()
+                                  .toLowerCase()
+                                  .includes(input.toLowerCase())
+                              }
                             />
                           </div>
-                          <div className="mt-4">
-                            <Button
-                              type="primary"
-                              onClick={onUpdatePosConnections}
-                              loading={updatingPosConnections}
-                              className="btn-primary"
-                            >
-                              {t('routes.save')}
-                            </Button>
-                          </div>
-                          {connectedPosesData?.poses && connectedPosesData.poses.length > 0 && (
-                            <div className="mt-6">
-                              <div className="text-sm text-text02 mb-2">
-                                {t('hr.currentlyConnected')}
-                              </div>
-                              <div className="space-y-2">
-                                {connectedPosesData.poses.map(pos => (
-                                  <div
-                                    key={pos.id}
-                                    className="flex items-center justify-between p-3 bg-background05 rounded-lg"
-                                  >
-                                    <div>
-                                      <div className="font-medium text-text01">
-                                        {pos.name}
-                                      </div>
-                                      <div className="text-sm text-text02">
-                                        {pos.address.city}, {pos.address.location}
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
+                          {allowed && (
+                            <div className="mt-4">
+                              <Button
+                                type="primary"
+                                onClick={onUpdatePosConnections}
+                                loading={updatingPosConnections}
+                                className="btn-primary"
+                              >
+                                {t('routes.save')}
+                              </Button>
                             </div>
                           )}
+                          {connectedPosesData?.poses &&
+                            connectedPosesData.poses.length > 0 && (
+                              <div className="mt-6">
+                                <div className="text-sm text-text02 mb-2">
+                                  {t('hr.currentlyConnected')}
+                                </div>
+                                <div className="space-y-2">
+                                  {connectedPosesData.poses.map(pos => (
+                                    <div
+                                      key={pos.id}
+                                      className="flex items-center justify-between p-3 bg-background05 rounded-lg"
+                                    >
+                                      <div>
+                                        <div className="font-medium text-text01">
+                                          {pos.name}
+                                        </div>
+                                        <div className="text-sm text-text02">
+                                          {pos.address.city},{' '}
+                                          {pos.address.location}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                         </div>
                       )}
                     </div>

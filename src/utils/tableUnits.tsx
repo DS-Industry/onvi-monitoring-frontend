@@ -74,36 +74,41 @@ const TAG_COLOR_PALETTE = [
   { bg: '#fff7e6', border: '#ad6800', text: '#ad6800' }, // Brown
 ];
 
-function getTagColorScheme(tagName: string, existingColor?: string): { bg: string; border: string; text: string } {
+function getTagColorScheme(
+  tagName: string,
+  existingColor?: string
+): { bg: string; border: string; text: string } {
   if (existingColor) {
-    const colorMap: { [key: string]: { bg: string; border: string; text: string } } = {
-      'blue': TAG_COLOR_PALETTE[0],
-      'green': TAG_COLOR_PALETTE[1],
-      'orange': TAG_COLOR_PALETTE[2],
-      'red': TAG_COLOR_PALETTE[3],
-      'purple': TAG_COLOR_PALETTE[4],
-      'cyan': TAG_COLOR_PALETTE[5],
-      'magenta': TAG_COLOR_PALETTE[6],
-      'lime': TAG_COLOR_PALETTE[7],
-      'gold': TAG_COLOR_PALETTE[8],
-      'volcano': TAG_COLOR_PALETTE[9],
-      'geekblue': TAG_COLOR_PALETTE[10],
-      'pink': TAG_COLOR_PALETTE[11],
-      'yellow': TAG_COLOR_PALETTE[12],
-      'indigo': TAG_COLOR_PALETTE[13],
-      'teal': TAG_COLOR_PALETTE[14],
-      'brown': TAG_COLOR_PALETTE[15],
+    const colorMap: {
+      [key: string]: { bg: string; border: string; text: string };
+    } = {
+      blue: TAG_COLOR_PALETTE[0],
+      green: TAG_COLOR_PALETTE[1],
+      orange: TAG_COLOR_PALETTE[2],
+      red: TAG_COLOR_PALETTE[3],
+      purple: TAG_COLOR_PALETTE[4],
+      cyan: TAG_COLOR_PALETTE[5],
+      magenta: TAG_COLOR_PALETTE[6],
+      lime: TAG_COLOR_PALETTE[7],
+      gold: TAG_COLOR_PALETTE[8],
+      volcano: TAG_COLOR_PALETTE[9],
+      geekblue: TAG_COLOR_PALETTE[10],
+      pink: TAG_COLOR_PALETTE[11],
+      yellow: TAG_COLOR_PALETTE[12],
+      indigo: TAG_COLOR_PALETTE[13],
+      teal: TAG_COLOR_PALETTE[14],
+      brown: TAG_COLOR_PALETTE[15],
     };
     return colorMap[existingColor] || TAG_COLOR_PALETTE[0];
   }
-  
+
   let hash = 0;
   for (let i = 0; i < tagName.length; i++) {
     const char = tagName.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; 
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
   }
-  
+
   const colorIndex = Math.abs(hash) % TAG_COLOR_PALETTE.length;
   return TAG_COLOR_PALETTE[colorIndex];
 }
@@ -164,9 +169,7 @@ export function getStatusTagRender(t: TFunction) {
       t('tables.PENDING'),
     ];
 
-    const blueStatuses = [
-      t('tables.RETURNED'),
-    ];
+    const blueStatuses = [t('tables.RETURNED')];
 
     if (greenStatuses.includes(status)) {
       return <Tag color="green">{status}</Tag>;
@@ -242,4 +245,37 @@ export const formatRussianPhone = (input: string) => {
     digits.length > 7 ? '-' : ''
   }${digits.slice(7, 9)}${digits.length > 9 ? '-' : ''}${digits.slice(9, 11)}`;
   return masked.trim();
+};
+
+export const formatPhoneByCountry = (digits: string, countryCode: string) => {
+  let cleaned = digits.replace(/\D/g, '');
+
+  switch (countryCode) {
+    case '+7': {
+      // Russian number should be 11 digits total (excluding +7)
+      if (cleaned.startsWith('7')) cleaned = cleaned.slice(1); // remove leading 7 if present
+      cleaned = cleaned.slice(0, 10);
+      if (!cleaned) return '';
+      return `(${cleaned.slice(0, 3)}${cleaned.length > 3 ? ') ' : ''}${cleaned.slice(3, 6)}${cleaned.length > 6 ? '-' : ''}${cleaned.slice(6, 8)}${cleaned.length > 8 ? '-' : ''}${cleaned.slice(8, 10)}`;
+    }
+
+    case '+91': {
+      // Indian numbers are 10 digits
+      if (cleaned.startsWith('91')) cleaned = cleaned.slice(2); // remove extra leading 91
+      cleaned = cleaned.slice(0, 10);
+      if (!cleaned) return '';
+      return `${cleaned.slice(0, 5)}${cleaned.length > 5 ? '-' : ''}${cleaned.slice(5)}`;
+    }
+
+    case '+998': {
+      // Uzbekistan: 9 digits
+      if (cleaned.startsWith('998')) cleaned = cleaned.slice(3); // remove extra 998
+      cleaned = cleaned.slice(0, 9);
+      if (!cleaned) return '';
+      return `${cleaned.slice(0, 2)}${cleaned.length > 2 ? ' ' : ''}${cleaned.slice(2, 5)}${cleaned.length > 5 ? '-' : ''}${cleaned.slice(5, 7)}${cleaned.length > 7 ? '-' : ''}${cleaned.slice(7, 9)}`;
+    }
+
+    default:
+      return `+${cleaned}`;
+  }
 };

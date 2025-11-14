@@ -1,8 +1,4 @@
-import React, {
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   ArrowUpOutlined,
   ArrowDownOutlined,
@@ -62,6 +58,7 @@ import {
   groups,
 } from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import hasPermission from '@/permissions/hasPermission';
 
 const { Title, Text } = Typography;
 
@@ -121,7 +118,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -132,7 +129,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -365,7 +362,8 @@ const Articles: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const user = useUser();
 
-  const groupParam = searchParams.get('group') as ManagerPaperGroup || undefined;
+  const groupParam =
+    (searchParams.get('group') as ManagerPaperGroup) || undefined;
   const posIdParam = Number(searchParams.get('posId')) || undefined;
   const paperTypeIdParam = Number(searchParams.get('paperTypeId')) || undefined;
   const userIdParam = Number(searchParams.get('userId')) || undefined;
@@ -423,7 +421,7 @@ const Articles: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -436,7 +434,7 @@ const Articles: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -447,7 +445,7 @@ const Articles: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -485,7 +483,7 @@ const Articles: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -496,7 +494,7 @@ const Articles: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -514,23 +512,28 @@ const Articles: React.FC = () => {
 
   useEffect(() => {
     if (allManagersData && workerData) {
-      const workerMap = new Map<number, { id: number; name: string; surname: string }>();
+      const workerMap = new Map<
+        number,
+        { id: number; name: string; surname: string }
+      >();
       workerData.forEach(work => workerMap.set(work.id, work));
 
-      const temporaryData: DataType[] = allManagersData.managerPapers.map(man => {
-        const creator = workerMap.get(man.props.createdById);
-        return {
-          key: `${man.props.id}`,
-          id: man.props.id,
-          group: man.props.group,
-          posId: man.props.posId,
-          paperTypeId: man.props.paperTypeId,
-          eventDate: dayjs(man.props.eventDate),
-          sum: man.props.sum,
-          comment: man.props.comment || '',
-          createdByName: creator ? `${creator.name} ${creator.surname}` : "-"
-        };
-      });
+      const temporaryData: DataType[] = allManagersData.managerPapers.map(
+        man => {
+          const creator = workerMap.get(man.props.createdById);
+          return {
+            key: `${man.props.id}`,
+            id: man.props.id,
+            group: man.props.group,
+            posId: man.props.posId,
+            paperTypeId: man.props.paperTypeId,
+            eventDate: dayjs(man.props.eventDate),
+            sum: man.props.sum,
+            comment: man.props.comment || '',
+            createdByName: creator ? `${creator.name} ${creator.surname}` : '-',
+          };
+        }
+      );
 
       setData(temporaryData);
     }
@@ -667,10 +670,10 @@ const Articles: React.FC = () => {
           <Tag
             color={
               paperTypes.find(paper => paper.value === value)?.type ===
-                'EXPENDITURE'
+              'EXPENDITURE'
                 ? 'red'
                 : paperTypes.find(paper => paper.value === value)?.type ===
-                  'RECEIPT'
+                    'RECEIPT'
                   ? 'green'
                   : ''
             }
@@ -704,7 +707,7 @@ const Articles: React.FC = () => {
       title: t('table.headers.created'),
       dataIndex: 'createdByName',
       width: '20%',
-      editable: false
+      editable: false,
     },
     {
       title: t('marketing.operations'),
@@ -786,13 +789,13 @@ const Articles: React.FC = () => {
   const [formData, setFormData] = useState(defaultValues);
 
   const { data: allWorkersData } = useSWR(
-    formData.posId !== 0 ? [`get-all-workers`] : null,
+    formData.posId !== 0 ? [`get-all-workers`, formData.posId] : null,
     () => getAllWorkers(formData.posId),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -918,6 +921,11 @@ const Articles: React.FC = () => {
 
   const userPermissions = usePermissions();
 
+  const allowed = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'ManagerPaper' },
+    { action: 'update', subject: 'ManagerPaper' },
+  ]);
+
   return (
     <div>
       <div className="ml-12 md:ml-0 mb-5">
@@ -948,7 +956,7 @@ const Articles: React.FC = () => {
         onCancel={() => setIsStateOpen(false)}
         footer={false}
         className="w-full sm:w-[600px] max-h-[550px] overflow-y-auto"
-        maskClosable={false}  
+        maskClosable={false}
       >
         <div className="flex flex-row items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
@@ -969,8 +977,9 @@ const Articles: React.FC = () => {
               <div
                 key={opt.value}
                 onClick={() => handleSelect(opt.value)}
-                className={`p-2 rounded cursor-pointer hover:bg-gray-100 ${formData.paperTypeId === opt.value ? 'text-primary02' : ''
-                  }`}
+                className={`p-2 rounded cursor-pointer hover:bg-gray-100 ${
+                  formData.paperTypeId === opt.value ? 'text-primary02' : ''
+                }`}
               >
                 {opt.name}
               </div>
@@ -1039,8 +1048,9 @@ const Articles: React.FC = () => {
                   {t('finance.article')}
                 </div>
                 <div className="w-full border h-10 flex items-center justify-center">
-                  {paperTypes.find(paper => paper.value === formData.paperTypeId)
-                    ?.name || ''}
+                  {paperTypes.find(
+                    paper => paper.value === formData.paperTypeId
+                  )?.name || ''}
                 </div>
               </div>
               <AntDButton
@@ -1058,22 +1068,24 @@ const Articles: React.FC = () => {
                 </div>
                 <Tag
                   color={
-                    paperTypes.find(paper => paper.value === formData.paperTypeId)
-                      ?.type === 'EXPENDITURE'
+                    paperTypes.find(
+                      paper => paper.value === formData.paperTypeId
+                    )?.type === 'EXPENDITURE'
                       ? 'red'
                       : paperTypes.find(
-                        paper => paper.value === formData.paperTypeId
-                      )?.type === 'RECEIPT'
+                            paper => paper.value === formData.paperTypeId
+                          )?.type === 'RECEIPT'
                         ? 'green'
                         : ''
                   }
                   className="h-10 w-40 flex items-center justify-center"
                 >
-                  {paperTypes.find(paper => paper.value === formData.paperTypeId)
-                    ?.type
+                  {paperTypes.find(
+                    paper => paper.value === formData.paperTypeId
+                  )?.type
                     ? t(
-                      `finance.${paperTypes.find(paper => paper.value === formData.paperTypeId)?.type}`
-                    )
+                        `finance.${paperTypes.find(paper => paper.value === formData.paperTypeId)?.type}`
+                      )
                     : ''}
                 </Tag>
               </div>
@@ -1149,22 +1161,24 @@ const Articles: React.FC = () => {
     }
 `}
             </style>
-            <SearchDropdownInput
-              title={t('equipment.user')}
-              classname="w-full"
-              placeholder="Выберите объект"
-              options={allWorkers}
-              {...register('userId', {
-                required: 'User ID is required',
-                validate: value => value !== 0 || 'User ID is required',
-              })}
-              value={formData.userId}
-              onChange={value => {
-                handleInputChange('userId', value);
-              }}
-              error={!!errors.userId}
-              errorText={errors.userId?.message}
-            />
+            {allowed && (
+              <SearchDropdownInput
+                title={t('equipment.user')}
+                classname="w-full"
+                placeholder="Выберите объект"
+                options={allWorkers}
+                {...register('userId', {
+                  required: 'User ID is required',
+                  validate: value => value !== 0 || 'User ID is required',
+                })}
+                value={formData.userId}
+                onChange={value => {
+                  handleInputChange('userId', value);
+                }}
+                error={!!errors.userId}
+                errorText={errors.userId?.message}
+              />
+            )}
             <div className="flex flex-col sm:flex-row sm:justify-end gap-4 mt-6">
               <Button
                 title={t('organizations.cancel')}
@@ -1195,7 +1209,7 @@ const Articles: React.FC = () => {
 
       <div className="mt-5">
         <div style={{ marginBottom: 16 }}>
-          <div className='flex flex-col space-y-4 space-x-0 sm:space-x-2 sm:flex-row sm:space-y-0'>
+          <div className="flex flex-col space-y-4 space-x-0 sm:space-x-2 sm:flex-row sm:space-y-0">
             <Can
               requiredPermissions={[
                 { action: 'manage', subject: 'ManagerPaper' },

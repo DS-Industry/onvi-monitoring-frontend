@@ -37,7 +37,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useUser } from '@/hooks/useUserStore';
 import hasPermission from '@/permissions/hasPermission';
 import { usePermissions } from '@/hooks/useAuthStore';
-import { formatRussianPhone } from '@/utils/tableUnits';
+import { formatPhoneByCountry } from '@/utils/tableUnits';
 
 const Employees: React.FC = () => {
   const { t } = useTranslation();
@@ -121,6 +121,7 @@ const Employees: React.FC = () => {
   const name = searchParams.get('name') || undefined;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
+  const [countryCode, setCountryCode] = useState('+7');
 
   const { data: workersData, isLoading: workersLoading } = useSWR(
     [
@@ -193,6 +194,7 @@ const Employees: React.FC = () => {
     hrPositionId: '',
     placementId: '',
     organizationId: user.organizationId || -1,
+    birthday: undefined,
     startWorkDate: undefined,
     phone: undefined,
     email: undefined,
@@ -226,6 +228,7 @@ const Employees: React.FC = () => {
           placementId: String(formData.placementId),
           organizationId: formData.organizationId,
           startWorkDate: formData.startWorkDate,
+          birthday: formData.birthday,
           phone: formData.phone,
           email: formData.email,
           description: formData.description,
@@ -256,13 +259,18 @@ const Employees: React.FC = () => {
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const input = e.target.value;
+    const digits = e.target.value.replace(/\D/g, '');
 
-    let cleanValue = '+7' + input.replace(/\D/g, '').replace(/^7/, '');
-    if (cleanValue.length > 12) cleanValue = cleanValue.slice(0, 12);
+    const fullNumber = digits ? `${countryCode}${digits}` : '';
 
-    setFormData(prev => ({ ...prev, phone: cleanValue }));
-    setValue('phone', cleanValue);
+    setFormData(prev => ({ ...prev, phone: fullNumber }));
+    setValue('phone', fullNumber);
+  };
+
+  const handleCountryChange = (newCode: string) => {
+    setCountryCode(newCode);
+    setFormData(prev => ({ ...prev, phone: '' }));
+    setValue('phone', '');
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -537,19 +545,33 @@ const Employees: React.FC = () => {
               {...register('startWorkDate')}
             />
           </div>
+          <div>
+            <div className="text-sm text-text02">{t('register.date')}</div>
+            <DateInput
+              classname="w-80"
+              value={formData.birthday ? dayjs(formData.birthday) : null}
+              changeValue={date =>
+                handleInputChange(
+                  'birthday',
+                  date ? date.format('YYYY-MM-DD') : ''
+                )
+              }
+              {...register('birthday')}
+            />
+          </div>
           <Input
-            type=""
+            isPhone
             title={t('profile.telephone')}
             label={t('warehouse.enterPhone')}
             classname="w-80"
-            value={formatRussianPhone(String(formData.phone))}
+            value={formatPhoneByCountry(
+              String(String(formData.phone).replace(countryCode, '')),
+              countryCode
+            )}
             changeValue={handlePhoneChange}
-            {...register('phone', {
-              pattern: {
-                value: /^\+79\d{9}$/,
-                message: t('validation.phoneValidFormat'),
-              },
-            })}
+            countryCode={countryCode}
+            onCountryChange={handleCountryChange}
+            {...register('phone')}
             error={!!errors.phone}
             helperText={errors.phone?.message || ''}
           />
