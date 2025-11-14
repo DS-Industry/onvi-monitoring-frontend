@@ -120,7 +120,7 @@ const Pos: React.FC = () => {
         return (
           <Link
             to={{
-              pathname: '/station/enrollments/devices',
+              pathname: '/administration/objectManagement/pos/tabs',
               search: `?posId=${record.id || '*'}`,
             }}
             className="text-blue-500 hover:text-blue-700 font-semibold"
