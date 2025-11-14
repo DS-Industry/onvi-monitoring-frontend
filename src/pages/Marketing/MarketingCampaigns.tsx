@@ -127,7 +127,7 @@ const MarketingCampaigns: React.FC = () => {
       title: t('marketing.campaignType'),
       dataIndex: 'executionType',
       key: 'executionType',
-      render: (text: string) => <span>{t(`tables.${text}`) || '—'}</span>,
+      render: (text: string) => <span>{text ? t(`tables.${text}`) : '—'}</span>,
     },
     {
       title: t('marketing.launchDate'),
