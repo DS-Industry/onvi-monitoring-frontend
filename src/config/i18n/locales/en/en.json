@@ -922,7 +922,9 @@
     "unknownWorker": "Unknown worker",
     "OWNER": "Owner",
     "PARTICIPANT": "Participant",
-    "ALL": "All"
+    "ALL": "All",
+    "TRANSACTIONAL": "Transactional",
+    "BEHAVIORAL": "Behavioral"
   },
   "finance": {
     "deleteFailed": "Failed to delete shift",

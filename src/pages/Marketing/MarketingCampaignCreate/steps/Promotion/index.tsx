@@ -31,10 +31,14 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const { showToast } = useToast();
   const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
+  const editMode = Boolean(searchParams.get('mode') === 'edit');
 
   const [editorContent, setEditorContent] = useState('');
   const [bannerImage, setBannerImage] = useState<string | null>(null);
   const [bannerImageUrl, setBannerImageUrl] = useState<string | null>(null);
+  const [initialEditorContent, setInitialEditorContent] = useState<string | null>(null);
+  const [initialBannerImageUrl, setInitialBannerImageUrl] = useState<string | null>(null);
+  const [initialPromotionType, setInitialPromotionType] = useState<MarketingCampaignMobileDisplayType | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [promotionType, setPromotionType] = useState<MarketingCampaignMobileDisplayType>(
     MarketingCampaignMobileDisplayType.PersonalPromocode
@@ -57,19 +61,33 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
 
   useEffect(() => {
     if (mobileDisplayData) {
+      let newEditorContent = '';
+      let newBannerImageUrl: string | null = null;
+      let newPromotionType = MarketingCampaignMobileDisplayType.PersonalPromocode;
+
       if (mobileDisplayData.type === MarketingCampaignMobileDisplayType.Promo && mobileDisplayData.description) {
-        setEditorContent(mobileDisplayData.description);
+        newEditorContent = mobileDisplayData.description;
       } else if (mobileDisplayData.type === MarketingCampaignMobileDisplayType.PersonalPromocode) {
-        setEditorContent('');
+        newEditorContent = '';
       }
 
       if (mobileDisplayData.imageLink) {
+        newBannerImageUrl = mobileDisplayData.imageLink;
         setBannerImage(mobileDisplayData.imageLink);
-        setBannerImageUrl(mobileDisplayData.imageLink);
       }
 
       if (mobileDisplayData.type) {
-        setPromotionType(mobileDisplayData.type);
+        newPromotionType = mobileDisplayData.type;
+      }
+
+      setEditorContent(newEditorContent);
+      setBannerImageUrl(newBannerImageUrl);
+      setPromotionType(newPromotionType);
+
+      if (initialEditorContent === null) {
+        setInitialEditorContent(newEditorContent);
+        setInitialBannerImageUrl(newBannerImageUrl);
+        setInitialPromotionType(newPromotionType);
       }
     }
   }, [mobileDisplayData]);
@@ -150,6 +168,23 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
         return;
       }
 
+      if (editMode) {
+        // Check if anything has changed
+        const hasChanged =
+          editorContent !== initialEditorContent ||
+          bannerImageUrl !== initialBannerImageUrl ||
+          promotionType !== initialPromotionType;
+
+        if (!hasChanged) {
+          // No changes, just navigate to next step
+          updateSearchParams(searchParams, setSearchParams, {
+            step: 6,
+          });
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       if (!bannerImageUrl) {
         showToast(t('errors.other.errorDuringFormSubmission'), 'error');
         return;
@@ -173,11 +208,16 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
       }
 
       await upsertMarketingCampaignMobileDisplay(marketingCampaignId, request);
-      showToast(t('marketing.loyaltyCreated'), 'success');
+
+      // Update initial values after successful update
+      setInitialEditorContent(editorContent);
+      setInitialBannerImageUrl(bannerImageUrl);
+      setInitialPromotionType(promotionType);
 
       updateSearchParams(searchParams, setSearchParams, {
         step: 6,
       });
+      showToast(t('tables.SAVED'), 'success');
     } catch (error) {
       console.error('Error during form submission: ', error);
       showToast(t('errors.other.errorDuringFormSubmission'), 'error');

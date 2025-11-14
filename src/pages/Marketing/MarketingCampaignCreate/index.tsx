@@ -31,7 +31,7 @@ const MarketingCampaignCreate: React.FC = () => {
 
   const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
 
-  const isUpdate = Boolean(searchParams.get('mode') === 'edit');
+  const editMode = Boolean(searchParams.get('mode') === 'edit');
 
   const {
     data: marketingCampaign,
@@ -53,7 +53,7 @@ const MarketingCampaignCreate: React.FC = () => {
   const steps = [
     {
       title: t('warehouse.basic'),
-      content: isUpdate ? (
+      content: editMode ? (
         <BasicInformationUpdate
           campaign={marketingCampaign}
           isLoading={isLoading || isValidating}
@@ -96,7 +96,7 @@ const MarketingCampaignCreate: React.FC = () => {
   ];
 
   const handleStepClick = (stepIndex: number) => {
-    if (!isUpdate) return;
+    if (!editMode) return;
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set('step', (stepIndex + 1).toString());
     setSearchParams(newSearchParams);
@@ -115,7 +115,7 @@ const MarketingCampaignCreate: React.FC = () => {
           </div>
           <div>
             <span className="text-xl sm:text-3xl font-normal text-text01">
-              {isUpdate
+              {editMode
                 ? marketingCampaign?.name
                 : t('routes.creatingCampaign')}
             </span>
@@ -134,7 +134,7 @@ const MarketingCampaignCreate: React.FC = () => {
             <Step
               key={index}
               title={step.title}
-              icon={isUpdate ? step.icon : undefined}
+              icon={editMode ? step.icon : undefined}
             />
           ))}
         </Steps>

@@ -28,9 +28,12 @@ import { getFilteredConditionTypes } from '../../utils/conditionTypes';
 const Terms: React.FC = () => {
     const { t } = useTranslation();
     const [searchParams, setSearchParams] = useSearchParams();
+    const editMode = Boolean(searchParams.get('mode') === 'edit');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [rewardValue, setRewardValue] = useState<number>(0);
     const [discountType, setDiscountType] = useState<'PERCENTAGE' | 'FIXED_AMOUNT'>('PERCENTAGE');
+    const [initialRewardValue, setInitialRewardValue] = useState<number | null>(null);
+    const [initialDiscountType, setInitialDiscountType] = useState<'PERCENTAGE' | 'FIXED_AMOUNT' | null>(null);
     const [currentCondition, setCurrentCondition] = useState<{
         type?: MarketingCampaignConditionType;
         value?: any;
@@ -66,34 +69,61 @@ const Terms: React.FC = () => {
             const payload = marketingCampaign.actionPayload;
 
             if (actionType === 'DISCOUNT') {
+                let newRewardValue = 0;
+                let newDiscountType: 'PERCENTAGE' | 'FIXED_AMOUNT' = 'PERCENTAGE';
+
                 if (payload?.discountValue !== undefined) {
-                    setRewardValue(payload.discountValue);
+                    newRewardValue = payload.discountValue;
                 } else if (marketingCampaign.discountValue) {
-                    setRewardValue(marketingCampaign.discountValue);
+                    newRewardValue = marketingCampaign.discountValue;
                 }
                 if (payload?.discountType) {
-                    setDiscountType(payload.discountType as 'PERCENTAGE' | 'FIXED_AMOUNT');
+                    newDiscountType = payload.discountType as 'PERCENTAGE' | 'FIXED_AMOUNT';
                 } else if (marketingCampaign.discountType) {
-                    setDiscountType(marketingCampaign.discountType as 'PERCENTAGE' | 'FIXED_AMOUNT');
+                    newDiscountType = marketingCampaign.discountType as 'PERCENTAGE' | 'FIXED_AMOUNT';
+                }
+
+                setRewardValue(newRewardValue);
+                setDiscountType(newDiscountType);
+                if (initialRewardValue === null) {
+                    setInitialRewardValue(newRewardValue);
+                    setInitialDiscountType(newDiscountType);
                 }
             } else if (actionType === 'CASHBACK_BOOST') {
+                let newRewardValue = 0;
+                let newDiscountType: 'PERCENTAGE' | 'FIXED_AMOUNT' = 'PERCENTAGE';
+
                 if (payload?.percentage !== undefined) {
-                    setRewardValue(payload.percentage);
-                    setDiscountType('PERCENTAGE');
+                    newRewardValue = payload.percentage;
+                    newDiscountType = 'PERCENTAGE';
                 } else if (payload?.multiplier !== undefined) {
-                    setRewardValue(payload.multiplier);
-                    setDiscountType('FIXED_AMOUNT');
+                    newRewardValue = payload.multiplier;
+                    newDiscountType = 'FIXED_AMOUNT';
                 } else if (marketingCampaign.discountValue) {
-                    setRewardValue(marketingCampaign.discountValue);
+                    newRewardValue = marketingCampaign.discountValue;
                     if (marketingCampaign.discountType) {
-                        setDiscountType(marketingCampaign.discountType as 'PERCENTAGE' | 'FIXED_AMOUNT');
+                        newDiscountType = marketingCampaign.discountType as 'PERCENTAGE' | 'FIXED_AMOUNT';
                     }
                 }
+
+                setRewardValue(newRewardValue);
+                setDiscountType(newDiscountType);
+                if (initialRewardValue === null) {
+                    setInitialRewardValue(newRewardValue);
+                    setInitialDiscountType(newDiscountType);
+                }
             } else if (actionType === 'GIFT_POINTS') {
+                let newRewardValue = 0;
+
                 if (payload?.points !== undefined) {
-                    setRewardValue(payload.points);
+                    newRewardValue = payload.points;
                 } else if (marketingCampaign.discountValue) {
-                    setRewardValue(marketingCampaign.discountValue);
+                    newRewardValue = marketingCampaign.discountValue;
+                }
+
+                setRewardValue(newRewardValue);
+                if (initialRewardValue === null) {
+                    setInitialRewardValue(newRewardValue);
                 }
             }
         }
@@ -190,7 +220,7 @@ const Terms: React.FC = () => {
 
             await createNewMarketingConditions(payload, marketingCampaignId);
             mutateCampaign();
-            message.success(t('marketingCampaigns.conditionAdded'));
+            showToast(t('tables.SAVED'), 'success');
             setCurrentCondition({});
             setIsModalOpen(false);
             refreshConditions();
@@ -392,6 +422,18 @@ const Terms: React.FC = () => {
                         onClick={async () => {
                             if (!marketingCampaignId) return;
 
+                            if (editMode) {
+                                const hasChanged =
+                                    (actionType === 'DISCOUNT' || actionType === 'CASHBACK_BOOST')
+                                        ? (rewardValue !== initialRewardValue || discountType !== initialDiscountType)
+                                        : (rewardValue !== initialRewardValue);
+
+                                if (!hasChanged) {
+                                    updateSearchParams(searchParams, setSearchParams, { step: currentStep + 1 });
+                                    return;
+                                }
+                            }
+
                             if (!rewardValue || rewardValue <= 0) {
                                 message.warning(t('validation.rewardValueRequired') || 'Please enter a reward value');
                                 return;
@@ -435,12 +477,16 @@ const Terms: React.FC = () => {
                                     payload,
                                 });
 
-                                message.success(t('marketingCampaigns.rewardUpdated'));
+                                setInitialRewardValue(rewardValue);
+                                if (actionType === 'DISCOUNT' || actionType === 'CASHBACK_BOOST') {
+                                    setInitialDiscountType(discountType);
+                                }
 
                                 updateSearchParams(searchParams, setSearchParams, { step: currentStep + 1 });
+                                showToast(t('tables.SAVED'), 'success');
                             } catch (error) {
                                 console.error(error);
-                                message.error(t('common.somethingWentWrong'));
+                                showToast(t('common.somethingWentWrong'), 'error');
                             } finally {
                                 setUpdatingData(false);
                             }

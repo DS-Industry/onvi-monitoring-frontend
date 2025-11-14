@@ -25,6 +25,7 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
     const [searchParams, setSearchParams] = useSearchParams();
     const { showToast } = useToast();
     const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
+    const editMode = Boolean(searchParams.get('mode') === 'edit');
     const [executionType, setExecutionType] = useState<CampaignExecutionType | null>(null);
     const [updating, setUpdating] = useState(false);
     const [actionType, setActionType] = useState<ACTION_TYPE | null>(null);
@@ -53,7 +54,18 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
         }
     }, [marketingCampaign]);
 
+    // Check if execution type and action type are already set up
+    const isAlreadySetUp = editMode && executionType && actionType;
+
     const handleNext = async () => {
+        if (editMode && isAlreadySetUp) {
+            // In edit mode with both already set, just navigate to next step without updating
+            updateSearchParams(searchParams, setSearchParams, {
+                step: 3,
+            });
+            return;
+        }
+
         if (!marketingCampaignId) {
             showToast(t('errors.other.errorDuringFormSubmission'), 'error');
             return;
@@ -84,7 +96,7 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
             });
 
 
-            showToast(t('marketing.loyaltyCreated'), 'success');
+            showToast(t('tables.SAVED'), 'success');
 
             updateSearchParams(searchParams, setSearchParams, {
                 step: 3,
@@ -129,16 +141,16 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Card
-                            hoverable
+                            hoverable={!isAlreadySetUp && isEditable}
                             onClick={() => {
-                                if (isEditable) {
+                                if (!isAlreadySetUp && isEditable) {
                                     if (executionType !== CampaignExecutionType.TRANSACTIONAL) {
                                         setActionType(null)
                                     }
                                     setExecutionType(CampaignExecutionType.TRANSACTIONAL);
                                 }
                             }}
-                            className={`cursor-pointer transition-all ${executionType === CampaignExecutionType.TRANSACTIONAL
+                            className={`${!isAlreadySetUp && isEditable ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'} transition-all ${executionType === CampaignExecutionType.TRANSACTIONAL
                                 ? 'border-primary02 border-2 shadow-md bg-[#F5FBFF]'
                                 : 'border-gray-200'
                                 }`}
@@ -163,16 +175,16 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
                         </Card>
 
                         <Card
-                            hoverable
+                            hoverable={!isAlreadySetUp && isEditable}
                             onClick={() => {
-                                if (isEditable) {
+                                if (!isAlreadySetUp && isEditable) {
                                     if (executionType !== CampaignExecutionType.BEHAVIORAL) {
                                         setActionType(null)
                                     }
                                     setExecutionType(CampaignExecutionType.BEHAVIORAL);
                                 }
                             }}
-                            className={`cursor-pointer transition-all ${executionType === CampaignExecutionType.BEHAVIORAL
+                            className={`${!isAlreadySetUp && isEditable ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'} transition-all ${executionType === CampaignExecutionType.BEHAVIORAL
                                 ? 'border-primary02 border-2 shadow-md bg-[#F5FBFF]'
                                 : 'border-gray-200'
                                 }`}
@@ -203,7 +215,7 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
                         {t('marketingCampaigns.actionType')}
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4`}>
                         <ActionTypeCard
                             actionType="DISCOUNT"
                             icon={PercentageOutlined}
@@ -212,7 +224,7 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
                             requiredExecutionType={CampaignExecutionType.TRANSACTIONAL}
                             selectedActionType={actionType}
                             executionType={executionType}
-                            isEditable={isEditable}
+                            isEditable={!isAlreadySetUp && isEditable}
                             onSelect={setActionType}
                         />
 
@@ -224,7 +236,7 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
                             requiredExecutionType={CampaignExecutionType.TRANSACTIONAL}
                             selectedActionType={actionType}
                             executionType={executionType}
-                            isEditable={isEditable}
+                            isEditable={!isAlreadySetUp && isEditable}
                             onSelect={setActionType}
                         />
 
@@ -236,7 +248,7 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
                             requiredExecutionType={CampaignExecutionType.BEHAVIORAL}
                             selectedActionType={actionType}
                             executionType={executionType}
-                            isEditable={isEditable}
+                            isEditable={!isAlreadySetUp && isEditable}
                             onSelect={setActionType}
                         />
 
@@ -248,7 +260,7 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
                             requiredExecutionType={CampaignExecutionType.BEHAVIORAL}
                             selectedActionType={actionType}
                             executionType={executionType}
-                            isEditable={isEditable}
+                            isEditable={!isAlreadySetUp && isEditable}
                             onSelect={setActionType}
                         />
                     </div>
@@ -257,7 +269,7 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
             </div >
 
             {
-                isEditable && (
+                (isEditable || editMode) && (
                     <div className="flex justify-end gap-2 mt-6">
                         <Button
                             type="primary"

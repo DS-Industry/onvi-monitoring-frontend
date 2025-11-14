@@ -112,7 +112,7 @@
     "appointment": "Справочник назначений",
     "createTask": "Создать задчу",
     "timesheetView": "Просмотр табеля",
-    "marketingCompanies": "Маркетинговые компании",
+    "marketingCompanies": "Маркетинговые кампании",
     "newMarketingCampaign": "Новая маркетинговая кампания",
     "debugging": "Отладка",
     "falseDeposits": "Ложные зачисления",
@@ -922,7 +922,9 @@
     "unknownWorker": "Неизвестный работник",
     "OWNER": "Владелец",
     "PARTICIPANT": "Участник",
-    "ALL": "Все"
+    "ALL": "Все",
+    "TRANSACTIONAL": "При оплате заказа",
+    "BEHAVIORAL": "По событию клиента"
   },
   "finance": {
     "deleteFailed": "Не удалось удалить смену",

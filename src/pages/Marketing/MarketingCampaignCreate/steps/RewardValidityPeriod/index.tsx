@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Input, Checkbox, message } from 'antd';
+import { Button, Input, Checkbox } from 'antd';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { RightOutlined, CalendarOutlined, InfoCircleOutlined } from '@ant-design/icons';
@@ -17,9 +17,12 @@ const RewardValidityPeriod: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const { showToast } = useToast();
     const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
+    const editMode = Boolean(searchParams.get('mode') === 'edit');
 
     const [days, setDays] = useState<number | null>(null);
     const [isIndefinite, setIsIndefinite] = useState(false);
+    const [initialDays, setInitialDays] = useState<number | null>(null);
+    const [initialIsIndefinite, setInitialIsIndefinite] = useState(false);
     const [updating, setUpdating] = useState(false);
 
     const {
@@ -39,19 +42,30 @@ const RewardValidityPeriod: React.FC = () => {
 
     useEffect(() => {
         if (marketingCampaign) {
+            let newDays: number | null = null;
+            let newIsIndefinite = false;
+
             if (marketingCampaign.activeDays !== undefined && marketingCampaign.activeDays !== null) {
-                setDays(marketingCampaign.activeDays);
-                setIsIndefinite(false);
+                newDays = marketingCampaign.activeDays;
+                newIsIndefinite = false;
             }
             else if (marketingCampaign.actionPayload) {
                 const payload = marketingCampaign.actionPayload;
                 if (payload.rewardValidityDays !== undefined) {
-                    setDays(payload.rewardValidityDays);
-                    setIsIndefinite(false);
+                    newDays = payload.rewardValidityDays;
+                    newIsIndefinite = false;
                 } else if (payload.rewardValidityIndefinite === true) {
-                    setIsIndefinite(true);
-                    setDays(null);
+                    newIsIndefinite = true;
+                    newDays = null;
                 }
+            }
+
+            setDays(newDays);
+            setIsIndefinite(newIsIndefinite);
+
+            if (initialDays === null) {
+                setInitialDays(newDays);
+                setInitialIsIndefinite(newIsIndefinite);
             }
         }
     }, [marketingCampaign]);
@@ -83,6 +97,15 @@ const RewardValidityPeriod: React.FC = () => {
             return;
         }
 
+        if (editMode) {
+            const hasChanged = days !== initialDays || isIndefinite !== initialIsIndefinite;
+
+            if (!hasChanged) {
+                updateSearchParams(searchParams, setSearchParams, { step: 5 });
+                return;
+            }
+        }
+
         try {
             setUpdating(true);
 
@@ -96,12 +119,14 @@ const RewardValidityPeriod: React.FC = () => {
 
             await mutate();
 
-            message.success(t('marketingCampaigns.rewardValidityUpdated'));
+            setInitialDays(days);
+            setInitialIsIndefinite(isIndefinite);
 
             updateSearchParams(searchParams, setSearchParams, { step: 5 });
+            showToast(t('tables.SAVED'), 'success');
         } catch (error) {
             console.error('Error updating reward validity period: ', error);
-            message.error(t('common.somethingWentWrong'));
+            showToast(t('common.somethingWentWrong'), 'error');
         } finally {
             setUpdating(false);
         }

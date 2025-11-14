@@ -95,7 +95,7 @@ const BasicInformation: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                     marketingCampaignId: result.id,
                 });
             }
-            showToast(t('marketing.loyaltyCreated'), 'success');
+            showToast(t('tables.SAVED'), 'success');
         } catch (error) {
             console.error('Error during form submission: ', error);
             showToast(t('errors.other.errorDuringFormSubmission'), 'error');

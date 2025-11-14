@@ -53,7 +53,7 @@ const ActionTypeCard: React.FC<ActionTypeCardProps> = ({
         <Card
             hoverable
             onClick={handleClick}
-            className={`cursor-pointer transition-all ${borderColor}`}
+            className={`${isEditable ? "cursor-pointer" : "cursor-not-allowed opacity-60"} : transition-all ${borderColor}`}
             style={{
                 borderRadius: 12,
                 minHeight: 140,

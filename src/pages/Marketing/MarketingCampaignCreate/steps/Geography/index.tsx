@@ -10,13 +10,16 @@ import ParticipantsMap from '@/components/ui/ParticipantsMap';
 import GeographyList from './GeographyList';
 import { useUser } from '@/hooks/useUserStore';
 import { MarketingCampaignStatus } from '@/utils/constants';
+import { useToast } from '@/components/context/useContext';
 
 const Geography: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
   const currentStep = Number(searchParams.get('step')) || 1;
+  const editMode = Boolean(searchParams.get('mode') === 'edit');
   const user = useUser();
+  const { showToast } = useToast();
 
   const navigate = useNavigate()
 
@@ -58,6 +61,7 @@ const Geography: React.FC = () => {
   );
 
   const [visibleParticipants, setVisibleParticipants] = useState<PosResponse[]>([]);
+  const [initialPosIds, setInitialPosIds] = useState<number[] | null>(null);
 
   const [sheetPosition, setSheetPosition] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -68,6 +72,12 @@ const Geography: React.FC = () => {
   const handleSelectionChange = useCallback((selected: PosResponse[]) => {
     setVisibleParticipants(selected);
   }, []);
+
+  useEffect(() => {
+    if (marketCampaignByIdData?.posIds && initialPosIds === null) {
+      setInitialPosIds(marketCampaignByIdData.posIds);
+    }
+  }, [marketCampaignByIdData, initialPosIds]);
 
   const handleSaveAndExit = async () => {
     if (!marketingCampaignId || !loyaltyProgramId) {
@@ -85,6 +95,20 @@ const Geography: React.FC = () => {
       return;
     }
 
+    if (editMode && initialPosIds) {
+      // Check if POS IDs have changed
+      const hasChanged =
+        selectedPosIds.length !== initialPosIds.length ||
+        selectedPosIds.some(id => !initialPosIds.includes(id)) ||
+        initialPosIds.some(id => !selectedPosIds.includes(id));
+
+      if (!hasChanged) {
+        // No changes, just navigate back
+        navigate('/marketing/campaigns');
+        return;
+      }
+    }
+
     try {
       const updateRequest: UpdateMarketingCampaignRequest = {
         posIds: selectedPosIds,
@@ -92,7 +116,12 @@ const Geography: React.FC = () => {
       };
 
       await triggerUpdate(updateRequest);
+
+      // Update initial values after successful update
+      setInitialPosIds(selectedPosIds);
+
       navigate('/marketing/campaigns');
+      showToast(t('tables.SAVED'), 'success');
     } catch (error) {
       message.error(t('marketing.errorCampaign'));
     }
@@ -114,6 +143,32 @@ const Geography: React.FC = () => {
       return;
     }
 
+    if (editMode && initialPosIds) {
+      // Check if POS IDs have changed
+      const hasChanged =
+        selectedPosIds.length !== initialPosIds.length ||
+        selectedPosIds.some(id => !initialPosIds.includes(id)) ||
+        initialPosIds.some(id => !selectedPosIds.includes(id));
+
+      if (!hasChanged) {
+        // No changes, just update status and navigate
+        try {
+          const updateRequest: UpdateMarketingCampaignRequest = {
+            posIds: selectedPosIds,
+            ltyProgramParticipantId: selectedProgram.props.participantId,
+            status: MarketingCampaignStatus.ACTIVE,
+          };
+
+          await triggerUpdate(updateRequest);
+          navigate('/marketing/campaigns');
+          showToast(t('tables.SAVED'), 'success');
+        } catch (error) {
+          message.error(t('marketing.errorCampaign'));
+        }
+        return;
+      }
+    }
+
     try {
       const updateRequest: UpdateMarketingCampaignRequest = {
         posIds: selectedPosIds,
@@ -122,7 +177,12 @@ const Geography: React.FC = () => {
       };
 
       await triggerUpdate(updateRequest);
+
+      // Update initial values after successful update
+      setInitialPosIds(selectedPosIds);
+
       navigate('/marketing/campaigns');
+      showToast(t('tables.SAVED'), 'success');
     } catch (error) {
       message.error(t('marketing.errorCampaign'));
     }
