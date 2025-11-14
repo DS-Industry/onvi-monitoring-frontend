@@ -30,6 +30,7 @@ const DiscountReward: React.FC<DiscountRewardProps> = ({
                             type="number"
                             className="flex-1 max-w-32"
                             value={rewardValue}
+                            min={0}
                             suffix={
                                 discountType === 'PERCENTAGE' ? (
                                     <div className="text-text02">%</div>

@@ -19,7 +19,7 @@ const CashbackReward: React.FC<CashbackRewardProps> = ({
     const { t } = useTranslation();
 
     return (
-        <div className="flex flex-col items-center min-h-[150px] w-full sm:w-64">
+        <div className="flex flex-col items-center min-h-[150px] max-w-full sm:w-128">
             <div className="w-full mb-4">
                 <div className="flex flex-col space-y-3">
                     <div className="flex items-center justify-between gap-3">
@@ -28,7 +28,7 @@ const CashbackReward: React.FC<CashbackRewardProps> = ({
                         </div>
                         <Input
                             type="number"
-                            className="flex-1 max-w-32"
+                            className="flex-1 max-w-128"
                             value={rewardValue}
                             suffix={
                                 discountType === 'PERCENTAGE' ? (
@@ -37,6 +37,7 @@ const CashbackReward: React.FC<CashbackRewardProps> = ({
                                     <div className="text-text02">₽</div>
                                 )
                             }
+                            min={0}
                             onChange={e => onValueChange(Number(e.target.value) || 0)}
                         />
                     </div>

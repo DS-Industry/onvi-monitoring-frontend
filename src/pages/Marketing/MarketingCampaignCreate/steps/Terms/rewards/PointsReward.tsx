@@ -30,6 +30,7 @@ const PointsReward: React.FC<PointsRewardProps> = ({
                                 {t('loyaltyRequests.points')}
                             </div>
                         }
+                        min={0}
                         onChange={e => onValueChange(Number(e.target.value) || 0)}
                     />
                 </div>

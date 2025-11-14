@@ -30,7 +30,7 @@ const ConditionCard: React.FC<ConditionCardProps> = ({
 
   return (
     <React.Fragment>
-      <div className="relative flex items-center justify-center w-52 h-24 border-[0.5px] border-primary02 rounded-lg bg-white shadow-sm">
+      <div className="relative flex items-center justify-center w-64 h-24 border-[0.5px] border-primary02 rounded-lg bg-white shadow-sm">
         <Button
           size="small"
           type="text"
@@ -41,7 +41,7 @@ const ConditionCard: React.FC<ConditionCardProps> = ({
           disabled={isDeleting}
         />
 
-        <div className="flex flex-col items-center justify-center text-center px-2">
+        <div className="flex flex-col items-center justify-center text-center px-2 flex flex-wrap">
           <div className="text-sm font-semibold text-text01">
             {conditionLabel}
           </div>

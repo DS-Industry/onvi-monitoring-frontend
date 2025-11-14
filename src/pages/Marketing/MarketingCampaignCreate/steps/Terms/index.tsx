@@ -7,6 +7,8 @@ import ConditionModal from './ConditionModal';
 import ConditionsSection from './ConditionsSection';
 import RewardSection from './RewardSection';
 import ActionButtons from './ActionButtons';
+
+import { CheckOutlined } from '@ant-design/icons';
 import useSWR from 'swr';
 import {
     getMarketingConditionsById,
@@ -379,6 +381,20 @@ const Terms: React.FC = () => {
 
     return (
         <div className="flex flex-col space-y-6 sm:space-y-8 lg:space-y-10 bg-background02 p-6 rounded-lg">
+            <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-primary02 flex items-center justify-center rounded-full text-white">
+                    <CheckOutlined style={{ fontSize: 24 }} />
+                </div>
+                <div>
+                    <div className="font-bold text-text01 text-2xl">
+                        {t('marketingCampaigns.term')}
+                    </div>
+                    <div className="text-base03 text-md">
+                        {t('marketingCampaigns.settingUp')}
+                    </div>
+                </div>
+            </div>
+
             {contextHolder}
             <ConditionModal
                 open={isModalOpen}
