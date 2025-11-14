@@ -120,7 +120,8 @@
     "createLoyalty": "Creating a loyalty program",
     "viewLoyalty": "Viewing a loyalty program",
     "creatingCampaign": "Creating a Marketing Campaign",
-    "editingCampaign": "Editing a Marketing Campaign"
+    "editingCampaign": "Editing a Marketing Campaign",
+    "viewBranch": "View Branch"
   },
   "dashboard": {
     "news": "News",
@@ -234,7 +235,13 @@
     "no": "Number of cars",
     "revBy": "Revenue by programs",
     "currencyType": "Currency Type",
-    "country": "Country"
+    "country": "Country",
+    "basicInformation": "Basic Information",
+    "shiftCost": "Shift Cost",
+    "displaying": "Displaying basic information about a branch",
+    "displayingCost": "Displaying the cost of job changes for a branch",
+    "stepAmount": "Order amount step",
+    "bonusPart": "Bonus Part"
   },
   "profile": {
     "basic": "Basic Details",

@@ -13,6 +13,7 @@ import MonthlyExpanse from '@/pages/Finance/MonthlyExpanse';
 import MonthlyExpanseEdit from '@/pages/Finance/MonthlyExpanseEdit';
 import DirectoryArticles from '@/pages/Finance/DirectoryArticles';
 import MarketingCampaigns from '@/pages/Marketing/MarketingCampaigns';
+import PosProfile from '@/pages/Pos/PosProfile';
 const Pos = React.lazy(() => import('@/pages/Pos/Pos'));
 const Organization = React.lazy(
   () => import('@/pages/Organization/Organizations')
@@ -274,6 +275,22 @@ const routes = [
           { action: 'read', subject: 'Pos' },
         ],
         isSidebar: true,
+        isHr: false,
+        titleName: '',
+        subNav: [],
+        subMenu: false,
+      },
+      {
+        name: 'objectManagement',
+        isVisible: true,
+        path: '/administration/objectManagement/pos/tabs',
+        component: PosProfile,
+        permissions: [
+          { action: 'manage', subject: 'Pos' },
+          { action: 'create', subject: 'Pos' },
+          { action: 'read', subject: 'Pos' },
+        ],
+        isSidebar: false,
         isHr: false,
         titleName: '',
         subNav: [],
