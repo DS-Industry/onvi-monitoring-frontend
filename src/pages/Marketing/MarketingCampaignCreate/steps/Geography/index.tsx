@@ -96,14 +96,12 @@ const Geography: React.FC = () => {
     }
 
     if (editMode && initialPosIds) {
-      // Check if POS IDs have changed
       const hasChanged =
         selectedPosIds.length !== initialPosIds.length ||
         selectedPosIds.some(id => !initialPosIds.includes(id)) ||
         initialPosIds.some(id => !selectedPosIds.includes(id));
 
       if (!hasChanged) {
-        // No changes, just navigate back
         navigate('/marketing/campaigns');
         return;
       }
@@ -116,8 +114,6 @@ const Geography: React.FC = () => {
       };
 
       await triggerUpdate(updateRequest);
-
-      // Update initial values after successful update
       setInitialPosIds(selectedPosIds);
 
       navigate('/marketing/campaigns');
@@ -144,14 +140,12 @@ const Geography: React.FC = () => {
     }
 
     if (editMode && initialPosIds) {
-      // Check if POS IDs have changed
       const hasChanged =
         selectedPosIds.length !== initialPosIds.length ||
         selectedPosIds.some(id => !initialPosIds.includes(id)) ||
         initialPosIds.some(id => !selectedPosIds.includes(id));
 
       if (!hasChanged) {
-        // No changes, just update status and navigate
         try {
           const updateRequest: UpdateMarketingCampaignRequest = {
             posIds: selectedPosIds,
@@ -177,8 +171,6 @@ const Geography: React.FC = () => {
       };
 
       await triggerUpdate(updateRequest);
-
-      // Update initial values after successful update
       setInitialPosIds(selectedPosIds);
 
       navigate('/marketing/campaigns');
