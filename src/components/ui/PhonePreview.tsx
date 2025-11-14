@@ -4,11 +4,12 @@ import phoneFrameImage from '@/assets/iphone.png';
 import iphoneMainImage from '@/assets/iphone-main.png';
 
 import iphonePromoDefaultImage from '@/assets/iphone-promo-default-image.png';
+import iphonePromoImage from '@/assets/iphone-promo.png';
 
 interface PhonePreviewProps {
     content: string;
     bannerImage?: string | null;
-    type?: 'main' | 'news';
+    type?: 'main' | 'news' | 'promocode';
     maxHeight?: string;
 }
 
@@ -23,7 +24,7 @@ const PhonePreview: React.FC<PhonePreviewProps> = ({
     bannerImage,
     type = 'news',
 }) => {
-    const frameImage = type === 'main' ? iphoneMainImage : phoneFrameImage;
+    const frameImage = type === 'main' ? iphoneMainImage : type === 'promocode' ? iphonePromoImage : phoneFrameImage;
 
     const phoneFrameStyle = useMemo(() => {
         return {
