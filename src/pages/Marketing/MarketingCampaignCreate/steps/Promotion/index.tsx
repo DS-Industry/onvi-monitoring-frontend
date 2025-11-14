@@ -169,14 +169,12 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
       }
 
       if (editMode) {
-        // Check if anything has changed
         const hasChanged =
           editorContent !== initialEditorContent ||
           bannerImageUrl !== initialBannerImageUrl ||
           promotionType !== initialPromotionType;
 
         if (!hasChanged) {
-          // No changes, just navigate to next step
           updateSearchParams(searchParams, setSearchParams, {
             step: 6,
           });
@@ -209,7 +207,6 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
 
       await upsertMarketingCampaignMobileDisplay(marketingCampaignId, request);
 
-      // Update initial values after successful update
       setInitialEditorContent(editorContent);
       setInitialBannerImageUrl(bannerImageUrl);
       setInitialPromotionType(promotionType);
