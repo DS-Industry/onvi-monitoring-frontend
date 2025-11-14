@@ -64,7 +64,7 @@ const { Title, Text } = Typography;
 
 interface FinancialCardProps {
   title: string;
-  amount: number;
+  amount: string;
   currency: string;
   trend: 'up' | 'down' | 'neutral';
   color: string;
@@ -452,7 +452,11 @@ const Articles: React.FC = () => {
   const financialData = [
     {
       title: 'Доходы',
-      amount: allManagersGraphData?.receipt || 0,
+      amount:
+        allManagersGraphData?.receipt.toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }) || '0.00',
       currency: '₽',
       trend: 'up' as const,
       color: '#52c41a',
@@ -460,7 +464,11 @@ const Articles: React.FC = () => {
     },
     {
       title: 'Расходы',
-      amount: allManagersGraphData?.expenditure || 0,
+      amount:
+        allManagersGraphData?.expenditure.toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }) || '0.00',
       currency: '₽',
       trend: 'down' as const,
       color: '#ff4d4f',
@@ -468,7 +476,11 @@ const Articles: React.FC = () => {
     },
     {
       title: 'Баланс',
-      amount: allManagersGraphData?.balance || 0,
+      amount:
+        allManagersGraphData?.balance.toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }) || '0.00',
       currency: '₽',
       trend: 'neutral' as const,
       color: '#1890ff',
@@ -695,7 +707,11 @@ const Articles: React.FC = () => {
       dataIndex: 'sum',
       width: '5%',
       editable: true,
-      render: (value: number) => `${value.toLocaleString('ru-RU')} ₽`,
+      render: (value: number) =>
+        `${value.toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })} ₽`,
     },
     {
       title: t('equipment.comment'),
