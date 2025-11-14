@@ -68,13 +68,13 @@ const MarketingCampaigns: React.FC = () => {
   const { data: promotionsData, isLoading } = useSWR(
     user.organizationId
       ? [
-          'marketing-campaigns',
-          user.organizationId,
-          status,
-          currentPage,
-          pageSize,
-          name,
-        ]
+        'marketing-campaigns',
+        user.organizationId,
+        status,
+        currentPage,
+        pageSize,
+        name,
+      ]
       : null,
     () =>
       getMarketingCampaign({
@@ -125,8 +125,8 @@ const MarketingCampaigns: React.FC = () => {
     },
     {
       title: t('marketing.campaignType'),
-      dataIndex: 'type',
-      key: 'type',
+      dataIndex: 'executionType',
+      key: 'executionType',
       render: (text: string) => <span>{t(`tables.${text}`) || '—'}</span>,
     },
     {

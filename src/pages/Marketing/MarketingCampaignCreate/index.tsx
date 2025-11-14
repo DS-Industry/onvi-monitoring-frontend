@@ -7,15 +7,17 @@ import {
   CreditCardOutlined,
   CarOutlined,
   FireOutlined,
-  LineChartOutlined,
+  ThunderboltOutlined,
+  CalendarOutlined,
 } from '@ant-design/icons';
-import BasicInformation from './BasicInformation';
-import Terms from './Terms';
-import Promotion from './Promotion';
-import Geography from './Geography';
+import BasicInformation from './steps/BasicInformationCreate';
+import Terms from './steps/Terms';
+import ExecutionType from './steps/ExecutionType';
+import RewardValidityPeriod from './steps/RewardValidityPeriod';
+import Promotion from './steps/Promotion';
+import Geography from './steps/Geography';
 import { Steps } from 'antd';
-import Stats from './Stats';
-import BasicInformationUpdate from './update/BasicInformationUpdate';
+import BasicInformationUpdate from './steps/BasicInformationUpdate';
 import { getMarketingCampaignById } from '@/services/api/marketing';
 import useSWR from 'swr';
 
@@ -29,7 +31,7 @@ const MarketingCampaignCreate: React.FC = () => {
 
   const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
 
-  const isUpdate = Boolean(searchParams.get('mode') === 'edit');
+  const editMode = Boolean(searchParams.get('mode') === 'edit');
 
   const {
     data: marketingCampaign,
@@ -46,10 +48,12 @@ const MarketingCampaignCreate: React.FC = () => {
     }
   );
 
+  const isHubPlus = marketingCampaign?.ltyProgramHubPlus;
+
   const steps = [
     {
       title: t('warehouse.basic'),
-      content: isUpdate ? (
+      content: editMode ? (
         <BasicInformationUpdate
           campaign={marketingCampaign}
           isLoading={isLoading || isValidating}
@@ -61,29 +65,38 @@ const MarketingCampaignCreate: React.FC = () => {
       icon: <SettingOutlined />,
     },
     {
+      title: t('marketingCampaigns.executionType'),
+      content: <ExecutionType />,
+      icon: <ThunderboltOutlined />,
+    },
+    {
       title: t('marketingCampaigns.terms'),
       content: <Terms />,
       icon: <CreditCardOutlined />,
     },
     {
-      title: t('marketingCampaigns.promotion'),
-      content: <Promotion />,
-      icon: <CarOutlined />,
+      title: t('marketingCampaigns.rewardValidityPeriod'),
+      content: <RewardValidityPeriod />,
+      icon: <CalendarOutlined />,
     },
+    ...(!isHubPlus
+      ? [
+        {
+          title: t('marketingCampaigns.promotion'),
+          content: <Promotion />,
+          icon: <CarOutlined />,
+        },
+      ]
+      : []),
     {
       title: t('marketingCampaigns.geography'),
       content: <Geography />,
       icon: <FireOutlined />,
-    },
-    {
-      title: t('marketingLoyalty.stats'),
-      content: <Stats />,
-      icon: <LineChartOutlined />,
-    },
+    }
   ];
 
   const handleStepClick = (stepIndex: number) => {
-    if (!isUpdate) return;
+    if (!editMode) return;
     const newSearchParams = new URLSearchParams(searchParams);
     newSearchParams.set('step', (stepIndex + 1).toString());
     setSearchParams(newSearchParams);
@@ -102,7 +115,7 @@ const MarketingCampaignCreate: React.FC = () => {
           </div>
           <div>
             <span className="text-xl sm:text-3xl font-normal text-text01">
-              {isUpdate
+              {editMode
                 ? marketingCampaign?.name
                 : t('routes.creatingCampaign')}
             </span>
@@ -121,7 +134,7 @@ const MarketingCampaignCreate: React.FC = () => {
             <Step
               key={index}
               title={step.title}
-              icon={isUpdate ? step.icon : undefined}
+              icon={editMode ? step.icon : undefined}
             />
           ))}
         </Steps>

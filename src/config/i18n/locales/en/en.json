@@ -120,7 +120,8 @@
     "createLoyalty": "Creating a loyalty program",
     "viewLoyalty": "Viewing a loyalty program",
     "viewBranch": "View Branch",
-    "creatingCampaign": "Creating a Marketing Campaign"
+    "creatingCampaign": "Creating a Marketing Campaign",
+    "editingCampaign": "Editing a Marketing Campaign"
   },
   "dashboard": {
     "news": "News",
@@ -688,6 +689,10 @@
     "hubRequestSubmitted": "Hub request submitted successfully",
     "per": "Percent",
     "fix": "Fixed",
+    "promoCode": "Promo Code",
+    "discountType": "Discount Type",
+    "discountValue": "Discount Value",
+    "maxUsagePerUser": "Max Usage Per User",
     "enterBon": "Enter bonus amount",
     "enterPer": "Enter bonus percentage",
     "setUp": "Set up events to award additional bonuses and discounts to the client.",
@@ -922,7 +927,9 @@
     "unknownWorker": "Unknown worker",
     "OWNER": "Owner",
     "PARTICIPANT": "Participant",
-    "ALL": "All"
+    "ALL": "All",
+    "TRANSACTIONAL": "Transactional",
+    "BEHAVIORAL": "Behavioral"
   },
   "finance": {
     "deleteFailed": "Failed to delete shift",
@@ -1150,7 +1157,8 @@
     "thursday": "Thursday",
     "friday": "Friday",
     "saturday": "Saturday",
-    "sunday": "Sunday"
+    "sunday": "Sunday",
+    "skip": "Skip"
   },
   "analysis": {
     "search": "Search",
@@ -1898,7 +1906,7 @@
     "day": "Day of the week",
     "reward": "Reward",
     "sett": "Setting up a reward for fulfilling conditions",
-    "discount": "Discount percentage:",
+    "discountPercentage": "Discount percentage:",
     "give": "Give a discount to the client as a percentage",
     "increased": "Increased cashback",
     "increase": "Increase your cashback during the promotion period",
@@ -1923,7 +1931,35 @@
     "event": "Event",
     "selectEvent": "Enter event",
     "displaying": "Displaying marketing campaign usage statistics",
-    "cashback": "Cashback for the promotion period:",
-    "uses": "Number of uses"
+    "cashbackForPromotionPeriod": "Cashback for the promotion period:",
+    "uses": "Number of uses",
+    "executionType": "Execution Type",
+    "transactional": "Transactional",
+    "transactionalDescription": "Activated at the moment of client order payment",
+    "behavioral": "Behavioral",
+    "behavioralDescription": "Activated in case of any client action",
+    "triggerType": "Trigger Type",
+    "actionType": "Action Type",
+    "actionTypeDescription": "Setting up the trigger type and action type of the marketing campaign",
+    "promoType": "Promotion Type",
+    "discount": "Discount",
+    "discountDescription": "Possibility of providing a discount to the client",
+    "promocode": "Promo Code",
+    "promocodeDescription": "Possibility of creating and issuing promo codes (ONVI and participants)",
+    "noPromocodeLinked": "No promocode linked to this campaign",
+    "points": "Points",
+    "pointsDescription": "Possibility of accruing points to the client (ONVI)",
+    "cashback": "Cashback",
+    "cashbackDescription": "Possibility of providing cashback to the client",
+    "birthdayNoValueNeeded": "For the 'Birthday' trigger type, no value is needed",
+    "rewardValidityPeriod": "Reward validity period",
+    "rewardValidityPeriodDescription": "Setting the validity period for the received reward",
+    "numberOfDays": "Number of days",
+    "numberOfDaysDescription": "Specify how many days the bonus or discount will be active after fulfilling the conditions",
+    "enterNumberOfDays": "Enter number of days",
+    "indefiniteWindow": "Indefinite window",
+    "indefiniteWindowDescription": "Do not limit the bonus or discount by time",
+    "rewardValidityPeriodTip": "For example, if you specify 3 days — the client will be able to use the discount within three days after activation.",
+    "rewardValidityUpdated": "Reward validity period updated"
   }
 }
