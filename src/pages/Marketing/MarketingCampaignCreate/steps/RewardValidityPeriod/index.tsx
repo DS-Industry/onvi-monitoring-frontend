@@ -2,133 +2,106 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Input, Checkbox } from 'antd';
 import { useSearchParams } from 'react-router-dom';
-import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { RightOutlined, CalendarOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useToast } from '@/components/context/useContext';
 import useSWR from 'swr';
-import {
-    getMarketingCampaignById,
-    updateMarketingCampaign,
-} from '@/services/api/marketing';
+import { getMarketingCampaignById, updateMarketingCampaign } from '@/services/api/marketing';
 import CalendarImage from '@/assets/Calendar.png';
+import { extractRewardValidityPeriod, hasValidityPeriodChanged, RewardValidityPeriodData } from './utils';
+
+const NEXT_STEP = 5;
 
 const RewardValidityPeriod: React.FC = () => {
     const { t } = useTranslation();
     const [searchParams, setSearchParams] = useSearchParams();
     const { showToast } = useToast();
-    const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
-    const editMode = Boolean(searchParams.get('mode') === 'edit');
 
-    const [days, setDays] = useState<number | null>(null);
-    const [isIndefinite, setIsIndefinite] = useState(false);
-    const [initialDays, setInitialDays] = useState<number | null>(null);
-    const [initialIsIndefinite, setInitialIsIndefinite] = useState(false);
-    const [updating, setUpdating] = useState(false);
+    const campaignId = Number(searchParams.get('marketingCampaignId')) || null;
+    const isEditMode = searchParams.get('mode') === 'edit';
+
+    const [formData, setFormData] = useState<RewardValidityPeriodData>({
+        days: null,
+        isIndefinite: false,
+    });
+    const [initialData, setInitialData] = useState<RewardValidityPeriodData>({
+        days: null,
+        isIndefinite: false,
+    });
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [isInitialized, setIsInitialized] = useState(false);
 
     const {
-        data: marketingCampaign,
+        data: campaign,
         isLoading,
         isValidating,
         mutate,
     } = useSWR(
-        marketingCampaignId
-            ? [`get-marketing-campaign-by-id`, marketingCampaignId]
-            : null,
-        () => getMarketingCampaignById(marketingCampaignId),
+        campaignId ? [`get-marketing-campaign-by-id`, campaignId] : null,
+        () => getMarketingCampaignById(campaignId!),
         {
             revalidateOnFocus: false,
         }
     );
 
     useEffect(() => {
-        if (marketingCampaign) {
-            let newDays: number | null = null;
-            let newIsIndefinite = false;
-
-            if (marketingCampaign.activeDays !== undefined && marketingCampaign.activeDays !== null) {
-                newDays = marketingCampaign.activeDays;
-                newIsIndefinite = false;
-            }
-            else if (marketingCampaign.actionPayload) {
-                const payload = marketingCampaign.actionPayload;
-                if (payload.rewardValidityDays !== undefined) {
-                    newDays = payload.rewardValidityDays;
-                    newIsIndefinite = false;
-                } else if (payload.rewardValidityIndefinite === true) {
-                    newIsIndefinite = true;
-                    newDays = null;
-                }
-            }
-
-            setDays(newDays);
-            setIsIndefinite(newIsIndefinite);
-
-            if (initialDays === null) {
-                setInitialDays(newDays);
-                setInitialIsIndefinite(newIsIndefinite);
-            }
+        if (campaign && !isInitialized) {
+            const extractedData = extractRewardValidityPeriod(campaign);
+            setFormData(extractedData);
+            setInitialData(extractedData);
+            setIsInitialized(true);
         }
-    }, [marketingCampaign]);
+    }, [campaign, isInitialized]);
 
     const handleDaysChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         if (value === '') {
-            setDays(null);
+            setFormData(prev => ({ ...prev, days: null, isIndefinite: false }));
         } else {
             const numValue = parseInt(value, 10);
             if (!isNaN(numValue) && numValue > 0) {
-                setDays(numValue);
-                setIsIndefinite(false);
+                setFormData(prev => ({ ...prev, days: numValue, isIndefinite: false }));
             }
         }
     };
 
-    const handleIndefiniteChange = (e: any) => {
-        const checked = e.target.checked;
-        setIsIndefinite(checked);
-        if (checked) {
-            setDays(null);
-        }
+    const handleIndefiniteChange = (e: { target: { checked: boolean } }) => {
+        const isIndefinite = e.target.checked;
+        setFormData(prev => ({
+            ...prev,
+            isIndefinite,
+            days: isIndefinite ? null : prev.days,
+        }));
     };
 
     const handleNext = async () => {
-        if (!marketingCampaignId || !marketingCampaign) {
+        if (!campaignId || !campaign) {
             showToast(t('errors.other.errorDuringFormSubmission'), 'error');
             return;
         }
 
-        if (editMode) {
-            const hasChanged = days !== initialDays || isIndefinite !== initialIsIndefinite;
-
-            if (!hasChanged) {
-                updateSearchParams(searchParams, setSearchParams, { step: 5 });
-                return;
-            }
+        if (isEditMode && !hasValidityPeriodChanged(formData, initialData)) {
+            updateSearchParams(searchParams, setSearchParams, { step: NEXT_STEP });
+            return;
         }
 
         try {
-            setUpdating(true);
+            setIsUpdating(true);
 
-            const updatePayload: { activeDays?: number | null } = {};
-
-
-            updatePayload.activeDays = days || null;
-
-
-            await updateMarketingCampaign(marketingCampaignId, updatePayload);
+            await updateMarketingCampaign(campaignId, {
+                activeDays: formData.days || null,
+            });
 
             await mutate();
+            setInitialData(formData);
 
-            setInitialDays(days);
-            setInitialIsIndefinite(isIndefinite);
-
-            updateSearchParams(searchParams, setSearchParams, { step: 5 });
+            updateSearchParams(searchParams, setSearchParams, { step: NEXT_STEP });
             showToast(t('tables.SAVED'), 'success');
         } catch (error) {
-            console.error('Error updating reward validity period: ', error);
+            console.error('Error updating reward validity period:', error);
             showToast(t('common.somethingWentWrong'), 'error');
         } finally {
-            setUpdating(false);
+            setIsUpdating(false);
         }
     };
 
@@ -170,9 +143,9 @@ const RewardValidityPeriod: React.FC = () => {
                                         type="number"
                                         min={1}
                                         placeholder={t('marketingCampaigns.enterNumberOfDays')}
-                                        value={days ? days.toString() : ''}
+                                        value={formData.days ? formData.days.toString() : ''}
                                         onChange={handleDaysChange}
-                                        disabled={isIndefinite}
+                                        disabled={formData.isIndefinite}
                                         className="max-w-md"
                                     />
                                 </div>
@@ -182,7 +155,7 @@ const RewardValidityPeriod: React.FC = () => {
                                         {t('marketingCampaigns.indefiniteWindow')}
                                     </div>
                                     <Checkbox
-                                        checked={isIndefinite}
+                                        checked={formData.isIndefinite}
                                         onChange={handleIndefiniteChange}
                                     >
                                         {t('marketingCampaigns.indefiniteWindowDescription')}
@@ -218,7 +191,7 @@ const RewardValidityPeriod: React.FC = () => {
                     type="primary"
                     icon={<RightOutlined />}
                     iconPosition="end"
-                    loading={updating}
+                    loading={isUpdating}
                     onClick={handleNext}
                 >
                     {t('common.next')}
@@ -229,4 +202,3 @@ const RewardValidityPeriod: React.FC = () => {
 };
 
 export default RewardValidityPeriod;
-
