@@ -72,7 +72,7 @@ const BasicInformation: React.FC = () => {
             </div>
             <Input
               placeholder={t('organizations.fullNamePlaceholder')}
-              className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[384px]"
+              className="w-full sm:w-auto sm:min-w-72 lg:min-w-96"
               {...register('name')}
               value={formData.name}
               onChange={e => handleInputChange('name', e.target.value)}
@@ -84,7 +84,7 @@ const BasicInformation: React.FC = () => {
             </div>
             <Input
               placeholder={t('marketing.enterAddress')}
-              className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[384px]"
+              className="w-full sm:w-auto sm:min-w-72 lg:min-w-96"
               {...register('address')}
               value={formData.address}
               onChange={e => handleInputChange('address', e.target.value)}
@@ -128,7 +128,7 @@ const BasicInformation: React.FC = () => {
             <Input
               type="number"
               placeholder={'00'}
-              className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[384px]"
+              className="w-full sm:w-auto sm:min-w-72 lg:min-w-96"
               {...register('monthlyPlan')}
               value={formData.monthlyPlan}
               onChange={e => handleInputChange('monthlyPlan', e.target.value)}
@@ -142,7 +142,7 @@ const BasicInformation: React.FC = () => {
             <Select
               placeholder={t('pos.companyName')}
               options={[]}
-              className="w-80 sm:max-w-96"
+              className="w-full sm:w-auto sm:min-w-72 lg:min-w-96"
               {...register('organizationId')}
               value={formData.organizationId}
               onChange={value => handleInputChange('organizationId', value)}
@@ -162,7 +162,7 @@ const BasicInformation: React.FC = () => {
                   value: 'SelfServiceAndPortal',
                 },
               ]}
-              className="w-80 sm:max-w-96"
+              className="w-full sm:w-auto sm:min-w-72 lg:min-w-96"
               {...register('carWashPosType')}
               value={formData.carWashPosType}
               onChange={value => handleInputChange('carWashPosType', value)}
@@ -175,7 +175,7 @@ const BasicInformation: React.FC = () => {
             <Input
               placeholder="00"
               type="number"
-              className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[384px]"
+              className="w-full sm:w-auto sm:min-w-72 lg:min-w-96"
               {...register('minSumOrder')}
               value={formData.minSumOrder !== null ? formData.minSumOrder : ''}
               onChange={e => handleInputChange('minSumOrder', e.target.value)}
@@ -189,7 +189,7 @@ const BasicInformation: React.FC = () => {
             <Input
               placeholder="00"
               type="number"
-              className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[384px]"
+              className="w-full sm:w-auto sm:min-w-72 lg:min-w-96"
               {...register('maxSumOrder')}
               value={formData.maxSumOrder !== null ? formData.maxSumOrder : ''}
               onChange={e => handleInputChange('maxSumOrder', e.target.value)}
@@ -203,7 +203,7 @@ const BasicInformation: React.FC = () => {
             <Input
               placeholder="00"
               type="number"
-              className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[384px]"
+              className="w-full sm:w-auto sm:min-w-72 lg:min-w-96"
               {...register('stepSumAmount')}
               value={formData.stepSumAmount !== null ? formData.stepSumAmount : ''}
               onChange={e => handleInputChange('stepSumAmount', e.target.value)}
