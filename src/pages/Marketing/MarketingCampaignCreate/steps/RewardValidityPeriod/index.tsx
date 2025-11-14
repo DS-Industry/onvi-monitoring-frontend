@@ -35,7 +35,6 @@ const RewardValidityPeriod: React.FC = () => {
         data: campaign,
         isLoading,
         isValidating,
-        mutate,
     } = useSWR(
         campaignId ? [`get-marketing-campaign-by-id`, campaignId] : null,
         () => getMarketingCampaignById(campaignId!),
@@ -92,7 +91,6 @@ const RewardValidityPeriod: React.FC = () => {
                 activeDays: formData.days || null,
             });
 
-            await mutate();
             setInitialData(formData);
 
             updateSearchParams(searchParams, setSearchParams, { step: NEXT_STEP });

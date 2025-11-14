@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import useFormHook from '@/hooks/useFormHook';
-import { Button, Row, Col, Card, Typography, Upload, Skeleton } from 'antd';
+import { Button, Row, Col, Card, Typography, Upload } from 'antd';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { RightOutlined } from '@ant-design/icons';
@@ -226,6 +226,12 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
     }
   };
 
+  if (isLoading) {
+    return <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-background02 p-6 rounded-lg">
+      <div className="text-text02">{t('common.loading')}</div>
+    </div>
+  }
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="bg-background02 pb-3">
       <div className="flex flex-col rounded-lg lg:flex-row">
@@ -277,122 +283,99 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
 
               <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
                 <Col xs={24} lg={18}>
-                  {isLoading ? (
-                    <Card
-                      styles={{
-                        body: {
-                          padding: 24,
-                        },
-                      }}
-                    >
-                      <Skeleton active paragraph={{ rows: 1 }} style={{ marginBottom: 16 }} />
-                      <Skeleton active paragraph={{ rows: 3 }} style={{ marginBottom: 16 }} />
-                      <Skeleton.Button active size="large" />
-                    </Card>
-                  ) : (
-                    <Card
-                      title="Контент акции"
-                      styles={{
-                        body: {
-                          padding: 24,
-                        },
-                      }}
-                    >
+
+                  <Card
+                    title="Контент акции"
+                    styles={{
+                      body: {
+                        padding: 24,
+                      },
+                    }}
+                  >
+                    <div style={{ marginBottom: 16 }}>
+                      <Text type="secondary">Настройка отображения кампании в приложении</Text>
+                    </div>
+                    {promotionType === MarketingCampaignMobileDisplayType.Promo && (
                       <div style={{ marginBottom: 16 }}>
-                        <Text type="secondary">Настройка отображения кампании в приложении</Text>
-                      </div>
-                      {promotionType === MarketingCampaignMobileDisplayType.Promo && (
-                        <div style={{ marginBottom: 16 }}>
-                          <Text strong style={{ display: 'block', marginBottom: 8 }}>
-                            Описание в приложении
-                          </Text>
-                          <TipTapEditor
-                            value={editorContent}
-                            onChange={setEditorContent}
-                          />
-                        </div>
-                      )}
-                      <div>
                         <Text strong style={{ display: 'block', marginBottom: 8 }}>
-                          Баннер/иконка в приложении
+                          Описание в приложении
                         </Text>
-                        <Text type="secondary" style={{ display: 'block', marginBottom: 8, fontSize: '12px' }}>
-                          (оптимально: 166 x 166 px - иконка, 343 x 180 px - для баннера)
-                        </Text>
-                        {bannerImage ? (
-                          <div style={{ position: 'relative', display: 'inline-block', marginBottom: 8 }}>
-                            <img
-                              src={bannerImage}
-                              alt="Banner preview"
-                              style={{
-                                maxWidth: '100%',
-                                maxHeight: '200px',
-                                borderRadius: '8px',
-                                objectFit: 'contain',
-                              }}
-                            />
-                            <Button
-                              type="text"
-                              danger
-                              icon={<DeleteOutlined />}
-                              onClick={handleRemoveImage}
-                              style={{
-                                position: 'absolute',
-                                top: 4,
-                                right: 4,
-                                background: 'rgba(255, 255, 255, 0.9)',
-                              }}
-                            >
-                              Удалить
-                            </Button>
-                          </div>
-                        ) : null}
-                        <Upload {...uploadProps}>
-                          <Button
-                            icon={<UploadOutlined />}
-                            loading={uploadingImage}
-                            disabled={!isEditable || uploadingImage}
-                          >
-                            {bannerImage ? 'Заменить изображение' : 'Выберите файл или перетащите сюда'}
-                          </Button>
-                        </Upload>
+                        <TipTapEditor
+                          value={editorContent}
+                          onChange={setEditorContent}
+                        />
                       </div>
-                    </Card>
-                  )}
+                    )}
+                    <div>
+                      <Text strong style={{ display: 'block', marginBottom: 8 }}>
+                        Баннер/иконка в приложении
+                      </Text>
+                      <Text type="secondary" style={{ display: 'block', marginBottom: 8, fontSize: '12px' }}>
+                        (оптимально: 166 x 166 px - иконка, 343 x 180 px - для баннера)
+                      </Text>
+                      {bannerImage ? (
+                        <div style={{ position: 'relative', display: 'inline-block', marginBottom: 8 }}>
+                          <img
+                            src={bannerImage}
+                            alt="Banner preview"
+                            style={{
+                              maxWidth: '100%',
+                              maxHeight: '200px',
+                              borderRadius: '8px',
+                              objectFit: 'contain',
+                            }}
+                          />
+                          <Button
+                            type="text"
+                            danger
+                            icon={<DeleteOutlined />}
+                            onClick={handleRemoveImage}
+                            style={{
+                              position: 'absolute',
+                              top: 4,
+                              right: 4,
+                              background: 'rgba(255, 255, 255, 0.9)',
+                            }}
+                          >
+                            Удалить
+                          </Button>
+                        </div>
+                      ) : null}
+                      <Upload {...uploadProps}>
+                        <Button
+                          icon={<UploadOutlined />}
+                          loading={uploadingImage}
+                          disabled={!isEditable || uploadingImage}
+                        >
+                          {bannerImage ? 'Заменить изображение' : 'Выберите файл или перетащите сюда'}
+                        </Button>
+                      </Upload>
+                    </div>
+                  </Card>
+
                 </Col>
 
                 <Col xs={0} lg={6}>
-                  {isLoading ? (
-                    <div className="flex gap-4 items-center transform scale-[0.8] origin-top">
-                      <Skeleton.Image active style={{ width: '375px', height: '812px' }} />
-                      <div className="flex items-center" style={{ width: '337.5px', flexShrink: 0 }}>
+                  <div className="flex gap-4 items-center transform scale-[0.8] origin-top">
+                    <div>
+                      <PhonePreview
+                        content={editorContent}
+                        bannerImage={bannerImage}
+                        type={promotionType === MarketingCampaignMobileDisplayType.Promo ? "main" : "promocode"}
+                      />
+                    </div>
+                    <div className="flex items-center" style={{ width: '337.5px', flexShrink: 0 }}>
+                      {promotionType === MarketingCampaignMobileDisplayType.Promo ? (
                         <div className="transform scale-[0.9] origin-center">
-                          <Skeleton.Image active style={{ width: '375px', height: '812px' }} />
+                          <PhonePreview
+                            bannerImage={bannerImage}
+                            type="news"
+                            content={editorContent}
+                          />
                         </div>
-                      </div>
+                      ) : null}
                     </div>
-                  ) : (
-                    <div className="flex gap-4 items-center transform scale-[0.8] origin-top">
-                      <div>
-                        <PhonePreview
-                          content={editorContent}
-                          bannerImage={bannerImage}
-                          type={promotionType === MarketingCampaignMobileDisplayType.Promo ? "main" : "promocode"}
-                        />
-                      </div>
-                      <div className="flex items-center" style={{ width: '337.5px', flexShrink: 0 }}>
-                        {promotionType === MarketingCampaignMobileDisplayType.Promo ? (
-                          <div className="transform scale-[0.9] origin-center">
-                            <PhonePreview
-                              bannerImage={bannerImage}
-                              type="news"
-                              content={editorContent}
-                            />
-                          </div>
-                        ) : null}
-                      </div>
-                    </div>
-                  )}
+                  </div>
                 </Col>
               </Row>
             </div>

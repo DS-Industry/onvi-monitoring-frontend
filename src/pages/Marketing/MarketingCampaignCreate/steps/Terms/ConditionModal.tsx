@@ -228,11 +228,14 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
                                 className="w-60"
                                 placeholder={t('marketing.enter')}
                                 value={currentCondition.value}
-                                onChange={e =>
+                                min={0}
+                                onChange={(e) => {
+                                    if (Number(e.target.value) < 0) return;
                                     setCurrentCondition(prev => ({
                                         ...prev,
                                         value: e.target.value,
                                     }))
+                                }
                                 }
                                 suffix={<div>₽</div>}
                             />
@@ -245,11 +248,14 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
                                 className="w-60"
                                 placeholder={t('techTasks.enterDaysCount')}
                                 value={currentCondition.value}
-                                onChange={e =>
+                                min={0}
+                                onChange={(e) => {
+                                    if (Number(e.target.value) < 0) return;
                                     setCurrentCondition(prev => ({
                                         ...prev,
                                         value: e.target.value,
                                     }))
+                                }
                                 }
                             />
                         )}
@@ -306,11 +312,14 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
                                         className="w-60"
                                         placeholder={t('marketing.enter')}
                                         value={promocodeData.discountValue}
-                                        onChange={e =>
+                                        min={0}
+                                        onChange={(e) => {
+                                            if (Number(e.target.value) < 0) return;
                                             setPromocodeData(prev => ({
                                                 ...prev,
                                                 discountValue: e.target.value,
                                             }))
+                                        }
                                         }
                                         suffix={
                                             promocodeData.discountType ===
@@ -331,11 +340,14 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
                                         className="w-60"
                                         placeholder={t('marketing.enter')}
                                         value={promocodeData.maxUsagePerUser}
-                                        onChange={e =>
+                                        min={0}
+                                        onChange={(e) => {
+                                            if (Number(e.target.value) < 0) return;
                                             setPromocodeData(prev => ({
                                                 ...prev,
                                                 maxUsagePerUser: e.target.value,
                                             }))
+                                        }
                                         }
                                     />
                                 </div>
