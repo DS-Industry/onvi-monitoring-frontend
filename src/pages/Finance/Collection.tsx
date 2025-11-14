@@ -16,18 +16,15 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { ColumnsType } from 'antd/es/table';
-import {
-  getCurrencyRender,
-  getFormatPeriodType,
-  getStatusTagRender,
-} from '@/utils/tableUnits';
+import { getCurrencyRender, getStatusTagRender } from '@/utils/tableUnits';
 import { PlusOutlined } from '@ant-design/icons';
 import { useUser } from '@/hooks/useUserStore';
 
 type CashCollectionLevel = {
   id: number;
   posId: number;
-  period: string;
+  oldCashCollectionDate: Date;
+  cashCollectionDate: Date;
   sumFact: number;
   sumCard: number;
   sumVirtual: number;
@@ -67,7 +64,6 @@ const Collection: React.FC = () => {
   const cityParam = Number(searchParams.get('city')) || undefined;
   const user = useUser();
 
-  const formatPeriodType = getFormatPeriodType();
   const renderCurrency = getCurrencyRender();
   const renderStatus = getStatusTagRender(t);
 
@@ -172,7 +168,16 @@ const Collection: React.FC = () => {
         title: t('marketing.period'),
         dataIndex: 'period',
         key: 'period',
-        render: formatPeriodType,
+        render: (_, record: CashCollectionLevel) => {
+          return (
+            <div>
+              {dayjs(record.oldCashCollectionDate).format(
+                'DD-MM-YYYY hh:mm:ss'
+              )}{' '}
+              - {dayjs(record.cashCollectionDate).format('DD-MM-YYYY hh:mm:ss')}
+            </div>
+          );
+        },
       },
       {
         title: t('table.headers.status'),
@@ -238,7 +243,7 @@ const Collection: React.FC = () => {
         ...item,
         posName: poses.find(pos => pos.value === item.posId)?.name || '',
         status: t(`tables.${item.status}`),
-        parsedPeriod: dayjs(item.period.split('-')[0]).toDate(),
+        parsedPeriod: dayjs(item.oldCashCollectionDate).toDate(),
         createdByName: creator ? `${creator.name} ${creator.surname}` : '-',
       };
 

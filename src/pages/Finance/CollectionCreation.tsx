@@ -158,6 +158,8 @@ const CollectionCreation: React.FC = () => {
       setTableData(collections.cashCollectionDeviceType);
       setDeviceData(collections.cashCollectionDevice);
       setCollectionData(collections);
+      setOldCashCollectionDate(collections.oldCashCollectionDate);
+      setCashCollectionDate(collections.cashCollectionDate);
     } else {
       setTableData([]);
       setDeviceData([]);
@@ -193,6 +195,8 @@ const CollectionCreation: React.FC = () => {
   const [openCashColl, setOpenCashColl] = useState(true);
   const [openCollDevice, setOpenCollDevice] = useState(true);
   const [hideButton, setHideButton] = useState(false);
+  const [oldCashCollectionDate, setOldCashCollectionDate] = useState<Date | undefined>(undefined);
+  const [cashCollectionDate, setCashCollectionDate] = useState<Date | undefined>(undefined);
 
   const handleTableChange = (
     id: number,
@@ -271,6 +275,8 @@ const CollectionCreation: React.FC = () => {
       })) || [];
 
     const result = await recalCollection({
+      oldCashCollectionDate: oldCashCollectionDate,
+      cashCollectionDate: cashCollectionDate,
       cashCollectionDeviceData: collectionDevice,
       cashCollectionDeviceTypeData: collectionDeviceType,
     });
@@ -278,6 +284,8 @@ const CollectionCreation: React.FC = () => {
     if (result) {
       setTableData(result.cashCollectionDeviceType);
       setDeviceData(result.cashCollectionDevice);
+      setOldCashCollectionDate(result.oldCashCollectionDate),
+      setCashCollectionDate(result.cashCollectionDate);
       setCollectionData(result);
     }
   };
@@ -305,6 +313,8 @@ const CollectionCreation: React.FC = () => {
         tookMoneyTime: data.tookMoneyTime,
       })) || [];
     const result = await senCollection({
+      oldCashCollectionDate: oldCashCollectionDate,
+      cashCollectionDate: cashCollectionDate,
       cashCollectionDeviceData: collectionDevice,
       cashCollectionDeviceTypeData: collectionDeviceType,
     });
@@ -313,6 +323,8 @@ const CollectionCreation: React.FC = () => {
       setTableData(result.cashCollectionDeviceType);
       setDeviceData(result.cashCollectionDevice);
       setCollectionData(result);
+      setOldCashCollectionDate(result.oldCashCollectionDate),
+      setCashCollectionDate(result.cashCollectionDate);
       navigate('/finance/collection');
     }
   };
@@ -369,7 +381,7 @@ const CollectionCreation: React.FC = () => {
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="flex space-x-4">
             <DateTimeInput
-              title={t('finance.start') + '*'}
+              title={t('finance.collectionDate') + '*'}
               value={
                 formData.cashCollectionDate
                   ? dayjs(formData.cashCollectionDate)
@@ -468,6 +480,38 @@ const CollectionCreation: React.FC = () => {
       <div>
         {tableData.length > 0 ? (
           <div>
+            <div className='flex flex-col space-y-5 mb-5'>
+            <DateTimeInput
+              title={t('finance.oldCashDate')}
+              value={
+                oldCashCollectionDate
+                  ? dayjs(oldCashCollectionDate)
+                  : undefined
+              }
+              changeValue={date =>
+                setOldCashCollectionDate(
+                  date ? date.toDate() : undefined
+                )
+              }
+              {...register('cashCollectionDate')}
+              classname="w-64"
+            />
+            <DateTimeInput
+              title={t('finance.cashDate')}
+              value={
+                cashCollectionDate
+                  ? dayjs(cashCollectionDate)
+                  : undefined
+              }
+              changeValue={date =>
+                setCashCollectionDate(
+                  date ? date.toDate() : undefined
+                )
+              }
+              {...register('cashCollectionDate')}
+              classname="w-64"
+            />
+            </div>
             <div className="flex items-center space-x-2">
               <div
                 className="cursor-pointer bg-background03 w-6 h-6 rounded text-text01 flex items-center justify-center"
