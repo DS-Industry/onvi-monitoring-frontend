@@ -48,6 +48,11 @@ export enum MarketingDiscountType {
   PERCENTAGE = 'PERCENTAGE',
 }
 
+export enum CampaignExecutionType {
+  TRANSACTIONAL = 'TRANSACTIONAL',
+  BEHAVIORAL = 'BEHAVIORAL',
+}
+
 export type ClientRequestBody = {
   name: string;
   birthday?: Date;
@@ -822,6 +827,7 @@ export type MarketingCampaignResponse = {
   description?: string;
   ltyProgramId?: number;
   ltyProgramName?: string;
+  ltyProgramHubPlus: boolean;
   discountType: string;
   discountValue: number;
   promocode?: string;
@@ -831,6 +837,17 @@ export type MarketingCampaignResponse = {
   posIds: number[];
   createdAt: string;
   updatedAt: string;
+  executionType?: CampaignExecutionType;
+  actionType?: ACTION_TYPE;
+  actionPayload?: Record<string, any>;
+  actionPromocode?: {
+    code: string;
+    discountType: string;
+    discountValue: number;
+    id: number;
+    maxUsagePerUser: number;
+  };
+  activeDays?: number;
   createdBy: {
     id: number;
     name: string;
@@ -887,7 +904,9 @@ export type UpdateMarketingCampaignRequest = {
   discountValue?: number;
   promocode?: string;
   maxUsage?: number;
-  ltyProgramParticipantId: number;
+  ltyProgramParticipantId?: number;
+  status?: MarketingCampaignStatus;
+  activeDays?: number | null;
 };
 
 export async function createCorporateClient(
@@ -979,7 +998,7 @@ export async function updateMarketingCampaign(
   request: UpdateMarketingCampaignRequest
 ): Promise<MarketingCampaignResponse> {
   const response: AxiosResponse<MarketingCampaignResponse> = await api.put(
-    `user/loyalty/marketing-campaigns/${id}`,
+    `user/loyalty/marketing-campaign/edit/${id}`,
     request
   );
   return response.data;
@@ -1413,6 +1432,301 @@ export async function unpublishLoyaltyProgram(
 ): Promise<LoyaltyProgramResponse> {
   const response: AxiosResponse<LoyaltyProgramResponse> = await api.patch(
     `user/loyalty/program/${id}/unpublish`
+  );
+  return response.data;
+}
+
+export type MarketingCampaignRequestBody = {
+  name: string;
+  launchDate: Date;
+  endDate?: Date;
+  description?: string;
+  ltyProgramId: number;
+  ltyProgramParticipantId: number;
+};
+
+type MarketingCampaignResponseBody = {
+  id: number;
+  name: string;
+  status: string;
+  type: string;
+  launchDate: string;
+  endDate?: string;
+  description?: string;
+  ltyProgramId?: number;
+  ltyProgramName?: string;
+  discountType: string;
+  discountValue: number;
+  promocode?: string;
+  maxUsage?: number;
+  currentUsage: number;
+  posCount: number;
+  posIds: number[];
+  createdAt: string;
+  updatedAt: string;
+  createdBy: {
+    id: number;
+    name: string;
+  };
+  updatedBy: {
+    id: number;
+    name: string;
+  };
+  executionType?: CampaignExecutionType;
+};
+
+export async function createNewMarketingCampaign(
+  request: MarketingCampaignRequestBody
+): Promise<MarketingCampaignResponseBody> {
+  const response: AxiosResponse<MarketingCampaignResponseBody> = await api.post(
+    'user/loyalty/marketing-campaign/create',
+    request
+  );
+  return response.data;
+}
+
+export enum MarketingCampaignConditionType {
+  TIME_RANGE = 'TIME_RANGE',
+  WEEKDAY = 'WEEKDAY',
+  BIRTHDAY = 'BIRTHDAY',
+  VISIT_COUNT = 'VISIT_COUNT',
+  PURCHASE_AMOUNT = 'PURCHASE_AMOUNT',
+  PROMOCODE_ENTRY = 'PROMOCODE_ENTRY',
+}
+
+export enum Weekday {
+  MONDAY = 'MONDAY',
+  TUESDAY = 'TUESDAY',
+  WEDNESDAY = 'WEDNESDAY',
+  THURSDAY = 'THURSDAY',
+  FRIDAY = 'FRIDAY',
+  SATURDAY = 'SATURDAY',
+  SUNDAY = 'SUNDAY',
+}
+
+export type MarketingCampaignConditionResponseDto = {
+  id: number;
+  type: MarketingCampaignConditionType;
+  order: number;
+  startTime?: string;
+  endTime?: string;
+  weekdays?: Weekday[];
+  visitCount?: number;
+  minAmount?: number;
+  maxAmount?: number;
+  promocodeId?: number;
+  promocode?: {
+    id: number;
+    code: string;
+  };
+  benefitId?: number;
+  benefit?: {
+    id: number;
+    name: string;
+  };
+};
+
+export type MarketingCampaignConditionsResponseDto = {
+  campaignId: number;
+  conditions: MarketingCampaignConditionResponseDto[];
+};
+
+export async function getMarketingConditionsById(
+  id: number
+): Promise<MarketingCampaignConditionsResponseDto> {
+  const response: AxiosResponse<MarketingCampaignConditionsResponseDto> =
+    await api.get(`user/loyalty/marketing-campaigns/${id}/conditions`);
+  return response.data;
+}
+
+export type CreateMarketingCampaignConditionDto = {
+  type: MarketingCampaignConditionType;
+  order?: number;
+  startTime?: Date;
+  endTime?: Date;
+  weekdays?: Weekday[];
+  visitCount?: number;
+  minAmount?: number;
+  maxAmount?: number;
+  promocodeId?: number;
+};
+
+export async function createNewMarketingConditions(
+  request: CreateMarketingCampaignConditionDto,
+  id: number
+): Promise<MarketingCampaignConditionsResponseDto> {
+  const response: AxiosResponse<MarketingCampaignConditionsResponseDto> =
+    await api.post(
+      `user/loyalty/marketing-campaigns/${id}/conditions`,
+      request
+    );
+  return response.data;
+}
+
+export async function deleteMarketingCondition(
+  id: number,
+  index: number
+): Promise<{ message: string }> {
+  const response: AxiosResponse<{ message: string }> = await api.delete(
+    `user/loyalty/marketing-campaigns/${id}/conditions/${index}`
+  );
+  return response.data;
+}
+
+export type MarketingCampaignUpdateDto = {
+  name?: string;
+  type?: 'PROMOCODE' | 'DISCOUNT';
+  launchDate?: Date;
+  endDate?: Date;
+  description?: string;
+  ltyProgramId?: number;
+  ltyProgramParticipantId?: number;
+  posIds?: number[];
+  discountType?: 'FIXED' | 'PERCENTAGE';
+  discountValue?: number;
+  promocode?: string;
+  maxUsage?: number;
+  status?: 'DRAFT' | 'ACTIVE' | 'PAUSED' | 'COMPLETED' | 'CANCELLED';
+  executionType?: CampaignExecutionType;
+};
+
+export async function updateMarketingCampaigns(
+  request: MarketingCampaignUpdateDto,
+  id: number
+): Promise<MarketingCampaignResponseBody> {
+  const response: AxiosResponse<MarketingCampaignResponseBody> = await api.put(
+    `user/loyalty/marketing-campaign/edit/${id}`,
+    request
+  );
+  return response.data;
+}
+
+export enum MarketingCampaignMobileDisplayType {
+  PersonalPromocode = 'PersonalPromocode',
+  Promo = 'Promo',
+}
+
+export type UpsertMarketingCampaignMobileDisplayDto = {
+  type: MarketingCampaignMobileDisplayType;
+  imageLink: string;
+  description?: string;
+};
+
+export type MarketingCampaignMobileDisplayResponseDto = {
+  id: number;
+  marketingCampaignId: number;
+  imageLink: string;
+  description?: string;
+  type: MarketingCampaignMobileDisplayType;
+  createdAt: string;
+  updatedAt: string;
+} | null;
+
+export async function getMarketingCampaignMobileDisplay(
+  id: number
+): Promise<MarketingCampaignMobileDisplayResponseDto> {
+  const response: AxiosResponse<MarketingCampaignMobileDisplayResponseDto> =
+    await api.get(`user/loyalty/marketing-campaigns/${id}/mobile-display`);
+  return response.data;
+}
+
+export async function upsertMarketingCampaignMobileDisplay(
+  id: number,
+  request: UpsertMarketingCampaignMobileDisplayDto
+): Promise<void> {
+  const response: AxiosResponse<void> = await api.put(
+    `user/loyalty/marketing-campaigns/${id}/mobile-display`,
+    request
+  );
+  return response.data;
+}
+
+export type ACTION_TYPE =
+  | 'DISCOUNT'
+  | 'CASHBACK_BOOST'
+  | 'GIFT_POINTS'
+  | 'PROMOCODE_ISSUE';
+
+export type CreateMarketingCampaignActionDto = {
+  campaignId: number;
+  actionType: ACTION_TYPE;
+};
+
+export async function createMarketingCampaignAction(
+  request: CreateMarketingCampaignActionDto
+): Promise<void> {
+  const response: AxiosResponse<void> = await api.post(
+    'user/loyalty/marketing-campaign/action/create',
+    request
+  );
+  return response.data;
+}
+
+export type UpdateMarketingCampaignActionDto = {
+  actionType?: ACTION_TYPE;
+  payload?: any;
+};
+
+export async function updateMarketingCampaignAction(
+  campaignId: number,
+  request: UpdateMarketingCampaignActionDto
+): Promise<void> {
+  const response: AxiosResponse<void> = await api.put(
+    `user/loyalty/marketing-campaign/action/update/${campaignId}`,
+    request
+  );
+  return response.data;
+}
+
+export enum PromocodeType {
+  CAMPAIGN = 'CAMPAIGN',
+  PERSONAL = 'PERSONAL',
+  STANDALONE = 'STANDALONE',
+}
+
+export enum PromocodeDiscountType {
+  PERCENTAGE = 'PERCENTAGE',
+  FIXED_AMOUNT = 'FIXED_AMOUNT',
+  FREE_SERVICE = 'FREE_SERVICE',
+}
+
+export type CreatePromocodeDto = {
+  campaignId?: number;
+  code: string;
+  promocodeType: PromocodeType;
+  personalUserId?: number;
+  discountType?: PromocodeDiscountType;
+  discountValue?: number;
+  minOrderAmount?: number;
+  maxDiscountAmount?: number;
+  maxUsage?: number;
+  maxUsagePerUser?: number;
+  validFrom?: string;
+  validUntil?: string;
+  isActive?: boolean;
+  createdReason?: string;
+  usageRestrictions?: any;
+  organizationId?: number;
+  posId?: number;
+  placementId?: number;
+};
+
+export type PromocodeResponse = {
+  id: number;
+  code: string;
+  promocodeType: PromocodeType;
+  discountType?: PromocodeDiscountType;
+  discountValue?: number;
+  maxUsagePerUser?: number;
+  [key: string]: any;
+};
+
+export async function createPromocode(
+  request: CreatePromocodeDto
+): Promise<PromocodeResponse> {
+  const response: AxiosResponse<PromocodeResponse> = await api.post(
+    'user/loyalty/promocode',
+    request
   );
   return response.data;
 }

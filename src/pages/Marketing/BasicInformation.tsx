@@ -3,7 +3,17 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
 import { getClientById, updateClient } from '@/services/api/marketing';
-import { Form, Row, Col, Button, Input, Select, message, Spin, DatePicker } from 'antd';
+import {
+  Form,
+  Row,
+  Col,
+  Button,
+  Input,
+  Select,
+  message,
+  Spin,
+  DatePicker,
+} from 'antd';
 import dayjs from 'dayjs';
 import { useForm, Controller } from 'react-hook-form';
 import { ContractType } from '@/utils/constants';
@@ -39,7 +49,7 @@ const BasicInformation: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -47,7 +57,9 @@ const BasicInformation: React.FC = () => {
     () => ({
       contractType: clientData?.contractType || ContractType.INDIVIDUAL,
       name: clientData?.name || '',
-      birthday: clientData?.birthday ? new Date(clientData.birthday) : undefined,
+      birthday: clientData?.birthday
+        ? new Date(clientData.birthday)
+        : undefined,
       phone: clientData?.phone || '',
       email: clientData?.email || '',
       gender: clientData?.gender || '',
@@ -65,10 +77,13 @@ const BasicInformation: React.FC = () => {
     formState: { errors },
   } = useForm<ClientFormData>({ defaultValues });
 
-  const genderOptions = useMemo(() => [
-    { value: 'MALE', label: t('marketing.man') },
-    { value: 'FEMALE', label: t('marketing.woman') },
-  ], [t]);
+  const genderOptions = useMemo(
+    () => [
+      { value: 'MALE', label: t('marketing.man') },
+      { value: 'FEMALE', label: t('marketing.woman') },
+    ],
+    [t]
+  );
 
   useEffect(() => {
     if (clientData && !isEditing) {
@@ -78,9 +93,15 @@ const BasicInformation: React.FC = () => {
 
   const handleEdit = () => {
     setIsEditing(true);
-    setValue('contractType', clientData?.contractType || ContractType.INDIVIDUAL);
+    setValue(
+      'contractType',
+      clientData?.contractType || ContractType.INDIVIDUAL
+    );
     setValue('name', clientData?.name || '');
-    setValue('birthday', clientData?.birthday ? new Date(clientData.birthday) : undefined);
+    setValue(
+      'birthday',
+      clientData?.birthday ? new Date(clientData.birthday) : undefined
+    );
     setValue('phone', clientData?.phone || '');
     setValue('email', clientData?.email || '');
     setValue('gender', clientData?.gender || '');
@@ -113,10 +134,10 @@ const BasicInformation: React.FC = () => {
       };
 
       await updateClient(updateData);
-      
+
       message.success(t('routes.savedSuccessfully'));
       setIsEditing(false);
-      
+
       mutate([`get-client-by-id`]);
     } catch (error) {
       console.error('Update failed:', error);
@@ -124,16 +145,29 @@ const BasicInformation: React.FC = () => {
     }
   };
 
-  const renderField = (label: string, value: React.ReactNode, fieldName: string) => {
-    const editableFields = ['contractType', 'name', 'birthday', 'gender', 'email', 'comment'];
-    
+  const renderField = (
+    label: string,
+    value: React.ReactNode,
+    fieldName: string
+  ) => {
+    const editableFields = [
+      'contractType',
+      'name',
+      'birthday',
+      'gender',
+      'email',
+      'comment',
+    ];
+
     if (isEditing && editableFields.includes(fieldName)) {
       return (
-        <Form.Item 
-          label={label} 
+        <Form.Item
+          label={label}
           name={fieldName}
           help={errors[fieldName as keyof ClientFormData]?.message}
-          validateStatus={errors[fieldName as keyof ClientFormData] ? 'error' : undefined}
+          validateStatus={
+            errors[fieldName as keyof ClientFormData] ? 'error' : undefined
+          }
           labelCol={{ span: 24 }}
           className="w-full"
         >
@@ -142,8 +176,8 @@ const BasicInformation: React.FC = () => {
               name="comment"
               control={control}
               render={({ field }) => (
-                <TextArea 
-                  rows={3} 
+                <TextArea
+                  rows={3}
                   className="w-full"
                   style={{ minHeight: '40px' }}
                   placeholder={t('marketing.about')}
@@ -159,8 +193,8 @@ const BasicInformation: React.FC = () => {
                 required: t('validation.contractTypeRequired') as string,
               }}
               render={({ field }) => (
-                <Select 
-                  {...field} 
+                <Select
+                  {...field}
                   className="w-full"
                   style={{ height: '40px' }}
                   placeholder={t('warehouse.notSel')}
@@ -225,12 +259,16 @@ const BasicInformation: React.FC = () => {
             <Controller
               name={fieldName as keyof ClientFormData}
               control={control}
-              rules={fieldName === 'name' ? { required: 'Name is required' } : {}}
+              rules={
+                fieldName === 'name' ? { required: 'Name is required' } : {}
+              }
               render={({ field }) => (
-                <Input 
+                <Input
                   className="w-full"
                   style={{ height: '40px' }}
-                  placeholder={fieldName === 'name' ? t('marketing.enterName') : ''}
+                  placeholder={
+                    fieldName === 'name' ? t('marketing.enterName') : ''
+                  }
                   value={field.value as string}
                   onChange={field.onChange}
                   onBlur={field.onBlur}
@@ -256,48 +294,44 @@ const BasicInformation: React.FC = () => {
   return (
     <div className="max-w-6xl mb-5">
       {loadingClients ? (
-         <div className="flex items-center justify-center w-full h-full min-h-[400px]">
+        <div className="flex items-center justify-center w-full h-full min-h-[400px]">
           <Spin size="large" />
-       </div>
+        </div>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)}>
           <Row gutter={[32, 24]}>
             <Col xs={24} lg={12}>
               {renderField(
                 t('marketing.type'),
-                clientData?.contractType === ContractType.INDIVIDUAL ? t('marketing.physical') : t('marketing.legal'),
+                clientData?.contractType === ContractType.INDIVIDUAL
+                  ? t('marketing.physical')
+                  : t('marketing.legal'),
                 'contractType'
               )}
 
-              {renderField(
-                t('marketing.name'),
-                clientData?.name,
-                'name'
-              )}
+              {renderField(t('marketing.name'), clientData?.name, 'name')}
 
               {renderField(
                 t('marketing.floor'),
-                clientData?.gender === 'MALE' ? t('marketing.man') : clientData?.gender === 'FEMALE' ? t('marketing.woman') : '-',
+                clientData?.gender === 'MALE'
+                  ? t('marketing.man')
+                  : clientData?.gender === 'FEMALE'
+                    ? t('marketing.woman')
+                    : '-',
                 'gender'
               )}
 
               {renderField(
                 t('register.date'),
-                clientData?.birthday ? dayjs(clientData.birthday).format('DD.MM.YYYY') : '-',
+                clientData?.birthday
+                  ? dayjs(clientData.birthday).format('DD.MM.YYYY')
+                  : '-',
                 'birthday'
               )}
 
-              {renderField(
-                t('profile.telephone'),
-                clientData?.phone,
-                'phone'
-              )}
+              {renderField(t('profile.telephone'), clientData?.phone, 'phone')}
 
-              {renderField(
-                "E-mail",
-                clientData?.email,
-                'email'
-              )}
+              {renderField('E-mail', clientData?.email, 'email')}
 
               {renderField(
                 t('equipment.comment'),
@@ -306,21 +340,18 @@ const BasicInformation: React.FC = () => {
               )}
 
               {!isEditing ? (
-                  <Button type="primary" onClick={handleEdit}>
-                    {t('actions.edit')}
+                <Button type="primary" onClick={handleEdit}>
+                  {t('actions.edit')}
+                </Button>
+              ) : (
+                <div className="space-x-2">
+                  <Button onClick={handleCancel}>{t('actions.cancel')}</Button>
+                  <Button type="primary" htmlType="submit">
+                    {t('actions.save')}
                   </Button>
-                ) : (
-                  <div className="space-x-2">
-                    <Button onClick={handleCancel}>
-                      {t('actions.cancel')}
-                    </Button>
-                    <Button type="primary" htmlType="submit">
-                      {t('actions.save')}
-                    </Button>
-                  </div>
-                )}
+                </div>
+              )}
             </Col>
-            
           </Row>
         </form>
       )}
