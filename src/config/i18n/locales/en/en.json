@@ -1088,7 +1088,10 @@
     "managerComment": "Manager Comment",
     "shiftGrade": "Shift Grade",
     "leaveCommentsForManagerPlaceholder": "Leave comments for the next manager...",
-    "return": "Return"
+    "return": "Return",
+    "collectionDate": "Collection Date",
+    "oldCashDate": "Old Cash Collection Date",
+    "cashDate": "Cash Collection Date"
   },
 
   "shift-management": {

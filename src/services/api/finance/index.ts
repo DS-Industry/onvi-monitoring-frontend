@@ -108,6 +108,8 @@ type CollectionResponse = {
 };
 
 export type RecalculateCollectionBody = {
+  oldCashCollectionDate?: Date;
+  cashCollectionDate?: Date;
   cashCollectionDeviceData: {
     cashCollectionDeviceId: number;
     oldTookMoneyTime?: Date;
@@ -143,7 +145,8 @@ type CashCollectionsResponse = {
   cashCollectionsData: {
     id: number;
     posId: number;
-    period: string;
+    oldCashCollectionDate: Date;
+    cashCollectionDate: Date;
     sumFact: number;
     sumCard: number;
     sumVirtual: number;

@@ -1088,7 +1088,10 @@
     "managerComment": "Комментарий управляющего",
     "shiftGrade": "Оценка смены",
     "leaveCommentsForManagerPlaceholder": "Оставьте комментарий для следующего управляющего",
-    "return": "Вернуть"
+    "return": "Вернуть",
+    "collectionDate": "Дата инкассации",
+    "oldCashDate": "Старая дата сбора наличных",
+    "cashDate": "Дата получения наличных"
   },
   "shift-management": {
     "shift-create-modal": {
