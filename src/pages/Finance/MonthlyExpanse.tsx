@@ -20,7 +20,6 @@ import {
   updateManagerPaperPeriod,
 } from '@/services/api/finance';
 
-import TableUtils from '@/utils/TableUtils.tsx';
 import Table from 'antd/es/table';
 import Select from 'antd/es/select';
 import Space from 'antd/es/space';
@@ -146,19 +145,6 @@ const MonthlyExpanse: React.FC = () => {
 
   const userPermissions = usePermissions();
   const { showToast } = useToast();
-
-  const formatNumber = (
-    num: number,
-    type: 'number' | 'double' = 'number'
-  ): string => {
-    if (num === null || num === undefined || isNaN(num)) return '-';
-
-    return new Intl.NumberFormat('ru-RU', {
-      minimumFractionDigits: type === 'double' ? 2 : 0,
-      maximumFractionDigits: type === 'double' ? 2 : 0,
-      useGrouping: true,
-    }).format(num);
-  };
 
   const filterParams = useMemo(
     () => ({
@@ -351,7 +337,10 @@ const MonthlyExpanse: React.FC = () => {
         if (!isEditing(record)) {
           return (
             <div className="text-text01">
-              {TableUtils.createCurrencyFormat(formatNumber(text))}
+              {`${text.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })} ₽`}
             </div>
           );
         }
@@ -372,7 +361,10 @@ const MonthlyExpanse: React.FC = () => {
         if (!isEditing(record)) {
           return (
             <div className="text-text01">
-              {TableUtils.createCurrencyFormat(formatNumber(text))}
+              {`${text.toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })} ₽`}
             </div>
           );
         }
@@ -402,7 +394,10 @@ const MonthlyExpanse: React.FC = () => {
       render: (text: number) => {
         return (
           <div className={`${text < 0 ? 'text-errorFill' : 'text-text01'}`}>
-            {formatNumber(text)}
+            {`${text.toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })}`}
           </div>
         );
       },

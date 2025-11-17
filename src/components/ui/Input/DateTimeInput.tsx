@@ -126,7 +126,7 @@ const DateTimeInput: React.FC<InputProps> = ({
           onChange={handleDateChange}
           disabled={disabled}
           placeholder={label || t('finance.sel')}
-          style={{ width: '100%', height: 40 }}
+          style={{ width: '100%' }}
           status={error ? 'error' : ''}
         />
         <TimePicker
@@ -135,7 +135,7 @@ const DateTimeInput: React.FC<InputProps> = ({
           disabled={disabled}
           placeholder={t('finance.selTime')}
           format="HH:mm"
-          style={{ width: '100%', height: 40 }}
+          style={{ width: '100%' }}
           status={error ? 'error' : ''}
         />
       </div>
