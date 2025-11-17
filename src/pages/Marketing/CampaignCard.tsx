@@ -1,17 +1,15 @@
 import React from 'react';
-import { Card, Tag, Typography } from 'antd';
+import { Card, Typography } from 'antd';
 import {
   UserOutlined,
-  PauseOutlined,
-  DownloadOutlined,
-  RightOutlined,
-  NotificationFilled,
+  EditOutlined,
   ArrowRightOutlined,
   CarOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { MarketingCampaignResponse } from '@/services/api/marketing';
+import { getStatusTagRender } from '@/utils/tableUnits';
 
 const { Text } = Typography;
 
@@ -28,36 +26,7 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
 }) => {
   const { t } = useTranslation();
 
-  const statusConfig: Record<
-    string,
-    {
-      color: string;
-      iconBg: string;
-      icon: React.ReactNode;
-      label: string;
-    }
-  > = {
-    [t('tables.ACTIVE')]: {
-      color: 'green',
-      iconBg: '#BFFA00',
-      icon: <NotificationFilled style={{ color: 'black', fontSize: 24 }} />,
-      label: t('tables.ACTIVE'),
-    },
-    [t('tables.PAUSE')]: {
-      color: 'orange',
-      iconBg: '#BFFA00',
-      icon: <PauseOutlined style={{ color: 'black', fontSize: 24 }} />,
-      label: t('tables.PAUSE'),
-    },
-    DRAFT: {
-      color: 'red',
-      iconBg: '#BFFA00',
-      icon: <DownloadOutlined style={{ color: 'black', fontSize: 24 }} />,
-      label: t('tables.DRAFT'),
-    },
-  };
-  const config = statusConfig[status] ?? statusConfig.DRAFT;
-  const { color, iconBg, icon, label } = config;
+  const tagRender = getStatusTagRender(t);
 
   return (
     <Card
@@ -72,21 +41,7 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
       loading={loading}
     >
       <div className="flex justify-between items-start mb-3">
-        <div
-          style={{
-            background: iconBg,
-            width: 64,
-            height: 64,
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 32,
-          }}
-        >
-          {icon}
-        </div>
-        <Tag color={color}>{label}</Tag>
+        {tagRender(campaign.status)}
       </div>
 
       <div className="text-sm font-semibold">{campaign.name}</div>
@@ -108,21 +63,20 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
       <div className="flex flex-row mt-3 text-sm text-text01">
         <div className="flex">
           <CarOutlined style={{ fontSize: 16 }} />
-          <div className="text-xs">
+          <div className="text-xs ml-1">
             <div className="text-text01">{t('marketingLoyalty.branches')}</div>
             <div className="text-base03">{campaign.posCount}</div>
           </div>
         </div>
         <div className="flex">
           <UserOutlined style={{ fontSize: 16 }} />
-          <div className="text-xs">
+          <div className="text-xs ml-1">
             <div className="text-text01">{t('constants.status')}</div>
-            <div className="text-base03">{t(`marketing.${campaign.type}`)}</div>
+            <div className="text-base03">{campaign.executionType ? t(`tables.${campaign.executionType}`) : "-"}</div>
           </div>
         </div>
-        <div className="text-primary02 text-sm flex items-center ml-2 cursor-pointer">
-          {t('actions.edit')}
-          <RightOutlined />
+        <div className="text-primary02 text-sm flex items-center ml-2 cursor-pointer w-full flex justify-end">
+          <EditOutlined />
         </div>
       </div>
     </Card>
