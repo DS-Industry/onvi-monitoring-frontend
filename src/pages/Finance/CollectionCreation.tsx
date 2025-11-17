@@ -195,8 +195,12 @@ const CollectionCreation: React.FC = () => {
   const [openCashColl, setOpenCashColl] = useState(true);
   const [openCollDevice, setOpenCollDevice] = useState(true);
   const [hideButton, setHideButton] = useState(false);
-  const [oldCashCollectionDate, setOldCashCollectionDate] = useState<Date | undefined>(undefined);
-  const [cashCollectionDate, setCashCollectionDate] = useState<Date | undefined>(undefined);
+  const [oldCashCollectionDate, setOldCashCollectionDate] = useState<
+    Date | undefined
+  >(undefined);
+  const [cashCollectionDate, setCashCollectionDate] = useState<
+    Date | undefined
+  >(undefined);
 
   const handleTableChange = (
     id: number,
@@ -284,8 +288,8 @@ const CollectionCreation: React.FC = () => {
     if (result) {
       setTableData(result.cashCollectionDeviceType);
       setDeviceData(result.cashCollectionDevice);
-      setOldCashCollectionDate(result.oldCashCollectionDate),
-      setCashCollectionDate(result.cashCollectionDate);
+      (setOldCashCollectionDate(result.oldCashCollectionDate),
+        setCashCollectionDate(result.cashCollectionDate));
       setCollectionData(result);
     }
   };
@@ -323,8 +327,8 @@ const CollectionCreation: React.FC = () => {
       setTableData(result.cashCollectionDeviceType);
       setDeviceData(result.cashCollectionDevice);
       setCollectionData(result);
-      setOldCashCollectionDate(result.oldCashCollectionDate),
-      setCashCollectionDate(result.cashCollectionDate);
+      (setOldCashCollectionDate(result.oldCashCollectionDate),
+        setCashCollectionDate(result.cashCollectionDate));
       navigate('/finance/collection');
     }
   };
@@ -473,45 +477,58 @@ const CollectionCreation: React.FC = () => {
                 : '0'
             } ₽`}</Descriptions.Item>
           </Descriptions>
-
+          <div className="flex flex-col space-y-5">
+            <div className="flex space-x-2 items-center">
+              <div className="text-black opacity-40 font-medium">
+                {t('finance.oldCashDate')} :
+              </div>
+              {status === t('tables.SENT') ? (
+                <div className="font-bold">
+                  {dayjs(oldCashCollectionDate).format('DD-MM-YYYY HH:mm:ss')}
+                </div>
+              ) : (
+                <DateTimeInput
+                  value={
+                    oldCashCollectionDate
+                      ? dayjs(oldCashCollectionDate)
+                      : undefined
+                  }
+                  changeValue={date =>
+                    setOldCashCollectionDate(date ? date.toDate() : undefined)
+                  }
+                  {...register('cashCollectionDate')}
+                  classname="w-64"
+                />
+              )}
+            </div>
+            <div className="flex space-x-2 items-center">
+              <div className="text-black opacity-40 font-medium">
+                {t('finance.cashDate')} :
+              </div>
+              {status === t('tables.SENT') ? (
+                <div className="font-bold">
+                  {dayjs(cashCollectionDate).format('DD-MM-YYYY HH:mm:ss')}
+                </div>
+              ) : (
+                <DateTimeInput
+                  value={
+                    cashCollectionDate ? dayjs(cashCollectionDate) : undefined
+                  }
+                  changeValue={date =>
+                    setCashCollectionDate(date ? date.toDate() : undefined)
+                  }
+                  {...register('cashCollectionDate')}
+                  classname="w-64"
+                />
+              )}
+            </div>
+          </div>
           <Divider />
         </>
       )}
       <div>
         {tableData.length > 0 ? (
           <div>
-            <div className='flex flex-col space-y-5 mb-5'>
-            <DateTimeInput
-              title={t('finance.oldCashDate')}
-              value={
-                oldCashCollectionDate
-                  ? dayjs(oldCashCollectionDate)
-                  : undefined
-              }
-              changeValue={date =>
-                setOldCashCollectionDate(
-                  date ? date.toDate() : undefined
-                )
-              }
-              {...register('cashCollectionDate')}
-              classname="w-64"
-            />
-            <DateTimeInput
-              title={t('finance.cashDate')}
-              value={
-                cashCollectionDate
-                  ? dayjs(cashCollectionDate)
-                  : undefined
-              }
-              changeValue={date =>
-                setCashCollectionDate(
-                  date ? date.toDate() : undefined
-                )
-              }
-              {...register('cashCollectionDate')}
-              classname="w-64"
-            />
-            </div>
             <div className="flex items-center space-x-2">
               <div
                 className="cursor-pointer bg-background03 w-6 h-6 rounded text-text01 flex items-center justify-center"
@@ -625,7 +642,7 @@ const CollectionCreation: React.FC = () => {
                   type="primary"
                   onClick={handleReturn}
                 >
-                  {t('finance.refund')}
+                  {t('finance.return')}
                 </Button>
               )
             }
