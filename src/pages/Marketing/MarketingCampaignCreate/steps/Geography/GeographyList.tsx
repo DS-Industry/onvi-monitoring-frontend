@@ -29,25 +29,36 @@ const GeographyList: React.FC<GeographyListProps> = ({
   const previousInitialSelectedIdsRef = useRef<string>('');
   const onSelectionChangeRef = useRef(onSelectionChange);
   const initializedRef = useRef(false);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     onSelectionChangeRef.current = onSelectionChange;
   }, [onSelectionChange]);
 
   useEffect(() => {
-    const currentIdsString = participants.map(p => p.id).sort().join(',');
+    const currentIdsString = participants
+      .map(p => p.id)
+      .sort()
+      .join(',');
     const previousIdsString = previousParticipantsRef.current;
     const currentInitialIdsString = (initialSelectedIds || []).sort().join(',');
     const previousInitialIdsString = previousInitialSelectedIdsRef.current;
 
     const participantsChanged = currentIdsString !== previousIdsString;
-    const initialSelectedIdsChanged = currentInitialIdsString !== previousInitialIdsString;
+    const initialSelectedIdsChanged =
+      currentInitialIdsString !== previousInitialIdsString;
 
-    if (participantsChanged || (initialSelectedIdsChanged && participants.length > 0)) {
+    if (
+      participantsChanged ||
+      (initialSelectedIdsChanged && participants.length > 0)
+    ) {
       if (participants.length > 0) {
-        const ids = initialSelectedIds && initialSelectedIds.length > 0
-          ? initialSelectedIds.filter(id => participants.some(p => p.id === id))
-          : participants.map(p => p.id);
+        const ids =
+          initialSelectedIds && initialSelectedIds.length > 0
+            ? initialSelectedIds.filter(id =>
+                participants.some(p => p.id === id)
+              )
+            : participants.map(p => p.id);
         setSelectedIds(ids);
         previousParticipantsRef.current = currentIdsString;
         previousInitialSelectedIdsRef.current = currentInitialIdsString;
@@ -81,18 +92,25 @@ const GeographyList: React.FC<GeographyListProps> = ({
 
   return (
     <div
-      className={`bg-white shadow-lg w-full ${showButtons
-        ? 'rounded-t-3xl'
-        : 'rounded-2xl'
-        } ${showButtons ? 'max-h-[65vh]' : ''} flex flex-col`}
+      className={`bg-white shadow-lg w-full ${
+        showButtons ? 'rounded-t-3xl' : 'rounded-2xl'
+      } flex flex-col transition-all duration-300`}
+      style={{
+        maxHeight: showButtons ? (expanded ? '80vh' : '10vh') : 'auto',
+      }}
     >
       {showButtons && (
-        <div className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing touch-none select-none">
+        <div
+          className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing touch-none select-none"
+          onClick={() => setExpanded(prev => !prev)}
+        >
           <div className="w-12 h-1 bg-gray-300 rounded-full" />
         </div>
       )}
 
-      <div className={`font-semibold text-lg text-text01 ${showButtons ? 'px-4 pt-1 pb-2 touch-none select-none' : 'p-4'} mb-3`}>
+      <div
+        className={`font-semibold text-lg text-text01 ${showButtons ? 'px-4 pt-1 pb-2 touch-none select-none' : 'p-4'} mb-3`}
+      >
         {showButtons ? (
           <div className="font-bold text-text01 text-lg">
             {t('marketingLoyalty.participatingBranches')}
@@ -104,7 +122,9 @@ const GeographyList: React.FC<GeographyListProps> = ({
         )}
       </div>
 
-      <div className={`flex-1 overflow-y-auto ${showButtons ? 'px-4' : 'px-4'} space-y-3 ${showButtons ? 'pb-2' : ''}`}>
+      <div
+        className={`flex-1 overflow-y-auto ${showButtons ? 'px-4' : 'px-4'} space-y-3 ${showButtons ? 'pb-2' : ''}`}
+      >
         {participants.length === 0 ? (
           <div className="text-center py-8 text-base03">
             <Text type="secondary">{t('marketingLoyalty.noParticipants')}</Text>
@@ -166,4 +186,3 @@ const GeographyList: React.FC<GeographyListProps> = ({
 };
 
 export default GeographyList;
-
