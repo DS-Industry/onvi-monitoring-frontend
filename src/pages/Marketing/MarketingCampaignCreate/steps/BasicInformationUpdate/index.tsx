@@ -63,7 +63,7 @@ const BasicInformationUpdate: React.FC<BasicDataProps> = ({
     }));
 
     const defaultValues: UpdateMarketingCampaignRequest = {
-        ltyProgramId: 0,
+        ltyProgramId: undefined,
         name: '',
         description: undefined,
         launchDate: undefined,
