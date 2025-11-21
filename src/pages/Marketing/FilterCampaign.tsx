@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Button, Popover, Checkbox } from 'antd';
+import { Button, Checkbox, Popover, Tag } from 'antd';
 import { CheckOutlined, FilterOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { MarketingCampaignStatus } from '@/utils/constants';
+import { getStatusColor } from '@/utils/tableUnits';
 
 interface FilterValues {
   status: string[];
@@ -127,48 +128,34 @@ const FilterCampaign: React.FC<FilterCampaignProps> = ({
             </div>
             <div className="flex flex-wrap gap-2">
               {statusOptions.map(option => {
-                const isActive = option.value === MarketingCampaignStatus.ACTIVE;
-                const isPause = option.value === MarketingCampaignStatus.DRAFT;
                 const isSelected = tempFilters.status.includes(option.value);
 
+                const tagColor = getStatusColor(t, option.label);
+
                 return (
-                  <div
+                  <Tag
                     key={option.value}
-                    className={`flex items-center p-2 rounded border-2 h-[32px] cursor-pointer hover:opacity-80 transition-opacity ${
-                      isPause
-                        ? 'border-orange-500 bg-orange-50'
-                        : isActive
-                          ? 'border-green-500 bg-green-50'
-                          : 'border-gray-300 bg-gray-50'
-                    }`}
+                    color={tagColor}
+                    className="cursor-pointer flex items-center gap-2"
                     onClick={() => {
-                      if (isSelected) {
-                        setTempFilters(prev => ({ ...prev, status: [] }));
-                      } else {
-                        setTempFilters(prev => ({
-                          ...prev,
-                          status: [option.value],
-                        }));
-                      }
+                      setTempFilters(prev => ({
+                        ...prev,
+                        status: isSelected ? [] : [option.value],
+                      }));
                     }}
                   >
                     <Checkbox
                       checked={isSelected}
                       onChange={e => {
                         e.stopPropagation();
-                        if (e.target.checked) {
-                          setTempFilters(prev => ({
-                            ...prev,
-                            status: [option.value],
-                          }));
-                        } else {
-                          setTempFilters(prev => ({ ...prev, status: [] }));
-                        }
+                        setTempFilters(prev => ({
+                          ...prev,
+                          status: e.target.checked ? [option.value] : [],
+                        }));
                       }}
-                      className="mr-2"
                     />
-                    <span className="text-sm">{option.label}</span>
-                  </div>
+                    {option.label}
+                  </Tag>
                 );
               })}
             </div>

@@ -279,3 +279,43 @@ export const formatPhoneByCountry = (digits: string, countryCode: string) => {
       return `+${cleaned}`;
   }
 };
+
+export function getStatusColor(t: TFunction, status: string): string {
+  const greenStatuses = [
+    t('tables.FINISHED'),
+    t('tables.SENT'),
+    t('tables.In Progress'),
+    t('analysis.PROGRESS'),
+    t('finance.RECEIPT'),
+  ];
+
+  const redStatuses = [
+    t('tables.OVERDUE'),
+    t('tables.INACTIVE'),
+    t('tables.Done'),
+    t('tables.PAUSE'),
+    t('analysis.DONE'),
+    t('finance.EXPENDITURE'),
+    t('tables.BLOCKED'),
+    t('tables.DRAFT'),
+    t('tables.DELETED'),
+  ];
+
+  const orangeStatuses = [
+    t('tables.ACTIVE'),
+    t('tables.SAVE'),
+    t('tables.SAVED'),
+    t('tables.VERIFICATE'),
+    t('tables.COMPLETED'),
+    t('tables.PENDING'),
+  ];
+
+  const blueStatuses = [t('tables.RETURNED')];
+
+  if (greenStatuses.includes(status)) return "green";
+  if (redStatuses.includes(status)) return "red";
+  if (orangeStatuses.includes(status)) return "orange";
+  if (blueStatuses.includes(status)) return "blue";
+
+  return "default";
+}
