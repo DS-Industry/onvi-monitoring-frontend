@@ -322,7 +322,7 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                   >
                     <div style={{ marginBottom: 16 }}>
                       <Text type="secondary">
-                        Настройка отображения кампании в приложении
+                        {t('marketingCampaigns.settingUpCampaign')}
                       </Text>
                     </div>
                     {promotionType ===
@@ -332,7 +332,7 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                           strong
                           style={{ display: 'block', marginBottom: 8 }}
                         >
-                          Описание в приложении
+                          {t('marketingCampaigns.description')}
                         </Text>
                         <TipTapEditor
                           value={editorContent}
@@ -345,7 +345,7 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                         strong
                         style={{ display: 'block', marginBottom: 8 }}
                       >
-                        Баннер/иконка в приложении
+                        {t('marketingCampaigns.bannerIcon')}
                       </Text>
                       <Text
                         type="secondary"
@@ -355,8 +355,7 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                           fontSize: '12px',
                         }}
                       >
-                        (оптимально: 166 x 166 px - иконка, 343 x 180 px - для
-                        баннера)
+                        {t('marketingCampaigns.optimally')}
                       </Text>
                       {bannerImage ? (
                         <div
@@ -388,7 +387,7 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                               background: 'rgba(255, 255, 255, 0.9)',
                             }}
                           >
-                            Удалить
+                            {t('marketing.delete')}
                           </Button>
                         </div>
                       ) : null}
@@ -452,7 +451,8 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
             type="primary"
             icon={<RightOutlined />}
             iconPosition="end"
-            disabled={uploadingImage || isLoading || isSubmiting}
+            loading={uploadingImage || isLoading || isSubmiting}
+            disabled={!bannerImageUrl}
           >
             {t('common.next')}
           </Button>
