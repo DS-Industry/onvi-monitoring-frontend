@@ -281,41 +281,21 @@ export const formatPhoneByCountry = (digits: string, countryCode: string) => {
 };
 
 export function getStatusColor(t: TFunction, status: string): string {
-  const greenStatuses = [
-    t('tables.FINISHED'),
-    t('tables.SENT'),
-    t('tables.In Progress'),
-    t('analysis.PROGRESS'),
-    t('finance.RECEIPT'),
-  ];
+  const greenStatuses = [t('tables.ACTIVE')];
 
-  const redStatuses = [
-    t('tables.OVERDUE'),
-    t('tables.INACTIVE'),
-    t('tables.Done'),
-    t('tables.PAUSE'),
-    t('analysis.DONE'),
-    t('finance.EXPENDITURE'),
-    t('tables.BLOCKED'),
-    t('tables.DRAFT'),
-    t('tables.DELETED'),
-  ];
+  const redStatuses = [t('tables.DRAFT')];
 
-  const orangeStatuses = [
-    t('tables.ACTIVE'),
-    t('tables.SAVE'),
-    t('tables.SAVED'),
-    t('tables.VERIFICATE'),
-    t('tables.COMPLETED'),
-    t('tables.PENDING'),
-  ];
+  const orangeStatuses = [t('tables.COMPLETED')];
 
-  const blueStatuses = [t('tables.RETURNED')];
+  const blueStatuses = [t('tables.CANCELLED')];
 
-  if (greenStatuses.includes(status)) return "green";
-  if (redStatuses.includes(status)) return "red";
-  if (orangeStatuses.includes(status)) return "orange";
-  if (blueStatuses.includes(status)) return "blue";
+  const goldStatuses = [t('tables.PAUSED')];
 
-  return "default";
+  if (greenStatuses.includes(status)) return 'green';
+  if (redStatuses.includes(status)) return 'red';
+  if (orangeStatuses.includes(status)) return 'orange';
+  if (blueStatuses.includes(status)) return 'blue';
+  if (goldStatuses.includes(status)) return 'gold';
+
+  return 'default';
 }
