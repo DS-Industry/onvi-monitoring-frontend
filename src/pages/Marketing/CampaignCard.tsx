@@ -36,7 +36,6 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
       style={{
         borderRadius: 12,
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-        minWidth: 293
       }}
       loading={loading}
     >
@@ -50,13 +49,13 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
         {campaign.description}
       </Text>
 
-      <div className="flex space-x-2 text-text02 text-sm">
-        <div className="flex items-center">
-          {dayjs(campaign.launchDate).format('DD.MM.YYYY,hh:mm')}
+      <div className="flex flex-wrap items-center gap-1 text-text02 text-sm overflow-hidden">
+        <div className="flex items-center whitespace-nowrap">
+          {dayjs(campaign.launchDate).format('DD.MM.YYYY, HH:mm')}
         </div>
         <ArrowRightOutlined style={{ fontSize: 10 }} />
-        <div className="flex items-center">
-          {dayjs(campaign.endDate).format('DD.MM.YYYY,hh:mm')}
+        <div className="flex items-center whitespace-nowrap">
+          {dayjs(campaign.endDate).format('DD.MM.YYYY, HH:mm')}
         </div>
       </div>
 
@@ -72,10 +71,14 @@ const CampaignCard: React.FC<CampaignCardProps> = ({
           <UserOutlined style={{ fontSize: 16 }} />
           <div className="text-xs ml-1">
             <div className="text-text01">{t('constants.status')}</div>
-            <div className="text-base03">{campaign.executionType ? t(`tables.${campaign.executionType}`) : "-"}</div>
+            <div className="text-base03">
+              {campaign.executionType
+                ? t(`tables.${campaign.executionType}`)
+                : '-'}
+            </div>
           </div>
         </div>
-        <div className="text-primary02 text-sm flex items-center ml-2 cursor-pointer w-full flex justify-end">
+        <div className="text-primary02 text-sm items-center ml-2 cursor-pointer flex justify-end">
           <EditOutlined />
         </div>
       </div>
