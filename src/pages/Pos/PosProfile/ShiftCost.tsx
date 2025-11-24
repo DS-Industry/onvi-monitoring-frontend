@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { GoldOutlined } from '@ant-design/icons';
 import useFormHook from '@/hooks/useFormHook';
 import { Button, Input, Select } from 'antd';
-import NoCollection from '@/assets/NoCollection.png';
+import ProfilePosTabTwo from '@/assets/ProfilePosTabTwo.webp';
 import useSWR from 'swr';
 import { getPositions } from '@/services/api/hr';
 import { useUser } from '@/hooks/useUserStore';
@@ -125,7 +125,7 @@ const ShiftCost: React.FC = () => {
 
       <div className="flex-1 hidden lg:flex items-center justify-center bg-white">
         <img
-          src={NoCollection}
+          src={ProfilePosTabTwo}
           alt="Factory illustration"
           loading="lazy"
           decoding="async"
