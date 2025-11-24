@@ -1,9 +1,9 @@
-import { Button, Table, Pagination, Input } from 'antd';
+import { Button, Table, Pagination, Input, Tag, Spin } from 'antd';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CopyOutlined, PlusOutlined, TableOutlined } from '@ant-design/icons';
 import Notification from '@ui/Notification.tsx';
-import { getStatusTagRender } from '@/utils/tableUnits';
+import { getStatusColor } from '@/utils/tableUnits';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import {
@@ -36,7 +36,6 @@ const MarketingCampaigns: React.FC = () => {
   const [searchValue, setSearchValue] = useState(name || '');
   const [view, setView] = useState<'table' | 'cards'>('table');
 
-  const tagRender = getStatusTagRender(t);
   const navigate = useNavigate();
   const user = useUser();
 
@@ -65,16 +64,20 @@ const MarketingCampaigns: React.FC = () => {
     debouncedSearch(value);
   };
 
-  const { data: promotionsData, isLoading } = useSWR(
+  const {
+    data: promotionsData,
+    isLoading,
+    isValidating,
+  } = useSWR(
     user.organizationId
       ? [
-        'marketing-campaigns',
-        user.organizationId,
-        status,
-        currentPage,
-        pageSize,
-        name,
-      ]
+          'marketing-campaigns',
+          user.organizationId,
+          status,
+          currentPage,
+          pageSize,
+          name,
+        ]
       : null,
     () =>
       getMarketingCampaign({
@@ -121,7 +124,11 @@ const MarketingCampaigns: React.FC = () => {
       title: t('constants.status'),
       dataIndex: 'status',
       key: 'status',
-      render: tagRender,
+      render: (_, record) => {
+        return (
+          <Tag color={getStatusColor(t, record.status)}>{record.status}</Tag>
+        );
+      },
     },
     {
       title: t('marketing.campaignType'),
@@ -207,46 +214,59 @@ const MarketingCampaigns: React.FC = () => {
 
       {view === 'table' && (
         <div className="mt-6">
-          <Table
-            dataSource={promotions}
-            columns={columns}
-            pagination={{
-              current: currentPage,
-              pageSize: pageSize,
-              total: promotionsData?.total || 0,
-              pageSizeOptions: ALL_PAGE_SIZES,
-              showSizeChanger: true,
-              showTotal: (total, range) => `${range[0]}–${range[1]} / ${total}`,
-              onChange: (page, size) =>
-                updateSearchParams(searchParams, setSearchParams, {
-                  page: String(page),
-                  size: String(size),
-                }),
-            }}
-            bordered={false}
-            scroll={{ x: 'max-content' }}
-            loading={isLoading}
-            locale={{ emptyText: t('table.noData') }}
-          />
+          {isLoading || isValidating ? (
+            <div className="h-[600px] w-full flex justify-center items-center">
+              <Spin />
+            </div>
+          ) : (
+            <Table
+              dataSource={promotions}
+              columns={columns}
+              pagination={{
+                current: currentPage,
+                pageSize: pageSize,
+                total: promotionsData?.total || 0,
+                pageSizeOptions: ALL_PAGE_SIZES,
+                showSizeChanger: true,
+                showTotal: (total, range) =>
+                  `${range[0]}–${range[1]} / ${total}`,
+                onChange: (page, size) =>
+                  updateSearchParams(searchParams, setSearchParams, {
+                    page: String(page),
+                    size: String(size),
+                  }),
+              }}
+              bordered={false}
+              scroll={{ x: 'max-content' }}
+              loading={isLoading || isValidating}
+              locale={{ emptyText: t('table.noData') }}
+            />
+          )}
         </div>
       )}
 
       {view === 'cards' && (
         <div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
-            {promotions.map((card, i) => (
-              <CampaignCard
-                key={i}
-                campaign={card}
-                loading={isLoading}
-                onClick={() => {
-                  navigate(
-                    `/marketing/campaign/create/${card.id}?marketingCampaignId=${card.id}&step=1&mode=edit`
-                  );
-                }}
-              />
-            ))}
-          </div>
+          {isLoading || isValidating ? (
+            <div className="h-[600px] w-full flex justify-center items-center">
+              <Spin />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
+              {promotions.map((card, i) => (
+                <CampaignCard
+                  key={i}
+                  campaign={card}
+                  loading={isLoading || isValidating}
+                  onClick={() => {
+                    navigate(
+                      `/marketing/campaign/create/${card.id}?marketingCampaignId=${card.id}&step=1&mode=edit`
+                    );
+                  }}
+                />
+              ))}
+            </div>
+          )}
           <div className="mt-4">
             <Pagination
               current={currentPage}
