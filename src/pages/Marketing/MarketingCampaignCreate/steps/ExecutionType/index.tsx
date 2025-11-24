@@ -169,8 +169,8 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
     }, [marketingCampaign]);
 
     const isConfigurationLocked = useMemo(
-        () => editMode && executionType && actionType,
-        [editMode, executionType, actionType]
+        () => editMode && marketingCampaign?.executionType && marketingCampaign?.actionType,
+        [editMode, marketingCampaign]
     );
 
     const canEdit = useMemo(
