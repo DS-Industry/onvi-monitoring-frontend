@@ -1,13 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CarOutlined } from '@ant-design/icons';
-import FactoryLetterS from '@/assets/Factory Letter S.png';
+import ProfilePosTabOne from '@/assets/ProfilePosTabOne.webp';
 import useFormHook from '@/hooks/useFormHook';
-import { Input, Select, TimePicker } from 'antd';
+import { Button, Input, Select, Spin, TimePicker } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
+import { useSearchParams } from 'react-router-dom';
+import useSWR, { mutate } from 'swr';
+import { getPosById, updateCarWash } from '@/services/api/pos';
+import { getOrganization } from '@/services/api/organization';
+import useSWRMutation from 'swr/mutation';
+import { useToast } from '@/components/context/useContext';
 
 const BasicInformation: React.FC = () => {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const posId = Number(searchParams.get('posId')) || undefined;
+  const { showToast } = useToast();
 
   const defaultValues = {
     name: '',
@@ -15,15 +24,74 @@ const BasicInformation: React.FC = () => {
     address: '',
     startTime: '',
     endTime: '',
-    monthlyPlan: 0,
     organizationId: 0,
     carWashPosType: '',
     minSumOrder: 0,
     maxSumOrder: 0,
-    stepSumAmount: 0
+    stepSumOrder: 0,
   };
 
   const [formData, setFormData] = useState(defaultValues);
+
+  const {
+    data: posData,
+    isLoading,
+    isValidating,
+  } = useSWR(
+    posId ? [`get-pos-by-id`, posId] : null,
+    () => getPosById(posId!),
+    {
+      shouldRetryOnError: false,
+    }
+  );
+
+  const { data: organizationData } = useSWR(
+    [`get-org`],
+    () => getOrganization({}),
+    {
+      shouldRetryOnError: false,
+    }
+  );
+
+  useEffect(() => {
+    if (posData) {
+      setFormData({
+        name: posData.props.name,
+        description: '',
+        startTime: posData.props.startTime || '',
+        endTime: posData.props.endTime || '',
+        organizationId: posData.props.organizationId,
+        carWashPosType: posData.props.carWashPosType,
+        minSumOrder: posData.props.minSumOrder,
+        maxSumOrder: posData.props.maxSumOrder,
+        stepSumOrder: posData.props.stepSumOrder,
+        address: posData.props.address.props.city,
+      });
+    }
+  }, [posData]);
+
+  const { trigger: updatePos, isMutating: isUpdatingPos } = useSWRMutation(
+    [`update-pos`, posId],
+    async () =>
+      updateCarWash(
+        Number(posId),
+        {
+          name: formData.name,
+          startTime: formData.startTime,
+          endTime: formData.endTime,
+          organizationId: formData.organizationId,
+          carWashPosType: formData.carWashPosType || '',
+          minSumOrder: formData.minSumOrder,
+          maxSumOrder: formData.maxSumOrder,
+          stepSumOrder: formData.stepSumOrder,
+          address: {
+            city: formData.address,
+            location: posData?.props.address.props.location || '',
+          },
+        },
+        null
+      )
+  );
 
   const { register, handleSubmit, setValue } = useFormHook(formData);
 
@@ -44,7 +112,28 @@ const BasicInformation: React.FC = () => {
     setValue(field, timeString);
   };
 
-  const onSubmit = async () => {};
+  const onSubmit = async () => {
+    try {
+      const result = await updatePos();
+      if (result) {
+        mutate([`get-pos-by-id`, posId]);
+        showToast(t('success.recordCreated'), 'success');
+      } else {
+        showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+      }
+    } catch (error) {
+      console.error('Error during form submission: ', error);
+      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+    }
+  };
+
+  if (isLoading || isValidating) {
+    return (
+      <div className="h-[600px] w-full flex justify-center items-center">
+        <Spin />
+      </div>
+    );
+  }
 
   return (
     <form
@@ -123,25 +212,16 @@ const BasicInformation: React.FC = () => {
           </div>
           <div>
             <div className="text-text01 text-sm font-semibold">
-              {t('pos.monthly')}
-            </div>
-            <Input
-              type="number"
-              placeholder={'00'}
-              className="w-full sm:w-auto sm:min-w-72 lg:min-w-96"
-              {...register('monthlyPlan')}
-              value={formData.monthlyPlan}
-              onChange={e => handleInputChange('monthlyPlan', e.target.value)}
-              suffix={<div>₽</div>}
-            />
-          </div>
-          <div>
-            <div className="text-text01 text-sm font-semibold">
               {t('pos.company')}
             </div>
             <Select
               placeholder={t('pos.companyName')}
-              options={[]}
+              options={
+                organizationData?.map(org => ({
+                  value: org.id,
+                  label: org.name,
+                })) || []
+              }
               className="w-full sm:w-auto sm:min-w-72 lg:min-w-96"
               {...register('organizationId')}
               value={formData.organizationId}
@@ -204,18 +284,28 @@ const BasicInformation: React.FC = () => {
               placeholder="00"
               type="number"
               className="w-full sm:w-auto sm:min-w-72 lg:min-w-96"
-              {...register('stepSumAmount')}
-              value={formData.stepSumAmount !== null ? formData.stepSumAmount : ''}
-              onChange={e => handleInputChange('stepSumAmount', e.target.value)}
+              {...register('stepSumOrder')}
+              value={
+                formData.stepSumOrder !== null ? formData.stepSumOrder : ''
+              }
+              onChange={e => handleInputChange('stepSumOrder', e.target.value)}
               suffix={<div>₽</div>}
             />
           </div>
+          <Button
+            htmlType="submit"
+            className="w-full sm:w-96"
+            type="primary"
+            loading={isUpdatingPos}
+          >
+            {t('marketing.apply')}
+          </Button>
         </div>
       </div>
 
       <div className="flex-1 hidden lg:flex items-center justify-center bg-white">
         <img
-          src={FactoryLetterS}
+          src={ProfilePosTabOne}
           alt="Factory illustration"
           loading="lazy"
           decoding="async"
