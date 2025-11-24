@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Checkbox, Typography, Button } from 'antd';
+import { Checkbox, Typography, Button, Grid } from 'antd';
 import { EnvironmentFilled, PlayCircleFilled } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { PosResponse } from '@/services/api/marketing';
+
+const { useBreakpoint } = Grid;
 
 const { Text } = Typography;
 
@@ -24,12 +26,14 @@ const GeographyList: React.FC<GeographyListProps> = ({
   initialSelectedIds,
 }) => {
   const { t } = useTranslation();
+  const screens = useBreakpoint();
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const previousParticipantsRef = useRef<string>('');
   const previousInitialSelectedIdsRef = useRef<string>('');
   const onSelectionChangeRef = useRef(onSelectionChange);
   const initializedRef = useRef(false);
   const [expanded, setExpanded] = useState(false);
+  const isMdOrLarger = screens.md || screens.lg || screens.xl || screens.xxl;
 
   useEffect(() => {
     onSelectionChangeRef.current = onSelectionChange;
@@ -56,8 +60,8 @@ const GeographyList: React.FC<GeographyListProps> = ({
         const ids =
           initialSelectedIds && initialSelectedIds.length > 0
             ? initialSelectedIds.filter(id =>
-                participants.some(p => p.id === id)
-              )
+              participants.some(p => p.id === id)
+            )
             : participants.map(p => p.id);
         setSelectedIds(ids);
         previousParticipantsRef.current = currentIdsString;
@@ -92,12 +96,18 @@ const GeographyList: React.FC<GeographyListProps> = ({
 
   return (
     <div
-      className={`bg-white shadow-lg w-full ${
-        showButtons ? 'rounded-t-3xl' : 'rounded-2xl'
-      } flex flex-col transition-all duration-300`}
-      style={{
-        maxHeight: showButtons ? (expanded ? '80vh' : '10vh') : 'auto',
-      }}
+      className={`bg-white shadow-lg w-full ${showButtons ? 'rounded-t-3xl' : 'rounded-2xl'
+        } flex flex-col transition-all duration-300`}
+      style={
+        isMdOrLarger
+          ? {
+            maxHeight: showButtons ? (expanded ? '80vh' : '10vh') : '70vh',
+            height: "80vh",
+          }
+          : {
+            height: "80vh",
+          }
+      }
     >
       {showButtons && (
         <div
@@ -123,7 +133,7 @@ const GeographyList: React.FC<GeographyListProps> = ({
       </div>
 
       <div
-        className={`flex-1 overflow-y-auto ${showButtons ? 'px-4' : 'px-4'} space-y-3 ${showButtons ? 'pb-2' : ''}`}
+        className={`flex-1 md:min-h-0 overflow-y-auto ${showButtons ? 'px-4' : 'px-4'} space-y-3 ${showButtons ? 'pb-2' : ''}`}
       >
         {participants.length === 0 ? (
           <div className="text-center py-8 text-base03">
@@ -176,7 +186,7 @@ const GeographyList: React.FC<GeographyListProps> = ({
               onClick={onLaunch}
               className={`${onBack ? 'flex-1' : 'w-full'}`}
             >
-              {t('marketing.launchNow')}
+              {isMdOrLarger ? t('marketing.launchNow') : ""}
             </Button>
           )}
         </div>
