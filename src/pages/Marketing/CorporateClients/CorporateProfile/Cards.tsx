@@ -1,7 +1,7 @@
 import React from 'react';
-import { Table, Typography } from 'antd';
+import { Button, Table, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import { getCorporateClientCardsById } from '@/services/api/marketing';
 import {
@@ -11,6 +11,7 @@ import {
 } from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import Search from 'antd/es/input/Search';
+import { DownloadOutlined } from '@ant-design/icons';
 
 const { Text } = Typography;
 
@@ -21,6 +22,7 @@ const Cards: React.FC = () => {
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
   const search = searchParams.get('search') || '';
+  const navigate = useNavigate();
 
   const { data: cards, isLoading } = useSWR(
     clientId
@@ -105,20 +107,29 @@ const Cards: React.FC = () => {
       <div className="font-semibold text-text01 text-2xl">
         {t('marketing.cards')}
       </div>
-      <div className="w-full sm:w-80">
-        <label className="block mb-1 text-sm font-medium text-gray-700">
-          {t('analysis.search')}
-        </label>
-        <Search
-          placeholder={t('filters.search.placeholder')}
-          allowClear
-          onSearch={(val: string) => {
-            updateSearchParams(searchParams, setSearchParams, {
-              search: val,
-              page: DEFAULT_PAGE,
-            });
-          }}
-        />
+      <div className="flex space-x-4">
+        <div className="w-full sm:w-80">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
+            {t('analysis.search')}
+          </label>
+          <Search
+            placeholder={t('filters.search.placeholder')}
+            allowClear
+            onSearch={(val: string) => {
+              updateSearchParams(searchParams, setSearchParams, {
+                search: val,
+                page: DEFAULT_PAGE,
+              });
+            }}
+          />
+        </div>
+        <Button
+          icon={<DownloadOutlined />}
+          className="mt-6"
+          onClick={() => navigate(`/marketing/clients/import?corporateClientId=${clientId}`)}
+        >
+          <span>{t('marketing.importCards')}</span>
+        </Button>
       </div>
       <Table
         dataSource={dataSource}

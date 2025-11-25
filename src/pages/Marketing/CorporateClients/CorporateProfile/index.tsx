@@ -75,7 +75,7 @@ const CorporateProfile: React.FC = () => {
         <div
           className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
           onClick={() => {
-            navigate(-1);
+            navigate('/marketing/corporate-clients');
           }}
         >
           <ArrowLeftOutlined />
