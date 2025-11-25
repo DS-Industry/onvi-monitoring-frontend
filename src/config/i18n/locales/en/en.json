@@ -799,7 +799,8 @@
     "launchDate": "Launch Date",
     "loyaltyCreated": "Loyalty Program created successfully",
     "loyaltyUpdated": "Loyalty Program updated successfully",
-    "value": "Value"
+    "value": "Value",
+    "tier": "Tier"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",

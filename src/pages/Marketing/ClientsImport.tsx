@@ -3,24 +3,49 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Button from '@/components/ui/Button/Button';
 import useSWRMutation from 'swr/mutation';
-import { importCards } from '@/services/api/marketing';
-import { useNavigate } from 'react-router-dom';
+import {
+  getLoyaltyPrograms,
+  getTiers,
+  importCards,
+} from '@/services/api/marketing';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   DownloadOutlined,
   FileOutlined,
   CloseOutlined,
   ArrowLeftOutlined,
 } from '@ant-design/icons';
-import { Drawer, message } from 'antd';
+import { Drawer, message, Select } from 'antd';
 import { useUser } from '@/hooks/useUserStore';
+import useSWR from 'swr';
 
 const ClientsImport: React.FC = () => {
   const { t } = useTranslation();
   const [notificationVisible, setNotificationVisible] = useState(true);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const user = useUser();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [loyaltyProgramId, setLoyaltyProgramId] = useState<number | null>(null);
+  const [tierId, setTierId] = useState<number | null>(null);
+  const corporateClientId = searchParams.get('corporateClientId');
+
+  const { data: loyaltyProgramsData, isLoading: programsLoading } = useSWR(
+    user.organizationId ? ['get-loyalty-programs', user.organizationId] : null,
+    () => getLoyaltyPrograms(user.organizationId),
+    { revalidateOnFocus: false, revalidateOnReconnect: false }
+  );
+
+  const { data: tiersData, isLoading: tiersLoading } = useSWR(
+    loyaltyProgramId ? [`get-tiers`, loyaltyProgramId] : null,
+    () => getTiers({ programId: loyaltyProgramId || '*' }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
@@ -97,7 +122,6 @@ const ClientsImport: React.FC = () => {
       message.success(
         t('marketing.importSuccess', { count: result.importedCount })
       );
-      navigate('/marketing/clients');
     } catch (error) {
       console.error('Import failed:', error);
       message.error(t('marketing.importError'));
@@ -167,58 +191,97 @@ const ClientsImport: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-8 md:mt-14 w-full max-w-4xl">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-            <div className="text-text02 text-sm md:text-base font-normal">
-              {t('marketing.uploadFile')}
-            </div>
-            <div className="text-text02 text-sm md:text-base font-normal">
-              {t('marketing.excelFormat')}
-            </div>
-          </div>
-
-          <div className="border rounded-lg h-20 md:h-24 flex justify-center text-center flex-col p-4">
-            {!selectedFile && (
-              <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-2">
-                <label
-                  htmlFor="file-upload"
-                  className="flex text-primary02 cursor-pointer items-center space-x-2 hover:text-primary02_Hover transition-colors"
-                >
-                  <DownloadOutlined />
-                  <div>{t('marketing.selectFile')}</div>
-                </label>
-                <input
-                  id="file-upload"
-                  type="file"
-                  accept=".xlsx, .xls, .csv"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
-                <div className="text-text01">{t('warehouse.or')}</div>
-              </div>
-            )}
-            {selectedFile && (
-              <div className="w-full">
-                <div className="flex items-center justify-between space-x-3 p-2">
-                  <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 min-w-0">
-                    <div className="text-primary02 text-sm md:text-base truncate">
-                      {selectedFile.name}
-                    </div>
-                    <div className="text-text01 text-xs md:text-sm">
-                      ({(selectedFile.size / 1024).toFixed(2)} kB)
-                    </div>
-                  </div>
-                  <button
-                    className="text-text02 hover:text-text01 transition-colors flex-shrink-0"
-                    onClick={handleFileRemove}
-                  >
-                    <CloseOutlined />
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+        <div className="mt-5">
+          <div className="text-text02 text-sm">{t('marketing.loyalty')}</div>
+          <Select
+            placeholder={t('marketing.selectLoyaltyProgram')}
+            options={loyaltyProgramsData?.map(item => ({
+              label: item.props.name,
+              value: item.props.id,
+            }))}
+            loading={programsLoading}
+            value={loyaltyProgramId}
+            allowClear
+            className="w-full sm:max-w-80"
+            onChange={value => {
+              setLoyaltyProgramId(value);
+            }}
+          />
         </div>
+
+        {loyaltyProgramId && (
+          <div className="mt-5">
+            <div className="text-text02 text-sm">{t('marketing.tier')}</div>
+            <Select
+              options={tiersData?.map(item => ({
+                label: item.name,
+                value: item.id,
+              }))}
+              loading={tiersLoading}
+              value={tierId}
+              allowClear
+              className="w-full sm:max-w-80"
+              onChange={value => {
+                setTierId(value);
+              }}
+            />
+          </div>
+        )}
+
+        {corporateClientId && tierId && (
+          <div className="mt-8 md:mt-14 w-full max-w-4xl">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+              <div className="text-text02 text-sm md:text-base font-normal">
+                {t('marketing.uploadFile')}
+              </div>
+              <div className="text-text02 text-sm md:text-base font-normal">
+                {t('marketing.excelFormat')}
+              </div>
+            </div>
+
+            <div className="border rounded-lg h-20 md:h-24 flex justify-center text-center flex-col p-4">
+              {!selectedFile && (
+                <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-2">
+                  <label
+                    htmlFor="file-upload"
+                    className="flex text-primary02 cursor-pointer items-center space-x-2 hover:text-primary02_Hover transition-colors"
+                  >
+                    <DownloadOutlined />
+                    <div>{t('marketing.selectFile')}</div>
+                  </label>
+                  <input
+                    id="file-upload"
+                    type="file"
+                    accept=".xlsx, .xls, .csv"
+                    className="hidden"
+                    onChange={handleFileChange}
+                  />
+                  <div className="text-text01">{t('warehouse.or')}</div>
+                </div>
+              )}
+              {selectedFile && (
+                <div className="w-full">
+                  <div className="flex items-center justify-between space-x-3 p-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 min-w-0">
+                      <div className="text-primary02 text-sm md:text-base truncate">
+                        {selectedFile.name}
+                      </div>
+                      <div className="text-text01 text-xs md:text-sm">
+                        ({(selectedFile.size / 1024).toFixed(2)} kB)
+                      </div>
+                    </div>
+                    <button
+                      className="text-text02 hover:text-text01 transition-colors flex-shrink-0"
+                      onClick={handleFileRemove}
+                    >
+                      <CloseOutlined />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-8 md:mt-10">
           <Button
