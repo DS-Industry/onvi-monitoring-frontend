@@ -8,12 +8,10 @@ import {
   CarOutlined,
   FireOutlined,
   ThunderboltOutlined,
-  CalendarOutlined,
 } from '@ant-design/icons';
 import BasicInformation from './steps/BasicInformationCreate';
 import Terms from './steps/Terms';
 import ExecutionType from './steps/ExecutionType';
-import RewardValidityPeriod from './steps/RewardValidityPeriod';
 import Promotion from './steps/Promotion';
 import Geography from './steps/Geography';
 import { Steps } from 'antd';
@@ -74,12 +72,12 @@ const MarketingCampaignCreate: React.FC = () => {
       content: <Terms />,
       icon: <CreditCardOutlined />,
     },
-    {
-      title: t('marketingCampaigns.rewardValidityPeriod'),
-      content: <RewardValidityPeriod />,
-      icon: <CalendarOutlined />,
-    },
-    ...(!isHubPlus
+    // {
+    //   title: t('marketingCampaigns.rewardValidityPeriod'),
+    //   content: <RewardValidityPeriod />,
+    //   icon: <CalendarOutlined />,
+    // },
+    ...(isHubPlus
       ? [
         {
           title: t('marketingCampaigns.promotion'),
