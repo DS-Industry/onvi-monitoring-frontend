@@ -109,7 +109,6 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ program, isEditable = tru
                   }));
                   return (
                     <LevelCard
-                      key={tier.id}
                       tierId={tier.id}
                       levelNumber={index + 1}
                       fromAmount={String(tier.limitBenefit)}
