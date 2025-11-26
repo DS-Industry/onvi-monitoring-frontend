@@ -307,10 +307,12 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
                             titleKey="marketingCampaigns.behavioral"
                             descriptionKey="marketingCampaigns.behavioralDescription"
                             isSelected={executionType === CampaignExecutionType.BEHAVIORAL}
-                            isDisabled={!canEdit}
-                            onClick={() =>
+                            // isDisabled={!canEdit}
+                            isDisabled={true}
+                            onClick={() => {
+                                return
                                 handleExecutionTypeChange(CampaignExecutionType.BEHAVIORAL)
-                            }
+                            }}
                         />
                     </div>
                 </div>
