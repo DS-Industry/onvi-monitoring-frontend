@@ -659,6 +659,8 @@ export async function getClientLoyaltyStats(
 export type ImportCardsRequest = {
   file: File;
   organizationId: number;
+  corporateClientId?: number;
+  tierId?: number;
 };
 
 export type ImportCardsResponse = {
@@ -679,7 +681,12 @@ export async function importCards(
   const formData = new FormData();
   formData.append('file', request.file);
   formData.append('organizationId', request.organizationId.toString());
-
+  if (request.corporateClientId) {
+    formData.append('corporateClientId', request.corporateClientId.toString());
+  }
+  if (request.tierId) {
+    formData.append('tierId', request.tierId.toString());
+  }
   const response: AxiosResponse<ImportCardsResponse> = await api.post(
     'user/loyalty/import-cards',
     formData

@@ -65,7 +65,7 @@ const ClientsImport: React.FC = () => {
 
   const { trigger: importCardsMutation, isMutating } = useSWRMutation(
     ['import-cards'],
-    async (_, { arg }: { arg: { file: File; organizationId: number } }) => {
+    async (_, { arg }: { arg: { file: File; organizationId: number, corporateClientId?: number, tierId?: number } }) => {
       return importCards(arg);
     }
   );
@@ -117,6 +117,8 @@ const ClientsImport: React.FC = () => {
       const result = await importCardsMutation({
         file: selectedFile,
         organizationId: user.organizationId,
+        corporateClientId: corporateClientId ? Number(corporateClientId) : undefined,
+        tierId: tierId ? Number(tierId) : undefined,
       });
 
       message.success(
@@ -165,16 +167,14 @@ const ClientsImport: React.FC = () => {
             onClick={() => {
               setDrawerOpen(!drawerOpen);
             }}
-            className={`w-full sm:w-80 h-32 sm:h-40 flex flex-col justify-center text-center cursor-pointer ${
-              drawerOpen
-                ? 'bg-white border-2 border-primary02'
-                : 'bg-background05'
-            } rounded-2xl transition-all duration-200 hover:shadow-md`}
+            className={`w-full sm:w-80 h-32 sm:h-40 flex flex-col justify-center text-center cursor-pointer ${drawerOpen
+              ? 'bg-white border-2 border-primary02'
+              : 'bg-background05'
+              } rounded-2xl transition-all duration-200 hover:shadow-md`}
           >
             <div
-              className={`flex justify-center text-center items-center ${
-                drawerOpen ? 'text-primary02' : 'text-text01'
-              }`}
+              className={`flex justify-center text-center items-center ${drawerOpen ? 'text-primary02' : 'text-text01'
+                }`}
             >
               <FileOutlined className="text-xl md:text-2xl" />
               <div className="ml-2 font-semibold text-base md:text-lg">
@@ -182,9 +182,8 @@ const ClientsImport: React.FC = () => {
               </div>
             </div>
             <div
-              className={`mt-2 px-4 text-sm md:text-base ${
-                drawerOpen ? 'text-text01' : 'text-text02'
-              } font-normal`}
+              className={`mt-2 px-4 text-sm md:text-base ${drawerOpen ? 'text-text01' : 'text-text02'
+                } font-normal`}
             >
               {t('marketing.clickToDownload')}
             </div>
