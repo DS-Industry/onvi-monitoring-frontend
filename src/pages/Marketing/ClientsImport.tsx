@@ -330,9 +330,6 @@ const ClientsImport: React.FC = () => {
                   • <strong>uniqueNumber</strong> -{' '}
                   {t('marketing.uniqueNumberDescription')}
                 </div>
-                <div>
-                  • <strong>tierId</strong> - {t('marketing.tierIdDescription')}
-                </div>
               </div>
             </div>
             <div className="font-normal text-sm md:text-base text-text01">
