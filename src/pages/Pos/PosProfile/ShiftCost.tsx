@@ -33,7 +33,7 @@ const ShiftCost: React.FC = () => {
     })) || [];
 
   const defaultValues = {
-    hrPositionId: '',
+    hrPositionId: 0,
     salary: 0,
     bonus: 0,
   };
@@ -44,7 +44,7 @@ const ShiftCost: React.FC = () => {
 
   const handleInputChange = (
     field: keyof typeof defaultValues,
-    value: string | number
+    value: number
   ) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setValue(field, value);
@@ -79,10 +79,10 @@ const ShiftCost: React.FC = () => {
               options={positions}
               placeholder={t('hr.selectPos')}
               className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[384px]"
-              value={Number(formData.hrPositionId)}
-              onChange={value =>
-                handleInputChange('hrPositionId', String(value))
+              value={
+                formData.hrPositionId === 0 ? undefined : formData.hrPositionId
               }
+              onChange={value => handleInputChange('hrPositionId', value)}
             />
           </div>
           <div>
@@ -95,7 +95,9 @@ const ShiftCost: React.FC = () => {
               className="w-full sm:w-auto sm:min-w-72 lg:min-w-96"
               {...register('salary')}
               value={formData.salary}
-              onChange={e => handleInputChange('salary', e.target.value)}
+              onChange={e =>
+                handleInputChange('salary', Number(e.target.value))
+              }
               suffix={<div>₽</div>}
             />
           </div>
@@ -109,15 +111,11 @@ const ShiftCost: React.FC = () => {
               className="w-full sm:w-auto sm:min-w-[280px] lg:min-w-[384px]"
               {...register('bonus')}
               value={formData.bonus}
-              onChange={e => handleInputChange('bonus', e.target.value)}
+              onChange={e => handleInputChange('bonus', Number(e.target.value))}
               suffix={<div>₽</div>}
             />
           </div>
-          <Button
-            htmlType="submit"
-            className='w-full sm:w-96'
-            type="primary"
-          >
+          <Button htmlType="submit" className="w-full sm:w-96" type="primary">
             {t('marketing.apply')}
           </Button>
         </div>
