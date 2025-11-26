@@ -217,6 +217,7 @@ const ClientsImport: React.FC = () => {
                 label: item.name,
                 value: item.id,
               }))}
+              placeholder={t('warehouse.notSel')}
               loading={tiersLoading}
               value={tierId}
               allowClear
