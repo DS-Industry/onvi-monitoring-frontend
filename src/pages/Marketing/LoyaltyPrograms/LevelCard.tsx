@@ -53,11 +53,13 @@ const LevelCard: React.FC<LevelCardProps> = ({
       <div className="font-semibold text-lg text-text01">
         {t('marketingLoyalty.level')} {levelNumber}
       </div>
+      <div className="text-gray-400 text-sm mb-1">
+        {t('table.columns.id')} {tierId}
+      </div>
 
       <div className="text-blue-600 font-medium">
         {t('marketingLoyalty.from')} {fromAmount}
       </div>
-      <div className="text-gray-400 text-sm mb-1">{tierId}</div>
       <div className="text-gray-400 text-sm mb-3">{description}</div>
       <div className="font-semibold mb-1">
         {t('marketingLoyalty.lossOfLevel')}
@@ -67,7 +69,10 @@ const LevelCard: React.FC<LevelCardProps> = ({
       <div className="font-semibold mb-2">{t('marketingLoyalty.bonuses')}</div>
       <div className="flex flex-col space-y-2 mb-4 w-full">
         {bonuses.map((bonus, index) => (
-          <div key={`${index}-${bonus}`} className="flex items-center gap-2 text-sm">
+          <div
+            key={`${index}-${bonus}`}
+            className="flex items-center gap-2 text-sm"
+          >
             <div className="h-5 w-5 bg-text01 text-text04 rounded-full flex items-center justify-center">
               <GiftFilled style={{ fontSize: 10 }} />
             </div>
