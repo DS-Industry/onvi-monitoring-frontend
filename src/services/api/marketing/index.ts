@@ -664,10 +664,10 @@ export type ImportCardsRequest = {
 };
 
 export type ImportCardsResponse = {
-  success: boolean;
+  successCount: number;
+  errorCount: number;
+  errors: string[];
   message: string;
-  importedCount: number;
-  errors?: string[];
 };
 
 export async function importCards(

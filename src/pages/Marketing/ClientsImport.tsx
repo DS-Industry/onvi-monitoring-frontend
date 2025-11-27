@@ -15,9 +15,10 @@ import {
   CloseOutlined,
   ArrowLeftOutlined,
 } from '@ant-design/icons';
-import { Drawer, message, Select } from 'antd';
+import { Drawer, Select } from 'antd';
 import { useUser } from '@/hooks/useUserStore';
 import useSWR from 'swr';
+import { useToast } from '@/components/context/useContext';
 
 const ClientsImport: React.FC = () => {
   const { t } = useTranslation();
@@ -30,6 +31,7 @@ const ClientsImport: React.FC = () => {
   const [loyaltyProgramId, setLoyaltyProgramId] = useState<number | null>(null);
   const [tierId, setTierId] = useState<number | null>(null);
   const corporateClientId = searchParams.get('corporateClientId');
+  const { showToast } = useToast();
 
   const { data: loyaltyProgramsData, isLoading: programsLoading } = useSWR(
     user.organizationId ? ['get-loyalty-programs', user.organizationId] : null,
@@ -65,25 +67,37 @@ const ClientsImport: React.FC = () => {
 
   const { trigger: importCardsMutation, isMutating } = useSWRMutation(
     ['import-cards'],
-    async (_, { arg }: { arg: { file: File; organizationId: number, corporateClientId?: number, tierId?: number } }) => {
+    async (
+      _,
+      {
+        arg,
+      }: {
+        arg: {
+          file: File;
+          organizationId: number;
+          corporateClientId?: number;
+          tierId?: number;
+        };
+      }
+    ) => {
       return importCards(arg);
     }
   );
 
   const handleSubmit = async () => {
     if (!selectedFile) {
-      message.error(t('validation.fileRequired'));
+      showToast(t('validation.fileRequired'), 'error');
       return;
     }
 
     if (selectedFile.size === 0) {
-      message.error('File is empty. Please select a valid file.');
+      showToast(t('validation.fileRequired'), 'error');
       return;
     }
 
     const maxSize = 10 * 1024 * 1024;
     if (selectedFile.size > maxSize) {
-      message.error(t('validation.fileTooLarge'));
+      showToast(t('validation.fileTooLarge'), 'error');
       return;
     }
 
@@ -104,12 +118,12 @@ const ClientsImport: React.FC = () => {
       !allowedTypes.includes(selectedFile.type) &&
       !allowedExtensions.includes(fileExtension)
     ) {
-      message.error(t('validation.invalidFileType'));
+      showToast(t('validation.invalidFileType'), 'error');
       return;
     }
 
     if (!user.organizationId) {
-      message.error(t('validation.organizationRequired'));
+      showToast(t('validation.organizationRequired'), 'error');
       return;
     }
 
@@ -117,16 +131,20 @@ const ClientsImport: React.FC = () => {
       const result = await importCardsMutation({
         file: selectedFile,
         organizationId: user.organizationId,
-        corporateClientId: corporateClientId ? Number(corporateClientId) : undefined,
+        corporateClientId: corporateClientId
+          ? Number(corporateClientId)
+          : undefined,
         tierId: tierId ? Number(tierId) : undefined,
       });
-
-      message.success(
-        t('marketing.importSuccess', { count: result.importedCount })
-      );
+      if (result) {
+        showToast(
+          t('marketing.importSuccess', { count: result.successCount }),
+          'success'
+        );
+      }
     } catch (error) {
       console.error('Import failed:', error);
-      message.error(t('marketing.importError'));
+      showToast(t('marketing.importError'), 'error');
     }
   };
 
@@ -167,14 +185,16 @@ const ClientsImport: React.FC = () => {
             onClick={() => {
               setDrawerOpen(!drawerOpen);
             }}
-            className={`w-full sm:w-80 h-32 sm:h-40 flex flex-col justify-center text-center cursor-pointer ${drawerOpen
-              ? 'bg-white border-2 border-primary02'
-              : 'bg-background05'
-              } rounded-2xl transition-all duration-200 hover:shadow-md`}
+            className={`w-full sm:w-80 h-32 sm:h-40 flex flex-col justify-center text-center cursor-pointer ${
+              drawerOpen
+                ? 'bg-white border-2 border-primary02'
+                : 'bg-background05'
+            } rounded-2xl transition-all duration-200 hover:shadow-md`}
           >
             <div
-              className={`flex justify-center text-center items-center ${drawerOpen ? 'text-primary02' : 'text-text01'
-                }`}
+              className={`flex justify-center text-center items-center ${
+                drawerOpen ? 'text-primary02' : 'text-text01'
+              }`}
             >
               <FileOutlined className="text-xl md:text-2xl" />
               <div className="ml-2 font-semibold text-base md:text-lg">
@@ -182,8 +202,9 @@ const ClientsImport: React.FC = () => {
               </div>
             </div>
             <div
-              className={`mt-2 px-4 text-sm md:text-base ${drawerOpen ? 'text-text01' : 'text-text02'
-                } font-normal`}
+              className={`mt-2 px-4 text-sm md:text-base ${
+                drawerOpen ? 'text-text01' : 'text-text02'
+              } font-normal`}
             >
               {t('marketing.clickToDownload')}
             </div>
