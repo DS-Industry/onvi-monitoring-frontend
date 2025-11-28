@@ -301,6 +301,7 @@ type DayShiftResponse = {
   gradingParameterInfo?: GradingParameterInfo;
   dailySalary?: number | null;
   bonusPayout?: number | null;
+  dailyShiftPayout?: number | null;
 };
 
 export type UpdateDayShiftBody = {

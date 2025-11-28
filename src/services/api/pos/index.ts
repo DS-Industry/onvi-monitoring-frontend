@@ -148,10 +148,26 @@ interface CarWashProps {
   minSumOrder: number;
   maxSumOrder: number;
   stepSumOrder: number;
+  positionSalaryRates: {
+    hrPositionId: number;
+    hrPositionName: string;
+    baseRateDay: number;
+    bonusRateDay: number;
+    baseRateNight: number;
+    bonusRateNight: number;
+  }[];
 }
 
 interface UpdateCarWashResponse {
   props: CarWashProps;
+  positionSalaryRates?: {
+    hrPositionId: number;
+    hrPositionName: string;
+    baseRateDay: number | null;
+    bonusRateDay: number | null;
+    baseRateNight: number | null;
+    bonusRateNight: number | null;
+  }[];
 }
 
 type DepositParam = {
@@ -508,6 +524,26 @@ export async function getFalseDepositDeviceById(
   const response: AxiosResponse<FalseDepositDeviceResponse> = await api.get(
     `/user/device/false-operations/${deviceId}`,
     { params }
+  );
+  return response.data;
+}
+
+export type UpdatePositionSalaryRateRequest = {
+  posId: number;
+  hrPositionId: number;
+  baseRateDay: number;
+  bonusRateDay: number;
+  baseRateNight: number;
+  bonusRateNight: number;
+};
+
+export async function updatePositionSalaryRate(
+  id: number,
+  body: UpdatePositionSalaryRateRequest
+): Promise<{ status: 'SUCCESS' }> {
+  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.patch(
+    `user/pos/${id}/position-salary-rate`,
+    body
   );
   return response.data;
 }
