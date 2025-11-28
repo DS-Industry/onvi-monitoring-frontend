@@ -70,13 +70,13 @@ const ShiftTab: React.FC = () => {
     () =>
       shiftId
         ? sendDayShift(shiftId)
-            .catch(() => {
-              message.error(t('errors.sendFailed'));
-            })
-            .finally(() => {
-              message.success(t('actions.sendSuccess'));
-              refreshDayShiftData();
-            })
+          .catch(() => {
+            message.error(t('errors.sendFailed'));
+          })
+          .finally(() => {
+            message.success(t('actions.sendSuccess'));
+            refreshDayShiftData();
+          })
         : null
   );
 
@@ -85,13 +85,13 @@ const ShiftTab: React.FC = () => {
     () =>
       shiftId
         ? returnDayShift(shiftId)
-            .catch(() => {
-              message.error(t('errors.sendFailed'));
-            })
-            .finally(() => {
-              message.success(t('actions.returnSuccess'));
-              refreshDayShiftData();
-            })
+          .catch(() => {
+            message.error(t('errors.sendFailed'));
+          })
+          .finally(() => {
+            message.success(t('actions.returnSuccess'));
+            refreshDayShiftData();
+          })
         : null
   );
 
@@ -100,8 +100,8 @@ const ShiftTab: React.FC = () => {
     (_, { arg }: { arg: UpdateDayShiftBody }) =>
       shiftId
         ? updateDayShift(arg, shiftId).catch(() => {
-            message.error(t('errors.updateFailed'));
-          })
+          message.error(t('errors.updateFailed'));
+        })
         : null
   );
 
@@ -110,13 +110,13 @@ const ShiftTab: React.FC = () => {
     () =>
       shiftId
         ? deleteDayShift(shiftId)
-            .then(() => {
-              message.success(t('finance.deleteSuccess'));
-              window.history.back();
-            })
-            .catch(() => {
-              message.error(t('finance.deleteFailed'));
-            })
+          .then(() => {
+            message.success(t('finance.deleteSuccess'));
+            window.history.back();
+          })
+          .catch(() => {
+            message.error(t('finance.deleteFailed'));
+          })
         : null
   );
 
@@ -214,43 +214,7 @@ const ShiftTab: React.FC = () => {
     ? (totalScore || 0) / gradedParams.length
     : null;
 
-  const calculateDailyShiftPayout = () => {
-    if (
-      !dayShiftData?.dailySalary ||
-      !dayShiftData?.bonusPayout ||
-      !dayShiftData?.gradingParameterInfo
-    ) {
-      return dayShiftData?.dailySalary || 0;
-    }
-
-    const { parameters, allEstimations } = dayShiftData.gradingParameterInfo;
-
-    const totalPercentage = parameters.reduce((sum, param) => {
-      if (param.estimationId === null) return sum;
-
-      const estimation = allEstimations.find(
-        est => est.id === param.estimationId
-      );
-
-      if (!estimation) return sum;
-
-      const parameterWeightPercent = param.weightPercent || 0;
-      const estimationWeightPercent = estimation.weightPercent || 0;
-
-      const parameterPercent =
-        (parameterWeightPercent * estimationWeightPercent) / 100;
-
-      return sum + parameterPercent;
-    }, 0);
-
-    const dailyShiftPayout =
-      dayShiftData.dailySalary +
-      (dayShiftData.bonusPayout * totalPercentage) / 100;
-
-    return Math.round(dailyShiftPayout);
-  };
-
-  const dailyShiftPayout = calculateDailyShiftPayout();
+  const dailyShiftPayout = dayShiftData?.dailyShiftPayout ?? 0;
 
   const hasPermissionToUpdate = hasPermission(
     [
@@ -292,14 +256,14 @@ const ShiftTab: React.FC = () => {
             </p>
           </div>
           <div>
-            <p className="text-bold]">{t('finance.averageRating')}</p>
+            <p className="text-bold">{t('finance.averageRating')}</p>
             <p className="font-bold text-[24px] flex items-center gap-1">
               {averageScore?.toFixed(1)}
               <StarOutlined className="text-yellow-500" />
             </p>
           </div>
           <div>
-            <p className="text-bold=">{t('finance.employeeName')}</p>
+            <p className="text-bold">{t('finance.employeeName')}</p>
             <p className="font-bold text-[24px]">
               {dayShiftData?.workerName || '-'}
             </p>
@@ -418,15 +382,15 @@ const ShiftTab: React.FC = () => {
               )}{' '}
             {(dayShiftData?.status === StatusWorkDayShiftReport.SENT) !==
               hasPermissionToCreate && (
-              <Button
-                className="h-[43px]  bg-[#1890FF]"
-                type="primary"
-                onClick={send}
-                loading={loadingSendCash}
-              >
-                {t('finance.send')}
-              </Button>
-            )}
+                <Button
+                  className="h-[43px]  bg-[#1890FF]"
+                  type="primary"
+                  onClick={send}
+                  loading={loadingSendCash}
+                >
+                  {t('finance.send')}
+                </Button>
+              )}
             {dayShiftData?.status !== StatusWorkDayShiftReport.SENT &&
               hasPermissionToDelete && (
                 <Button
