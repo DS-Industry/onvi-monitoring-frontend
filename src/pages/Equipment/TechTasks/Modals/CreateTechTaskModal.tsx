@@ -3,11 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { Modal, Form } from 'antd';
 import dayjs from 'dayjs';
 import { useUser } from '@/hooks/useUserStore';
-import { 
-  createTechTask, 
-  getPoses, 
-  getTags, 
-  getTechTaskItem, 
+import {
+  createTechTask,
+  getPoses,
+  getTags,
+  getTechTaskItem,
   TechTaskBody,
   TypeTechTask,
   PeriodType
@@ -55,7 +55,7 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
   const swrConfig = { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true };
 
   const { data: poses } = useSWR(
-    user.organizationId ? ['get-poses'] : null, 
+    user.organizationId ? ['get-poses'] : null,
     () => getPoses({ organizationId: user.organizationId }),
     swrConfig
   );
@@ -90,12 +90,16 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
     try {
       const techTaskData: TechTaskBody = {
         name: values.name,
-        posId: Number(values.posId),
+        posIds: Array.isArray(values.posIds)
+          ? values.posIds.map((id: any) => Number(id))
+          : values.posIds
+            ? [Number(values.posIds)]
+            : undefined,
         type: values.type,
         periodType: values.type === TypeTechTask.REGULAR ? values.periodType : undefined,
         customPeriodDays: values.periodType === PeriodType.CUSTOM ? Number(values.customPeriodDays) : undefined,
         markdownDescription: values.authorComment,
-        startDate: new Date(), 
+        startDate: new Date(),
         endSpecifiedDate: values.endDate ? dayjs(values.endDate).toDate() : undefined,
         techTaskItem: selectedTemplateItems.map(item => item.id),
         tagIds: values.tags.map((tagId: any) => Number(tagId)),
@@ -119,9 +123,9 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
       footer={null}
       width={fullscreen ? '100vw' : 1200}
       style={{
-        height: fullscreen ? '100vh' : 'auto', 
-        maxWidth: fullscreen ? '100vw' : 'auto', 
-        padding: fullscreen ? 0 : "auto", 
+        height: fullscreen ? '100vh' : 'auto',
+        maxWidth: fullscreen ? '100vw' : 'auto',
+        padding: fullscreen ? 0 : "auto",
         top: fullscreen ? 0 : 50,
         margin: fullscreen ? 0 : "auto",
       }}
