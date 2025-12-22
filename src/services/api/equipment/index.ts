@@ -211,7 +211,8 @@ type AllProgramsResponse = {
 
 export type TechTaskBody = {
   name: string;
-  posId: number;
+  posId?: number;
+  posIds?: number[];
   type: TypeTechTask;
   periodType?: PeriodType;
   customPeriodDays?: number;
