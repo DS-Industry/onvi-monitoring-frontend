@@ -162,11 +162,11 @@ const EquipmentFailure: React.FC = () => {
     formData.posId === 0
       ? []
       : (
-          allProgramsData?.map(item => ({
-            name: item.props.name,
-            value: item.props.id,
-          })) || []
-        ).sort((a, b) => a.name.localeCompare(b.name));
+        allProgramsData?.map(item => ({
+          name: item.props.name,
+          value: item.props.id,
+        })) || []
+      ).sort((a, b) => a.name.localeCompare(b.name));
 
   const incidents: Incident[] =
     data
@@ -174,7 +174,10 @@ const EquipmentFailure: React.FC = () => {
         ...item,
         posName: posData?.find(pos => pos.id === item.posId)?.name || '-',
         workerName:
-          workerData?.find(work => work.id === item.workerId)?.name || '-',
+          (() => {
+            const worker = workerData?.find(work => work.id === item.workerId);
+            return worker ? `${worker.name} ${worker.surname}` : '-';
+          })(),
         programName:
           programs.find(prog => prog.value === item.programId)?.name || '-',
       }))
@@ -184,35 +187,35 @@ const EquipmentFailure: React.FC = () => {
     formData.posId === 0
       ? []
       : (
-          incidentEquipmentKnotData
-            ?.flatMap(item =>
-              item.reason.map(reas => ({
-                label: reas.infoName,
-                value: reas.id,
-              }))
-            )
-            .filter(
-              (reason, index, self) =>
-                index === self.findIndex(r => r.value === reason.value)
-            ) || []
-        ).sort((a, b) => a.label.localeCompare(b.label));
+        incidentEquipmentKnotData
+          ?.flatMap(item =>
+            item.reason.map(reas => ({
+              label: reas.infoName,
+              value: reas.id,
+            }))
+          )
+          .filter(
+            (reason, index, self) =>
+              index === self.findIndex(r => r.value === reason.value)
+          ) || []
+      ).sort((a, b) => a.label.localeCompare(b.label));
 
   const solutions: { label: string; value: number }[] =
     formData.posId === 0
       ? []
       : (
-          incidentEquipmentKnotData
-            ?.flatMap(item =>
-              item.solution.map(sol => ({
-                label: sol.infoName,
-                value: sol.id,
-              }))
-            )
-            .filter(
-              (reason, index, self) =>
-                index === self.findIndex(r => r.value === reason.value)
-            ) || []
-        ).sort((a, b) => a.label.localeCompare(b.label));
+        incidentEquipmentKnotData
+          ?.flatMap(item =>
+            item.solution.map(sol => ({
+              label: sol.infoName,
+              value: sol.id,
+            }))
+          )
+          .filter(
+            (reason, index, self) =>
+              index === self.findIndex(r => r.value === reason.value)
+          ) || []
+      ).sort((a, b) => a.label.localeCompare(b.label));
 
   const { register, handleSubmit, errors, setValue, reset } =
     useFormHook(formData);
@@ -285,17 +288,17 @@ const EquipmentFailure: React.FC = () => {
     if (incidentToEdit) {
       const knotNameToId: { [key: string]: number } = equipmentKnotData
         ? equipmentKnotData.reduce(
-            (acc, eq) => ({ ...acc, [eq.props.name]: eq.props.id }),
-            {}
-          )
+          (acc, eq) => ({ ...acc, [eq.props.name]: eq.props.id }),
+          {}
+        )
         : {};
 
       const problemNameToId: { [key: string]: number } =
         incidentEquipmentKnotData
           ? incidentEquipmentKnotData.reduce(
-              (acc, item) => ({ ...acc, [item.problemName]: item.id }),
-              {}
-            )
+            (acc, item) => ({ ...acc, [item.problemName]: item.id }),
+            {}
+          )
           : {};
 
       const reasonLabelToValue: { [key: string]: number } = reasons
@@ -584,7 +587,7 @@ const EquipmentFailure: React.FC = () => {
                 }
                 options={workerData?.map(item => ({
                   value: item.id,
-                  label: item.name,
+                  label: item.name + " " + item.surname,
                 }))}
                 className="!w-72"
                 {...register('workerId', {

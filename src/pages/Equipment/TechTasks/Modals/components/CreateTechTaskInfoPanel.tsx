@@ -56,7 +56,7 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
         <h3 className="text-lg font-medium mb-4">{t('techTasks.information')}</h3>
         
         <Form.Item 
-          name="posId" 
+          name="posIds" 
           label={
             <span>
               <CarOutlined className="mr-2" /> {t('techTasks.carWashBranch')} 
@@ -65,6 +65,7 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
           rules={[{ required: true, message: t('techTasks.selectCarWash') }]}
         >
           <Select 
+            mode="multiple"
             placeholder={t('techTasks.selectCarWash')} 
             size="large"
             showSearch

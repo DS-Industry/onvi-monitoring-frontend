@@ -45,7 +45,7 @@ const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
     shouldRetryOnError: false,
   });
 
-  const { data: posesData } = useSWR( user.organizationId ? ['get-poses'] : null, () => getPoses({
+  const { data: posesData } = useSWR(user.organizationId ? ['get-poses'] : null, () => getPoses({
     organizationId: user.organizationId,
   }), {
     revalidateOnFocus: false,
@@ -119,45 +119,45 @@ const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
 
   const updateFiltersToSearchParams = (newFilters: FilterValues) => {
     const updates: Record<string, string | undefined> = {};
-    
+
     if (shouldShow('branch') && newFilters.branch !== t('filters.filterTechTasks.all')) {
       updates.posId = newFilters.branch;
     } else if (shouldShow('branch')) {
       updates.posId = undefined;
     }
-    
+
     if (shouldShow('status') && newFilters.status.length > 0) {
       updates.status = newFilters.status[0];
     } else if (shouldShow('status')) {
       updates.status = undefined;
     }
-    
+
     if (shouldShow('assigned') && newFilters.assigned.length > 0) {
       updates.assigned = newFilters.assigned[0];
     } else if (shouldShow('assigned')) {
       updates.assigned = undefined;
     }
-    
+
     if (shouldShow('tags') && newFilters.tags.length > 0) {
       updates.tags = newFilters.tags.join(',');
     } else if (shouldShow('tags')) {
       updates.tags = undefined;
     }
-    
+
     if (shouldShow('dateRange') && newFilters.dateFrom) {
       updates.startDate = newFilters.dateFrom.format('YYYY-MM-DD');
     } else if (shouldShow('dateRange')) {
       updates.startDate = undefined;
     }
-    
+
     if (shouldShow('dateRange') && newFilters.dateTo) {
       updates.endDate = newFilters.dateTo.format('YYYY-MM-DD');
     } else if (shouldShow('dateRange')) {
       updates.endDate = undefined;
     }
-    
+
     updates.page = '1';
-    
+
     updateSearchParams(searchParams, setSearchParams, updates);
   };
 
@@ -206,6 +206,11 @@ const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
                 ...branchOptions
               ]}
               suffixIcon={<span className="text-gray-400">▼</span>}
+              showSearch
+              filterOption={(input, option) => {
+                const label = option?.label?.toString().toLowerCase() || '';
+                return label.includes(input.toLowerCase());
+              }}
             />
           </div>
         )}
@@ -213,7 +218,7 @@ const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
         {shouldShow('status') && (
           <div>
             <div className="flex items-center mb-3">
-            <CheckOutlined className="mr-2 font-bold text-black" />
+              <CheckOutlined className="mr-2 font-bold text-black" />
               <span className="text-sm font-bold">
                 {t('filters.filterTechTasks.status')}
               </span>
@@ -225,21 +230,20 @@ const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
                 const isFinished = option.value === StatusTechTask.FINISHED;
                 const isReturned = option.value === StatusTechTask.RETURNED;
                 const isSelected = tempFilters.status.includes(option.value);
-                
+
                 return (
-                  <div 
-                    key={option.value} 
-                    className={`flex items-center p-2 rounded border-2 h-[32px] cursor-pointer hover:opacity-80 transition-opacity ${
-                      isOverdue 
-                        ? 'border-red-500 bg-red-50' 
-                        : isActive 
-                          ? 'border-orange-500 bg-orange-50' 
+                  <div
+                    key={option.value}
+                    className={`flex items-center p-2 rounded border-2 h-[32px] cursor-pointer hover:opacity-80 transition-opacity ${isOverdue
+                        ? 'border-red-500 bg-red-50'
+                        : isActive
+                          ? 'border-orange-500 bg-orange-50'
                           : isFinished
                             ? 'border-green-500 bg-green-50'
                             : isReturned
                               ? 'border-blue-500 bg-blue-50'
                               : 'border-gray-300 bg-gray-50'
-                    }`}
+                      }`}
                     onClick={() => {
                       if (isSelected) {
                         setTempFilters(prev => ({ ...prev, status: [] }));
@@ -331,9 +335,9 @@ const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
               placeholder={t('filters.filterTechTasks.selectAssignee')}
               value={tempFilters.assigned.length > 0 ? tempFilters.assigned[0] : undefined}
               onChange={(value) => {
-                setTempFilters(prev => ({ 
-                  ...prev, 
-                  assigned: value ? [value] : [] 
+                setTempFilters(prev => ({
+                  ...prev,
+                  assigned: value ? [value] : []
                 }));
               }}
               allowClear
@@ -345,12 +349,12 @@ const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
             >
               {workerOptions.map(worker => {
                 const nameParts = worker.label.split(' ');
-                const initials = nameParts.length >= 2 
+                const initials = nameParts.length >= 2
                   ? `${nameParts[0].charAt(0)}${nameParts[1].charAt(0)}`.toUpperCase()
                   : worker.label.charAt(0).toUpperCase();
-                
+
                 const avatarColors = getAvatarColorClasses(worker.id);
-                
+
                 return (
                   <Select.Option key={worker.value} value={worker.value}>
                     <div className="flex items-center gap-3">
