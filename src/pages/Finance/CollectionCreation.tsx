@@ -25,6 +25,7 @@ import { useToast } from '@/components/context/useContext';
 import CashCollectionDeviceTypeTable from '@/pages/Finance/CashCollectionDeviceTypeTable';
 import CollectionDeviceTable from '@/pages/Finance/CollectionDeviceTable';
 import { formatNumber } from '@/utils/tableUnits';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 type TableRow = {
   id: number;
@@ -87,7 +88,7 @@ type Collection = {
 const CollectionCreation: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const userPermissions = usePermissions();
   const { showToast } = useToast();
   const [isDeletingCollection, setIsDeletingCollection] = useState(false);
@@ -175,6 +176,9 @@ const CollectionCreation: React.FC = () => {
         setDeviceData(result.cashCollectionDevice);
         setCollectionData(result);
         setHideButton(true);
+        updateSearchParams(searchParams, setSearchParams, {
+          id: result.id.toString(),
+        });
         // resetForm();
       } else {
         throw new Error('Invalid update data.');
@@ -334,7 +338,16 @@ const CollectionCreation: React.FC = () => {
   };
 
   const handleReturn = async () => {
-    const result = await returnColl();
+    const collectionId = id ? Number(id) : collectionData.id;
+
+    if (!collectionId) {
+      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+      return;
+    }
+
+    const result = id
+      ? await returnColl()
+      : await returnCollection(collectionId);
 
     if (result) {
       navigate(-1);
@@ -344,14 +357,22 @@ const CollectionCreation: React.FC = () => {
   const handleDelete = async () => {
     setIsDeletingCollection(true);
     try {
+      const collectionId = id ? Number(id) : collectionData.id;
+
+      if (!collectionId) {
+        showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+        setIsDeletingCollection(false);
+        return;
+      }
+
       const result = await mutate(
-        [`delete-collection`, id],
-        () => deleteCollectionById(Number(id)),
+        [`delete-collection`, collectionId],
+        () => deleteCollectionById(collectionId),
         false
       );
 
       if (result) {
-        navigate(-1);
+        navigate('/finance/collection');
       }
     } catch (error) {
       showToast(t('success.recordDeleted'), 'error');
@@ -456,26 +477,21 @@ const CollectionCreation: React.FC = () => {
             <Descriptions.Item label={t('finance.no')}>
               {collectionData.id}
             </Descriptions.Item>
-            <Descriptions.Item label={t('marketing.total')}>{`${
-              formatNumber(collectionData.sumFact) || '00'
-            } ₽`}</Descriptions.Item>
+            <Descriptions.Item label={t('marketing.total')}>{`${formatNumber(collectionData.sumFact) || '00'
+              } ₽`}</Descriptions.Item>
             <Descriptions.Item label={t('finance.cars')}>
               {formatNumber(collectionData.countCar) || 0}
             </Descriptions.Item>
-            <Descriptions.Item label={t('finance.cash')}>{`${
-              formatNumber(collectionData.virtualSum) || '00'
-            } ₽`}</Descriptions.Item>
-            <Descriptions.Item label={t('finance.amt')}>{`${
-              formatNumber(collectionData.sumCard) || '00'
-            } ₽`}</Descriptions.Item>
-            <Descriptions.Item label={t('finance.short')}>{`${
-              formatNumber(collectionData.shortage) || '00'
-            } ₽`}</Descriptions.Item>
-            <Descriptions.Item label={t('marketing.avg')}>{`${
-              collectionData.averageCheck
-                ? formatNumber(collectionData.averageCheck)
-                : '0'
-            } ₽`}</Descriptions.Item>
+            <Descriptions.Item label={t('finance.cash')}>{`${formatNumber(collectionData.virtualSum) || '00'
+              } ₽`}</Descriptions.Item>
+            <Descriptions.Item label={t('finance.amt')}>{`${formatNumber(collectionData.sumCard) || '00'
+              } ₽`}</Descriptions.Item>
+            <Descriptions.Item label={t('finance.short')}>{`${formatNumber(collectionData.shortage) || '00'
+              } ₽`}</Descriptions.Item>
+            <Descriptions.Item label={t('marketing.avg')}>{`${collectionData.averageCheck
+              ? formatNumber(collectionData.averageCheck)
+              : '0'
+              } ₽`}</Descriptions.Item>
           </Descriptions>
           <div className="flex flex-col space-y-5">
             <div className="flex space-x-2 items-center">

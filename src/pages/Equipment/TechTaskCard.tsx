@@ -122,6 +122,10 @@ const TechTaskCard: React.FC<Props> = ({
     {} as Record<string, TechTasksItem[]>
   );
 
+  Object.keys(grouped).forEach(group => {
+    grouped[group].sort((a, b) => a.id - b.id);
+  });
+
   const toggleGroup = (group: string) => {
     setOpenGroups(prev => ({ ...prev, [group]: !prev[group] }));
   };
@@ -130,7 +134,7 @@ const TechTaskCard: React.FC<Props> = ({
     const imageSrc = uploadedFiles[itemId] instanceof File
       ? URL.createObjectURL(uploadedFiles[itemId] as File)
       : (uploadedFiles[itemId] as string);
-    
+
     setPreviewImage({
       visible: true,
       src: imageSrc,
@@ -144,10 +148,14 @@ const TechTaskCard: React.FC<Props> = ({
     });
   };
 
+  const sortedGroupEntries = Object.entries(grouped).sort(([a], [b]) =>
+    a.localeCompare(b)
+  );
+
   return (
     <div>
       <List
-        dataSource={Object.entries(grouped)}
+        dataSource={sortedGroupEntries}
         locale={{ emptyText: ' ' }}
         renderItem={([groupName, groupItems]) => (
           <List.Item className="w-full">
@@ -203,8 +211,8 @@ const TechTaskCard: React.FC<Props> = ({
                                 src={
                                   uploadedFiles[item.id] instanceof File
                                     ? URL.createObjectURL(
-                                        uploadedFiles[item.id] as File
-                                      )
+                                      uploadedFiles[item.id] as File
+                                    )
                                     : (uploadedFiles[item.id] as string)
                                 }
                                 alt="uploaded"
@@ -227,7 +235,7 @@ const TechTaskCard: React.FC<Props> = ({
                                   });
                                 }}
                               />
-                               <button
+                              <button
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   onImageRemove(item.id);
@@ -249,7 +257,7 @@ const TechTaskCard: React.FC<Props> = ({
           </List.Item>
         )}
       />
-      
+
       <Modal
         open={previewImage.visible}
         onCancel={handleClosePreview}
