@@ -185,16 +185,14 @@ const ClientsImport: React.FC = () => {
             onClick={() => {
               setDrawerOpen(!drawerOpen);
             }}
-            className={`w-full sm:w-80 h-32 sm:h-40 flex flex-col justify-center text-center cursor-pointer ${
-              drawerOpen
-                ? 'bg-white border-2 border-primary02'
-                : 'bg-background05'
-            } rounded-2xl transition-all duration-200 hover:shadow-md`}
+            className={`w-full sm:w-80 h-32 sm:h-40 flex flex-col justify-center text-center cursor-pointer ${drawerOpen
+              ? 'bg-white border-2 border-primary02'
+              : 'bg-background05'
+              } rounded-2xl transition-all duration-200 hover:shadow-md`}
           >
             <div
-              className={`flex justify-center text-center items-center ${
-                drawerOpen ? 'text-primary02' : 'text-text01'
-              }`}
+              className={`flex justify-center text-center items-center ${drawerOpen ? 'text-primary02' : 'text-text01'
+                }`}
             >
               <FileOutlined className="text-xl md:text-2xl" />
               <div className="ml-2 font-semibold text-base md:text-lg">
@@ -202,9 +200,8 @@ const ClientsImport: React.FC = () => {
               </div>
             </div>
             <div
-              className={`mt-2 px-4 text-sm md:text-base ${
-                drawerOpen ? 'text-text01' : 'text-text02'
-              } font-normal`}
+              className={`mt-2 px-4 text-sm md:text-base ${drawerOpen ? 'text-text01' : 'text-text02'
+                } font-normal`}
             >
               {t('marketing.clickToDownload')}
             </div>
@@ -249,7 +246,7 @@ const ClientsImport: React.FC = () => {
           </div>
         )}
 
-        {corporateClientId && tierId && (
+        {tierId && (
           <div className="mt-8 md:mt-14 w-full max-w-4xl">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
               <div className="text-text02 text-sm md:text-base font-normal">
