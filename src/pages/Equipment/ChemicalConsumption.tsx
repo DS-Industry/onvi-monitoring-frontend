@@ -98,13 +98,22 @@ const ChemicalConsumption: React.FC = () => {
       title: t('chemicalConsumption.waterShampooTime'),
       dataIndex: 'Вода + шампунь, время',
       key: 'Вода + шампунь, время',
-      render: (value: number) => formatNumber(value),
+      render: (value: number) => value || '-',
     },
     {
       title: t('chemicalConsumption.waterShampooRecalculated'),
       dataIndex: 'Вода + шампунь, пересчет',
       key: 'Вода + шампунь, пересчет',
-      render: (value: number) => formatNumber(value),
+      render: (value: string | number) => {
+        let num: number;
+        if (typeof value === 'string') {
+          num = parseFloat(value.replace(',', '.'));
+          if (isNaN(num)) return value;
+        } else {
+          num = value;
+        }
+        return num % 1 === 0 ? formatNumber(num) : formatNumber(num, 'double');
+      },
     },
     {
       title: t('chemicalConsumption.activeChemistryFact'),
@@ -122,7 +131,16 @@ const ChemicalConsumption: React.FC = () => {
       title: t('chemicalConsumption.activeChemistryRecalculated'),
       dataIndex: 'Активная химия, пересчет',
       key: 'Активная химия, пересчет',
-      render: (value: number) => formatNumber(value),
+      render: (value: string | number) => {
+        let num: number;
+        if (typeof value === 'string') {
+          num = parseFloat(value.replace(',', '.'));
+          if (isNaN(num)) return value;
+        } else {
+          num = value;
+        }
+        return num % 1 === 0 ? formatNumber(num) : formatNumber(num, 'double');
+      },
     },
     {
       title: t('chemicalConsumption.diskWashFact'),
@@ -140,7 +158,16 @@ const ChemicalConsumption: React.FC = () => {
       title: t('chemicalConsumption.diskWashRecalculated'),
       dataIndex: 'Мойка дисков, пересчет',
       key: 'Мойка дисков, пересчет',
-      render: (value: number) => formatNumber(value),
+      render: (value: string | number) => {
+        let num: number;
+        if (typeof value === 'string') {
+          num = parseFloat(value.replace(',', '.'));
+          if (isNaN(num)) return value;
+        } else {
+          num = value;
+        }
+        return num % 1 === 0 ? formatNumber(num) : formatNumber(num, 'double');
+      },
     },
     {
       title: t('chemicalConsumption.brushFoamFact'),
@@ -158,7 +185,16 @@ const ChemicalConsumption: React.FC = () => {
       title: t('chemicalConsumption.brushFoamRecalculated'),
       dataIndex: 'Щетка + пена, пересчет',
       key: 'Щетка + пена, пересчет',
-      render: (value: number) => formatNumber(value),
+      render: (value: string | number) => {
+        let num: number;
+        if (typeof value === 'string') {
+          num = parseFloat(value.replace(',', '.'));
+          if (isNaN(num)) return value;
+        } else {
+          num = value;
+        }
+        return num % 1 === 0 ? formatNumber(num) : formatNumber(num, 'double');
+      },
     },
     {
       title: t('chemicalConsumption.waxProtectionFact'),
@@ -176,7 +212,16 @@ const ChemicalConsumption: React.FC = () => {
       title: t('chemicalConsumption.waxProtectionRecalculated'),
       dataIndex: 'Воск + защита, пересчет',
       key: 'Воск + защита, пересчет',
-      render: (value: number) => formatNumber(value),
+      render: (value: string | number) => {
+        let num: number;
+        if (typeof value === 'string') {
+          num = parseFloat(value.replace(',', '.'));
+          if (isNaN(num)) return value;
+        } else {
+          num = value;
+        }
+        return num % 1 === 0 ? formatNumber(num) : formatNumber(num, 'double');
+      },
     },
     {
       title: t('chemicalConsumption.tPowerFact'),
@@ -194,7 +239,16 @@ const ChemicalConsumption: React.FC = () => {
       title: t('chemicalConsumption.tPowerRecalculated'),
       dataIndex: 'T-POWER, пересчет',
       key: 'T-POWER, пересчет',
-      render: (value: number) => formatNumber(value),
+      render: (value: string | number) => {
+        let num: number;
+        if (typeof value === 'string') {
+          num = parseFloat(value.replace(',', '.'));
+          if (isNaN(num)) return value;
+        } else {
+          num = value;
+        }
+        return num % 1 === 0 ? formatNumber(num) : formatNumber(num, 'double');
+      },
     },
   ];
 
@@ -203,6 +257,62 @@ const ChemicalConsumption: React.FC = () => {
       columnsChemicalConsumption,
       'chemical-consumption-table-columns'
     );
+
+  const parseValueToNumber = (value: string | number | undefined): number => {
+    if (value === undefined || value === null) return 0;
+    if (typeof value === 'number') return value;
+    if (typeof value === 'string') {
+      const num = parseFloat(value.replace(',', '.'));
+      return isNaN(num) ? 0 : num;
+    }
+    return 0;
+  };
+
+  const calculateTotals = () => {
+    const totals: { [key: string]: number } = {};
+
+    const numericColumns = [
+      'Вода + шампунь, факт',
+      'Вода + шампунь, пересчет',
+      'Активная химия, факт',
+      'Активная химия, пересчет',
+      'Мойка дисков, факт',
+      'Мойка дисков, пересчет',
+      'Щетка + пена, факт',
+      'Щетка + пена, пересчет',
+      'Воск + защита, факт',
+      'Воск + защита, пересчет',
+      'T-POWER, факт',
+      'T-POWER, пересчет',
+    ];
+
+    numericColumns.forEach(col => {
+      totals[col] = tableRows.reduce((sum, row) => {
+        const value = row[col];
+        return sum + parseValueToNumber(value);
+      }, 0);
+    });
+
+    return totals;
+  };
+
+  const totals = calculateTotals();
+
+  const getTotalCellValue = (dataIndex: string): string => {
+    if (dataIndex === 'period') {
+      return t('finance.total');
+    }
+
+    const value = totals[dataIndex];
+    if (value !== undefined) {
+      if (dataIndex.includes('пересчет')) {
+        return value % 1 === 0 ? formatNumber(value) : formatNumber(value, 'double');
+      }
+      return formatNumber(value);
+    }
+
+    return '';
+  };
 
   return (
     <>
@@ -226,10 +336,27 @@ const ChemicalConsumption: React.FC = () => {
         <Table
           dataSource={tableRows}
           columns={visibleColumns}
-          rowKey="id"
+          rowKey={(record, index) => `${record.period}-${index}`}
           pagination={false}
           loading={chemicalLoading}
           scroll={{ x: 'max-content' }}
+          summary={() => {
+            return (
+              <Table.Summary fixed>
+                <Table.Summary.Row>
+                  {visibleColumns.map((col, index) => {
+                    const dataIndex = 'dataIndex' in col ? (col.dataIndex as string) : '';
+                    const cellValue = getTotalCellValue(dataIndex);
+                    return (
+                      <Table.Summary.Cell key={col.key || index} index={index}>
+                        {cellValue ? <strong>{cellValue}</strong> : ''}
+                      </Table.Summary.Cell>
+                    );
+                  })}
+                </Table.Summary.Row>
+              </Table.Summary>
+            );
+          }}
         />
       </div>
     </>
