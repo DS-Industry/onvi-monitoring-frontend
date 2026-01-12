@@ -19,6 +19,7 @@ interface TableRow {
   [key: string]: string;
 }
 
+
 const transformDataToTableRows = (
   data: ChemicalConsumptionResponse[]
 ): TableRow[] => {

@@ -89,6 +89,11 @@ const CollectionDeviceTable: React.FC<Props> = ({
       dataIndex: 'deviceName',
       key: 'deviceName',
       width: '10%',
+      sorter: (a: CashCollectionDevice, b: CashCollectionDevice) => {
+        const nameA = (a.deviceName || '').toLowerCase();
+        const nameB = (b.deviceName || '').toLowerCase();
+        return nameA.localeCompare(nameB);
+      },
     },
     {
       title: t('table.headers.deviceType'),
