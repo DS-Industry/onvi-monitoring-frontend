@@ -13,15 +13,16 @@ const CreateTechTaskModalFooter: React.FC<CreateTechTaskModalFooterProps> = ({
 }) => {
   const { t } = useTranslation();
 
+
   return (
     <div className="flex justify-end gap-3 p-6 pt-4">
       <Button onClick={onCancel} size="large">
         {t('common.cancel')}
       </Button>
-      <Button 
-        type="primary" 
-        htmlType="submit" 
-        size="large" 
+      <Button
+        type="primary"
+        htmlType="submit"
+        size="large"
         loading={isMutating}
       >
         {t('common.create')}

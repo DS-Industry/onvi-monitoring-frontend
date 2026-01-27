@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -43,12 +43,13 @@ const MarketingCampaignCreate: React.FC = () => {
     () => getMarketingCampaignById(marketingCampaignId),
     {
       revalidateOnFocus: false,
+      keepPreviousData: true,
     }
   );
 
-  const isHubPlus = marketingCampaign?.ltyProgramHubPlus;
+  const isHubPlus = marketingCampaign?.ltyProgramHubPlus ?? false;
 
-  const steps = [
+  const steps = useMemo(() => [
     {
       title: t('warehouse.basic'),
       content: editMode ? (
@@ -91,7 +92,12 @@ const MarketingCampaignCreate: React.FC = () => {
       content: <Geography />,
       icon: <FireOutlined />,
     }
-  ];
+  ], [t, editMode, marketingCampaign, isLoading, isValidating, mutate, isHubPlus]);
+
+  const safeCurrentStep = useMemo(() => {
+    const maxStep = steps.length - 1;
+    return Math.max(0, Math.min(currentStep, maxStep));
+  }, [currentStep, steps.length]);
 
   const handleStepClick = (stepIndex: number) => {
     if (!editMode) return;
@@ -123,7 +129,7 @@ const MarketingCampaignCreate: React.FC = () => {
 
       <div className="max-w-6xl mx-auto px-2 sm:px-4 lg:px-6">
         <Steps
-          current={currentStep}
+          current={safeCurrentStep}
           size="default"
           labelPlacement="vertical"
           onChange={handleStepClick}
@@ -137,7 +143,7 @@ const MarketingCampaignCreate: React.FC = () => {
           ))}
         </Steps>
         <div className="mt-5">
-          <div>{steps[currentStep].content}</div>
+          <div>{steps[safeCurrentStep]?.content}</div>
         </div>
       </div>
     </div>
