@@ -22,7 +22,7 @@ const Loyalty: React.FC = () => {
     error: clientError,
     isLoading: clientLoading,
   } = useSWR(
-    clientId ? [`get-client-by-id`, clientId] : null,
+    clientId ? [`get-client-by-id`, Number(clientId)] : null,
     () => getClientById(Number(clientId!)),
     {
       revalidateOnFocus: false,
@@ -106,10 +106,10 @@ const Loyalty: React.FC = () => {
   const progressPercentage =
     loyaltyStats.amountToNextTier > 0
       ? Math.min(
-          (loyaltyStats.accumulatedAmount / loyaltyStats.amountToNextTier) *
-            100,
-          100
-        )
+        (loyaltyStats.accumulatedAmount / loyaltyStats.amountToNextTier) *
+        100,
+        100
+      )
       : 100;
 
   const filledBars = Math.max(1, Math.round((progressPercentage / 100) * 20));
@@ -203,9 +203,8 @@ const Loyalty: React.FC = () => {
                 return (
                   <div
                     key={index}
-                    className={`flex-1 h-4 md:h-5 rounded-sm mr-0.5 last:mr-0 ${
-                      isFilled ? 'bg-primary02/30' : 'bg-background07'
-                    }`}
+                    className={`flex-1 h-4 md:h-5 rounded-sm mr-0.5 last:mr-0 ${isFilled ? 'bg-primary02/30' : 'bg-background07'
+                      }`}
                     title={`Bar ${index + 1}: ${isFilled ? 'Filled' : 'Empty'}`}
                   />
                 );
@@ -221,14 +220,14 @@ const Loyalty: React.FC = () => {
             <Row justify="space-between" className="mt-4 md:mt-6">
               <Col>
                 <div>
-                <Text className="text-xs font-semibold">
-                  {loyaltyStats.currentTierName || t('marketing.newbie')}
-                </Text>
+                  <Text className="text-xs font-semibold">
+                    {loyaltyStats.currentTierName || t('marketing.newbie')}
+                  </Text>
                 </div>
                 <div>
-                <Text className="text-xs">
-                  {t('marketing.current')}
-                </Text>
+                  <Text className="text-xs">
+                    {t('marketing.current')}
+                  </Text>
                 </div>
               </Col>
               <Col className="text-end">
@@ -237,7 +236,7 @@ const Loyalty: React.FC = () => {
                     {loyaltyStats.nextTierName || t('marketing.amateur')}
                   </Text>
                 </div>
-                <div> 
+                <div>
                   <Text className="text-xs">
                     {t('marketing.next')}
                   </Text>

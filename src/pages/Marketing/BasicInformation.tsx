@@ -43,7 +43,7 @@ const BasicInformation: React.FC = () => {
     : undefined;
 
   const { data: clientData, isValidating: loadingClients } = useSWR(
-    userId ? [`get-client-by-id`] : null,
+    userId ? [`get-client-by-id`, userId] : null,
     () => getClientById(userId!),
     {
       revalidateOnFocus: false,
@@ -138,7 +138,7 @@ const BasicInformation: React.FC = () => {
       message.success(t('routes.savedSuccessfully'));
       setIsEditing(false);
 
-      mutate([`get-client-by-id`]);
+      mutate([`get-client-by-id`, userId]);
     } catch (error) {
       console.error('Update failed:', error);
       message.error('Failed to update client information');
