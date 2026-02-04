@@ -593,6 +593,34 @@ export async function getCards(
   return response.data.map(d => d.props);
 }
 
+export type AssignCardRequest = {
+  cardId: number;
+  clientId: number;
+};
+
+export type AssignCardResponse = {
+  id: number;
+  balance: number;
+  mobileUserId: number;
+  devNumber: string;
+  number: string;
+  monthlyLimit: number | null;
+  loyaltyCardTierId: number | null;
+  corporateId: number | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export async function assignCard(
+  body: AssignCardRequest
+): Promise<AssignCardResponse> {
+  const response: AxiosResponse<AssignCardResponse> = await api.patch(
+    'user/loyalty/card/assign',
+    body
+  );
+  return response.data;
+}
+
 export type ClientKeyStatsDto = {
   clientId: number;
   organizationId: number;

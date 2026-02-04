@@ -2,7 +2,11 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
-import { getClientById, updateClient } from '@/services/api/marketing';
+import {
+  getClientById,
+  updateClient,
+} from '@/services/api/marketing';
+import { useUser } from '@/hooks/useUserStore';
 import {
   Form,
   Row,
@@ -37,6 +41,7 @@ const BasicInformation: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const [isEditing, setIsEditing] = useState(false);
+  const user = useUser();
 
   const userId = searchParams.get('userId')
     ? Number(searchParams.get('userId'))
@@ -139,11 +144,31 @@ const BasicInformation: React.FC = () => {
       setIsEditing(false);
 
       mutate([`get-client-by-id`, userId]);
+      if (user.organizationId) {
+        mutate(
+          (key) =>
+            Array.isArray(key) &&
+            key[0] === 'user-key-stats' &&
+            key[1] === user.organizationId &&
+            (key[2] === userId || key[2] === String(userId)),
+          undefined,
+          { revalidate: true }
+        );
+      }
+      mutate(
+        (key) =>
+          Array.isArray(key) &&
+          key[0] === 'get-client-loyalty-stats' &&
+          (key[1] === userId || key[1] === String(userId)),
+        undefined,
+        { revalidate: true }
+      );
     } catch (error) {
       console.error('Update failed:', error);
       message.error('Failed to update client information');
     }
   };
+
 
   const renderField = (
     label: string,
