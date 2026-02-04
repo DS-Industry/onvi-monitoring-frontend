@@ -593,6 +593,77 @@ export async function getCards(
   return response.data.map(d => d.props);
 }
 
+export type GetCardsPaginatedPayload = {
+  organizationId: number;
+  unqNumber?: string;
+  number?: string;
+  type?: 'VIRTUAL' | 'PHYSICAL';
+  isCorporate?: boolean;
+  page?: number;
+  size?: number;
+};
+
+export type CardTier = {
+  id: number;
+  name: string;
+  description: string;
+  limitBenefit: number;
+};
+
+export type CardItem = {
+  id: number;
+  balance: number;
+  unqNumber: string;
+  number: string;
+  type: 'VIRTUAL' | 'PHYSICAL';
+  createdAt: string;
+  updatedAt: string;
+  cardTier?: CardTier;
+  isCorporate: boolean;
+};
+
+export type GetCardsPaginatedResponse = {
+  cards: CardItem[];
+  total: number;
+  page: number;
+  size: number;
+};
+
+export async function getCardsPaginated(
+  params: GetCardsPaginatedPayload
+): Promise<GetCardsPaginatedResponse> {
+  const response = await api.get('user/loyalty/cards/paginated', { params });
+  return response.data;
+}
+
+export type AssignCardRequest = {
+  cardId: number;
+  clientId: number;
+};
+
+export type AssignCardResponse = {
+  id: number;
+  balance: number;
+  mobileUserId: number;
+  devNumber: string;
+  number: string;
+  monthlyLimit: number | null;
+  loyaltyCardTierId: number | null;
+  corporateId: number | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export async function assignCard(
+  body: AssignCardRequest
+): Promise<AssignCardResponse> {
+  const response: AxiosResponse<AssignCardResponse> = await api.patch(
+    'user/loyalty/card/assign',
+    body
+  );
+  return response.data;
+}
+
 export type ClientKeyStatsDto = {
   clientId: number;
   organizationId: number;

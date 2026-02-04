@@ -1,21 +1,34 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import useSWR from 'swr';
-import { getClientById, getClientLoyaltyStats } from '@/services/api/marketing';
-import { Row, Col, Card, Typography, Alert, Spin } from 'antd';
+import useSWR, { mutate } from 'swr';
+import {
+  getClientById,
+  getClientLoyaltyStats,
+  assignCard,
+  getCards,
+  GetCardsPayload,
+} from '@/services/api/marketing';
+import { Row, Col, Card, Typography, Alert, Spin, Select, Button, message, Tooltip } from 'antd';
 import { useUser } from '@/hooks/useUserStore';
 import { useSearchParams } from 'react-router-dom';
+import { useToast } from '@/components/context/useContext';
 
 const { Title, Text } = Typography;
+const { Option } = Select;
 
 const Loyalty: React.FC = () => {
   const { t } = useTranslation();
-
   const user = useUser();
+  const { showToast } = useToast();
 
   const [searchParams] = useSearchParams();
+  const [selectedCardId, setSelectedCardId] = useState<number | undefined>(
+    undefined
+  );
+  const [isAssigningCard, setIsAssigningCard] = useState(false);
 
   const clientId = searchParams.get('userId');
+  const userId = clientId ? Number(clientId) : undefined;
 
   const {
     data: clientData,
@@ -52,6 +65,93 @@ const Loyalty: React.FC = () => {
       shouldRetryOnError: false,
     }
   );
+
+  const cardParams: GetCardsPayload = useMemo(
+    () => ({
+      organizationId: user.organizationId,
+      unnasigned: true,
+    }),
+    [user.organizationId]
+  );
+
+  const { data: cards } = useSWR(
+    ['get-cards', cardParams],
+    ([, params]) => getCards(params),
+    {
+      shouldRetryOnError: false,
+    }
+  );
+
+  const allCards = useMemo(() => {
+    if (!clientData?.card) return cards || [];
+    const exists = (cards || []).some(c => c.id === clientData.card?.id);
+    return exists ? cards || [] : [...(cards || []), clientData.card];
+  }, [cards, clientData]);
+
+  useEffect(() => {
+    if (clientData?.card?.id) {
+      setSelectedCardId(clientData.card.id);
+    } else {
+      setSelectedCardId(undefined);
+    }
+  }, [clientData]);
+
+  const handleAssignCard = async () => {
+    if (!userId || !selectedCardId) {
+      message.error('Client ID or Card ID not found');
+      return;
+    }
+
+    if (clientData?.card?.id === selectedCardId) {
+      message.info(
+        t('marketing.cardAlreadyAssigned') ||
+        'This card is already assigned to the client'
+      );
+      return;
+    }
+
+    setIsAssigningCard(true);
+    try {
+      await assignCard({
+        cardId: selectedCardId,
+        clientId: userId,
+      });
+
+      showToast(
+        t('marketing.cardAssigned') || 'Card assigned successfully',
+        'success'
+      );
+      setSelectedCardId(undefined);
+      mutate([`get-client-by-id`, userId]);
+      if (user.organizationId) {
+        mutate(
+          (key) =>
+            Array.isArray(key) &&
+            key[0] === 'user-key-stats' &&
+            key[1] === user.organizationId &&
+            (key[2] === userId || key[2] === String(userId)),
+          undefined,
+          { revalidate: true }
+        );
+      }
+      mutate(
+        (key) =>
+          Array.isArray(key) &&
+          key[0] === 'get-client-loyalty-stats' &&
+          (key[1] === userId || key[1] === String(userId)),
+        undefined,
+        { revalidate: true }
+      );
+    } catch (error) {
+      console.error('Failed to assign card:', error);
+      showToast(
+        t('marketing.cardAssignError') || 'Failed to assign card',
+        'error'
+      );
+    } finally {
+      setIsAssigningCard(false);
+    }
+  };
 
   if (!clientId) {
     return (
@@ -130,9 +230,48 @@ const Loyalty: React.FC = () => {
               <Text type="secondary" className="text-xs md:text-sm">
                 {t('marketing.card')}
               </Text>
-              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01 text-xs md:text-sm">
-                {loyaltyStats.cardNumber || '-'}
-              </div>
+              <Tooltip
+                title={
+                  clientData?.card?.balance && clientData.card.balance > 0
+                    ? t('marketing.cannotReassignCardWithBalance') ||
+                    'Cannot reassign the card since balance is positive'
+                    : ''
+                }
+              >
+                <Select
+                  className="w-full mt-1"
+                  placeholder={t('marketing.selectCard')}
+                  value={selectedCardId ? String(selectedCardId) : undefined}
+                  onChange={val => setSelectedCardId(val ? Number(val) : undefined)}
+                  allowClear={false}
+                  size="small"
+                  disabled={
+                    clientData?.card?.balance !== undefined &&
+                    clientData.card.balance > 0
+                  }
+                >
+                  {allCards.map(card => (
+                    <Option key={String(card.id)} value={String(card.id)}>
+                      {card.number}
+                    </Option>
+                  ))}
+                </Select>
+              </Tooltip>
+              {selectedCardId &&
+                selectedCardId !== clientData?.card?.id &&
+                (!clientData?.card?.balance || clientData.card.balance === 0) && (
+                  <Button
+                    type="primary"
+                    onClick={handleAssignCard}
+                    htmlType="button"
+                    className="w-full mt-2"
+                    loading={isAssigningCard}
+                    disabled={isAssigningCard}
+                    size="small"
+                  >
+                    {t('marketing.assignCard') || 'Assign Card'}
+                  </Button>
+                )}
             </div>
 
             <div className="mb-3">

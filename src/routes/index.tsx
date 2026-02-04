@@ -131,6 +131,9 @@ const LoyaltyHubRequests = React.lazy(
 const LoyaltyParticipantRequests = React.lazy(
   () => import('@/pages/Marketing/LoyaltyParticipantRequests')
 );
+const Cards = React.lazy(() => import('@/pages/Marketing/Cards'));
+// TODO: Add Card component
+// const Card = React.lazy(() => import('@/pages/Marketing/Cards/Card'));
 const EmployeeAdvanceCreation = React.lazy(
   () => import('@/pages/Hr/EmployeeAdvanceCreation')
 );
@@ -1064,6 +1067,16 @@ const routes = [
         path: '/marketing/participant-requests',
         component: LoyaltyParticipantRequests,
         permissions: [{ action: 'manage', subject: 'LTYProgram' }],
+        isSidebar: true,
+        subNav: [],
+        subMenu: false,
+      },
+      {
+        name: 'cards',
+        isVisible: true,
+        path: '/marketing/cards',
+        component: Cards,
+        permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: true,
         subNav: [],
         subMenu: false,
