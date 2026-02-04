@@ -20,7 +20,7 @@ export enum UserType {
   LEGAL = 'LEGAL',
 }
 
-enum StatusUser {
+export enum StatusUser {  
   VERIFICATE = 'VERIFICATE',
   ACTIVE = 'ACTIVE',
   BLOCKED = 'BLOCKED',
@@ -563,6 +563,7 @@ export type ClientUpdate = {
   monthlyLimit?: number;
   tagIds?: number[];
   email?: string;
+  status?: StatusUser;
 };
 
 export type GetCardsPayload = {
