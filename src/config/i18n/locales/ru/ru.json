@@ -1903,7 +1903,15 @@
     "moreDetails": "Подробнее",
     "branches": "Филиалов",
     "numberOfBranches": "Количество филиалов",
-    "numberOfClients": "Количество клиентов"
+    "numberOfClients": "Количество клиентов",
+    "confirmDelete": "Подтверждение удаления",
+    "confirmDeleteMessage": "Вы уверены, что хотите удалить клиента?",
+    "deleteSuccess": "Клиент успешно удален",
+    "deleteSuccessMessage": "Клиент успешно удален",
+    "deleteError": "Ошибка при удалении клиента",
+    "notFound": "Клиент не найден",
+    "thisClient": "этого клиента",
+    "deleteWarning": "Это действие нельзя отменить. Все данные клиента будут удалены."
   },
   "chemicalConsumption": {
     "period": "Период",

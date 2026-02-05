@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
 import {
   getClientById,
+  StatusUser,
   updateClient,
 } from '@/services/api/marketing';
 import { useUser } from '@/hooks/useUserStore';
@@ -17,10 +18,16 @@ import {
   message,
   Spin,
   DatePicker,
+  Modal,
+  Space,
 } from 'antd';
 import dayjs from 'dayjs';
 import { useForm, Controller } from 'react-hook-form';
 import { ContractType } from '@/utils/constants';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
+import { useToast } from '@/hooks/useToast';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -40,7 +47,13 @@ type ClientFormData = {
 const BasicInformation: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const { showToast } = useToast();
+  const userPermissions = usePermissions();
+  const [modal, contextHolder] = Modal.useModal();
   const user = useUser();
 
   const userId = searchParams.get('userId')
@@ -57,6 +70,11 @@ const BasicInformation: React.FC = () => {
       shouldRetryOnError: false,
     }
   );
+
+  const canDelete = hasPermission(userPermissions, [
+    { action: 'delete', subject: 'LTYProgram' },
+    { action: 'manage', subject: 'LTYProgram' }
+  ]);
 
   const defaultValues: ClientFormData = useMemo(
     () => ({
@@ -169,6 +187,54 @@ const BasicInformation: React.FC = () => {
     }
   };
 
+  const showDeleteConfirm = () => {
+    if (!canDelete) {
+      return;
+    }
+
+    modal.confirm({ 
+      title: t('marketingLoyalty.confirmDelete'),
+      icon: <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />,
+      content: t('marketingLoyalty.confirmDeleteMessage'),
+      okText: t('common.delete'),
+      okType: 'danger',
+      cancelText: t('common.cancel'),
+      centered: true,
+      zIndex: 100000,
+      async onOk() { 
+        await handleDelete();
+      },
+      okButtonProps: {
+        loading: isDeleting,
+        disabled: isDeleting,
+      },
+    });
+  };
+
+  const handleDelete = async () => {
+    if (!userId) {
+      showToast(t('marketingLoyalty.deleteError') || 'Ошибка удаления клиента', 'error');
+      return;
+    }
+
+    setIsDeleting(true);
+    
+    try {
+      await updateClient({clientId: userId, status: StatusUser.DELETED});
+      
+      showToast(t('marketingLoyalty.deleteSuccess') || 'Клиент успешно удален', 'success');
+      
+      navigate('/marketing/clients', { 
+        replace: true,
+      });
+      
+    } catch (error: any) {
+      console.error('Delete failed:', error);
+      showToast(t('marketingLoyalty.deleteError') || 'Ошибка удаления клиента', 'error');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const renderField = (
     label: string,
@@ -318,6 +384,7 @@ const BasicInformation: React.FC = () => {
 
   return (
     <div className="max-w-6xl mb-5">
+      {contextHolder} 
       {loadingClients ? (
         <div className="flex items-center justify-center w-full h-full min-h-[400px]">
           <Spin size="large" />
@@ -364,18 +431,41 @@ const BasicInformation: React.FC = () => {
                 'comment'
               )}
 
+              <Space wrap className="mt-4">
               {!isEditing ? (
-                <Button type="primary" onClick={handleEdit}>
-                  {t('actions.edit')}
-                </Button>
-              ) : (
-                <div className="space-x-2">
-                  <Button onClick={handleCancel}>{t('actions.cancel')}</Button>
-                  <Button type="primary" htmlType="submit">
-                    {t('actions.save')}
+                <Space>
+                  <Button 
+                    type="primary" 
+                    onClick={handleEdit}
+                  >
+                    {t('actions.edit')}
                   </Button>
-                </div>
-              )}
+                  
+                  {canDelete && (
+                    <Button 
+                      type="primary" 
+                      danger
+                      onClick={showDeleteConfirm}
+                      loading={isDeleting}
+                    >
+                      {t('actions.delete')}
+                    </Button>
+                  )}
+                </Space>
+              ) : (
+                  <div className="space-x-2">
+                    <Button onClick={handleCancel}>
+                      {t('actions.cancel')}
+                    </Button>
+                    <Button 
+                      type="primary" 
+                      htmlType="submit"
+                    >
+                      {t('actions.save')}
+                    </Button>
+                  </div>
+                )}
+              </Space>
             </Col>
           </Row>
         </form>

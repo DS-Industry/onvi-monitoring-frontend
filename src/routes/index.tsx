@@ -997,7 +997,10 @@ const routes = [
         isVisible: true,
         path: '/marketing/clients/profile',
         component: ClientsProfile,
-        permissions: [{ action: 'update', subject: 'LTYProgram' }],
+        permissions: [
+          { action: 'update', subject: 'LTYProgram' },
+          { action: 'delete', subject: 'LTYProgram' }
+        ],
         isSidebar: false,
         subNav: [],
         subMenu: false,
