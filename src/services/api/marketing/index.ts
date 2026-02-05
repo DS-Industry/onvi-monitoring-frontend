@@ -636,6 +636,62 @@ export async function getCardsPaginated(
   return response.data;
 }
 
+export type GetCardByIdResponse = {
+  id: number;
+  balance: number;
+  unqNumber: string;
+  number: string;
+  type: 'VIRTUAL' | 'PHYSICAL';
+  createdAt: Date | null;
+  updatedAt: Date | null;
+  cardTier: {
+    id: number;
+    name: string;
+    description: string | null;
+    limitBenefit: number;
+    ltyProgramId: number;
+  } | null;
+  corporate: {
+    id: number;
+    name: string;
+    inn: string;
+    address: string;
+  } | null;
+  status: 'INACTIVE' | null;
+  limitBenefit: number | null;
+};
+
+export async function getCardById(cardId: number): Promise<GetCardByIdResponse> {
+  const response = await api.get(`user/loyalty/card/${cardId}`);
+  return response.data;
+}
+
+export type UpdateCardRequest = {
+  cardTierId?: number;
+  status?: 'INACTIVE' | null;
+};
+
+export type UpdateCardResponse = {
+  id: number;
+  balance: number;
+  mobileUserId: number | null;
+  devNumber: string;
+  number: string;
+  monthlyLimit: number | null;
+  loyaltyCardTierId: number | null;
+  corporateId: number | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
+};
+
+export async function updateCard(
+  cardId: number,
+  body: UpdateCardRequest
+): Promise<UpdateCardResponse> {
+  const response = await api.patch(`user/loyalty/card/${cardId}`, body);
+  return response.data;
+}
+
 export type AssignCardRequest = {
   cardId: number;
   clientId: number;
