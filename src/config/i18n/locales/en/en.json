@@ -1904,7 +1904,15 @@
     "moreDetails": "More details",
     "branches": "Branches",
     "numberOfBranches": "Number of branches",
-    "numberOfClients": "Number of clients"
+    "numberOfClients": "Number of clients",
+    "confirmDelete": "Confirm deletion",
+    "confirmDeleteMessage": "Are you sure you want to delete client?",
+    "deleteSuccess": "Client deleted",
+    "deleteSuccessMessage": "Client has been successfully deleted",
+    "deleteError": "Error deleting client",
+    "notFound": "Client not found",
+    "thisClient": "this client",
+    "deleteWarning": "This action cannot be undone. All client data will be deleted."
   },
   "chemicalConsumption": {
     "period": "Period",
