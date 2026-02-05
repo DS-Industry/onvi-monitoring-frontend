@@ -765,6 +765,7 @@ export type ClientLoyaltyStatsResponseDto = {
   amountToNextTier: number;
   activeBonuses: number;
   totalBonusEarned: number;
+  totalBonusBurned: number;
   cardNumber: string;
   cardDevNumber: string;
   currentTierName?: string;
