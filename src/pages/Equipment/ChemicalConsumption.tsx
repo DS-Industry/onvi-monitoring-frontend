@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import {
   ChemicalConsumptionResponse,
@@ -10,15 +10,24 @@ import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { Table } from 'antd';
 import { formatNumber } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
-import { useColumnSelector } from '@/hooks/useTableColumnSelector';
-import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { useTranslation } from 'react-i18next';
+import { 
+  parseTimeToSeconds, 
+  formatSecondsToTime,
+  formatTimeDisplay 
+} from '@/utils/timeFormatter';
 
 interface TableRow {
   period: string;
   [key: string]: string;
 }
 
+interface ExpandedData {
+  category: string;
+  fact: string | number;
+  time: string | number;
+  recalculated: string | number;
+}
 
 const transformDataToTableRows = (
   data: ChemicalConsumptionResponse[]
@@ -83,181 +92,11 @@ const ChemicalConsumption: React.FC = () => {
   const data = chemicalReports || [];
   const tableRows = transformDataToTableRows(data);
 
-  const columnsChemicalConsumption: ColumnsType<TableRow> = [
-    {
-      title: t('chemicalConsumption.period'),
-      dataIndex: 'period',
-      key: 'period',
-    },
-    {
-      title: t('chemicalConsumption.waterShampooFact'),
-      dataIndex: 'Вода + шампунь, факт',
-      key: 'Вода + шампунь, факт',
-      render: (value: number) => formatNumber(value),
-    },
-    {
-      title: t('chemicalConsumption.waterShampooTime'),
-      dataIndex: 'Вода + шампунь, время',
-      key: 'Вода + шампунь, время',
-      render: (value: number) => value || '-',
-    },
-    {
-      title: t('chemicalConsumption.waterShampooRecalculated'),
-      dataIndex: 'Вода + шампунь, пересчет',
-      key: 'Вода + шампунь, пересчет',
-      render: (value: string | number) => {
-        let num: number;
-        if (typeof value === 'string') {
-          num = parseFloat(value.replace(',', '.'));
-          if (isNaN(num)) return value;
-        } else {
-          num = value;
-        }
-        return num % 1 === 0 ? formatNumber(num) : formatNumber(num, 'double');
-      },
-    },
-    {
-      title: t('chemicalConsumption.activeChemistryFact'),
-      dataIndex: 'Активная химия, факт',
-      key: 'Активная химия, факт',
-      render: (value: number) => formatNumber(value),
-    },
-    {
-      title: t('chemicalConsumption.activeChemistryTime'),
-      dataIndex: 'Активная химия, время',
-      key: 'Активная химия, время',
-      render: (value: number) => formatNumber(value),
-    },
-    {
-      title: t('chemicalConsumption.activeChemistryRecalculated'),
-      dataIndex: 'Активная химия, пересчет',
-      key: 'Активная химия, пересчет',
-      render: (value: string | number) => {
-        let num: number;
-        if (typeof value === 'string') {
-          num = parseFloat(value.replace(',', '.'));
-          if (isNaN(num)) return value;
-        } else {
-          num = value;
-        }
-        return num % 1 === 0 ? formatNumber(num) : formatNumber(num, 'double');
-      },
-    },
-    {
-      title: t('chemicalConsumption.diskWashFact'),
-      dataIndex: 'Мойка дисков, факт',
-      key: 'Мойка дисков, факт',
-      render: (value: number) => formatNumber(value),
-    },
-    {
-      title: t('chemicalConsumption.diskWashTime'),
-      dataIndex: 'Мойка дисков, время',
-      key: 'Мойка дисков, время',
-      render: (value: number) => formatNumber(value),
-    },
-    {
-      title: t('chemicalConsumption.diskWashRecalculated'),
-      dataIndex: 'Мойка дисков, пересчет',
-      key: 'Мойка дисков, пересчет',
-      render: (value: string | number) => {
-        let num: number;
-        if (typeof value === 'string') {
-          num = parseFloat(value.replace(',', '.'));
-          if (isNaN(num)) return value;
-        } else {
-          num = value;
-        }
-        return num % 1 === 0 ? formatNumber(num) : formatNumber(num, 'double');
-      },
-    },
-    {
-      title: t('chemicalConsumption.brushFoamFact'),
-      dataIndex: 'Щетка + пена, факт',
-      key: 'Щетка + пена, факт',
-      render: (value: number) => formatNumber(value),
-    },
-    {
-      title: t('chemicalConsumption.brushFoamTime'),
-      dataIndex: 'Щетка + пена, время',
-      key: 'Щетка + пена, время',
-      render: (value: number) => formatNumber(value),
-    },
-    {
-      title: t('chemicalConsumption.brushFoamRecalculated'),
-      dataIndex: 'Щетка + пена, пересчет',
-      key: 'Щетка + пена, пересчет',
-      render: (value: string | number) => {
-        let num: number;
-        if (typeof value === 'string') {
-          num = parseFloat(value.replace(',', '.'));
-          if (isNaN(num)) return value;
-        } else {
-          num = value;
-        }
-        return num % 1 === 0 ? formatNumber(num) : formatNumber(num, 'double');
-      },
-    },
-    {
-      title: t('chemicalConsumption.waxProtectionFact'),
-      dataIndex: 'Воск + защита, факт',
-      key: 'Воск + защита, факт',
-      render: (value: number) => formatNumber(value),
-    },
-    {
-      title: t('chemicalConsumption.waxProtectionTime'),
-      dataIndex: 'Воск + защита, время',
-      key: 'Воск + защита, время',
-      render: (value: number) => formatNumber(value),
-    },
-    {
-      title: t('chemicalConsumption.waxProtectionRecalculated'),
-      dataIndex: 'Воск + защита, пересчет',
-      key: 'Воск + защита, пересчет',
-      render: (value: string | number) => {
-        let num: number;
-        if (typeof value === 'string') {
-          num = parseFloat(value.replace(',', '.'));
-          if (isNaN(num)) return value;
-        } else {
-          num = value;
-        }
-        return num % 1 === 0 ? formatNumber(num) : formatNumber(num, 'double');
-      },
-    },
-    {
-      title: t('chemicalConsumption.tPowerFact'),
-      dataIndex: 'T-POWER, факт',
-      key: 'T-POWER, факт',
-      render: (value: number) => formatNumber(value),
-    },
-    {
-      title: t('chemicalConsumption.tPowerTime'),
-      dataIndex: 'T-POWER, время',
-      key: 'T-POWER, время',
-      render: (value: number) => formatNumber(value),
-    },
-    {
-      title: t('chemicalConsumption.tPowerRecalculated'),
-      dataIndex: 'T-POWER, пересчет',
-      key: 'T-POWER, пересчет',
-      render: (value: string | number) => {
-        let num: number;
-        if (typeof value === 'string') {
-          num = parseFloat(value.replace(',', '.'));
-          if (isNaN(num)) return value;
-        } else {
-          num = value;
-        }
-        return num % 1 === 0 ? formatNumber(num) : formatNumber(num, 'double');
-      },
-    },
-  ];
+  const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
 
-  const { checkedList, setCheckedList, options, visibleColumns } =
-    useColumnSelector(
-      columnsChemicalConsumption,
-      'chemical-consumption-table-columns'
-    );
+  useEffect(() => {
+    setExpandedRowKeys([]);
+  }, [data]);
 
   const parseValueToNumber = (value: string | number | undefined): number => {
     if (value === undefined || value === null) return 0;
@@ -269,29 +108,72 @@ const ChemicalConsumption: React.FC = () => {
     return 0;
   };
 
-  const calculateTotals = () => {
-    const totals: { [key: string]: number } = {};
+  const getExpandedDataForRow = (row: TableRow): ExpandedData[] => {
+    const categories = [
+      { 
+        translationKey: 'chemicalConsumption.waterShampoo',
+        dataKey: 'Вода + шампунь'
+      },
+      { 
+        translationKey: 'chemicalConsumption.activeChemistry', 
+        dataKey: 'Активная химия'
+      },
+      { 
+        translationKey: 'chemicalConsumption.diskWash',
+        dataKey: 'Мойка дисков'
+      },
+      { 
+        translationKey: 'chemicalConsumption.brushFoam',
+        dataKey: 'Щетка + пена'
+      },
+      { 
+        translationKey: 'chemicalConsumption.waxProtection',
+        dataKey: 'Воск + защита'
+      },
+      { 
+        translationKey: 'chemicalConsumption.tPower',
+        dataKey: 'T-POWER'
+      },
+    ];
+    
+    return categories.map(({ translationKey, dataKey }) => ({
+      category: t(translationKey),
+      fact: row[`${dataKey}, факт`] || 0,
+      time: row[`${dataKey}, время`] || '-',
+      recalculated: row[`${dataKey}, пересчет`] || 0,
+    }));
+  };
 
-    const numericColumns = [
-      'Вода + шампунь, факт',
-      'Вода + шампунь, пересчет',
-      'Активная химия, факт',
-      'Активная химия, пересчет',
-      'Мойка дисков, факт',
-      'Мойка дисков, пересчет',
-      'Щетка + пена, факт',
-      'Щетка + пена, пересчет',
-      'Воск + защита, факт',
-      'Воск + защита, пересчет',
-      'T-POWER, факт',
-      'T-POWER, пересчет',
+  const calculateTotals = () => {
+    const categories = [
+      'Вода + шампунь',
+      'Активная химия', 
+      'Мойка дисков',
+      'Щетка + пена',
+      'Воск + защита',
+      'T-POWER',
     ];
 
-    numericColumns.forEach(col => {
-      totals[col] = tableRows.reduce((sum, row) => {
-        const value = row[col];
-        return sum + parseValueToNumber(value);
-      }, 0);
+    const totals: { [key: string]: { fact: number, recalculated: number, timeSeconds: number } } = {};
+
+    categories.forEach(category => {
+      totals[category] = {
+        fact: 0,
+        recalculated: 0,
+        timeSeconds: 0
+      };
+    });
+
+    tableRows.forEach(row => {
+      categories.forEach(category => {
+        totals[category].fact += parseValueToNumber(row[`${category}, факт`]);
+        totals[category].recalculated += parseValueToNumber(row[`${category}, пересчет`]);
+        
+        const timeValue = row[`${category}, время`];
+        if (timeValue && timeValue !== '-' && timeValue !== '') {
+          totals[category].timeSeconds += parseTimeToSeconds(timeValue);
+        }
+      });
     });
 
     return totals;
@@ -299,20 +181,146 @@ const ChemicalConsumption: React.FC = () => {
 
   const totals = calculateTotals();
 
-  const getTotalCellValue = (dataIndex: string): string => {
-    if (dataIndex === 'period') {
-      return t('finance.total');
-    }
+  const getTotalExpandedData = (): ExpandedData[] => {
+    const categories = [
+      { 
+        translationKey: 'chemicalConsumption.waterShampoo',
+        dataKey: 'Вода + шампунь'
+      },
+      { 
+        translationKey: 'chemicalConsumption.activeChemistry', 
+        dataKey: 'Активная химия'
+      },
+      { 
+        translationKey: 'chemicalConsumption.diskWash',
+        dataKey: 'Мойка дисков'
+      },
+      { 
+        translationKey: 'chemicalConsumption.brushFoam',
+        dataKey: 'Щетка + пена'
+      },
+      { 
+        translationKey: 'chemicalConsumption.waxProtection',
+        dataKey: 'Воск + защита'
+      },
+      { 
+        translationKey: 'chemicalConsumption.tPower',
+        dataKey: 'T-POWER'
+      },
+    ];
 
-    const value = totals[dataIndex];
-    if (value !== undefined) {
-      if (dataIndex.includes('пересчет')) {
-        return value % 1 === 0 ? formatNumber(value) : formatNumber(value, 'double');
-      }
-      return formatNumber(value);
-    }
+    return categories.map(({ translationKey, dataKey }) => ({
+      category: t(translationKey),
+      fact: totals[dataKey].fact,
+      time: formatSecondsToTime(totals[dataKey].timeSeconds),
+      recalculated: totals[dataKey].recalculated,
+    }));
+  };
 
-    return '';
+  const mainColumns: ColumnsType<TableRow> = [
+    {
+      title: t('chemicalConsumption.period'),
+      dataIndex: 'period',
+      key: 'period',
+      render: (text: string, record: any) => {
+        if (record.key === 'total') {
+          return <strong style={{ color: 'black', fontWeight: 'bold' }}>{t('finance.total')}</strong>;
+        }
+        return text;
+      },
+    },
+  ];
+
+  const expandedColumns: ColumnsType<ExpandedData> = [
+    {
+      title: t('chemicalConsumption.type'),
+      dataIndex: 'category',
+      key: 'category',
+      width: 150,
+    },
+    {
+      title: t('chemicalConsumption.fact'),
+      dataIndex: 'fact',
+      key: 'fact',
+      render: (value: number) => formatNumber(value),
+      align: 'right',
+      width: 100,
+    },
+    {
+      title: t('chemicalConsumption.recalculation'),
+      dataIndex: 'recalculated',
+      key: 'recalculated',
+      render: (value: string | number) => {
+        let num: number;
+        if (typeof value === 'string') {
+          num = parseFloat(value.replace(',', '.'));
+          if (isNaN(num)) return value;
+        } else {
+          num = value;
+        }
+        return num % 1 === 0 ? formatNumber(num) : formatNumber(num, 'double');
+      },
+      align: 'right',
+      width: 120,
+    },
+    {
+      title: t('chemicalConsumption.time'),
+      dataIndex: 'time',
+      key: 'time',
+      render: (value: string | number) => formatTimeDisplay(value),
+      align: 'right',
+      width: 100,
+    },
+  ];
+
+  const expandedRowRender = (row: TableRow) => {
+    const expandedData = getExpandedDataForRow(row);
+    
+    return (
+      <div style={{ margin: 0, padding: '16px 40px' }}>
+        <Table
+          columns={expandedColumns}
+          dataSource={expandedData}
+          rowKey="category"
+          pagination={false}
+          size="small"
+          bordered
+        />
+      </div>
+    );
+  };
+
+  const totalExpandedRowRender = () => {
+    const totalExpandedData = getTotalExpandedData();
+    
+    return (
+      <div style={{ margin: 0, padding: '16px 40px' }}>
+        <Table
+          columns={expandedColumns}
+          dataSource={totalExpandedData}
+          rowKey="category"
+          pagination={false}
+          size="small"
+          bordered
+        />
+      </div>
+    );
+  };
+
+  const allData = tableRows.length > 0
+    ? [
+        ...tableRows.map((row, index) => ({ ...row, key: `${row.period}-${index}` })),
+        { period: t('finance.total'), key: 'total' }
+      ]
+    : tableRows.map((row, index) => ({ ...row, key: `${row.period}-${index}` }));
+
+  const handleRowClick = (record: any) => {
+    const key = record.key;
+    if (expandedRowKeys.includes(key)) {
+      setExpandedRowKeys(expandedRowKeys.filter(k => k !== key));
+    } else {
+      setExpandedRowKeys([...expandedRowKeys, key]);
+    }
   };
 
   return (
@@ -329,35 +337,34 @@ const ChemicalConsumption: React.FC = () => {
         display={['city', 'pos', 'dateTime', 'reset', 'count']}
       />
       <div className="mt-8">
-        <ColumnSelector
-          checkedList={checkedList}
-          options={options}
-          onChange={setCheckedList}
-        />
         <Table
-          dataSource={tableRows}
-          columns={visibleColumns}
-          rowKey={(record, index) => `${record.period}-${index}`}
+          dataSource={allData}
+          columns={mainColumns}
+          rowKey="key"
           pagination={false}
           loading={chemicalLoading}
-          scroll={{ x: 'max-content' }}
-          summary={() => {
-            return (
-              <Table.Summary fixed>
-                <Table.Summary.Row>
-                  {visibleColumns.map((col, index) => {
-                    const dataIndex = 'dataIndex' in col ? (col.dataIndex as string) : '';
-                    const cellValue = getTotalCellValue(dataIndex);
-                    return (
-                      <Table.Summary.Cell key={col.key || index} index={index}>
-                        {cellValue ? <strong>{cellValue}</strong> : ''}
-                      </Table.Summary.Cell>
-                    );
-                  })}
-                </Table.Summary.Row>
-              </Table.Summary>
-            );
+          expandable={{
+            expandedRowRender: (record) => {
+              if (record.key === 'total') {
+                return totalExpandedRowRender();
+              }
+              return expandedRowRender(record);
+            },
+            expandedRowKeys,
+            onExpand: (expanded, record) => {
+              const key = record.key as string;
+              if (expanded) {
+                setExpandedRowKeys([...expandedRowKeys, key]);
+              } else {
+                setExpandedRowKeys(expandedRowKeys.filter(k => k !== key));
+              }
+            },
+            rowExpandable: () => true,
           }}
+          onRow={(record) => ({
+            onClick: () => handleRowClick(record),
+            style: { cursor: 'pointer' },
+          })}
         />
       </div>
     </>

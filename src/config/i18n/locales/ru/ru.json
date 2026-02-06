@@ -1202,6 +1202,11 @@
     "sunday": "Воскресенье",
     "skip": "Пропустить"
   },
+  "time": {
+    "hourShort": "ч",
+    "minuteShort": "мин",
+    "secondShort": "сек"
+  },
   "analysis": {
     "search": "Поиск",
     "all": "Все",
@@ -1942,7 +1947,17 @@
     "waxProtectionRecalculated": "Воск + защита, пересчет",
     "tPowerFact": "T-POWER, факт",
     "tPowerTime": "T-POWER, время",
-    "tPowerRecalculated": "T-POWER, пересчет"
+    "tPowerRecalculated": "T-POWER, пересчет",
+    "type": "Тип химии",
+    "fact": "Факт",
+    "recalculation": "Пересчет",
+    "time": "Время",
+    "waterShampoo": "Вода + шампунь",
+    "activeChemistry": "Активная химия",
+    "diskWash": "Мойка дисков",
+    "brushFoam": "Щетка + пена",
+    "waxProtection": "Воск + защита",
+    "tPower": "T-POWER"
   },
   "marketingCampaigns": {
     "terms": "Условия и призы",

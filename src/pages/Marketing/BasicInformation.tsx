@@ -2,9 +2,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
-import { getClientById, StatusUser, updateClient } from '@/services/api/marketing';
+import {
+  getClientById,
+  StatusUser,
+  updateClient,
+} from '@/services/api/marketing';
 import { useUser } from '@/hooks/useUserStore';
-
 import {
   Form,
   Row,
