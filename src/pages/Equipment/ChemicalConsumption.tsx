@@ -11,6 +11,11 @@ import { Table } from 'antd';
 import { formatNumber } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
+import { 
+  parseTimeToSeconds, 
+  formatSecondsToTime,
+  formatTimeDisplay 
+} from '@/utils/timeFormatter';
 
 interface TableRow {
   period: string;
@@ -49,79 +54,6 @@ const transformDataToTableRows = (
 
     return row;
   });
-};
-
-const getExpandedDataForRow = (row: TableRow): ExpandedData[] => {
-  const categories = [
-    'Вода + шампунь',
-    'Активная химия', 
-    'Мойка дисков',
-    'Щетка + пена',
-    'Воск + защита',
-    'T-POWER',
-  ];
-  
-  return categories.map(category => ({
-    category,
-    fact: row[`${category}, факт`] || 0,
-    time: row[`${category}, время`] || '-',
-    recalculated: row[`${category}, пересчет`] || 0,
-  }));
-};
-
-const parseValueToNumber = (value: string | number | undefined): number => {
-  if (value === undefined || value === null) return 0;
-  if (typeof value === 'number') return value;
-  if (typeof value === 'string') {
-    const num = parseFloat(value.replace(',', '.'));
-    return isNaN(num) ? 0 : num;
-  }
-  return 0;
-};
-
-const parseTimeToSeconds = (timeValue: string | number): number => {
-  if (!timeValue || timeValue === '-') return 0;
-  
-  if (typeof timeValue === 'number') {
-    return timeValue * 60;
-  }
-  
-  if (typeof timeValue === 'string') {
-    if (timeValue.includes('ч') || timeValue.includes('мин') || timeValue.includes('сек')) {
-      let totalSeconds = 0;
-      const hoursMatch = timeValue.match(/(\d+)\s*ч/);
-      const minutesMatch = timeValue.match(/(\d+)\s*мин/);
-      const secondsMatch = timeValue.match(/(\d+)\s*сек/);
-      
-      if (hoursMatch) totalSeconds += parseInt(hoursMatch[1]) * 3600;
-      if (minutesMatch) totalSeconds += parseInt(minutesMatch[1]) * 60;
-      if (secondsMatch) totalSeconds += parseInt(secondsMatch[1]);
-      return totalSeconds;
-    }
-    
-    const num = parseFloat(timeValue.replace(',', '.'));
-    if (!isNaN(num)) {
-      return num * 60;
-    }
-  }
-  
-  return 0;
-};
-
-
-const formatSecondsToTime = (seconds: number): string => {
-  if (seconds === 0) return '-';
-  
-  const hours = Math.floor(seconds / 3600);
-  const mins = Math.floor((seconds % 3600) / 60);
-  const secs = Math.round(seconds % 60);
-  
-  const parts = [];
-  if (hours > 0) parts.push(`${hours} ч`);
-  if (mins > 0) parts.push(`${mins} мин`);
-  if (secs > 0) parts.push(`${secs} сек`);
-  
-  return parts.length > 0 ? parts.join(' ') : '0 сек';
 };
 
 const ChemicalConsumption: React.FC = () => {
@@ -166,6 +98,53 @@ const ChemicalConsumption: React.FC = () => {
     setExpandedRowKeys([]);
   }, [data]);
 
+  const parseValueToNumber = (value: string | number | undefined): number => {
+    if (value === undefined || value === null) return 0;
+    if (typeof value === 'number') return value;
+    if (typeof value === 'string') {
+      const num = parseFloat(value.replace(',', '.'));
+      return isNaN(num) ? 0 : num;
+    }
+    return 0;
+  };
+
+  // Функция для получения переведенных категорий
+  const getExpandedDataForRow = (row: TableRow): ExpandedData[] => {
+    const categories = [
+      { 
+        translationKey: 'chemicalConsumption.waterShampoo',
+        dataKey: 'Вода + шампунь'
+      },
+      { 
+        translationKey: 'chemicalConsumption.activeChemistry', 
+        dataKey: 'Активная химия'
+      },
+      { 
+        translationKey: 'chemicalConsumption.diskWash',
+        dataKey: 'Мойка дисков'
+      },
+      { 
+        translationKey: 'chemicalConsumption.brushFoam',
+        dataKey: 'Щетка + пена'
+      },
+      { 
+        translationKey: 'chemicalConsumption.waxProtection',
+        dataKey: 'Воск + защита'
+      },
+      { 
+        translationKey: 'chemicalConsumption.tPower',
+        dataKey: 'T-POWER'
+      },
+    ];
+    
+    return categories.map(({ translationKey, dataKey }) => ({
+      category: t(translationKey),
+      fact: row[`${dataKey}, факт`] || 0,
+      time: row[`${dataKey}, время`] || '-',
+      recalculated: row[`${dataKey}, пересчет`] || 0,
+    }));
+  };
+
   const calculateTotals = () => {
     const categories = [
       'Вода + шампунь',
@@ -193,7 +172,7 @@ const ChemicalConsumption: React.FC = () => {
         
         const timeValue = row[`${category}, время`];
         if (timeValue && timeValue !== '-' && timeValue !== '') {
-          totals[category].timeSeconds += parseTimeToSeconds(timeValue);
+          totals[category].timeSeconds += parseTimeToSeconds(timeValue, t);
         }
       });
     });
@@ -205,19 +184,37 @@ const ChemicalConsumption: React.FC = () => {
 
   const getTotalExpandedData = (): ExpandedData[] => {
     const categories = [
-      'Вода + шампунь',
-      'Активная химия', 
-      'Мойка дисков',
-      'Щетка + пена',
-      'Воск + защита',
-      'T-POWER',
+      { 
+        translationKey: 'chemicalConsumption.waterShampoo',
+        dataKey: 'Вода + шампунь'
+      },
+      { 
+        translationKey: 'chemicalConsumption.activeChemistry', 
+        dataKey: 'Активная химия'
+      },
+      { 
+        translationKey: 'chemicalConsumption.diskWash',
+        dataKey: 'Мойка дисков'
+      },
+      { 
+        translationKey: 'chemicalConsumption.brushFoam',
+        dataKey: 'Щетка + пена'
+      },
+      { 
+        translationKey: 'chemicalConsumption.waxProtection',
+        dataKey: 'Воск + защита'
+      },
+      { 
+        translationKey: 'chemicalConsumption.tPower',
+        dataKey: 'T-POWER'
+      },
     ];
 
-    return categories.map(category => ({
-      category,
-      fact: totals[category].fact,
-      time: formatSecondsToTime(totals[category].timeSeconds),
-      recalculated: totals[category].recalculated,
+    return categories.map(({ translationKey, dataKey }) => ({
+      category: t(translationKey),
+      fact: totals[dataKey].fact,
+      time: formatSecondsToTime(totals[dataKey].timeSeconds, t),
+      recalculated: totals[dataKey].recalculated,
     }));
   };
 
@@ -228,7 +225,7 @@ const ChemicalConsumption: React.FC = () => {
       key: 'period',
       render: (text: string, record: any) => {
         if (record.key === 'total') {
-          return <strong style={{ color: 'black', fontWeight: 'bold' }}>{text}</strong>;
+          return <strong style={{ color: 'black', fontWeight: 'bold' }}>{t('finance.total')}</strong>;
         }
         return text;
       },
@@ -237,13 +234,13 @@ const ChemicalConsumption: React.FC = () => {
 
   const expandedColumns: ColumnsType<ExpandedData> = [
     {
-      title: 'Тип химии',
+      title: t('chemicalConsumption.type'),
       dataIndex: 'category',
       key: 'category',
       width: 150,
     },
     {
-      title: 'Факт',
+      title: t('chemicalConsumption.fact'),
       dataIndex: 'fact',
       key: 'fact',
       render: (value: number) => formatNumber(value),
@@ -251,7 +248,7 @@ const ChemicalConsumption: React.FC = () => {
       width: 100,
     },
     {
-      title: 'Пересчет',
+      title: t('chemicalConsumption.recalculation'),
       dataIndex: 'recalculated',
       key: 'recalculated',
       render: (value: string | number) => {
@@ -268,10 +265,10 @@ const ChemicalConsumption: React.FC = () => {
       width: 120,
     },
     {
-      title: 'Время',
+      title: t('chemicalConsumption.time'),
       dataIndex: 'time',
       key: 'time',
-      render: (value: string | number) => value || '-',
+      render: (value: string | number) => formatTimeDisplay(value, t),
       align: 'right',
       width: 100,
     },
@@ -314,7 +311,7 @@ const ChemicalConsumption: React.FC = () => {
   const allData = tableRows.length > 0
     ? [
         ...tableRows.map((row, index) => ({ ...row, key: `${row.period}-${index}` })),
-        { period: 'Итого', key: 'total' }
+        { period: t('finance.total'), key: 'total' }
       ]
     : tableRows.map((row, index) => ({ ...row, key: `${row.period}-${index}` }));
 
