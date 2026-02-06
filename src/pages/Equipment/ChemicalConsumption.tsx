@@ -108,7 +108,6 @@ const ChemicalConsumption: React.FC = () => {
     return 0;
   };
 
-  // Функция для получения переведенных категорий
   const getExpandedDataForRow = (row: TableRow): ExpandedData[] => {
     const categories = [
       { 
@@ -172,7 +171,7 @@ const ChemicalConsumption: React.FC = () => {
         
         const timeValue = row[`${category}, время`];
         if (timeValue && timeValue !== '-' && timeValue !== '') {
-          totals[category].timeSeconds += parseTimeToSeconds(timeValue, t);
+          totals[category].timeSeconds += parseTimeToSeconds(timeValue);
         }
       });
     });
@@ -213,7 +212,7 @@ const ChemicalConsumption: React.FC = () => {
     return categories.map(({ translationKey, dataKey }) => ({
       category: t(translationKey),
       fact: totals[dataKey].fact,
-      time: formatSecondsToTime(totals[dataKey].timeSeconds, t),
+      time: formatSecondsToTime(totals[dataKey].timeSeconds),
       recalculated: totals[dataKey].recalculated,
     }));
   };
@@ -268,7 +267,7 @@ const ChemicalConsumption: React.FC = () => {
       title: t('chemicalConsumption.time'),
       dataIndex: 'time',
       key: 'time',
-      render: (value: string | number) => formatTimeDisplay(value, t),
+      render: (value: string | number) => formatTimeDisplay(value),
       align: 'right',
       width: 100,
     },
