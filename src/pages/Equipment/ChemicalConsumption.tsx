@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import {
   ChemicalConsumptionResponse,
@@ -69,6 +69,61 @@ const getExpandedDataForRow = (row: TableRow): ExpandedData[] => {
   }));
 };
 
+const parseValueToNumber = (value: string | number | undefined): number => {
+  if (value === undefined || value === null) return 0;
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') {
+    const num = parseFloat(value.replace(',', '.'));
+    return isNaN(num) ? 0 : num;
+  }
+  return 0;
+};
+
+const parseTimeToSeconds = (timeValue: string | number): number => {
+  if (!timeValue || timeValue === '-') return 0;
+  
+  if (typeof timeValue === 'number') {
+    return timeValue * 60;
+  }
+  
+  if (typeof timeValue === 'string') {
+    if (timeValue.includes('ч') || timeValue.includes('мин') || timeValue.includes('сек')) {
+      let totalSeconds = 0;
+      const hoursMatch = timeValue.match(/(\d+)\s*ч/);
+      const minutesMatch = timeValue.match(/(\d+)\s*мин/);
+      const secondsMatch = timeValue.match(/(\d+)\s*сек/);
+      
+      if (hoursMatch) totalSeconds += parseInt(hoursMatch[1]) * 3600;
+      if (minutesMatch) totalSeconds += parseInt(minutesMatch[1]) * 60;
+      if (secondsMatch) totalSeconds += parseInt(secondsMatch[1]);
+      return totalSeconds;
+    }
+    
+    const num = parseFloat(timeValue.replace(',', '.'));
+    if (!isNaN(num)) {
+      return num * 60;
+    }
+  }
+  
+  return 0;
+};
+
+
+const formatSecondsToTime = (seconds: number): string => {
+  if (seconds === 0) return '-';
+  
+  const hours = Math.floor(seconds / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
+  const secs = Math.round(seconds % 60);
+  
+  const parts = [];
+  if (hours > 0) parts.push(`${hours} ч`);
+  if (mins > 0) parts.push(`${mins} мин`);
+  if (secs > 0) parts.push(`${secs} сек`);
+  
+  return parts.length > 0 ? parts.join(' ') : '0 сек';
+};
+
 const ChemicalConsumption: React.FC = () => {
   const today = dayjs().toDate();
   const formattedDate = today.toISOString().slice(0, 10);
@@ -107,11 +162,76 @@ const ChemicalConsumption: React.FC = () => {
 
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
 
+  useEffect(() => {
+    setExpandedRowKeys([]);
+  }, [data]);
+
+  const calculateTotals = () => {
+    const categories = [
+      'Вода + шампунь',
+      'Активная химия', 
+      'Мойка дисков',
+      'Щетка + пена',
+      'Воск + защита',
+      'T-POWER',
+    ];
+
+    const totals: { [key: string]: { fact: number, recalculated: number, timeSeconds: number } } = {};
+
+    categories.forEach(category => {
+      totals[category] = {
+        fact: 0,
+        recalculated: 0,
+        timeSeconds: 0
+      };
+    });
+
+    tableRows.forEach(row => {
+      categories.forEach(category => {
+        totals[category].fact += parseValueToNumber(row[`${category}, факт`]);
+        totals[category].recalculated += parseValueToNumber(row[`${category}, пересчет`]);
+        
+        const timeValue = row[`${category}, время`];
+        if (timeValue && timeValue !== '-' && timeValue !== '') {
+          totals[category].timeSeconds += parseTimeToSeconds(timeValue);
+        }
+      });
+    });
+
+    return totals;
+  };
+
+  const totals = calculateTotals();
+
+  const getTotalExpandedData = (): ExpandedData[] => {
+    const categories = [
+      'Вода + шампунь',
+      'Активная химия', 
+      'Мойка дисков',
+      'Щетка + пена',
+      'Воск + защита',
+      'T-POWER',
+    ];
+
+    return categories.map(category => ({
+      category,
+      fact: totals[category].fact,
+      time: formatSecondsToTime(totals[category].timeSeconds),
+      recalculated: totals[category].recalculated,
+    }));
+  };
+
   const mainColumns: ColumnsType<TableRow> = [
     {
       title: t('chemicalConsumption.period'),
       dataIndex: 'period',
       key: 'period',
+      render: (text: string, record: any) => {
+        if (record.key === 'total') {
+          return <strong style={{ color: 'black', fontWeight: 'bold' }}>{text}</strong>;
+        }
+        return text;
+      },
     },
   ];
 
@@ -151,7 +271,7 @@ const ChemicalConsumption: React.FC = () => {
       title: 'Время',
       dataIndex: 'time',
       key: 'time',
-      render: (value: number) => value || '-',
+      render: (value: string | number) => value || '-',
       align: 'right',
       width: 100,
     },
@@ -169,43 +289,42 @@ const ChemicalConsumption: React.FC = () => {
           pagination={false}
           size="small"
           bordered
-          summary={() => {
-            const totals = expandedData.reduce((acc, item) => {
-              const factNum = typeof item.fact === 'string' 
-                ? parseFloat(item.fact.toString().replace(',', '.')) || 0 
-                : item.fact || 0;
-              const recalcNum = typeof item.recalculated === 'string'
-                ? parseFloat(item.recalculated.toString().replace(',', '.')) || 0
-                : item.recalculated || 0;
-              
-              return {
-                fact: acc.fact + factNum,
-                recalculated: acc.recalculated + recalcNum,
-              };
-            }, { fact: 0, recalculated: 0 });
-            
-            return (
-              <Table.Summary fixed>
-                <Table.Summary.Row>
-                  <Table.Summary.Cell index={0} align="left">
-                    <strong>Итого за период:</strong>
-                  </Table.Summary.Cell>
-                  <Table.Summary.Cell index={1} align="right">
-                    <strong>{formatNumber(totals.fact)}</strong>
-                  </Table.Summary.Cell>
-                  <Table.Summary.Cell index={2} align="right">
-                    <strong>{formatNumber(totals.recalculated)}</strong>
-                  </Table.Summary.Cell>
-                  <Table.Summary.Cell index={3} align="right">
-                    <strong>-</strong>
-                  </Table.Summary.Cell>
-                </Table.Summary.Row>
-              </Table.Summary>
-            );
-          }}
         />
       </div>
     );
+  };
+
+  const totalExpandedRowRender = () => {
+    const totalExpandedData = getTotalExpandedData();
+    
+    return (
+      <div style={{ margin: 0, padding: '16px 40px' }}>
+        <Table
+          columns={expandedColumns}
+          dataSource={totalExpandedData}
+          rowKey="category"
+          pagination={false}
+          size="small"
+          bordered
+        />
+      </div>
+    );
+  };
+
+  const allData = tableRows.length > 0
+    ? [
+        ...tableRows.map((row, index) => ({ ...row, key: `${row.period}-${index}` })),
+        { period: 'Итого', key: 'total' }
+      ]
+    : tableRows.map((row, index) => ({ ...row, key: `${row.period}-${index}` }));
+
+  const handleRowClick = (record: any) => {
+    const key = record.key;
+    if (expandedRowKeys.includes(key)) {
+      setExpandedRowKeys(expandedRowKeys.filter(k => k !== key));
+    } else {
+      setExpandedRowKeys([...expandedRowKeys, key]);
+    }
   };
 
   return (
@@ -223,23 +342,33 @@ const ChemicalConsumption: React.FC = () => {
       />
       <div className="mt-8">
         <Table
-          dataSource={tableRows}
+          dataSource={allData}
           columns={mainColumns}
-          rowKey={(record, index) => `${record.period}-${index}`}
+          rowKey="key"
           pagination={false}
           loading={chemicalLoading}
           expandable={{
-            expandedRowRender: (record) => expandedRowRender(record),
+            expandedRowRender: (record) => {
+              if (record.key === 'total') {
+                return totalExpandedRowRender();
+              }
+              return expandedRowRender(record);
+            },
             expandedRowKeys,
             onExpand: (expanded, record) => {
-              const key = `${record.period}-${tableRows.findIndex(r => r.period === record.period)}`;
+              const key = record.key as string;
               if (expanded) {
                 setExpandedRowKeys([...expandedRowKeys, key]);
               } else {
                 setExpandedRowKeys(expandedRowKeys.filter(k => k !== key));
               }
             },
+            rowExpandable: () => true,
           }}
+          onRow={(record) => ({
+            onClick: () => handleRowClick(record),
+            style: { cursor: 'pointer' },
+          })}
         />
       </div>
     </>
