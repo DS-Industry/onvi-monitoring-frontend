@@ -415,6 +415,15 @@ const Loyalty: React.FC = () => {
                 {t('marketing.accr')}
               </Text>
             </div>
+
+            <div className="mb-3">
+              <div className=" text-text01 text-xs md:text-sm mt-3">
+                {loyaltyStats.totalBonusBurned.toLocaleString()} ₽
+              </div>
+              <Text type="secondary" className="text-xs md:text-sm">
+                {t('marketing.writ')}
+              </Text>
+            </div>
           </Card>
         </Col>
       </Row>
