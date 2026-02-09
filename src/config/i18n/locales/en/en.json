@@ -1227,6 +1227,11 @@
     "sunday": "Sunday",
     "skip": "Skip"
   },
+  "time": {
+    "hourShort": "h",
+    "minuteShort": "min",
+    "secondShort": "sec"
+  },
   "analysis": {
     "search": "Search",
     "all": "All",
@@ -1946,7 +1951,15 @@
     "moreDetails": "More details",
     "branches": "Branches",
     "numberOfBranches": "Number of branches",
-    "numberOfClients": "Number of clients"
+    "numberOfClients": "Number of clients",
+    "confirmDelete": "Confirm deletion",
+    "confirmDeleteMessage": "Are you sure you want to delete client?",
+    "deleteSuccess": "Client deleted",
+    "deleteSuccessMessage": "Client has been successfully deleted",
+    "deleteError": "Error deleting client",
+    "notFound": "Client not found",
+    "thisClient": "this client",
+    "deleteWarning": "This action cannot be undone. All client data will be deleted."
   },
   "chemicalConsumption": {
     "period": "Period",
@@ -1967,7 +1980,17 @@
     "waxProtectionRecalculated": "Wax + Protection, Recalculated",
     "tPowerFact": "T-POWER, Actual",
     "tPowerTime": "T-POWER, Time",
-    "tPowerRecalculated": "T-POWER, Recalculated"
+    "tPowerRecalculated": "T-POWER, Recalculated",
+    "type": "Chemical type",
+    "fact": "Fact",
+    "recalculation": "Recalculation",
+    "time": "Time",
+    "waterShampoo": "Water + shampoo",
+    "activeChemistry": "Active chemistry",
+    "diskWash": "Disk wash",
+    "brushFoam": "Brush + foam",
+    "waxProtection": "Wax + protection",
+    "tPower": "T-POWER"
   },
   "marketingCampaigns": {
     "terms": "Terms and conditions and prizes",

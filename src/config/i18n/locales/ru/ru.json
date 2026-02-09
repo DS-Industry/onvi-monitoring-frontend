@@ -1227,6 +1227,11 @@
     "sunday": "Воскресенье",
     "skip": "Пропустить"
   },
+  "time": {
+    "hourShort": "ч",
+    "minuteShort": "мин",
+    "secondShort": "сек"
+  },
   "analysis": {
     "search": "Поиск",
     "all": "Все",
@@ -1945,7 +1950,15 @@
     "moreDetails": "Подробнее",
     "branches": "Филиалов",
     "numberOfBranches": "Количество филиалов",
-    "numberOfClients": "Количество клиентов"
+    "numberOfClients": "Количество клиентов",
+    "confirmDelete": "Подтверждение удаления",
+    "confirmDeleteMessage": "Вы уверены, что хотите удалить клиента?",
+    "deleteSuccess": "Клиент успешно удален",
+    "deleteSuccessMessage": "Клиент успешно удален",
+    "deleteError": "Ошибка при удалении клиента",
+    "notFound": "Клиент не найден",
+    "thisClient": "этого клиента",
+    "deleteWarning": "Это действие нельзя отменить. Все данные клиента будут удалены."
   },
   "chemicalConsumption": {
     "period": "Период",
@@ -1966,7 +1979,17 @@
     "waxProtectionRecalculated": "Воск + защита, пересчет",
     "tPowerFact": "T-POWER, факт",
     "tPowerTime": "T-POWER, время",
-    "tPowerRecalculated": "T-POWER, пересчет"
+    "tPowerRecalculated": "T-POWER, пересчет",
+    "type": "Тип химии",
+    "fact": "Факт",
+    "recalculation": "Пересчет",
+    "time": "Время",
+    "waterShampoo": "Вода + шампунь",
+    "activeChemistry": "Активная химия",
+    "diskWash": "Мойка дисков",
+    "brushFoam": "Щетка + пена",
+    "waxProtection": "Воск + защита",
+    "tPower": "T-POWER"
   },
   "marketingCampaigns": {
     "terms": "Условия и призы",
