@@ -164,6 +164,28 @@ type UpdateLoyaltyRequest = {
   organizationIds?: number[];
 };
 
+export enum OrderStatus {
+  COMPLETED = 'COMPLETED',
+  CREATED = 'CREATED',
+  CANCELED = 'CANCELED',
+  PROCESSING = 'PROCESSING',
+  PENDING = 'PENDING',
+  DELIVERED = 'DELIVERED',
+  REFUNDED = 'REFUNDED',
+}
+
+export enum PlatformType {
+  ONVI = 'ONVI',
+  YANDEX = 'YANDEX',
+  LUKOIL = 'LUKOIL',
+  LOCAL_LOYALTY = 'LOCAL_LOYALTY',
+}
+
+export enum SignOper {
+  REPLENISHMENT = 'REPLENISHMENT',
+  DEDUCTION = 'DEDUCTION',
+}
+
 export type OrderItem = {
   id: number;
   transactionId: string | null;
@@ -174,9 +196,9 @@ export type OrderItem = {
   sumBonus: number;
   sumDiscount: number;
   sumCashback: number;
-  platform: string;
-  contractType: string;
-  orderStatus: string;
+  platform: PlatformType;
+  contractType: ContractType;
+  orderStatus: OrderStatus;
   orderHandlerStatus: string | null;
   executionStatus: string | null;
   
@@ -217,7 +239,7 @@ export type OrderItem = {
     type: {
       id: number;
       name: string;
-      signOper: string;
+      signOper: SignOper;
     } | null;
   }>;
 };

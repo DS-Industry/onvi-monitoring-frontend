@@ -124,6 +124,49 @@
     "viewBranch": "View Branch",
     "marketingTransactions": "Transactions"
   },
+  "marketingTransactions": {
+    "columns": {
+      "orderId": "Order ID",
+      "transactionId": "Transaction ID",
+      "orderDate": "Order Date",
+      "client": "Client",
+      "card": "Card",
+      "pos": "POS",
+      "device": "Device",
+      "platform": "Platform",
+      "contractType": "Contract Type",
+      "sums": "Amounts",
+      "bonuses": "Bonuses / Discount / Cashback",
+      "statuses": "Statuses"
+    },
+    "expandedColumns": {
+      "operationId": "Operation ID",
+      "operationDate": "Operation Date",
+      "loadDate": "Load Date",
+      "operationType": "Operation Type",
+      "operationSign": "Operation Sign",
+      "amount": "Amount",
+      "comment": "Comment"
+    },
+    "full": "Full",
+    "real": "Real",
+    "bonuses": "Bonuses",
+    "discount": "Discount",
+    "cashback": "Cashback",
+    "order": "Order",
+    "processing": "Processing",
+    "execution": "Execution",
+    "contractType": {
+      "individual": "Individual",
+      "corporate": "Corporate"
+    },
+    "signOper": {
+      "replenishment": "Replenishment",
+      "deduction": "Deduction"
+    },
+    "noBonusOperations": "No bonus operations",
+    "bonusOperations": "Bonus operations"
+  },
   "dashboard": {
     "news": "News",
     "indicators": "Indicators",

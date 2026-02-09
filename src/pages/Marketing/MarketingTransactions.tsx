@@ -3,15 +3,16 @@ import { useTranslation } from 'react-i18next';
 import { Select, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import useSWR from 'swr';
-import { getLoyaltyPrograms, getLoyaltyProgramOrders, type OrderItem } from '@/services/api/marketing';
+import { getLoyaltyPrograms, getLoyaltyProgramOrders, SignOper, OrderItem } from '@/services/api/marketing';
 import { useUser } from '@/hooks/useUserStore';
+import { ContractType } from '@/utils/constants';
 
 interface ExpandedRowData {
   id: number;
   operDate: string;
   loadDate: string;
   typeName: string;
-  signOper: string;
+  signOper: SignOper | string; // Изменено: может быть string если тип null
   sum: number;
   comment: string | null;
 }
@@ -72,6 +73,30 @@ const MarketingTransactions: React.FC = () => {
     }).format(amount) + '₽';
   };
 
+  // Функция для перевода типа контракта
+  const translateContractType = (contractType: ContractType): string => {
+    switch (contractType) {
+      case 'INDIVIDUAL':
+        return t('marketingTransactions.contractType.individual');
+      case 'CORPORATE':
+        return t('marketingTransactions.contractType.corporate');
+      default:
+        return contractType;
+    }
+  };
+
+  // Функция для перевода знака операции
+  const translateSignOper = (signOper: SignOper): string => {
+    switch (signOper) {
+      case 'REPLENISHMENT':
+        return t('marketingTransactions.signOper.replenishment');
+      case 'DEDUCTION':
+        return t('marketingTransactions.signOper.deduction');
+      default:
+        return signOper;
+    }
+  };
+
   // Получение расширенных данных для операций бонусов
   const getExpandedData = (order: OrderItem): ExpandedRowData[] => {
     if (!order.bonusOpers || order.bonusOpers.length === 0) {
@@ -83,7 +108,7 @@ const MarketingTransactions: React.FC = () => {
       operDate: formatDate(oper.operDate.toString()),
       loadDate: formatDate(oper.loadDate.toString()),
       typeName: oper.type?.name || 'N/A',
-      signOper: oper.type?.signOper || 'N/A',
+      signOper: oper.type?.signOper || 'N/A', // Если тип null, возвращаем 'N/A'
       sum: oper.sum,
       comment: oper.comment
     }));
@@ -92,28 +117,28 @@ const MarketingTransactions: React.FC = () => {
   // Основные колонки таблицы
   const mainColumns: ColumnsType<OrderItem> = [
     {
-      title: 'ID заказа',
+      title: t('marketingTransactions.columns.orderId'),
       dataIndex: 'id',
       key: 'id',
       width: 80,
       render: (id: number) => `#${id}`,
     },
     {
-      title: 'Transaction ID',
+      title: t('marketingTransactions.columns.transactionId'),
       dataIndex: 'transactionId',
       key: 'transactionId',
       width: 200,
       render: (transactionId: string | null) => transactionId || 'N/A',
     },
     {
-      title: 'Дата заказа',
+      title: t('marketingTransactions.columns.orderDate'),
       dataIndex: 'orderData',
       key: 'orderData',
       width: 140,
       render: (date: string) => formatDate(date),
     },
     {
-      title: 'Клиент',
+      title: t('marketingTransactions.columns.client'),
       key: 'client',
       width: 180,
       render: (_, record) => {
@@ -127,7 +152,7 @@ const MarketingTransactions: React.FC = () => {
       },
     },
     {
-      title: 'Карта',
+      title: t('marketingTransactions.columns.card'),
       key: 'card',
       width: 120,
       render: (_, record) => {
@@ -136,7 +161,7 @@ const MarketingTransactions: React.FC = () => {
       },
     },
     {
-      title: 'POS',
+      title: t('marketingTransactions.columns.pos'),
       key: 'pos',
       width: 120,
       render: (_, record) => {
@@ -145,7 +170,7 @@ const MarketingTransactions: React.FC = () => {
       },
     },
     {
-      title: 'Устройство',
+      title: t('marketingTransactions.columns.device'),
       key: 'device',
       width: 180,
       render: (_, record) => {
@@ -161,19 +186,20 @@ const MarketingTransactions: React.FC = () => {
       },
     },
     {
-      title: 'Платформа',
+      title: t('marketingTransactions.columns.platform'),
       dataIndex: 'platform',
       key: 'platform',
       width: 100,
     },
     {
-      title: 'Тип контракта',
+      title: t('marketingTransactions.columns.contractType'),
       dataIndex: 'contractType',
       key: 'contractType',
-      width: 100,
+      width: 120,
+      render: (contractType: ContractType) => translateContractType(contractType),
     },
     {
-      title: 'Суммы',
+      title: t('marketingTransactions.columns.sums'),
       key: 'sums',
       width: 150,
       render: (_, record) => (
@@ -184,7 +210,7 @@ const MarketingTransactions: React.FC = () => {
       ),
     },
     {
-      title: 'Бонусы / Скидка / Кэшбэк',
+      title: t('marketingTransactions.columns.bonuses'),
       key: 'bonuses',
       width: 150,
       render: (_, record) => (
@@ -196,7 +222,7 @@ const MarketingTransactions: React.FC = () => {
       ),
     },
     {
-      title: 'Статусы',
+      title: t('marketingTransactions.columns.statuses'),
       key: 'statuses',
       width: 150,
       render: (_, record) => (
@@ -212,51 +238,45 @@ const MarketingTransactions: React.FC = () => {
   // Колонки для раскрываемой части (операции бонусов)
   const expandedColumns: ColumnsType<ExpandedRowData> = [
     {
-      title: 'ID операции',
+      title: t('marketingTransactions.expandedColumns.operationId'),
       dataIndex: 'id',
       key: 'id',
       width: 80,
     },
     {
-      title: 'Дата операции',
+      title: t('marketingTransactions.expandedColumns.operationDate'),
       dataIndex: 'operDate',
       key: 'operDate',
       width: 140,
     },
     {
-      title: 'Дата загрузки',
+      title: t('marketingTransactions.expandedColumns.loadDate'),
       dataIndex: 'loadDate',
       key: 'loadDate',
       width: 140,
     },
     {
-      title: 'Тип операции',
+      title: t('marketingTransactions.expandedColumns.operationType'),
       dataIndex: 'typeName',
       key: 'typeName',
       width: 120,
     },
     {
-      title: 'Знак операции',
+      title: t('marketingTransactions.expandedColumns.operationSign'),
       dataIndex: 'signOper',
       key: 'signOper',
       width: 120,
-      render: (sign: string) => {
-        const signMap: Record<string, string> = {
-          '+': 'Начисление',
-          '-': 'Списание'
-        };
-        return signMap[sign] || sign;
-      },
+      render: (signOper: SignOper) => translateSignOper(signOper),
     },
     {
-      title: 'Сумма',
+      title: t('marketingTransactions.expandedColumns.amount'),
       dataIndex: 'sum',
       key: 'sum',
       width: 100,
       render: (sum: number) => formatCurrency(sum),
     },
     {
-      title: 'Комментарий',
+      title: t('marketingTransactions.expandedColumns.comment'),
       dataIndex: 'comment',
       key: 'comment',
       width: 200,
@@ -271,14 +291,14 @@ const MarketingTransactions: React.FC = () => {
     if (expandedData.length === 0) {
       return (
         <div style={{ margin: 0, padding: '16px 40px' }}>
-          <div className="text-text02 text-center">Нет операций с бонусами</div>
+          <div className="text-text02 text-center">{t('marketingTransactions.noBonusOperations')}</div>
         </div>
       );
     }
 
     return (
       <div style={{ margin: 0, padding: '16px 40px' }}>
-        <div className="font-semibold text-text01 mb-2">Операции с бонусами:</div>
+        <div className="font-semibold text-text01 mb-2">{t('marketingTransactions.bonusOperations')}:</div>
         <Table
           columns={expandedColumns}
           dataSource={expandedData}
@@ -334,11 +354,6 @@ const MarketingTransactions: React.FC = () => {
               <h3 className="text-lg font-semibold text-text01">
                 {t('marketing.selectedProgram')}: {selectedProgramName} (ID: {selectedLoyaltyProgram})
               </h3>
-              {ordersData && (
-                <div className="mt-2 text-sm text-text02">
-                  {t('common.found')}: {ordersData.total} {t('marketing.transactions')}
-                </div>
-              )}
             </div>
 
             {/* Загрузка */}
@@ -375,10 +390,6 @@ const MarketingTransactions: React.FC = () => {
                       })}
                       scroll={{ x: 'max-content' }}
                     />
-                    
-                    <div className="mt-4 text-sm text-text02">
-                      {t('common.showing')} {ordersData.orders.length} {t('common.of')} {ordersData.total} {t('marketing.transactions')}
-                    </div>
                   </div>
                 ) : (
                   <div className="text-center py-8">

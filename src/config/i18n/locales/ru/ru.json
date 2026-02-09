@@ -124,6 +124,49 @@
     "viewBranch": "Просмотр филиала",
     "marketingTransactions": "Транзакции"
   },
+  "marketingTransactions": {
+    "columns": {
+      "orderId": "ID заказа",
+      "transactionId": "Transaction ID",
+      "orderDate": "Дата заказа",
+      "client": "Клиент",
+      "card": "Карта",
+      "pos": "POS",
+      "device": "Устройство",
+      "platform": "Платформа",
+      "contractType": "Тип контракта",
+      "sums": "Суммы",
+      "bonuses": "Бонусы / Скидка / Кэшбэк",
+      "statuses": "Статусы"
+    },
+    "expandedColumns": {
+      "operationId": "ID операции",
+      "operationDate": "Дата операции",
+      "loadDate": "Дата загрузки",
+      "operationType": "Тип операции",
+      "operationSign": "Знак операции",
+      "amount": "Сумма",
+      "comment": "Комментарий"
+    },
+    "full": "Полная",
+    "real": "Реальная",
+    "bonuses": "Бонусы",
+    "discount": "Скидка",
+    "cashback": "Кэшбэк",
+    "order": "Заказ",
+    "processing": "Обработка",
+    "execution": "Выполнение",
+    "contractType": {
+      "individual": "Индивидуальный",
+      "corporate": "Корпоративный"
+    },
+    "signOper": {
+      "replenishment": "Зачисление",
+      "deduction": "Списание"
+    },
+    "noBonusOperations": "Нет операций с бонусами",
+    "bonusOperations": "Операции с бонусами"
+  },
   "dashboard": {
     "news": "Новости",
     "indicators": "Статистика",
