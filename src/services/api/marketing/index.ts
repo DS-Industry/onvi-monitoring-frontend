@@ -526,15 +526,10 @@ export async function getLoyaltyProgramOrders(
     dateTo?: string;
   }
 ): Promise<LoyaltyProgramOrdersResponse> {
-  console.log(programId);
-  
   const response: AxiosResponse<LoyaltyProgramOrdersResponse> = await api.get(
     `${MARKETING.LOYALTY}/program/${programId}/orders`,
     { params }
   );
-
-  console.log("getLoyaltyProgramOrders: ", response);
-  
   return response.data;
 }
 

@@ -119,9 +119,9 @@ const MarketingTransactions: React.FC = () => {
 
   const translateContractType = (contractType: ContractType): string => {
     switch (contractType) {
-      case 'INDIVIDUAL':
+      case ContractType.INDIVIDUAL:
         return t('marketingTransactions.contractType.individual');
-      case 'CORPORATE':
+      case ContractType.CORPORATE:
         return t('marketingTransactions.contractType.corporate');
       default:
         return contractType;
@@ -130,9 +130,9 @@ const MarketingTransactions: React.FC = () => {
 
   const translateSignOper = (signOper: SignOper): string => {
     switch (signOper) {
-      case 'REPLENISHMENT':
+      case SignOper.REPLENISHMENT:
         return t('marketingTransactions.signOper.replenishment');
-      case 'DEDUCTION':
+      case SignOper.DEDUCTION:
         return t('marketingTransactions.signOper.deduction');
       default:
         return signOper;
