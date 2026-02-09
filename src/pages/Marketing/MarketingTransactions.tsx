@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Select, Table, Input } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -11,6 +11,8 @@ import { SearchOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
+import { debounce } from 'lodash';
+import { getCurrencyRender, getDateRender } from '@/utils/tableUnits';
 
 interface ExpandedRowData {
   id: number;
@@ -27,20 +29,30 @@ const MarketingTransactions: React.FC = () => {
   const user = useUser();
   const [selectedLoyaltyProgram, setSelectedLoyaltyProgram] = useState<number | undefined>(undefined);
   const [expandedRowKeys, setExpandedRowKeys] = useState<number[]>([]);
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
   const [searchParams, setSearchParams] = useSearchParams();
+  const [searchValue, setSearchValue] = useState<string>(searchParams.get('search') || '');
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery);
-    }, 500);
+  const dateRender = getDateRender();
+  const currencyRender = getCurrencyRender();
 
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
+  const debouncedSearch = useCallback(
+    debounce((value: string) => {
+      updateSearchParams(searchParams, setSearchParams, {
+        search: value || undefined,
+        page: '1',
+      });
+    }, 500),
+    [searchParams, setSearchParams]
+  );
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    debouncedSearch(value);
+  };
 
   const { data: loyaltyProgramsData, isLoading: programsLoading } = useSWR(
     user.organizationId ? ['get-loyalty-programs', user.organizationId] : null,
@@ -54,14 +66,14 @@ const MarketingTransactions: React.FC = () => {
       selectedLoyaltyProgram,
       currentPage,
       pageSize,
-      debouncedSearchQuery
+      searchParams.get('search')
     ] : null,
     () => getLoyaltyProgramOrders(
       selectedLoyaltyProgram!,
       {
         page: currentPage,
         size: pageSize,
-        search: debouncedSearchQuery || undefined
+        search: searchParams.get('search') || undefined
       }
     ),
     {
@@ -75,14 +87,11 @@ const MarketingTransactions: React.FC = () => {
   const handleLoyaltyProgramChange = (value: number | undefined) => {
     setSelectedLoyaltyProgram(value);
     setExpandedRowKeys([]);
-    setSearchQuery('');
+    setSearchValue('');
     updateSearchParams(searchParams, setSearchParams, {
       page: String(DEFAULT_PAGE),
+      search: undefined,
     });
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
   };
 
   const handlePageChange = (page: number, size: number) => {
@@ -100,21 +109,6 @@ const MarketingTransactions: React.FC = () => {
     } else {
       setExpandedRowKeys([...expandedRowKeys, orderId]);
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU') + ' ' + date.toLocaleTimeString('ru-RU', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('ru-RU', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount) + '₽';
   };
 
   const translateContractType = (contractType: ContractType): string => {
@@ -146,8 +140,8 @@ const MarketingTransactions: React.FC = () => {
 
     return order.bonusOpers.map(oper => ({
       id: oper.id,
-      operDate: formatDate(oper.operDate.toString()),
-      loadDate: formatDate(oper.loadDate.toString()),
+      operDate: dateRender(oper.operDate.toString()),
+      loadDate: dateRender(oper.loadDate.toString()),
       typeName: oper.type?.name || '-',
       signOper: oper.type?.signOper || '-',
       sum: oper.sum,
@@ -199,7 +193,7 @@ const MarketingTransactions: React.FC = () => {
       dataIndex: 'orderData',
       key: 'orderData',
       width: 140,
-      render: (date: string) => formatDate(date),
+      render: getDateRender(),
     },
     {
       title: t('marketingTransactions.columns.client'),
@@ -268,8 +262,8 @@ const MarketingTransactions: React.FC = () => {
       width: 150,
       render: (_, record) => (
         <div>
-          <div>{t('marketingTransactions.full')}: {formatCurrency(record.sumFull)}</div>
-          <div>{t('marketingTransactions.real')}: {formatCurrency(record.sumReal)}</div>
+          <div>{t('marketingTransactions.full')}: {currencyRender(record.sumFull)}</div>
+          <div>{t('marketingTransactions.real')}: {currencyRender(record.sumReal)}</div>
         </div>
       ),
     },
@@ -280,8 +274,8 @@ const MarketingTransactions: React.FC = () => {
       render: (_, record) => (
         <div>
           <div>{t('marketingTransactions.bonuses')}: {record.sumBonus}</div>
-          <div>{t('marketingTransactions.discount')}: {formatCurrency(record.sumDiscount)}</div>
-          <div>{t('marketingTransactions.cashback')}: {formatCurrency(record.sumCashback)}</div>
+          <div>{t('marketingTransactions.discount')}: {currencyRender(record.sumDiscount)}</div>
+          <div>{t('marketingTransactions.cashback')}: {currencyRender(record.sumCashback)}</div>
         </div>
       ),
     },
@@ -336,7 +330,7 @@ const MarketingTransactions: React.FC = () => {
       dataIndex: 'sum',
       key: 'sum',
       width: 100,
-      render: (sum: number) => formatCurrency(sum),
+      render: getCurrencyRender(),
     },
     {
       title: t('marketingTransactions.expandedColumns.comment'),
@@ -412,7 +406,7 @@ const MarketingTransactions: React.FC = () => {
             <Input
               placeholder={t('filters.search.placeholder')}
               prefix={<SearchOutlined />}
-              value={searchQuery}
+              value={searchValue}
               onChange={handleSearchChange}
               allowClear
               className="w-full sm:w-80"
