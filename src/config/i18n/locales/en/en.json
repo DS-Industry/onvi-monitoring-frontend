@@ -123,7 +123,64 @@
     "viewLoyalty": "Viewing a loyalty program",
     "creatingCampaign": "Creating a Marketing Campaign",
     "editingCampaign": "Editing a Marketing Campaign",
-    "viewBranch": "View Branch"
+    "viewBranch": "View Branch",
+    "marketingTransactions": "Transactions"
+  },
+  "marketingTransactions": {
+    "columns": {
+      "orderId": "Order ID",
+      "transactionId": "Transaction ID",
+      "orderDate": "Order Date",
+      "client": "Client",
+      "card": "Card",
+      "pos": "POS",
+      "device": "Device",
+      "platform": "Platform",
+      "contractType": "Contract Type",
+      "sums": "Amounts",
+      "bonuses": "Bonuses / Discount / Cashback",
+      "statuses": "Statuses"
+    },
+    "expandedColumns": {
+      "operationId": "Operation ID",
+      "operationDate": "Operation Date",
+      "loadDate": "Load Date",
+      "operationType": "Operation Type",
+      "operationSign": "Operation Sign",
+      "amount": "Amount",
+      "comment": "Comment"
+    },
+    "full": "Full",
+    "real": "Real",
+    "bonuses": "Bonuses",
+    "discount": "Discount",
+    "cashback": "Cashback",
+    "order": "Order",
+    "processing": "Processing",
+    "execution": "Execution",
+    "contractType": {
+      "individual": "Individual",
+      "corporate": "Corporate"
+    },
+    "signOper": {
+      "replenishment": "Replenishment",
+      "deduction": "Deduction"
+    },
+    "noBonusOperations": "No bonus operations",
+    "bonusOperations": "Bonus operations",
+    "searchLabel": "User / Card / Transaction ID",
+    "transactions": "transactions",
+    "of": "of",
+    "statuses": {
+      "completed": "Completed",
+      "created": "Created",
+      "canceled": "Canceled",
+      "processing": "Processing",
+      "refunded": "Refunded",
+      "payed": "Payed",
+      "waitingPayment": "Waiting payment",
+      "posProcessed": "Processed"
+    }
   },
   "dashboard": {
     "news": "News",
@@ -855,7 +912,9 @@
     "loyaltyCreated": "Loyalty Program created successfully",
     "loyaltyUpdated": "Loyalty Program updated successfully",
     "value": "Value",
-    "tier": "Tier"
+    "tier": "Tier",
+    "loyaltyProgram": "Loyalty Program",
+    "selectProgramToViewTransactions": "Select a loyalty program to view transactions"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",

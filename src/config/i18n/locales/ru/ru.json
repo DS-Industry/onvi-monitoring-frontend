@@ -123,7 +123,64 @@
     "viewLoyalty": "Просмотр программы лояльности",
     "creatingCampaign": "Создание маркетинговой кампании",
     "editingCampaign": "Редактирование маркетинговой кампании",
-    "viewBranch": "Просмотр филиала"
+    "viewBranch": "Просмотр филиала",
+    "marketingTransactions": "Транзакции"
+  },
+  "marketingTransactions": {
+    "columns": {
+      "orderId": "ID заказа",
+      "transactionId": "ID транзакции",
+      "orderDate": "Дата заказа",
+      "client": "Клиент",
+      "card": "Карта",
+      "pos": "POS",
+      "device": "Устройство",
+      "platform": "Платформа",
+      "contractType": "Тип контракта",
+      "sums": "Суммы",
+      "bonuses": "Бонусы / Скидка / Кэшбэк",
+      "statuses": "Статусы"
+    },
+    "expandedColumns": {
+      "operationId": "ID операции",
+      "operationDate": "Дата операции",
+      "loadDate": "Дата загрузки",
+      "operationType": "Тип операции",
+      "operationSign": "Знак операции",
+      "amount": "Сумма",
+      "comment": "Комментарий"
+    },
+    "full": "Полная",
+    "real": "Реальная",
+    "bonuses": "Бонусы",
+    "discount": "Скидка",
+    "cashback": "Кэшбэк",
+    "order": "Заказ",
+    "processing": "Обработка",
+    "execution": "Выполнение",
+    "contractType": {
+      "individual": "Индивидуальный",
+      "corporate": "Корпоративный"
+    },
+    "signOper": {
+      "replenishment": "Зачисление",
+      "deduction": "Списание"
+    },
+    "noBonusOperations": "Нет операций с бонусами",
+    "bonusOperations": "Операции с бонусами",
+    "searchLabel": "Пользователь / Карта / ID транзакции",
+    "transactions": "транзакций",
+    "of": "из",
+    "statuses": {
+      "completed": "Завершено",
+      "created": "Создано",
+      "canceled": "Отменено",
+      "processing": "В обработке",
+      "refunded": "Возвращено",
+      "payed": "Оплачено",
+      "waitingPayment": "Ожидание оплаты",
+      "posProcessed": "Обработано"
+    }
   },
   "dashboard": {
     "news": "Новости",
@@ -855,7 +912,9 @@
     "loyaltyCreated": "Программа лояльности успешно создана",
     "loyaltyUpdated": "Программа лояльности успешно обновлена",
     "value": "Значение",
-    "tier": "Уровень"
+    "tier": "Уровень",
+    "loyaltyProgram": "Программа лояльности",
+    "selectProgramToViewTransactions": "Выберите программу лояльности для просмотра транзакций"
   },
   "errors": {
     "574": "Произошла внутренняя ошибка сервера. Пожалуйста, попробуйте позже.",

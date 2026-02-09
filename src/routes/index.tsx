@@ -93,6 +93,7 @@ const ClientsProfile = React.lazy(
   () => import('@/pages/Marketing/ClientsProfile')
 );
 const NewSegment = React.lazy(() => import('@/pages/Marketing/NewSegment'));
+const MarketingTransactions = React.lazy(() => import('@/pages/Marketing/MarketingTransactions'));
 const Collection = React.lazy(() => import('@/pages/Finance/Collection'));
 const CollectionCreation = React.lazy(
   () => import('@/pages/Finance/CollectionCreation')
@@ -1087,6 +1088,16 @@ const routes = [
         subMenu: false,
       },
       {
+        name: 'marketingTransactions',
+        isVisible: true,
+        path: '/marketing/marketing-transactions',
+        component: MarketingTransactions,
+        permissions: [{ action: 'update', subject: 'LTYProgram' }],
+        isSidebar: true,
+        subNav: [],
+        subMenu: false,
+      },
+      {
         name: 'card',
         isVisible: true,
         path: '/marketing/cards/card/:cardId',
@@ -1105,7 +1116,7 @@ const routes = [
         isSidebar: true,
         subNav: [],
         subMenu: false,
-      }
+      },
     ],
     component: Marketing,
     isSidebar: true,

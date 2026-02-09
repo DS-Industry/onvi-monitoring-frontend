@@ -164,6 +164,97 @@ type UpdateLoyaltyRequest = {
   organizationIds?: number[];
 };
 
+export enum OrderStatus {
+  COMPLETED = 'COMPLETED',
+  CREATED = 'CREATED',
+  CANCELED = 'CANCELED',
+  PROCESSING = 'PROCESSING',
+  PENDING = 'PENDING',
+  DELIVERED = 'DELIVERED',
+  REFUNDED = 'REFUNDED',
+  PAYED = 'PAYED'
+}
+
+export enum PlatformType {
+  ONVI = 'ONVI',
+  YANDEX = 'YANDEX',
+  LUKOIL = 'LUKOIL',
+  LOCAL_LOYALTY = 'LOCAL_LOYALTY',
+}
+
+export enum SignOper {
+  REPLENISHMENT = 'REPLENISHMENT',
+  DEDUCTION = 'DEDUCTION',
+}
+
+export type OrderItem = {
+  id: number;
+  transactionId: string | null;
+  orderData: Date;
+  createData: Date;
+  sumFull: number;
+  sumReal: number;
+  sumBonus: number;
+  sumDiscount: number;
+  sumCashback: number;
+  platform: PlatformType;
+  contractType: ContractType;
+  orderStatus: OrderStatus;
+  orderHandlerStatus: string | null;
+  executionStatus: string | null;
+  
+  client: {
+    id: number;
+    name: string;
+    phone: string;
+  } | null;
+  
+  card: {
+    id: number;
+    unqNumber: string;
+    number: string;
+    balance: number;
+  } | null;
+  
+  device: {
+    id: number;
+    name: string;
+    carWashDeviceType: {
+      id: number;
+      name: string;
+      code: string;
+    } | null;
+  } | null;
+  
+  pos: {
+    id: number;
+    name: string;
+  } | null;
+  
+  bonusOpers: Array<{
+    id: number;
+    operDate: Date;
+    loadDate: Date;
+    sum: number;
+    comment: string | null;
+    type: {
+      id: number;
+      name: string;
+      signOper: SignOper;
+    } | null;
+  }>;
+};
+
+export type LoyaltyProgramOrdersResponse = {
+  orders: OrderItem[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+};
+
 export type LoyaltyProgramsResponse = {
   props: {
     id: number;
@@ -419,6 +510,26 @@ export async function getLoyaltyPrograms(
     MARKETING.LOYALTY + `/participant-programs?organizationId=${orgId || ''}`
   );
 
+  return response.data;
+}
+
+export async function getLoyaltyProgramOrders(
+  programId: number,
+  params?: {
+    page?: number;
+    size?: number;
+    search?: string;
+    orderStatus?: string;
+    platform?: string;
+    contractType?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }
+): Promise<LoyaltyProgramOrdersResponse> {
+  const response: AxiosResponse<LoyaltyProgramOrdersResponse> = await api.get(
+    `${MARKETING.LOYALTY}/program/${programId}/orders`,
+    { params }
+  );
   return response.data;
 }
 
