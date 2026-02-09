@@ -1,18 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Select, Table } from 'antd';
+import { Select, Table, Input } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import useSWR from 'swr';
 import { getLoyaltyPrograms, getLoyaltyProgramOrders, SignOper, OrderItem } from '@/services/api/marketing';
 import { useUser } from '@/hooks/useUserStore';
 import { ContractType } from '@/utils/constants';
+import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import { SearchOutlined } from '@ant-design/icons';
 
 interface ExpandedRowData {
   id: number;
   operDate: string;
   loadDate: string;
   typeName: string;
-  signOper: SignOper | string; // Изменено: может быть string если тип null
+  signOper: SignOper | string;
   sum: number;
   comment: string | null;
 }
@@ -22,18 +24,35 @@ const MarketingTransactions: React.FC = () => {
   const user = useUser();
   const [selectedLoyaltyProgram, setSelectedLoyaltyProgram] = useState<number | undefined>(undefined);
   const [expandedRowKeys, setExpandedRowKeys] = useState<number[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
 
-  // Получение программ лояльности
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
   const { data: loyaltyProgramsData, isLoading: programsLoading } = useSWR(
     user.organizationId ? ['get-loyalty-programs', user.organizationId] : null,
     () => getLoyaltyPrograms(user.organizationId!),
     { revalidateOnFocus: false, revalidateOnReconnect: false }
   );
 
-  // Получение транзакций для выбранной программы лояльности
   const { data: ordersData, isLoading: ordersLoading } = useSWR(
-    selectedLoyaltyProgram ? ['get-loyalty-program-orders', selectedLoyaltyProgram] : null,
-    () => getLoyaltyProgramOrders(selectedLoyaltyProgram!),
+    selectedLoyaltyProgram ? [
+      'get-loyalty-program-orders', 
+      selectedLoyaltyProgram, 
+      debouncedSearchQuery
+    ] : null,
+    () => getLoyaltyProgramOrders(
+      selectedLoyaltyProgram!, 
+      { 
+        search: debouncedSearchQuery || undefined
+      }
+    ),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -45,6 +64,11 @@ const MarketingTransactions: React.FC = () => {
   const handleLoyaltyProgramChange = (value: number | undefined) => {
     setSelectedLoyaltyProgram(value);
     setExpandedRowKeys([]);
+    setSearchQuery('');
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
   const handleRowClick = (record: OrderItem) => {
@@ -56,7 +80,6 @@ const MarketingTransactions: React.FC = () => {
     }
   };
 
-  // Форматирование даты
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('ru-RU') + ' ' + date.toLocaleTimeString('ru-RU', {
@@ -65,7 +88,6 @@ const MarketingTransactions: React.FC = () => {
     });
   };
 
-  // Форматирование суммы
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('ru-RU', {
       minimumFractionDigits: 0,
@@ -73,7 +95,6 @@ const MarketingTransactions: React.FC = () => {
     }).format(amount) + '₽';
   };
 
-  // Функция для перевода типа контракта
   const translateContractType = (contractType: ContractType): string => {
     switch (contractType) {
       case 'INDIVIDUAL':
@@ -85,7 +106,6 @@ const MarketingTransactions: React.FC = () => {
     }
   };
 
-  // Функция для перевода знака операции
   const translateSignOper = (signOper: SignOper): string => {
     switch (signOper) {
       case 'REPLENISHMENT':
@@ -97,7 +117,6 @@ const MarketingTransactions: React.FC = () => {
     }
   };
 
-  // Получение расширенных данных для операций бонусов
   const getExpandedData = (order: OrderItem): ExpandedRowData[] => {
     if (!order.bonusOpers || order.bonusOpers.length === 0) {
       return [];
@@ -108,7 +127,7 @@ const MarketingTransactions: React.FC = () => {
       operDate: formatDate(oper.operDate.toString()),
       loadDate: formatDate(oper.loadDate.toString()),
       typeName: oper.type?.name || 'N/A',
-      signOper: oper.type?.signOper || 'N/A', // Если тип null, возвращаем 'N/A'
+      signOper: oper.type?.signOper || 'N/A',
       sum: oper.sum,
       comment: oper.comment
     }));
@@ -204,8 +223,8 @@ const MarketingTransactions: React.FC = () => {
       width: 150,
       render: (_, record) => (
         <div>
-          <div>Полная: {formatCurrency(record.sumFull)}</div>
-          <div>Реальная: {formatCurrency(record.sumReal)}</div>
+          <div>{t('marketingTransactions.full')}: {formatCurrency(record.sumFull)}</div>
+          <div>{t('marketingTransactions.real')}: {formatCurrency(record.sumReal)}</div>
         </div>
       ),
     },
@@ -215,9 +234,9 @@ const MarketingTransactions: React.FC = () => {
       width: 150,
       render: (_, record) => (
         <div>
-          <div>Бонусы: {record.sumBonus}</div>
-          <div>Скидка: {formatCurrency(record.sumDiscount)}</div>
-          <div>Кэшбэк: {formatCurrency(record.sumCashback)}</div>
+          <div>{t('marketingTransactions.bonuses')}: {record.sumBonus}</div>
+          <div>{t('marketingTransactions.discount')}: {formatCurrency(record.sumDiscount)}</div>
+          <div>{t('marketingTransactions.cashback')}: {formatCurrency(record.sumCashback)}</div>
         </div>
       ),
     },
@@ -227,15 +246,14 @@ const MarketingTransactions: React.FC = () => {
       width: 150,
       render: (_, record) => (
         <div>
-          <div>Заказ: {record.orderStatus}</div>
-          <div>Обработка: {record.orderHandlerStatus || 'N/A'}</div>
-          <div>Выполнение: {record.executionStatus || 'N/A'}</div>
+          <div>{t('marketingTransactions.order')}: {record.orderStatus}</div>
+          <div>{t('marketingTransactions.processing')}: {record.orderHandlerStatus || 'N/A'}</div>
+          <div>{t('marketingTransactions.execution')}: {record.executionStatus || 'N/A'}</div>
         </div>
       ),
     },
   ];
 
-  // Колонки для раскрываемой части (операции бонусов)
   const expandedColumns: ColumnsType<ExpandedRowData> = [
     {
       title: t('marketingTransactions.expandedColumns.operationId'),
@@ -266,7 +284,7 @@ const MarketingTransactions: React.FC = () => {
       dataIndex: 'signOper',
       key: 'signOper',
       width: 120,
-      render: (signOper: SignOper) => translateSignOper(signOper),
+      render: (signOper: SignOper | string) => translateSignOper(signOper as SignOper),
     },
     {
       title: t('marketingTransactions.expandedColumns.amount'),
@@ -284,7 +302,6 @@ const MarketingTransactions: React.FC = () => {
     },
   ];
 
-  // Рендер раскрываемой части
   const expandedRowRender = (record: OrderItem) => {
     const expandedData = getExpandedData(record);
     
@@ -311,7 +328,6 @@ const MarketingTransactions: React.FC = () => {
     );
   };
 
-  // Получение названия выбранной программы
   const selectedProgramName = selectedLoyaltyProgram 
     ? loyaltyProgramsData?.find(program => program.props.id === selectedLoyaltyProgram)?.props.name
     : '';
@@ -325,7 +341,6 @@ const MarketingTransactions: React.FC = () => {
           </span>
         </div>
         
-        {/* Выпадающий список для выбора программы лояльности */}
         {user.organizationId && (
           <div className="flex flex-col md:flex-row md:items-center mt-4 xs:mt-0">
             <label className="block text-sm font-medium text-gray-700 mr-2">
@@ -347,6 +362,24 @@ const MarketingTransactions: React.FC = () => {
         )}
       </div>
 
+      {selectedLoyaltyProgram && (
+        <GeneralFilters count={ordersData?.orders?.length || 0} display={[]}>
+          <div>
+            <div className="text-sm text-text02 mb-1">
+              {t('marketingTransactions.searchLabel')}
+            </div>
+            <Input
+              placeholder={t('filters.search.placeholder')}
+              prefix={<SearchOutlined />}
+              value={searchQuery}
+              onChange={handleSearchChange}
+              allowClear
+              className="w-full sm:w-80"
+            />
+          </div>
+        </GeneralFilters>
+      )}
+
       <div className="mt-4 flex flex-col min-h-screen">
         {selectedLoyaltyProgram ? (
           <div className="bg-background05 rounded-lg p-4">
@@ -356,48 +389,32 @@ const MarketingTransactions: React.FC = () => {
               </h3>
             </div>
 
-            {/* Загрузка */}
-            {ordersLoading ? (
-              <div className="text-center py-8">
-                <div className="text-text02">{t('common.loading')}...</div>
-              </div>
-            ) : (
-              /* Таблица транзакций */
-              <div>
-                {ordersData?.orders && ordersData.orders.length > 0 ? (
-                  <div>
-                    <Table
-                      dataSource={ordersData.orders.map(order => ({ ...order, key: order.id }))}
-                      columns={mainColumns}
-                      rowKey="id"
-                      pagination={false}
-                      loading={ordersLoading}
-                      expandable={{
-                        expandedRowRender: (record) => expandedRowRender(record),
-                        expandedRowKeys,
-                        onExpand: (expanded, record) => {
-                          if (expanded) {
-                            setExpandedRowKeys([...expandedRowKeys, record.id]);
-                          } else {
-                            setExpandedRowKeys(expandedRowKeys.filter(id => id !== record.id));
-                          }
-                        },
-                        rowExpandable: () => true,
-                      }}
-                      onRow={(record) => ({
-                        onClick: () => handleRowClick(record),
-                        style: { cursor: 'pointer' },
-                      })}
-                      scroll={{ x: 'max-content' }}
-                    />
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <div className="text-text02">{t('common.noData')}</div>
-                  </div>
-                )}
-              </div>
-            )}
+            <div>
+              <Table
+                dataSource={ordersData?.orders?.map(order => ({ ...order, key: order.id })) || []}
+                columns={mainColumns}
+                rowKey="id"
+                pagination={false}
+                loading={ordersLoading}
+                expandable={{
+                  expandedRowRender: (record) => expandedRowRender(record),
+                  expandedRowKeys,
+                  onExpand: (expanded, record) => {
+                    if (expanded) {
+                      setExpandedRowKeys([...expandedRowKeys, record.id]);
+                    } else {
+                      setExpandedRowKeys(expandedRowKeys.filter(id => id !== record.id));
+                    }
+                  },
+                  rowExpandable: () => true,
+                }}
+                onRow={(record) => ({
+                  onClick: () => handleRowClick(record),
+                  style: { cursor: 'pointer' },
+                })}
+                scroll={{ x: 'max-content' }}
+              />
+            </div>
           </div>
         ) : (
           <div className="p-4 bg-background05 rounded-lg">

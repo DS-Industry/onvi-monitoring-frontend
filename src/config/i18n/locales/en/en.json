@@ -165,7 +165,8 @@
       "deduction": "Deduction"
     },
     "noBonusOperations": "No bonus operations",
-    "bonusOperations": "Bonus operations"
+    "bonusOperations": "Bonus operations",
+    "searchLabel": "User / Card / Transaction ID"
   },
   "dashboard": {
     "news": "News",
