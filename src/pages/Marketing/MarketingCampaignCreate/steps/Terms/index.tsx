@@ -25,6 +25,7 @@ import {
 import { useToast } from '@/components/context/useContext';
 import { getFilteredConditionTypes } from '../../utils/conditionTypes';
 import { useRewardInitialization } from './useRewardInitialization';
+import { useUser } from '@/hooks/useUserStore';
 
 type DiscountType = 'PERCENTAGE' | 'FIXED_AMOUNT';
 
@@ -116,6 +117,8 @@ const Terms: React.FC = () => {
     const [isUpdatingData, setIsUpdatingData] = useState(false);
     const [modal, contextHolder] = Modal.useModal();
     const { showToast } = useToast();
+
+    const user = useUser();
 
     const marketingCampaignId = searchParams.get('marketingCampaignId')
         ? Number(searchParams.get('marketingCampaignId'))
@@ -221,6 +224,7 @@ const Terms: React.FC = () => {
                         maxUsagePerUser: promocodeData.maxUsagePerUser
                             ? Number(promocodeData.maxUsagePerUser)
                             : undefined,
+                        organizationId: user.organizationId,
                     });
 
                     promocodeId = promocodeResponse.id;
