@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Select, Table, Input } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -11,6 +11,7 @@ import { SearchOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
+import { debounce } from 'lodash';
 
 interface ExpandedRowData {
   id: number;
@@ -27,20 +28,27 @@ const MarketingTransactions: React.FC = () => {
   const user = useUser();
   const [selectedLoyaltyProgram, setSelectedLoyaltyProgram] = useState<number | undefined>(undefined);
   const [expandedRowKeys, setExpandedRowKeys] = useState<number[]>([]);
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
   const [searchParams, setSearchParams] = useSearchParams();
+  const [searchValue, setSearchValue] = useState<string>(searchParams.get('search') || '');
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchQuery(searchQuery);
-    }, 500);
+  const debouncedSearch = useCallback(
+    debounce((value: string) => {
+      updateSearchParams(searchParams, setSearchParams, {
+        search: value || undefined,
+        page: '1',
+      });
+    }, 500),
+    [searchParams, setSearchParams]
+  );
 
-    return () => clearTimeout(timer);
-  }, [searchQuery]);
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    debouncedSearch(value);
+  };
 
   const { data: loyaltyProgramsData, isLoading: programsLoading } = useSWR(
     user.organizationId ? ['get-loyalty-programs', user.organizationId] : null,
@@ -54,14 +62,14 @@ const MarketingTransactions: React.FC = () => {
       selectedLoyaltyProgram,
       currentPage,
       pageSize,
-      debouncedSearchQuery
+      searchParams.get('search')
     ] : null,
     () => getLoyaltyProgramOrders(
       selectedLoyaltyProgram!,
       {
         page: currentPage,
         size: pageSize,
-        search: debouncedSearchQuery || undefined
+        search: searchParams.get('search') || undefined
       }
     ),
     {
@@ -75,14 +83,11 @@ const MarketingTransactions: React.FC = () => {
   const handleLoyaltyProgramChange = (value: number | undefined) => {
     setSelectedLoyaltyProgram(value);
     setExpandedRowKeys([]);
-    setSearchQuery('');
+    setSearchValue('');
     updateSearchParams(searchParams, setSearchParams, {
       page: String(DEFAULT_PAGE),
+      search: undefined,
     });
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
   };
 
   const handlePageChange = (page: number, size: number) => {
@@ -412,7 +417,7 @@ const MarketingTransactions: React.FC = () => {
             <Input
               placeholder={t('filters.search.placeholder')}
               prefix={<SearchOutlined />}
-              value={searchQuery}
+              value={searchValue}
               onChange={handleSearchChange}
               allowClear
               className="w-full sm:w-80"
