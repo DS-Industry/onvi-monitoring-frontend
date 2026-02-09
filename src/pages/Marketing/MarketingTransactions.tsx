@@ -8,6 +8,9 @@ import { useUser } from '@/hooks/useUserStore';
 import { ContractType } from '@/utils/constants';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { SearchOutlined } from '@ant-design/icons';
+import { useSearchParams } from 'react-router-dom';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
 
 interface ExpandedRowData {
   id: number;
@@ -26,6 +29,10 @@ const MarketingTransactions: React.FC = () => {
   const [expandedRowKeys, setExpandedRowKeys] = useState<number[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
+  const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -43,13 +50,17 @@ const MarketingTransactions: React.FC = () => {
 
   const { data: ordersData, isLoading: ordersLoading } = useSWR(
     selectedLoyaltyProgram ? [
-      'get-loyalty-program-orders', 
-      selectedLoyaltyProgram, 
+      'get-loyalty-program-orders',
+      selectedLoyaltyProgram,
+      currentPage,
+      pageSize,
       debouncedSearchQuery
     ] : null,
     () => getLoyaltyProgramOrders(
-      selectedLoyaltyProgram!, 
-      { 
+      selectedLoyaltyProgram!,
+      {
+        page: currentPage,
+        size: pageSize,
         search: debouncedSearchQuery || undefined
       }
     ),
@@ -65,10 +76,21 @@ const MarketingTransactions: React.FC = () => {
     setSelectedLoyaltyProgram(value);
     setExpandedRowKeys([]);
     setSearchQuery('');
+    updateSearchParams(searchParams, setSearchParams, {
+      page: String(DEFAULT_PAGE),
+    });
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
+  };
+
+  const handlePageChange = (page: number, size: number) => {
+    updateSearchParams(searchParams, setSearchParams, {
+      page: String(page),
+      size: String(size),
+    });
+    setExpandedRowKeys([]);
   };
 
   const handleRowClick = (record: OrderItem) => {
@@ -126,14 +148,37 @@ const MarketingTransactions: React.FC = () => {
       id: oper.id,
       operDate: formatDate(oper.operDate.toString()),
       loadDate: formatDate(oper.loadDate.toString()),
-      typeName: oper.type?.name || 'N/A',
-      signOper: oper.type?.signOper || 'N/A',
+      typeName: oper.type?.name || '-',
+      signOper: oper.type?.signOper || '-',
       sum: oper.sum,
       comment: oper.comment
     }));
   };
 
-  // Основные колонки таблицы
+  const translateOrderStatus = (status: string): string => {
+    const statusLower = status.toLowerCase();
+    switch (statusLower) {
+      case 'completed':
+        return t('marketingTransactions.statuses.completed');
+      case 'created':
+        return t('marketingTransactions.statuses.created');
+      case 'canceled':
+        return t('marketingTransactions.statuses.canceled');
+      case 'processing':
+        return t('marketingTransactions.statuses.processing');
+      case 'refunded':
+        return t('marketingTransactions.statuses.refunded');
+      case 'payed':
+        return t('marketingTransactions.statuses.payed');
+      case 'waiting_payment':
+        return t('marketingTransactions.statuses.waitingPayment');
+      case 'pos_processed':
+        return t('marketingTransactions.statuses.posProcessed');
+      default:
+        return status;
+    }
+  };
+
   const mainColumns: ColumnsType<OrderItem> = [
     {
       title: t('marketingTransactions.columns.orderId'),
@@ -147,7 +192,7 @@ const MarketingTransactions: React.FC = () => {
       dataIndex: 'transactionId',
       key: 'transactionId',
       width: 200,
-      render: (transactionId: string | null) => transactionId || 'N/A',
+      render: (transactionId: string | null) => transactionId || '-',
     },
     {
       title: t('marketingTransactions.columns.orderDate'),
@@ -161,7 +206,7 @@ const MarketingTransactions: React.FC = () => {
       key: 'client',
       width: 180,
       render: (_, record) => {
-        if (!record.client) return 'N/A';
+        if (!record.client) return '-';
         return (
           <div>
             <div>{record.client.name}</div>
@@ -175,7 +220,7 @@ const MarketingTransactions: React.FC = () => {
       key: 'card',
       width: 120,
       render: (_, record) => {
-        if (!record.card) return 'N/A';
+        if (!record.card) return '-';
         return record.card.number;
       },
     },
@@ -184,7 +229,7 @@ const MarketingTransactions: React.FC = () => {
       key: 'pos',
       width: 120,
       render: (_, record) => {
-        if (!record.pos) return 'N/A';
+        if (!record.pos) return '-';
         return record.pos.name;
       },
     },
@@ -193,12 +238,12 @@ const MarketingTransactions: React.FC = () => {
       key: 'device',
       width: 180,
       render: (_, record) => {
-        if (!record.device) return 'N/A';
+        if (!record.device) return '-';
         return (
           <div>
             <div>{record.device.name}</div>
             <div className="text-text02 text-sm">
-              {record.device.carWashDeviceType?.name || 'N/A'}
+              {record.device.carWashDeviceType?.name || '-'}
             </div>
           </div>
         );
@@ -246,9 +291,9 @@ const MarketingTransactions: React.FC = () => {
       width: 150,
       render: (_, record) => (
         <div>
-          <div>{t('marketingTransactions.order')}: {record.orderStatus}</div>
-          <div>{t('marketingTransactions.processing')}: {record.orderHandlerStatus || 'N/A'}</div>
-          <div>{t('marketingTransactions.execution')}: {record.executionStatus || 'N/A'}</div>
+          <div>{t('marketingTransactions.order')}: {translateOrderStatus(record.orderStatus)}</div>
+          <div>{t('marketingTransactions.processing')}: {translateOrderStatus(record.orderStatus)}</div>
+          <div>{t('marketingTransactions.execution')}: {record.executionStatus || '-'}</div>
         </div>
       ),
     },
@@ -304,7 +349,7 @@ const MarketingTransactions: React.FC = () => {
 
   const expandedRowRender = (record: OrderItem) => {
     const expandedData = getExpandedData(record);
-    
+
     if (expandedData.length === 0) {
       return (
         <div style={{ margin: 0, padding: '16px 40px' }}>
@@ -328,10 +373,6 @@ const MarketingTransactions: React.FC = () => {
     );
   };
 
-  const selectedProgramName = selectedLoyaltyProgram 
-    ? loyaltyProgramsData?.find(program => program.props.id === selectedLoyaltyProgram)?.props.name
-    : '';
-
   return (
     <>
       <div className="ml-12 md:ml-0 mb-5 xs:flex xs:items-start xs:justify-between">
@@ -340,7 +381,7 @@ const MarketingTransactions: React.FC = () => {
             {t('routes.marketingTransactions')}
           </span>
         </div>
-        
+
         {user.organizationId && (
           <div className="flex flex-col md:flex-row md:items-center mt-4 xs:mt-0">
             <label className="block text-sm font-medium text-gray-700 mr-2">
@@ -383,38 +424,40 @@ const MarketingTransactions: React.FC = () => {
       <div className="mt-4 flex flex-col min-h-screen">
         {selectedLoyaltyProgram ? (
           <div className="bg-background05 rounded-lg p-4">
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold text-text01">
-                {t('marketing.selectedProgram')}: {selectedProgramName} (ID: {selectedLoyaltyProgram})
-              </h3>
-            </div>
-
-            <div>
-              <Table
-                dataSource={ordersData?.orders?.map(order => ({ ...order, key: order.id })) || []}
-                columns={mainColumns}
-                rowKey="id"
-                pagination={false}
-                loading={ordersLoading}
-                expandable={{
-                  expandedRowRender: (record) => expandedRowRender(record),
-                  expandedRowKeys,
-                  onExpand: (expanded, record) => {
-                    if (expanded) {
-                      setExpandedRowKeys([...expandedRowKeys, record.id]);
-                    } else {
-                      setExpandedRowKeys(expandedRowKeys.filter(id => id !== record.id));
-                    }
-                  },
-                  rowExpandable: () => true,
-                }}
-                onRow={(record) => ({
-                  onClick: () => handleRowClick(record),
-                  style: { cursor: 'pointer' },
-                })}
-                scroll={{ x: 'max-content' }}
-              />
-            </div>
+            <Table
+              dataSource={ordersData?.orders?.map(order => ({ ...order, key: order.id })) || []}
+              columns={mainColumns}
+              rowKey="id"
+              loading={ordersLoading}
+              expandable={{
+                expandedRowRender: (record) => expandedRowRender(record),
+                expandedRowKeys,
+                onExpand: (expanded, record) => {
+                  if (expanded) {
+                    setExpandedRowKeys([...expandedRowKeys, record.id]);
+                  } else {
+                    setExpandedRowKeys(expandedRowKeys.filter(id => id !== record.id));
+                  }
+                },
+                rowExpandable: () => true,
+              }}
+              onRow={(record) => ({
+                onClick: () => handleRowClick(record),
+                style: { cursor: 'pointer' },
+              })}
+              scroll={{ x: 'max-content' }}
+              pagination={{
+                current: currentPage,
+                pageSize: pageSize,
+                total: ordersData?.total || 0,
+                showSizeChanger: true,
+                pageSizeOptions: ALL_PAGE_SIZES,
+                showTotal: (total, range) =>
+                  `${range[0]}-${range[1]} ${t('marketingTransactions.of')} ${total} ${t('marketingTransactions.transactions')}`,
+                onChange: handlePageChange,
+                onShowSizeChange: handlePageChange,
+              }}
+            />
           </div>
         ) : (
           <div className="p-4 bg-background05 rounded-lg">

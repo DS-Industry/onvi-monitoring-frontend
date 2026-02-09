@@ -166,7 +166,19 @@
     },
     "noBonusOperations": "No bonus operations",
     "bonusOperations": "Bonus operations",
-    "searchLabel": "User / Card / Transaction ID"
+    "searchLabel": "User / Card / Transaction ID",
+    "transactions": "transactions",
+    "of": "of",
+    "statuses": {
+      "completed": "Completed",
+      "created": "Created",
+      "canceled": "Canceled",
+      "processing": "Processing",
+      "refunded": "Refunded",
+      "payed": "Payed",
+      "waitingPayment": "Waiting payment",
+      "posProcessed": "Processed"
+    }
   },
   "dashboard": {
     "news": "News",
@@ -873,7 +885,6 @@
     "value": "Value",
     "tier": "Tier",
     "loyaltyProgram": "Loyalty Program",
-    "selectedProgram": "Selected program",
     "selectProgramToViewTransactions": "Select a loyalty program to view transactions"
   },
   "errors": {

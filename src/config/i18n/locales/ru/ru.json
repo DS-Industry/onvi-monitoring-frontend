@@ -127,7 +127,7 @@
   "marketingTransactions": {
     "columns": {
       "orderId": "ID заказа",
-      "transactionId": "Transaction ID",
+      "transactionId": "ID транзакции",
       "orderDate": "Дата заказа",
       "client": "Клиент",
       "card": "Карта",
@@ -166,7 +166,19 @@
     },
     "noBonusOperations": "Нет операций с бонусами",
     "bonusOperations": "Операции с бонусами",
-    "searchLabel": "Пользователь / Карта / ID транзакции"
+    "searchLabel": "Пользователь / Карта / ID транзакции",
+    "transactions": "транзакций",
+    "of": "из",
+    "statuses": {
+      "completed": "Завершено",
+      "created": "Создано",
+      "canceled": "Отменено",
+      "processing": "В обработке",
+      "refunded": "Возвращено",
+      "payed": "Оплачено",
+      "waitingPayment": "Ожидание оплаты",
+      "posProcessed": "Обработано"
+    }
   },
   "dashboard": {
     "news": "Новости",
@@ -873,7 +885,6 @@
     "value": "Значение",
     "tier": "Уровень",
     "loyaltyProgram": "Программа лояльности",
-    "selectedProgram": "Выбранная программа",
     "selectProgramToViewTransactions": "Выберите программу лояльности для просмотра транзакций"
   },
   "errors": {

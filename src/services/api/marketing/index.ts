@@ -172,6 +172,7 @@ export enum OrderStatus {
   PENDING = 'PENDING',
   DELIVERED = 'DELIVERED',
   REFUNDED = 'REFUNDED',
+  PAYED = 'PAYED'
 }
 
 export enum PlatformType {
