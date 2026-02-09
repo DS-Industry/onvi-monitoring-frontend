@@ -12,6 +12,7 @@ import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
 import { debounce } from 'lodash';
+import { getCurrencyRender, getDateRender } from '@/utils/tableUnits';
 
 interface ExpandedRowData {
   id: number;
@@ -33,6 +34,9 @@ const MarketingTransactions: React.FC = () => {
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
+
+  const dateRender = getDateRender();
+  const currencyRender = getCurrencyRender();
 
   const debouncedSearch = useCallback(
     debounce((value: string) => {
@@ -107,21 +111,6 @@ const MarketingTransactions: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU') + ' ' + date.toLocaleTimeString('ru-RU', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('ru-RU', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(amount) + '₽';
-  };
-
   const translateContractType = (contractType: ContractType): string => {
     switch (contractType) {
       case ContractType.INDIVIDUAL:
@@ -151,8 +140,8 @@ const MarketingTransactions: React.FC = () => {
 
     return order.bonusOpers.map(oper => ({
       id: oper.id,
-      operDate: formatDate(oper.operDate.toString()),
-      loadDate: formatDate(oper.loadDate.toString()),
+      operDate: dateRender(oper.operDate.toString()),
+      loadDate: dateRender(oper.loadDate.toString()),
       typeName: oper.type?.name || '-',
       signOper: oper.type?.signOper || '-',
       sum: oper.sum,
@@ -204,7 +193,7 @@ const MarketingTransactions: React.FC = () => {
       dataIndex: 'orderData',
       key: 'orderData',
       width: 140,
-      render: (date: string) => formatDate(date),
+      render: getDateRender(),
     },
     {
       title: t('marketingTransactions.columns.client'),
@@ -273,8 +262,8 @@ const MarketingTransactions: React.FC = () => {
       width: 150,
       render: (_, record) => (
         <div>
-          <div>{t('marketingTransactions.full')}: {formatCurrency(record.sumFull)}</div>
-          <div>{t('marketingTransactions.real')}: {formatCurrency(record.sumReal)}</div>
+          <div>{t('marketingTransactions.full')}: {currencyRender(record.sumFull)}</div>
+          <div>{t('marketingTransactions.real')}: {currencyRender(record.sumReal)}</div>
         </div>
       ),
     },
@@ -285,8 +274,8 @@ const MarketingTransactions: React.FC = () => {
       render: (_, record) => (
         <div>
           <div>{t('marketingTransactions.bonuses')}: {record.sumBonus}</div>
-          <div>{t('marketingTransactions.discount')}: {formatCurrency(record.sumDiscount)}</div>
-          <div>{t('marketingTransactions.cashback')}: {formatCurrency(record.sumCashback)}</div>
+          <div>{t('marketingTransactions.discount')}: {currencyRender(record.sumDiscount)}</div>
+          <div>{t('marketingTransactions.cashback')}: {currencyRender(record.sumCashback)}</div>
         </div>
       ),
     },
@@ -341,7 +330,7 @@ const MarketingTransactions: React.FC = () => {
       dataIndex: 'sum',
       key: 'sum',
       width: 100,
-      render: (sum: number) => formatCurrency(sum),
+      render: getCurrencyRender(),
     },
     {
       title: t('marketingTransactions.expandedColumns.comment'),
