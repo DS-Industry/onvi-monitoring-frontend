@@ -121,7 +121,8 @@
     "viewLoyalty": "Viewing a loyalty program",
     "creatingCampaign": "Creating a Marketing Campaign",
     "editingCampaign": "Editing a Marketing Campaign",
-    "viewBranch": "View Branch"
+    "viewBranch": "View Branch",
+    "marketingTransactions": "Transactions"
   },
   "dashboard": {
     "news": "News",
@@ -826,7 +827,10 @@
     "loyaltyCreated": "Loyalty Program created successfully",
     "loyaltyUpdated": "Loyalty Program updated successfully",
     "value": "Value",
-    "tier": "Tier"
+    "tier": "Tier",
+    "loyaltyProgram": "Loyalty Program",
+    "selectedProgram": "Selected program",
+    "selectProgramToViewTransactions": "Select a loyalty program to view transactions"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",

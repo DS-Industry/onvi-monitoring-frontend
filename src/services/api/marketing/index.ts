@@ -164,6 +164,74 @@ type UpdateLoyaltyRequest = {
   organizationIds?: number[];
 };
 
+export type OrderItem = {
+  id: number;
+  transactionId: string | null;
+  orderData: Date;
+  createData: Date;
+  sumFull: number;
+  sumReal: number;
+  sumBonus: number;
+  sumDiscount: number;
+  sumCashback: number;
+  platform: string;
+  contractType: string;
+  orderStatus: string;
+  orderHandlerStatus: string | null;
+  executionStatus: string | null;
+  
+  client: {
+    id: number;
+    name: string;
+    phone: string;
+  } | null;
+  
+  card: {
+    id: number;
+    unqNumber: string;
+    number: string;
+    balance: number;
+  } | null;
+  
+  device: {
+    id: number;
+    name: string;
+    carWashDeviceType: {
+      id: number;
+      name: string;
+      code: string;
+    } | null;
+  } | null;
+  
+  pos: {
+    id: number;
+    name: string;
+  } | null;
+  
+  bonusOpers: Array<{
+    id: number;
+    operDate: Date;
+    loadDate: Date;
+    sum: number;
+    comment: string | null;
+    type: {
+      id: number;
+      name: string;
+      signOper: string;
+    } | null;
+  }>;
+};
+
+export type LoyaltyProgramOrdersResponse = {
+  orders: OrderItem[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+};
+
 export type LoyaltyProgramsResponse = {
   props: {
     id: number;
@@ -419,6 +487,31 @@ export async function getLoyaltyPrograms(
     MARKETING.LOYALTY + `/participant-programs?organizationId=${orgId || ''}`
   );
 
+  return response.data;
+}
+
+export async function getLoyaltyProgramOrders(
+  programId: number,
+  params?: {
+    page?: number;
+    size?: number;
+    search?: string;
+    orderStatus?: string;
+    platform?: string;
+    contractType?: string;
+    dateFrom?: string;
+    dateTo?: string;
+  }
+): Promise<LoyaltyProgramOrdersResponse> {
+  console.log(programId);
+  
+  const response: AxiosResponse<LoyaltyProgramOrdersResponse> = await api.get(
+    `${MARKETING.LOYALTY}/program/${programId}/orders`,
+    { params }
+  );
+
+  console.log("getLoyaltyProgramOrders: ", response);
+  
   return response.data;
 }
 
