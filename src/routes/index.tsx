@@ -93,7 +93,7 @@ const ClientsProfile = React.lazy(
   () => import('@/pages/Marketing/ClientsProfile')
 );
 const NewSegment = React.lazy(() => import('@/pages/Marketing/NewSegment'));
-const MarketingTransactions = React.lazy(() => import('@/pages/Marketing/MarketingTransactions'));
+// const MarketingTransactions = React.lazy(() => import('@/pages/Marketing/MarketingTransactions'));
 const Collection = React.lazy(() => import('@/pages/Finance/Collection'));
 const CollectionCreation = React.lazy(
   () => import('@/pages/Finance/CollectionCreation')
@@ -134,6 +134,9 @@ const LoyaltyParticipantRequests = React.lazy(
 );
 const Cards = React.lazy(() => import('@/pages/Marketing/Cards'));
 const Card = React.lazy(() => import('@/pages/Marketing/Cards/Card'));
+const PromoCodeManagement = React.lazy(
+  () => import('@/pages/Marketing/PromoCodeManagement')
+);
 const EmployeeAdvanceCreation = React.lazy(
   () => import('@/pages/Hr/EmployeeAdvanceCreation')
 );
@@ -1095,15 +1098,15 @@ const routes = [
         subMenu: false,
       },
       {
-        name: 'marketingTransactions',
+        name: 'promoCodeManagement',
         isVisible: true,
-        path: '/marketing/marketing-transactions',
-        component: MarketingTransactions,
+        path: '/marketing/promo-code-management',
+        component: PromoCodeManagement,
         permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: true,
         subNav: [],
         subMenu: false,
-      },
+      }
     ],
     component: Marketing,
     isSidebar: true,

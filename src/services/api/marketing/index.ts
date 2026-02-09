@@ -1977,3 +1977,213 @@ export async function createPromocode(
   );
   return response.data;
 }
+
+export enum PromocodeFilterType {
+  ALL = 'all',
+  PERSONAL = 'personal',
+  CAMPAIGN = 'campaign',
+  STANDALONE = 'standalone',
+}
+
+export type PromocodeFilterParams = {
+  organizationId: number;
+  page?: number;
+  size?: number;
+  filter?: PromocodeFilterType | 'all' | 'personal' | 'campaign' | 'standalone';
+  isActive?: boolean;
+  search?: string;
+  personalUserId?: number;
+};
+
+export type PromocodeFullResponse = {
+  id: number;
+  code: string;
+  promocodeType: PromocodeType;
+  discountType?: PromocodeDiscountType;
+  discountValue?: number;
+  minOrderAmount?: number;
+  maxDiscountAmount?: number;
+  maxUsage?: number;
+  maxUsagePerUser?: number;
+  currentUsage?: number;
+  validFrom?: string;
+  validUntil?: string;
+  isActive: boolean;
+  createdReason?: string;
+  organizationId?: number;
+  posId?: number;
+  placementId?: number;
+  campaignId?: number;
+  personalUserId?: number;
+  createdAt?: string;
+  updatedAt?: string;
+};
+
+export type PersonalUser = {
+  id: number;
+  name: string;
+  phone: string;
+  email: string | null;
+};
+
+export type PersonalPromocodeResponse = {
+  id: number;
+  campaignId: number | null;
+  code: string;
+  promocodeType: string;
+  personalUserId: number | null;
+  discountType: string | null;
+  discountValue: number | null;
+  minOrderAmount: number | null;
+  maxDiscountAmount: number | null;
+  maxUsage: number | null;
+  maxUsagePerUser: number;
+  currentUsage: number;
+  validFrom: string;
+  validUntil: string | null;
+  isActive: boolean;
+  createdByManagerId: number | null;
+  createdReason: string | null;
+  organizationId: number | null;
+  posId: number | null;
+  placementId: number | null;
+  createdAt: string;
+  updatedAt: string;
+  personalUser: PersonalUser | null;
+};
+
+export type PersonalPromocodesParams = {
+  organizationId: number;
+  page?: number;
+  size?: number;
+  isActive?: boolean;
+  search?: string;
+  personalUserId?: number;
+};
+
+export type PersonalPromocodesPaginatedResponse = {
+  data: PersonalPromocodeResponse[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+};
+
+export type PromocodesPaginatedResponse = {
+  data: PersonalPromocodeResponse[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+};
+
+export async function getPromocodes(
+  params: PromocodeFilterParams
+): Promise<PromocodesPaginatedResponse> {
+  const response: AxiosResponse<PromocodesPaginatedResponse> = await api.get(
+    'user/loyalty/promocodes',
+    { params }
+  );
+  return response.data;
+}
+
+export async function getPersonalPromocodes(
+  params: PersonalPromocodesParams
+): Promise<PersonalPromocodesPaginatedResponse> {
+  const response: AxiosResponse<PersonalPromocodesPaginatedResponse> =
+    await api.get('user/loyalty/personal-promocodes', { params });
+  return response.data;
+}
+
+export async function getPromocodeById(
+  id: number
+): Promise<PromocodeFullResponse> {
+  const response: AxiosResponse<PromocodeFullResponse> = await api.get(
+    `user/loyalty/promocode/${id}`
+  );
+  return response.data;
+}
+
+export type UpdatePromocodeDto = {
+  campaignId?: number;
+  code?: string;
+  promocodeType?: PromocodeType;
+  personalUserId?: number | null;
+  discountType?: PromocodeDiscountType;
+  discountValue?: number;
+  minOrderAmount?: number;
+  maxDiscountAmount?: number;
+  maxUsage?: number;
+  maxUsagePerUser?: number;
+  validFrom?: string;
+  validUntil?: string;
+  isActive?: boolean;
+  createdReason?: string;
+  usageRestrictions?: any;
+  organizationId?: number;
+  posId?: number;
+  placementId?: number;
+};
+
+export async function updatePromocode(
+  id: number,
+  request: UpdatePromocodeDto
+): Promise<PromocodeFullResponse> {
+  const response: AxiosResponse<PromocodeFullResponse> = await api.patch(
+    `user/loyalty/promocode/${id}`,
+    request
+  );
+  return response.data;
+}
+
+export async function deletePromocode(
+  id: number
+): Promise<{ status: 'SUCCESS' }> {
+  const response: AxiosResponse<{ status: 'SUCCESS' }> = await api.delete(
+    `user/loyalty/promocode/${id}`
+  );
+  return response.data;
+}
+
+export type ManualTransactionRequest = {
+  clientId?: number;
+  cardId?: number;
+  amount: number;
+  type: 'DEPOSIT' | 'WITHDRAWAL' | 'BONUS_ACCRUAL' | 'BONUS_WRITEOFF';
+  description?: string;
+  organizationId: number;
+  posId?: number;
+  promocodeId?: number;
+};
+
+export type ManualTransactionResponse = {
+  id: number;
+  transactionId: string;
+  clientId?: number;
+  cardId?: number;
+  amount: number;
+  type: string;
+  description?: string;
+  organizationId: number;
+  posId?: number;
+  promocodeId?: number;
+  createdAt: string;
+  createdBy: {
+    id: number;
+    name: string;
+  };
+};
+
+export async function createManualTransaction(
+  request: ManualTransactionRequest
+): Promise<ManualTransactionResponse> {
+  const response: AxiosResponse<ManualTransactionResponse> = await api.post(
+    'user/loyalty/manual-transaction',
+    request
+  );
+  return response.data;
+}
