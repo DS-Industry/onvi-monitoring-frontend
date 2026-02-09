@@ -132,8 +132,10 @@ const LoyaltyParticipantRequests = React.lazy(
   () => import('@/pages/Marketing/LoyaltyParticipantRequests')
 );
 const Cards = React.lazy(() => import('@/pages/Marketing/Cards'));
-// TODO: Add Card component
-// const Card = React.lazy(() => import('@/pages/Marketing/Cards/Card'));
+const Card = React.lazy(() => import('@/pages/Marketing/Cards/Card'));
+const PromoCodeManagement = React.lazy(
+  () => import('@/pages/Marketing/PromoCodeManagement')
+);
 const EmployeeAdvanceCreation = React.lazy(
   () => import('@/pages/Hr/EmployeeAdvanceCreation')
 );
@@ -1084,6 +1086,26 @@ const routes = [
         subNav: [],
         subMenu: false,
       },
+      {
+        name: 'card',
+        isVisible: true,
+        path: '/marketing/cards/card/:cardId',
+        component: Card,
+        permissions: [{ action: 'update', subject: 'LTYProgram' }],
+        isSidebar: false,
+        subNav: [],
+        subMenu: false,
+      },
+      {
+        name: 'promoCodeManagement',
+        isVisible: true,
+        path: '/marketing/promo-code-management',
+        component: PromoCodeManagement,
+        permissions: [{ action: 'update', subject: 'LTYProgram' }],
+        isSidebar: true,
+        subNav: [],
+        subMenu: false,
+      }
     ],
     component: Marketing,
     isSidebar: true,

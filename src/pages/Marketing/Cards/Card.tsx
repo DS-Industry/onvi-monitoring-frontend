@@ -1,42 +1,103 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import useSWR from 'swr';
-import { getCardsPaginated, GetCardsPaginatedPayload } from '@/services/api/marketing';
-import { useUser } from '@/hooks/useUserStore';
-import { Spin, Card as AntCard, Typography } from 'antd';
+import useSWR, { mutate } from 'swr';
+import {
+  getCardById,
+  updateCard,
+  getTiers,
+  UpdateCardRequest,
+} from '@/services/api/marketing';
+import { Spin, Card as AntCard, Typography, Select, Button, message, Skeleton } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
+import { useToast } from '@/components/context/useContext';
 
 const { Title, Text } = Typography;
+const { Option } = Select;
 
 const Card: React.FC = () => {
   const { t } = useTranslation();
   const { cardId: cardIdParam } = useParams<{ cardId: string }>();
   const navigate = useNavigate();
-  const user = useUser();
+  const { showToast } = useToast();
 
   const cardId = cardIdParam ? Number(cardIdParam) : undefined;
 
-  const cardParams: GetCardsPaginatedPayload = React.useMemo(
-    () => ({
-      organizationId: user.organizationId!,
-      page: 1,
-      size: 1000,
-    }),
-    [user.organizationId]
-  );
+  const [selectedTierId, setSelectedTierId] = useState<number | undefined>(undefined);
+  const [selectedStatus, setSelectedStatus] = useState<'ACTIVE' | 'INACTIVE'>('ACTIVE');
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  const { data: cardsData, isLoading } = useSWR(
-    user.organizationId && cardId
-      ? ['get-cards-paginated-detail', cardParams, cardId]
-      : null,
-    ([, params]) => getCardsPaginated(params),
+  const { data: card, isLoading } = useSWR(
+    cardId ? ['get-card-by-id', cardId] : null,
+    ([, id]) => getCardById(id),
     {
       shouldRetryOnError: false,
     }
   );
 
-  const card = cardsData?.cards.find(c => c.id === cardId);
+  const ltyProgramId = card?.cardTier?.ltyProgramId;
+
+  const { data: tiersData, isLoading: tiersLoading } = useSWR(
+    ltyProgramId ? ['get-tiers', ltyProgramId] : null,
+    ([, programId]) => getTiers({ programId }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
+
+  React.useEffect(() => {
+    if (card?.cardTier?.id) {
+      setSelectedTierId(card.cardTier.id);
+    }
+  }, [card]);
+
+  React.useEffect(() => {
+    if (card?.status === 'INACTIVE') {
+      setSelectedStatus('INACTIVE');
+    } else {
+      setSelectedStatus('ACTIVE');
+    }
+  }, [card]);
+
+  const handleUpdateCard = async () => {
+    if (!cardId) {
+      message.error('Card ID not found');
+      return;
+    }
+
+    const updatePayload: UpdateCardRequest = {};
+
+    if (selectedTierId !== undefined) {
+      const currentTierId = card?.cardTier?.id;
+      if (selectedTierId !== currentTierId) {
+        updatePayload.cardTierId = selectedTierId;
+      }
+    }
+
+    const currentStatus = card?.status === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE';
+    if (selectedStatus !== currentStatus) {
+      updatePayload.status = selectedStatus === 'INACTIVE' ? 'INACTIVE' : null;
+    }
+
+    if (Object.keys(updatePayload).length === 0) {
+      message.info(t('marketing.noChanges') || 'No changes to save');
+      return;
+    }
+
+    setIsUpdating(true);
+    try {
+      await updateCard(cardId, updatePayload);
+      showToast(t('routes.savedSuccessfully') || 'Card updated successfully', 'success');
+      await mutate(['get-card-by-id', cardId]);
+    } catch (error) {
+      console.error('Failed to update card:', error);
+      showToast(t('marketing.cardUpdateError') || 'Failed to update card', 'error');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -104,23 +165,73 @@ const Card: React.FC = () => {
             </Title>
           </div>
 
-          {card.cardTier && (
+          <div>
+            <Text className="text-text02 text-sm">{t('marketing.level')}:</Text>
+            {tiersLoading ? (
+              <div className="mt-2">
+                <Skeleton.Input active style={{ width: '100%', height: 32 }} />
+              </div>
+            ) : (
+              <>
+                <Select
+                  className="w-full mt-2"
+                  placeholder={t('marketing.selectTier') || 'Select Tier'}
+                  value={selectedTierId}
+                  onChange={setSelectedTierId}
+                  allowClear
+                >
+                  {tiersData?.map(tier => (
+                    <Option key={tier.id} value={tier.id}>
+                      {tier.name} ({t('marketing.discount')} {Math.floor(tier.limitBenefit)}%)
+                    </Option>
+                  ))}
+                </Select>
+                {card.cardTier && (
+                  <Text className="text-text02 text-xs mt-1 block">
+                    {t('marketing.currentTier') || 'Current'}: {card.cardTier.name}
+                  </Text>
+                )}
+              </>
+            )}
+          </div>
+
+          <div>
+            <Text className="text-text02 text-sm">{t('marketing.status') || 'Status'}:</Text>
+            <Select
+              className="w-full mt-2"
+              placeholder={t('marketing.selectStatus') || 'Select Status'}
+              value={selectedStatus}
+              onChange={setSelectedStatus}
+            >
+              <Option value="ACTIVE">{t('marketing.active')}</Option>
+              <Option value="INACTIVE">{t('marketing.inactive')}</Option>
+            </Select>
+          </div>
+
+          {card.corporate && (
             <div>
-              <Text className="text-text02 text-sm">{t('marketing.level')}:</Text>
+              <h1 className="text-text02 text-sm">{t('marketing.corporationName')}:</h1>
               <Title level={4} className="mt-1 mb-0">
-                {card.cardTier.name}
+                {card.corporate.name}
               </Title>
-              <Text className="text-text02 text-sm">
-                {t('marketing.discount')} {Math.floor(card.cardTier.limitBenefit)}%
+              <Text className="text-text02 text-xs mt-1 block">
+                INN: {card.corporate.inn}
+              </Text>
+              <Text className="text-text02 text-xs mt-1 block">
+                {t('marketing.address')}: {card.corporate.address}
               </Text>
             </div>
           )}
 
-          <div>
-            <Text className="text-text02 text-sm">{t('marketing.isCorporate')}:</Text>
-            <Title level={4} className="mt-1 mb-0">
-              {card.isCorporate ? t('equipment.yes') : t('equipment.no')}
-            </Title>
+          <div className="pt-4 border-t">
+            <Button
+              type="primary"
+              onClick={handleUpdateCard}
+              loading={isUpdating}
+              disabled={isUpdating}
+            >
+              {t('organizations.save') || 'Save Changes'}
+            </Button>
           </div>
         </div>
       </AntCard>
