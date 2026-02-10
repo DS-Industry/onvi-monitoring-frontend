@@ -35,7 +35,8 @@ interface UpdateTechTaskInfoPanelProps {
     firstName: string;
     lastName: string;
     id: number;
-  }
+  };
+  sendWorkDate?: Date;
 }
 
 const UpdateTechTaskInfoPanel: React.FC<UpdateTechTaskInfoPanelProps> = ({
@@ -44,6 +45,7 @@ const UpdateTechTaskInfoPanel: React.FC<UpdateTechTaskInfoPanelProps> = ({
   tagsData,
   createdBy,
   executor,
+  sendWorkDate,
 }) => {
   const { t } = useTranslation();
 
@@ -59,6 +61,8 @@ const UpdateTechTaskInfoPanel: React.FC<UpdateTechTaskInfoPanelProps> = ({
 
   const workType = Form.useWatch('type', form);
   const periodType = Form.useWatch('periodType', form);
+
+  const isSendWorkDateDisabled = !isEditMode || Boolean(sendWorkDate);
 
   return (
     <div className="w-full lg:w-[450px] flex flex-col gap-4 lg:flex-shrink-0">
@@ -172,6 +176,23 @@ const UpdateTechTaskInfoPanel: React.FC<UpdateTechTaskInfoPanelProps> = ({
             format="DD.MM.YYYY"
             className="w-full"
             disabled={!isEditMode}
+          />
+        </Form.Item>
+
+        <Form.Item 
+          name="sendWorkDate" 
+          label={
+            <span>
+              <CalendarOutlined className="mr-2" /> {t('techTasks.reportDate')} 
+            </span>
+          }
+        >
+          <DatePicker
+            placeholder={t('techTasks.selectReportDate')}
+            size="large"
+            format="DD.MM.YYYY"
+            className="w-full"
+            disabled={isSendWorkDateDisabled}
           />
         </Form.Item>
 

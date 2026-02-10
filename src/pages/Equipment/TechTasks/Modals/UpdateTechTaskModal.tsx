@@ -144,7 +144,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
 
   useEffect(() => {
     initForm()
-  }, [techTaskDetails, open, form, templates]);
+  }, [techTaskDetails, open, form, templates, isEditMode]);
 
   const initForm = () => {
     if (techTaskDetails && open && templates.length > 0) {
@@ -163,7 +163,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       });
 
       setSelectedTemplates(selectedTemplatesList);
-      setAvailableTemplates(availableTemplatesList);
+      setAvailableTemplates(availableTemplatesList);      
 
       form.setFieldsValue({
         name: techTaskDetails.name,
@@ -173,6 +173,9 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
         customPeriodDays: techTaskDetails.periodType === PeriodType.CUSTOM ? techTaskDetails.customPeriodDays : undefined,
         markdownDescription: techTaskDetails.markdownDescription || '',
         endDate: techTaskDetails.endSpecifiedDate ? dayjs(techTaskDetails.endSpecifiedDate) : undefined,
+        sendWorkDate: techTaskDetails.sendWorkDate 
+          ? dayjs(techTaskDetails.sendWorkDate) 
+          : (isEditMode ? dayjs() : undefined),
         tags: techTaskDetails.tags?.map(tag => tag.id) || [],
       });
 
@@ -265,6 +268,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
         customPeriodDays: values.periodType === PeriodType.CUSTOM ? Number(values.customPeriodDays) : undefined,
         markdownDescription: values.markdownDescription,
         endSpecifiedDate: values.endDate ? dayjs(values.endDate).toDate() : undefined,
+        sendWorkDate: values.sendWorkDate ? dayjs(values.sendWorkDate).toDate() : undefined,
         techTaskItem: selectedTemplates.map(item => item.id),
         tagIds: values.tags || [],
       };
@@ -415,6 +419,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                   tagsData={tagsData}
                   createdBy={techTaskDetails?.createdBy}
                   executor={techTaskDetails?.executor}
+                  sendWorkDate={techTaskDetails?.sendWorkDate} 
                 />
               </div>
             </div>
