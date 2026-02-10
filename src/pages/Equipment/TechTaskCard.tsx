@@ -122,9 +122,14 @@ const TechTaskCard: React.FC<Props> = ({
     {} as Record<string, TechTasksItem[]>
   );
 
-  Object.keys(grouped).forEach(group => {
-    grouped[group].sort((a, b) => a.id - b.id);
-  });
+  const groupOrder = Array.from(
+    new Set(items.map(item => item.group))
+  );
+  
+  const sortedGroupEntries = groupOrder.map(group => ({ 
+    groupName: group, 
+    groupItems: grouped[group] 
+  }));
 
   const toggleGroup = (group: string) => {
     setOpenGroups(prev => ({ ...prev, [group]: !prev[group] }));
@@ -148,16 +153,12 @@ const TechTaskCard: React.FC<Props> = ({
     });
   };
 
-  const sortedGroupEntries = Object.entries(grouped).sort(([a], [b]) =>
-    a.localeCompare(b)
-  );
-
   return (
     <div>
       <List
         dataSource={sortedGroupEntries}
         locale={{ emptyText: ' ' }}
-        renderItem={([groupName, groupItems]) => (
+        renderItem={({ groupName, groupItems }) => (
           <List.Item className="w-full">
             <Card className="w-full">
               <div
