@@ -1894,7 +1894,7 @@
     "paused": "Paused",
     "returned": "Returned",
     "finished": "Finished",
-    "overdue": "Overdue",
+    "overdue": "Overdue", 
     "templateCompletion": "Template Completion",
     "noTemplates": "No templates available",
     "complete": "Complete",
@@ -1905,7 +1905,9 @@
     "executionProgress": "Execution Progress",
     "taskComments": "Task Comments",
     "noComments": "No comments yet",
-    "send": "Send"
+    "send": "Send",
+    "reportDate": "Report date",
+    "selectReportDate": "Select report date"
   },
   "progressReport": {
     "columns": {
