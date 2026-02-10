@@ -2,16 +2,17 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Notification from '@ui/Notification.tsx';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import {
   LoyaltyParticipantProgramsPaginatedResponse,
   LoyaltyProgramParticipantResponseDto,
   LoyaltyProgramStatus,
   ParticipationRole,
   getLoyaltyProgramsPaginated,
+  deleteLoyaltyProgram,
 } from '@/services/api/marketing';
-import { Button, Input, Pagination, Table } from 'antd';
-import { CopyOutlined, PlusOutlined, TableOutlined } from '@ant-design/icons';
+import { Button, Input, Pagination, Table, Popconfirm, Space } from 'antd';
+import { CopyOutlined, PlusOutlined, TableOutlined, DeleteOutlined } from '@ant-design/icons';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
 import { useUser } from '@/hooks/useUserStore';
@@ -26,6 +27,7 @@ import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
+import { useToast } from '@/components/context/useContext';
 
 const MarketingLoyalty: React.FC = () => {
   const { t } = useTranslation();
@@ -33,6 +35,7 @@ const MarketingLoyalty: React.FC = () => {
   const [notificationVisible, setNotificationVisible] = useState(true);
   const [isParticipantModalOpen, setIsParticipantModalOpen] = useState(false);
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const name = searchParams.get('name') || undefined;
   const status =
     (searchParams.get('status') as LoyaltyProgramStatus) || undefined;
@@ -73,28 +76,28 @@ const MarketingLoyalty: React.FC = () => {
 
   const hasPermission = user?.organizationId
     ? permissions.some(
-        permission =>
-          (permission.action === 'create' ||
-            permission.action === 'manage' ||
-            permission.action === 'read') &&
-          permission.subject === 'Pos' &&
-          Array.isArray(permission.conditions?.organizationId?.in) &&
-          permission.conditions.organizationId.in.includes(user.organizationId!)
-      )
+      permission =>
+        (permission.action === 'create' ||
+          permission.action === 'manage' ||
+          permission.action === 'read') &&
+        permission.subject === 'Pos' &&
+        Array.isArray(permission.conditions?.organizationId?.in) &&
+        permission.conditions.organizationId.in.includes(user.organizationId!)
+    )
     : false;
 
   const { data: loyaltyProgramsData, isLoading: loyaltyProgramsLoading } =
     useSWR<LoyaltyParticipantProgramsPaginatedResponse>(
       user.organizationId
         ? [
-            'get-loyalty-programs',
-            user.organizationId,
-            status,
-            participationRole,
-            currentPage,
-            pageSize,
-            name,
-          ]
+          'get-loyalty-programs',
+          user.organizationId,
+          status,
+          participationRole,
+          currentPage,
+          pageSize,
+          name,
+        ]
         : null,
       () =>
         getLoyaltyProgramsPaginated({
@@ -120,80 +123,135 @@ const MarketingLoyalty: React.FC = () => {
   const statusRender = getStatusTagRender(t);
   const dateRender = getDateRender();
 
+  const handleDelete = async (id: number) => {
+    try {
+      await deleteLoyaltyProgram(id);
+      mutate([
+        'get-loyalty-programs',
+        user.organizationId,
+        status,
+        participationRole,
+        currentPage,
+        pageSize,
+        name,
+      ]);
+      showToast(t('success.recordDeleted') || 'Loyalty program deleted successfully', 'success');
+    } catch (error: any) {
+      console.error('Delete failed:', error);
+      const errorMessage = error?.response?.data?.message ||
+        t('errors.deleteFailed') ||
+        'Failed to delete loyalty program';
+      showToast(errorMessage, 'error');
+    }
+  };
+
   const columnsLoyaltyPrograms: ColumnsType<
     LoyaltyProgramParticipantResponseDto['props']
   > = [
-    {
-      title: t('loyaltyProgramsTable.programName'),
-      dataIndex: 'name',
-      key: 'name',
-      render: (text: string, record) => {
-        return (
-          <>
-            <Link
-              to={{
-                pathname: `/marketing/loyalty/program/${record.id}`,
-                search: `?loyaltyProgramId=${record.id}&step=1&mode=edit`,
-              }}
-              className="text-blue-500 hover:text-blue-700 font-semibold"
-            >
-              {text}
-            </Link>
-          </>
-        );
+      {
+        title: t('loyaltyProgramsTable.programName'),
+        dataIndex: 'name',
+        key: 'name',
+        render: (text: string, record) => {
+          return (
+            <>
+              <Link
+                to={{
+                  pathname: `/marketing/loyalty/program/${record.id}`,
+                  search: `?loyaltyProgramId=${record.id}&step=1&mode=edit`,
+                }}
+                className="text-blue-500 hover:text-blue-700 font-semibold"
+              >
+                {text}
+              </Link>
+            </>
+          );
+        },
       },
-    },
-    {
-      title: t('loyaltyProgramsTable.status'),
-      dataIndex: 'status',
-      key: 'status',
-      render: statusRender,
-    },
-    {
-      title: t('loyaltyProgramsTable.launchDate'),
-      dataIndex: 'startDate',
-      key: 'startDate',
-      render: dateRender,
-    },
-    {
-      title: t('loyaltyProgramsTable.participationStatus'),
-      dataIndex: 'type',
-      key: 'type',
-      render: (_, record) => (
-        <span>
-          {record.ownerOrganizationId === user.organizationId ? (
-            <>{t('loyaltyProgramsTable.owner')}</>
-          ) : (
-            <>{t('loyaltyProgramsTable.participant')}</>
-          )}
-        </span>
-      ),
-    },
-    {
-      title: t('marketing.ty'),
-      dataIndex: 'isHub',
-      key: 'isHub',
-      render: (_, record) => (
-        <span>
-          {record.isHub ? (
-            <>{t('marketing.hub')}</>
-          ) : (
-            <>{t('loyaltyProgramsTable.regularProgram')}</>
-          )}
-        </span>
-      ),
-    },
-    {
-      title: t('marketingLoyalty.numberOfBranches'),
-      dataIndex: 'connectedPoses',
-      key: 'connectedPoses',
-    },
-    {
-      title: t('marketingLoyalty.numberOfClients'),
-      dataIndex: 'engagedClients',
-      key: 'engagedClients',
-    },
-  ];
+      {
+        title: t('loyaltyProgramsTable.status'),
+        dataIndex: 'status',
+        key: 'status',
+        render: statusRender,
+      },
+      {
+        title: t('loyaltyProgramsTable.launchDate'),
+        dataIndex: 'startDate',
+        key: 'startDate',
+        render: dateRender,
+      },
+      {
+        title: t('loyaltyProgramsTable.participationStatus'),
+        dataIndex: 'type',
+        key: 'type',
+        render: (_, record) => (
+          <span>
+            {record.ownerOrganizationId === user.organizationId ? (
+              <>{t('loyaltyProgramsTable.owner')}</>
+            ) : (
+              <>{t('loyaltyProgramsTable.participant')}</>
+            )}
+          </span>
+        ),
+      },
+      {
+        title: t('marketing.ty'),
+        dataIndex: 'isHub',
+        key: 'isHub',
+        render: (_, record) => (
+          <span>
+            {record.isHub ? (
+              <>{t('marketing.hub')}</>
+            ) : (
+              <>{t('loyaltyProgramsTable.regularProgram')}</>
+            )}
+          </span>
+        ),
+      },
+      {
+        title: t('marketingLoyalty.numberOfBranches'),
+        dataIndex: 'connectedPoses',
+        key: 'connectedPoses',
+      },
+      {
+        title: t('marketingLoyalty.numberOfClients'),
+        dataIndex: 'engagedClients',
+        key: 'engagedClients',
+      },
+      {
+        title: t('constants.actions'),
+        key: 'actions',
+        width: 100,
+        render: (_: any, record) => {
+          const isOwner = record.ownerOrganizationId === user.organizationId;
+
+          if (!isOwner) {
+            return null;
+          }
+
+          return (
+            <Space>
+              <Popconfirm
+                title={t('techTasks.confirmDelete')}
+                onConfirm={() => handleDelete(record.id)}
+                okText={t('common.delete')}
+                okType="danger"
+                cancelText={t('common.cancel')}
+              >
+                <Button
+                  type="link"
+                  danger
+                  icon={<DeleteOutlined />}
+                  size="small"
+                >
+                  {t('common.delete')}
+                </Button>
+              </Popconfirm>
+            </Space>
+          );
+        },
+      },
+    ];
 
   return (
     <>

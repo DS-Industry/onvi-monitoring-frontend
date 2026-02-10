@@ -554,6 +554,16 @@ export async function getLoyaltyProgramById(
   return response.data;
 }
 
+export async function deleteLoyaltyProgram(
+  id: number
+): Promise<{ message: string }> {
+  const response: AxiosResponse<{ message: string }> = await api.delete(
+    MARKETING.LOYALTY + `/program/${id}`
+  );
+
+  return response.data;
+}
+
 export async function requestHubStatus(
   id: number,
   comment?: string
