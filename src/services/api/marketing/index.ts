@@ -1221,6 +1221,40 @@ export async function getCorporateClientOperationsById(
   return response.data;
 }
 
+export type CreateCorporateBonusOperationRequest = {
+  cardId: number;
+  typeOperId: number;
+  sum: number;
+  comment?: string;
+  carWashDeviceId: number;
+};
+
+export type CreateCorporateBonusOperationResponse = {
+  id: number;
+  cardMobileUserId: number;
+  carWashDeviceId: number;
+  typeOperId: number;
+  operDate: string;
+  loadDate: string;
+  sum: number;
+  comment: string;
+  creatorId: number;
+  orderMobileUserId: number;
+};
+
+export async function createCorporateBonusOperation(
+  corporateClientId: number,
+  request: CreateCorporateBonusOperationRequest
+): Promise<CreateCorporateBonusOperationResponse> {
+  const response: AxiosResponse<CreateCorporateBonusOperationResponse> =
+    await api.post(
+      `user/loyalty/corporate-clients/${corporateClientId}/bonus-operations`,
+      request
+    );
+
+  return response.data;
+}
+
 export async function getMarketingCampaign(
   filters: MarketingCampaignsFilterDto
 ): Promise<MarketingCampaignsPaginatedResponseDto> {
