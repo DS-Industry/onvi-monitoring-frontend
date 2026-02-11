@@ -7,7 +7,7 @@ import {
 import { useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
-import { Table, Modal } from 'antd';
+import { Table } from 'antd';
 import { formatNumber } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
@@ -17,335 +17,8 @@ import {
   formatTimeDisplay
 } from '@/utils/timeFormatter';
 
-interface MiniChartProps {
-  dataFact: { period: string; value: number }[];
-  dataRecalculated: { period: string; value: number }[];
-  width?: number;
-  height?: number;
-  isLarge?: boolean;
-  onPointHover?: (period: string, factValue: number, recalcValue: number) => void;
-}
-
-const MiniChart: React.FC<MiniChartProps> = ({
-  dataFact,
-  dataRecalculated,
-  width = 110,
-  height = 32,
-  isLarge = false,
-  onPointHover,
-}) => {
-  const { t } = useTranslation();
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  
-  const factColor = '#1890ff';
-  const recalculatedColor = '#fa8c16';
-
-  const allValues = [
-    ...(dataFact || []).map(item => item.value),
-    ...(dataRecalculated || []).map(item => item.value)
-  ];
-
-  if (!dataFact || !dataRecalculated || allValues.length < 2) {
-    return (
-      <div
-        style={{
-          width,
-          height,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: '#999',
-          fontSize: isLarge ? '14px' : '10px'
-        }}
-      >
-        {t('chemicalConsumption.noData')}
-      </div>
-    );
-  }
-
-  const max = Math.max(...allValues);
-  const min = Math.min(...allValues);
-  const range = max - min || 1;
-
-  const calculatePoints = (data: { period: string; value: number }[]) => {
-    return data
-      .map((item, index) => {
-        const x = (index / (data.length - 1)) * (width - (isLarge ? 40 : 10)) + (isLarge ? 20 : 5);
-        const y = height - (isLarge ? 10 : 5) - ((item.value - min) / range) * (height - (isLarge ? 20 : 10));
-        return `${x},${y}`;
-      })
-      .join(' ');
-  };
-
-  const factPoints = calculatePoints(dataFact);
-  const recalculatedPoints = calculatePoints(dataRecalculated);
-
-  const handlePointMouseEnter = (index: number) => {
-    setHoveredIndex(index);
-    if (onPointHover && dataFact[index] && dataRecalculated[index]) {
-      onPointHover(dataFact[index].period, dataFact[index].value, dataRecalculated[index].value);
-    }
-  };
-
-  const handlePointMouseLeave = () => {
-    setHoveredIndex(null);
-  };
-
-  const strokeWidth = isLarge ? 3 : 2;
-  const pointRadius = isLarge ? 3 : 1;
-  const hoverAreaRadius = isLarge ? 8 : 4;
-  const hoverPointRadius = isLarge ? 5 : 3;
-
-  return (
-    <div
-      style={{
-        position: 'relative',
-        width,
-        height,
-        cursor: 'pointer'
-      }}
-      onMouseLeave={handlePointMouseLeave}
-    >
-      <svg
-        width={width}
-        height={height}
-        style={{ overflow: 'visible' }}
-      >
-        <rect
-          x={isLarge ? 17 : 2}
-          y={isLarge ? 17 : 2}
-          width={width - (isLarge ? 34 : 4)}
-          height={height - (isLarge ? 34 : 4)}
-          fill="#fafafa"
-          stroke="#f0f0f0"
-          strokeWidth="0.5"
-          rx="3"
-        />
-
-        <line
-          x1={isLarge ? 20 : 5}
-          y1={height - (isLarge ? 10 : 5)}
-          x2={width - (isLarge ? 20 : 5)}
-          y2={height - (isLarge ? 10 : 5)}
-          stroke="#d9d9d9"
-          strokeWidth="0.5"
-        />
-
-        <polyline
-          points={recalculatedPoints}
-          fill="none"
-          stroke={recalculatedColor}
-          strokeWidth={strokeWidth - 0.5}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.8"
-        />
-
-        <polyline
-          points={factPoints}
-          fill="none"
-          stroke={factColor}
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-
-        {dataFact.map((item, index) => {
-          const x = (index / (dataFact.length - 1)) * (width - (isLarge ? 40 : 10)) + (isLarge ? 20 : 5);
-          const y = height - (isLarge ? 10 : 5) - ((item.value - min) / range) * (height - (isLarge ? 20 : 10));
-
-          const isHovered = hoveredIndex === index;
-
-          return (
-            <g key={`fact-${index}`}>
-              <circle
-                cx={x}
-                cy={y}
-                r={hoverAreaRadius}
-                fill="transparent"
-                onMouseEnter={() => handlePointMouseEnter(index)}
-              />
-              <circle
-                cx={x}
-                cy={y}
-                r={isHovered ? hoverPointRadius : pointRadius}
-                fill={factColor}
-              />
-            </g>
-          );
-        })}
-
-        {dataRecalculated.map((item, index) => {
-          const x = (index / (dataRecalculated.length - 1)) * (width - (isLarge ? 40 : 10)) + (isLarge ? 20 : 5);
-          const y = height - (isLarge ? 10 : 5) - ((item.value - min) / range) * (height - (isLarge ? 20 : 10));
-
-          const isHovered = hoveredIndex === index;
-
-          return (
-            <g key={`recalc-${index}`}>
-              <circle
-                cx={x}
-                cy={y}
-                r={hoverAreaRadius}
-                fill="transparent"
-                onMouseEnter={() => handlePointMouseEnter(index)}
-              />
-              <circle
-                cx={x}
-                cy={y}
-                r={isHovered ? hoverPointRadius : pointRadius}
-                fill={recalculatedColor}
-              />
-            </g>
-          );
-        })}
-      </svg>
-    </div>
-  );
-};
-
-interface ChartModalProps {
-  visible: boolean;
-  onClose: () => void;
-  category: string;
-  dataFact: { period: string; value: number }[];
-  dataRecalculated: { period: string; value: number }[];
-}
-
-const ChartModal: React.FC<ChartModalProps> = ({
-  visible,
-  onClose,
-  category,
-  dataFact,
-  dataRecalculated,
-}) => {
-  const { t } = useTranslation();
-  const [tooltipData, setTooltipData] = useState<{
-    period: string;
-    factValue: number;
-    recalcValue: number;
-  } | null>(dataFact.length > 0 && dataRecalculated.length > 0 ? {
-    period: dataFact[dataFact.length - 1].period,
-    factValue: dataFact[dataFact.length - 1].value,
-    recalcValue: dataRecalculated[dataRecalculated.length - 1].value
-  } : null);
-
-  useEffect(() => {
-    if (visible && dataFact.length > 0 && dataRecalculated.length > 0 && !tooltipData) {
-      setTooltipData({
-        period: dataFact[dataFact.length - 1].period,
-        factValue: dataFact[dataFact.length - 1].value,
-        recalcValue: dataRecalculated[dataRecalculated.length - 1].value
-      });
-    }
-  }, [visible, dataFact, dataRecalculated]);
-
-  const handlePointHover = (period: string, factValue: number, recalcValue: number) => {
-    setTooltipData({
-      period,
-      factValue,
-      recalcValue
-    });
-  };
-
-  return (
-    <Modal
-      title={`${t('chemicalConsumption.chartTitle')}: ${category}`}
-      open={visible}
-      onCancel={onClose}
-      footer={null}
-      width={700}
-      centered
-    >
-      <div style={{
-        marginBottom: '20px',
-        padding: '15px',
-        backgroundColor: '#fafafa',
-        border: '1px solid #e8e8e8',
-        borderRadius: '4px'
-      }}>
-        {tooltipData ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#333' }}>
-              {t('chemicalConsumption.period')}: {tooltipData.period}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{
-                  width: '12px',
-                  height: '12px',
-                  backgroundColor: '#1890ff',
-                  borderRadius: '2px'
-                }} />
-                <span style={{ fontSize: '13px' }}>{t('chemicalConsumption.fact')}:</span>
-                <span style={{
-                  fontWeight: 'bold',
-                  fontSize: '14px',
-                  color: '#1890ff'
-                }}>
-                  {formatNumber(tooltipData.factValue)}
-                </span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{
-                  width: '12px',
-                  height: '12px',
-                  backgroundColor: '#fa8c16',
-                  borderRadius: '2px'
-                }} />
-                <span style={{ fontSize: '13px' }}>{t('chemicalConsumption.recalculation')}:</span>
-                <span style={{
-                  fontWeight: 'bold',
-                  fontSize: '14px',
-                  color: '#fa8c16'
-                }}>
-                  {formatNumber(tooltipData.recalcValue)}
-                </span>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div style={{ textAlign: 'center', color: '#999' }}>
-            {t('chemicalConsumption.noDataToDisplay')}
-          </div>
-        )}
-      </div>
-
-      <div
-        style={{
-          position: 'relative',
-          height: '300px',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
-        }}
-      >
-        <MiniChart
-          dataFact={dataFact}
-          dataRecalculated={dataRecalculated}
-          width={600}
-          height={250}
-          isLarge={true}
-          onPointHover={handlePointHover}
-        />
-      </div>
-
-      <div style={{
-        marginTop: '20px',
-        paddingTop: '15px',
-        borderTop: '1px solid #f0f0f0',
-        fontSize: '12px',
-        color: '#666'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <strong>{t('chemicalConsumption.numberOfPeriods')}:</strong> {dataFact.length}
-          </div>
-        </div>
-      </div>
-    </Modal>
-  );
-};
+import MiniChart from './MiniChart';
+import ChartModal from './ChartModal';
 
 interface TableRow {
   period: string;
@@ -386,6 +59,16 @@ const transformDataToTableRows = (
 
     return row;
   });
+};
+
+const parseValueToNumber = (value: string | number | undefined): number => {
+  if (value === undefined || value === null) return 0;
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') {
+    const num = parseFloat(value.replace(',', '.'));
+    return isNaN(num) ? 0 : num;
+  }
+  return 0;
 };
 
 const ChemicalConsumption: React.FC = () => {
@@ -435,16 +118,6 @@ const ChemicalConsumption: React.FC = () => {
   useEffect(() => {
     setExpandedRowKeys([]);
   }, [data]);
-
-  const parseValueToNumber = (value: string | number | undefined): number => {
-    if (value === undefined || value === null) return 0;
-    if (typeof value === 'number') return value;
-    if (typeof value === 'string') {
-      const num = parseFloat(value.replace(',', '.'));
-      return isNaN(num) ? 0 : num;
-    }
-    return 0;
-  };
 
   const getChartDataForCategory = (categoryKey: string, type: 'fact' | 'recalculated') => {
     if (!tableRows || tableRows.length === 0) return [];
