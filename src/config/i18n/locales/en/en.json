@@ -2051,7 +2051,12 @@
     "diskWash": "Disk wash",
     "brushFoam": "Brush + foam",
     "waxProtection": "Wax + protection",
-    "tPower": "T-POWER"
+    "tPower": "T-POWER",
+    "trend": "Graph",
+    "noData": "No data",
+    "chartTitle": "Consumption graph",
+    "noDataToDisplay": "No data to display",
+    "numberOfPeriods": "Number of periods"
   },
   "marketingCampaigns": {
     "terms": "Terms and conditions and prizes",
