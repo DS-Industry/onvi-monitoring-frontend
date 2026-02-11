@@ -11,11 +11,14 @@ import { Table } from 'antd';
 import { formatNumber } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
-import { 
-  parseTimeToSeconds, 
+import {
+  parseTimeToSeconds,
   formatSecondsToTime,
-  formatTimeDisplay 
+  formatTimeDisplay
 } from '@/utils/timeFormatter';
+
+import MiniChart from './MiniChart';
+import ChartModal from './ChartModal';
 
 interface TableRow {
   period: string;
@@ -27,6 +30,8 @@ interface ExpandedData {
   fact: string | number;
   time: string | number;
   recalculated: string | number;
+  chartDataFact?: { period: string; value: number }[];
+  chartDataRecalculated?: { period: string; value: number }[];
 }
 
 const transformDataToTableRows = (
@@ -54,6 +59,16 @@ const transformDataToTableRows = (
 
     return row;
   });
+};
+
+const parseValueToNumber = (value: string | number | undefined): number => {
+  if (value === undefined || value === null) return 0;
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') {
+    const num = parseFloat(value.replace(',', '.'));
+    return isNaN(num) ? 0 : num;
+  }
+  return 0;
 };
 
 const ChemicalConsumption: React.FC = () => {
@@ -93,49 +108,58 @@ const ChemicalConsumption: React.FC = () => {
   const tableRows = transformDataToTableRows(data);
 
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedChartData, setSelectedChartData] = useState<{
+    category: string;
+    dataFact: { period: string; value: number }[];
+    dataRecalculated: { period: string; value: number }[];
+  } | null>(null);
 
   useEffect(() => {
     setExpandedRowKeys([]);
   }, [data]);
 
-  const parseValueToNumber = (value: string | number | undefined): number => {
-    if (value === undefined || value === null) return 0;
-    if (typeof value === 'number') return value;
-    if (typeof value === 'string') {
-      const num = parseFloat(value.replace(',', '.'));
-      return isNaN(num) ? 0 : num;
-    }
-    return 0;
+  const getChartDataForCategory = (categoryKey: string, type: 'fact' | 'recalculated') => {
+    if (!tableRows || tableRows.length === 0) return [];
+
+    const dataKey = type === 'fact' ? 'факт' : 'пересчет';
+    return tableRows
+      .filter(row => row.period)
+      .map(row => ({
+        period: row.period,
+        value: parseValueToNumber(row[`${categoryKey}, ${dataKey}`])
+      }))
+      .filter(item => !isNaN(item.value) && item.value !== null);
   };
 
   const getExpandedDataForRow = (row: TableRow): ExpandedData[] => {
     const categories = [
-      { 
+      {
         translationKey: 'chemicalConsumption.waterShampoo',
         dataKey: 'Вода + шампунь'
       },
-      { 
-        translationKey: 'chemicalConsumption.activeChemistry', 
+      {
+        translationKey: 'chemicalConsumption.activeChemistry',
         dataKey: 'Активная химия'
       },
-      { 
+      {
         translationKey: 'chemicalConsumption.diskWash',
         dataKey: 'Мойка дисков'
       },
-      { 
+      {
         translationKey: 'chemicalConsumption.brushFoam',
         dataKey: 'Щетка + пена'
       },
-      { 
+      {
         translationKey: 'chemicalConsumption.waxProtection',
         dataKey: 'Воск + защита'
       },
-      { 
+      {
         translationKey: 'chemicalConsumption.tPower',
         dataKey: 'T-POWER'
       },
     ];
-    
+
     return categories.map(({ translationKey, dataKey }) => ({
       category: t(translationKey),
       fact: row[`${dataKey}, факт`] || 0,
@@ -147,7 +171,7 @@ const ChemicalConsumption: React.FC = () => {
   const calculateTotals = () => {
     const categories = [
       'Вода + шампунь',
-      'Активная химия', 
+      'Активная химия',
       'Мойка дисков',
       'Щетка + пена',
       'Воск + защита',
@@ -168,7 +192,7 @@ const ChemicalConsumption: React.FC = () => {
       categories.forEach(category => {
         totals[category].fact += parseValueToNumber(row[`${category}, факт`]);
         totals[category].recalculated += parseValueToNumber(row[`${category}, пересчет`]);
-        
+
         const timeValue = row[`${category}, время`];
         if (timeValue && timeValue !== '-' && timeValue !== '') {
           totals[category].timeSeconds += parseTimeToSeconds(timeValue);
@@ -183,38 +207,45 @@ const ChemicalConsumption: React.FC = () => {
 
   const getTotalExpandedData = (): ExpandedData[] => {
     const categories = [
-      { 
+      {
         translationKey: 'chemicalConsumption.waterShampoo',
         dataKey: 'Вода + шампунь'
       },
-      { 
-        translationKey: 'chemicalConsumption.activeChemistry', 
+      {
+        translationKey: 'chemicalConsumption.activeChemistry',
         dataKey: 'Активная химия'
       },
-      { 
+      {
         translationKey: 'chemicalConsumption.diskWash',
         dataKey: 'Мойка дисков'
       },
-      { 
+      {
         translationKey: 'chemicalConsumption.brushFoam',
         dataKey: 'Щетка + пена'
       },
-      { 
+      {
         translationKey: 'chemicalConsumption.waxProtection',
         dataKey: 'Воск + защита'
       },
-      { 
+      {
         translationKey: 'chemicalConsumption.tPower',
         dataKey: 'T-POWER'
       },
     ];
 
-    return categories.map(({ translationKey, dataKey }) => ({
-      category: t(translationKey),
-      fact: totals[dataKey].fact,
-      time: formatSecondsToTime(totals[dataKey].timeSeconds),
-      recalculated: totals[dataKey].recalculated,
-    }));
+    return categories.map(({ translationKey, dataKey }) => {
+      const chartDataFact = getChartDataForCategory(dataKey, 'fact');
+      const chartDataRecalculated = getChartDataForCategory(dataKey, 'recalculated');
+
+      return {
+        category: t(translationKey),
+        fact: totals[dataKey].fact,
+        time: formatSecondsToTime(totals[dataKey].timeSeconds),
+        recalculated: totals[dataKey].recalculated,
+        chartDataFact: chartDataFact.length > 0 ? chartDataFact : undefined,
+        chartDataRecalculated: chartDataRecalculated.length > 0 ? chartDataRecalculated : undefined,
+      };
+    });
   };
 
   const mainColumns: ColumnsType<TableRow> = [
@@ -231,7 +262,7 @@ const ChemicalConsumption: React.FC = () => {
     },
   ];
 
-  const expandedColumns: ColumnsType<ExpandedData> = [
+  const expandedColumnsPeriod: ColumnsType<ExpandedData> = [
     {
       title: t('chemicalConsumption.type'),
       dataIndex: 'category',
@@ -273,13 +304,103 @@ const ChemicalConsumption: React.FC = () => {
     },
   ];
 
+  const expandedColumnsTotal: ColumnsType<ExpandedData> = [
+    {
+      title: t('chemicalConsumption.type'),
+      dataIndex: 'category',
+      key: 'category',
+      width: 150,
+    },
+    {
+      title: t('chemicalConsumption.fact'),
+      dataIndex: 'fact',
+      key: 'fact',
+      render: (value: number) => formatNumber(value),
+      align: 'right',
+      width: 100,
+    },
+    {
+      title: t('chemicalConsumption.recalculation'),
+      dataIndex: 'recalculated',
+      key: 'recalculated',
+      render: (value: string | number) => {
+        let num: number;
+        if (typeof value === 'string') {
+          num = parseFloat(value.replace(',', '.'));
+          if (isNaN(num)) return value;
+        } else {
+          num = value;
+        }
+        return num % 1 === 0 ? formatNumber(num) : formatNumber(num, 'double');
+      },
+      align: 'right',
+      width: 120,
+    },
+    {
+      title: t('chemicalConsumption.time'),
+      dataIndex: 'time',
+      key: 'time',
+      render: (value: string | number) => formatTimeDisplay(value),
+      align: 'right',
+      width: 100,
+    },
+    {
+      title: t('chemicalConsumption.trend'),
+      key: 'chart',
+      align: 'center',
+      width: 130,
+      render: (_, record) => {
+        if (record.chartDataFact && record.chartDataRecalculated) {
+          return (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                padding: '4px'
+              }}
+              onClick={() => {
+                setSelectedChartData({
+                  category: record.category,
+                  dataFact: record.chartDataFact!,
+                  dataRecalculated: record.chartDataRecalculated!
+                });
+                setModalVisible(true);
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#f5f5f5';
+                e.currentTarget.style.borderRadius = '4px';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <MiniChart
+                dataFact={record.chartDataFact}
+                dataRecalculated={record.chartDataRecalculated}
+                width={110}
+                height={32}
+                isLarge={false}
+              />
+            </div>
+          );
+        }
+        return (
+          <div style={{ color: '#999', fontSize: '12px', textAlign: 'center' }}>
+            {t('chemicalConsumption.noData')}
+          </div>
+        );
+      },
+    },
+  ];
+
   const expandedRowRender = (row: TableRow) => {
     const expandedData = getExpandedDataForRow(row);
-    
+
     return (
       <div style={{ margin: 0, padding: '16px 40px' }}>
         <Table
-          columns={expandedColumns}
+          columns={expandedColumnsPeriod}
           dataSource={expandedData}
           rowKey="category"
           pagination={false}
@@ -292,11 +413,11 @@ const ChemicalConsumption: React.FC = () => {
 
   const totalExpandedRowRender = () => {
     const totalExpandedData = getTotalExpandedData();
-    
+
     return (
       <div style={{ margin: 0, padding: '16px 40px' }}>
         <Table
-          columns={expandedColumns}
+          columns={expandedColumnsTotal}
           dataSource={totalExpandedData}
           rowKey="category"
           pagination={false}
@@ -367,6 +488,16 @@ const ChemicalConsumption: React.FC = () => {
           })}
         />
       </div>
+
+      {selectedChartData && (
+        <ChartModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          category={selectedChartData.category}
+          dataFact={selectedChartData.dataFact}
+          dataRecalculated={selectedChartData.dataRecalculated}
+        />
+      )}
     </>
   );
 };

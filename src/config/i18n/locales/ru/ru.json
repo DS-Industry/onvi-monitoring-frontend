@@ -2050,7 +2050,12 @@
     "diskWash": "Мойка дисков",
     "brushFoam": "Щетка + пена",
     "waxProtection": "Воск + защита",
-    "tPower": "T-POWER"
+    "tPower": "T-POWER",
+    "trend": "График",
+    "noData": "Нет данных",
+    "chartTitle": "График потребления",
+    "noDataToDisplay": "Нет данных для отображения",
+    "numberOfPeriods": "Количество периодов"
   },
   "marketingCampaigns": {
     "terms": "Условия и призы",
