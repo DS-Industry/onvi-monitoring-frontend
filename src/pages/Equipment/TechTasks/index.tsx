@@ -9,7 +9,7 @@ import {
 } from '@/services/api/equipment';
 import useSWR from 'swr';
 import { Table, Modal, Button, Checkbox, Input } from 'antd';
-import { DeleteOutlined, CloseOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, CloseOutlined, PlusOutlined, StarOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
 import {
   ALL_PAGE_SIZES,
@@ -241,12 +241,23 @@ const TechTasks: React.FC = () => {
       minWidth: 200,
       render: (text, record) => {
         return (
-          <button
-            onClick={() => handleUpdateTask(record)}
-            className="text-blue-500 hover:text-blue-700 font-semibold text-left"
-          >
-            {text}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleUpdateTask(record)}
+              className="text-blue-500 hover:text-blue-700 font-semibold text-left truncate"
+            >
+              {text}
+            </button>    
+            {record.templateToNextCreate && (
+              <StarOutlined 
+                style={{ 
+                  color: '#FFD700', 
+                  fontSize: '16px',
+                }}
+                className="ml-1 flex-shrink-0"
+              />
+            )}
+          </div>
         );
       },
     },

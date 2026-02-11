@@ -1904,7 +1904,9 @@
     "executionProgress": "Ход выполнения",
     "taskComments": "Комментарии к задаче",
     "noComments": "Пока нет комментариев",
-    "send": "Отправить"
+    "send": "Отправить",
+    "reportDate": "Дата отчета",
+    "selectReportDate": "Выберите дату отчета"
   },
   "progressReport": {
     "columns": {

@@ -231,6 +231,7 @@ type UpdateTechTaskBody = {
   customPeriodDays?: number;
   markdownDescription?: string;
   endSpecifiedDate?: Date;
+  sendWorkDate?: Date;
   techTaskItem?: number[];
   tagIds?: number[];
 };
