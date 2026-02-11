@@ -99,13 +99,13 @@ const useClients = (
     mutate,
     pagination: data
       ? {
-          total: data.total,
-          currentPage: data.page,
-          pageSize: data.size,
-          totalPages: data.totalPages,
-          hasNext: data.hasNext,
-          hasPrevious: data.hasPrevious,
-        }
+        total: data.total,
+        currentPage: data.page,
+        pageSize: data.size,
+        totalPages: data.totalPages,
+        hasNext: data.hasNext,
+        hasPrevious: data.hasPrevious,
+      }
       : null,
   };
 };

@@ -1005,6 +1005,7 @@ export type CreateCorporateClientRequest = {
   inn: string;
   address: string;
   organizationId: number;
+  ltyProgramId: number;
 };
 
 export type UpdateCorporateClientRequest = {
@@ -1222,7 +1223,6 @@ export async function getCorporateClientOperationsById(
 }
 
 export type CreateCorporateBonusOperationRequest = {
-  cardId: number;
   typeOperId: number;
   sum: number;
   comment?: string;

@@ -1,18 +1,16 @@
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Modal, Form, Select, Input, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { useToast } from '@/components/context/useContext';
 import {
-  getCorporateClientCardsById,
   createCorporateBonusOperation,
   CreateCorporateBonusOperationRequest,
 } from '@/services/api/marketing';
 import { getDevices } from '@/services/api/equipment';
 import { getPoses } from '@/services/api/equipment';
 import { useUser } from '@/hooks/useUserStore';
-import { debounce } from 'lodash';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -41,44 +39,6 @@ const CreateBonusOperationModal: React.FC<CreateBonusOperationModalProps> = ({
   const { showToast } = useToast();
   const [form] = Form.useForm();
   const user = useUser();
-  const [cardSearchQuery, setCardSearchQuery] = useState<string>('');
-
-  // Debounced search query for API calls
-  const [debouncedCardSearch, setDebouncedCardSearch] = useState<string>('');
-
-  const debouncedSearch = useCallback(
-    debounce((value: string) => {
-      setDebouncedCardSearch(value);
-    }, 500),
-    []
-  );
-
-  useEffect(() => {
-    debouncedSearch(cardSearchQuery);
-  }, [cardSearchQuery, debouncedSearch]);
-
-  useEffect(() => {
-    if (open) {
-      setCardSearchQuery('');
-      setDebouncedCardSearch('');
-    }
-  }, [open]);
-
-  const { data: cardsData, isLoading: cardsLoading } = useSWR(
-    open && corporateClientId
-      ? ['get-corporate-client-cards', corporateClientId, debouncedCardSearch]
-      : null,
-    () =>
-      getCorporateClientCardsById(corporateClientId, {
-        page: 1,
-        size: 10,
-        search: debouncedCardSearch || '',
-      }),
-    {
-      revalidateOnFocus: false,
-      shouldRetryOnError: false,
-    }
-  );
 
   const { data: posesData } = useSWR(
     open && user.organizationId
@@ -143,7 +103,6 @@ const CreateBonusOperationModal: React.FC<CreateBonusOperationModalProps> = ({
           : values.sum;
 
       const operationData: CreateCorporateBonusOperationRequest = {
-        cardId: values.cardId,
         typeOperId: values.typeOperId,
         sum: sumValue,
         comment: values.comment || undefined,
@@ -176,9 +135,6 @@ const CreateBonusOperationModal: React.FC<CreateBonusOperationModalProps> = ({
     onClose();
   };
 
-  const cardsWithOwner =
-    cardsData?.data.filter(card => card.ownerName) || [];
-
   return (
     <Modal
       open={open}
@@ -188,45 +144,6 @@ const CreateBonusOperationModal: React.FC<CreateBonusOperationModalProps> = ({
       width={600}
     >
       <Form form={form} layout="vertical" onFinish={handleSubmit}>
-        <Form.Item
-          name="cardId"
-          label={t('marketing.card')}
-          rules={[
-            { required: true, message: t('validation.required') },
-          ]}
-        >
-          <Select
-            placeholder={t('marketing.selectCard')}
-            loading={cardsLoading}
-            showSearch
-            onSearch={(value: string) => {
-              setCardSearchQuery(value);
-            }}
-            filterOption={false}
-            notFoundContent={
-              cardsLoading ? (
-                <div style={{ textAlign: 'center', padding: '12px' }}>
-                  {t('common.loading') || 'Loading...'}
-                </div>
-              ) : cardSearchQuery ? (
-                <div style={{ textAlign: 'center', padding: '12px' }}>
-                  {t('common.noData') || 'No cards found'}
-                </div>
-              ) : null
-            }
-          >
-            {cardsWithOwner.map(card => (
-              <Option
-                key={card.id}
-                value={card.id}
-                label={`${card.ownerName} - ${card.cardUnqNumber}`}
-              >
-                {card.ownerName} - {card.cardUnqNumber}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-
         <Form.Item
           name="typeOperId"
           label={t('marketingCampaigns.operationType')}
