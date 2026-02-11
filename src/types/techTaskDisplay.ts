@@ -12,6 +12,7 @@ export type TechTaskReadAllDisplay = {
   executorId?: number;
   posName?: string; // Added pos name (optional)
   executorName?: string; // Added executor name (optional)
+  templateToNextCreate?: boolean;
   tags: {
     id: number;
     name: string;
