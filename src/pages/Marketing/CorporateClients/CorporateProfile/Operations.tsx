@@ -1,5 +1,5 @@
-import React from 'react';
-import { Table, Typography } from 'antd';
+import React, { useState } from 'react';
+import { Table, Typography, Button } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { getCorporateClientOperationsById } from '@/services/api/marketing';
@@ -8,15 +8,18 @@ import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import Search from 'antd/es/input/Search';
+import { PlusOutlined } from '@ant-design/icons';
+import CreateBonusOperationModal from './CreateBonusOperationModal';
 
 const { Text } = Typography;
 
 const Operations: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const clientId = searchParams.get('clientId');
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
@@ -32,10 +35,22 @@ const Operations: React.FC = () => {
         size: pageSize,
         search: search
       }),
-      {
-        shouldRetryOnError: false
-      }
+    {
+      shouldRetryOnError: false
+    }
   );
+
+  const handleSuccess = () => {
+    if (clientId) {
+      mutate([
+        'get-client-operations',
+        clientId,
+        currentPage,
+        pageSize,
+        search,
+      ]);
+    }
+  };
 
   const dataSource =
     operations?.data.map(operation => {
@@ -53,15 +68,34 @@ const Operations: React.FC = () => {
         amountNumber.toLocaleString('ru-RU', { minimumFractionDigits: 2 }) +
         ' ₽';
 
+      const bonusNumber = operation.sumBonus || 0;
+      const bonusStr =
+        (bonusNumber < 0 ? '-' : bonusNumber > 0 ? '+' : '') +
+        Math.abs(bonusNumber).toLocaleString('ru-RU', { minimumFractionDigits: 2 }) +
+        ' ₽';
+
+      const cashbackNumber = operation.sumCashback || 0;
+      const cashbackStr =
+        (cashbackNumber < 0 ? '-' : cashbackNumber > 0 ? '+' : '') +
+        Math.abs(cashbackNumber).toLocaleString('ru-RU', { minimumFractionDigits: 2 }) +
+        ' ₽';
+
+      const operationType = bonusNumber < 0 ? 'DEDUCTION' : 'REPLENISHMENT';
+
       return {
         key: operation.id.toString(),
         id: operation.transactionId,
         branch: operation.carWashDeviceName || '-',
-        branchUrl: '#', // or add real url if you have one
+        branchUrl: '#',
         cardNo: operation.cardUnqNumber,
         date,
         time,
         amount: amountStr,
+        sumBonus: bonusStr,
+        sumCashback: cashbackStr,
+        operationType,
+        bonusNumber,
+        cashbackNumber,
       };
     }) || [];
 
@@ -112,12 +146,81 @@ const Operations: React.FC = () => {
         </Text>
       ),
     },
+    {
+      title: t('marketingTransactions.bonuses') || 'Bonuses',
+      dataIndex: 'sumBonus',
+      key: 'sumBonus',
+      align: 'right' as const,
+      render: (text: string, record: (typeof dataSource)[0]) => (
+        <Text
+          className={
+            record.bonusNumber < 0
+              ? 'text-errorFill font-medium'
+              : record.bonusNumber > 0
+                ? 'text-green-600 font-medium'
+                : ''
+          }
+        >
+          {text}
+        </Text>
+      ),
+    },
+    {
+      title: t('marketingTransactions.cashback') || 'Cashback',
+      dataIndex: 'sumCashback',
+      key: 'sumCashback',
+      align: 'right' as const,
+      render: (text: string, record: (typeof dataSource)[0]) => (
+        <Text
+          className={
+            record.cashbackNumber < 0
+              ? 'text-errorFill font-medium'
+              : record.cashbackNumber > 0
+                ? 'text-green-600 font-medium'
+                : ''
+          }
+        >
+          {text}
+        </Text>
+      ),
+    },
+    {
+      title: t('marketingTransactions.expandedColumns.operationType') || 'Operation Type',
+      dataIndex: 'operationType',
+      key: 'operationType',
+      render: (type: string) => {
+        const translationKey =
+          type === 'DEDUCTION'
+            ? 'marketingTransactions.signOper.deduction'
+            : 'marketingTransactions.signOper.replenishment';
+        return (
+          <Text
+            className={
+              type === 'DEDUCTION' ? 'text-errorFill font-medium' : 'text-green-600 font-medium'
+            }
+          >
+            {t(translationKey) || type}
+          </Text>
+        );
+      },
+    },
   ];
 
   return (
     <div className="space-y-6">
-      <div className="font-semibold text-text01 text-2xl">
-        {t('marketing.operations')}
+      <div className="flex items-center justify-between">
+        <div className="font-semibold text-text01 text-2xl">
+          {t('marketing.operations')}
+        </div>
+        {clientId && (
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => setIsModalOpen(true)}
+          >
+            {t('marketing.createOperation')}
+          </Button>
+        )}
       </div>
       <div className="w-full sm:w-80">
         <label className="block mb-1 text-sm font-medium text-gray-700">
@@ -156,6 +259,14 @@ const Operations: React.FC = () => {
         loading={isLoading}
         scroll={{ x: 'max-content' }}
       />
+      {clientId && (
+        <CreateBonusOperationModal
+          open={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          corporateClientId={Number(clientId)}
+          onSuccess={handleSuccess}
+        />
+      )}
     </div>
   );
 };

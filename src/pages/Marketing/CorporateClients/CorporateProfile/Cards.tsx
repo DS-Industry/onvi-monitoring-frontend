@@ -24,10 +24,12 @@ const Cards: React.FC = () => {
   const search = searchParams.get('search') || '';
   const navigate = useNavigate();
 
+  const swrKey = clientId
+    ? ['get-client-cards', clientId, currentPage, pageSize, search]
+    : null;
+
   const { data: cards, isLoading } = useSWR(
-    clientId
-      ? ['get-client-cards', clientId, currentPage, pageSize, search]
-      : null,
+    swrKey,
     () =>
       getCorporateClientCardsById(Number(clientId!), {
         page: currentPage,
@@ -36,6 +38,7 @@ const Cards: React.FC = () => {
       }),
     {
       shouldRetryOnError: false,
+      revalidateOnMount: true,
     }
   );
 
