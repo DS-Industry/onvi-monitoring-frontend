@@ -1944,6 +1944,8 @@
     "afterPeriod": "After a period",
     "displaying": "Displaying loyalty program participants",
     "participatingBranches": "Participating branches",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all",
     "theLoyalty": "The loyalty program is created for all branches linked to the creator organization.",
     "expansion": "Expansion of the loyalty program",
     "toExpand": "To expand the loyalty program, an organization can request the Hub to add branches outside the organization.",
