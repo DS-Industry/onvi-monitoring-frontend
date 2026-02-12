@@ -17,21 +17,26 @@ import {
   upsertMarketingCampaignMobileDisplay,
   getMarketingCampaignMobileDisplay,
   MarketingCampaignMobileDisplayType,
+  MarketingCampaignResponse,
+  ACTION_TYPE
 } from '@/services/api/marketing';
 import { uploadFileWithPresignedUrl } from '@/services/api/s3';
 
 const { Text } = Typography;
 
 interface BasicDataProps {
+  campaign?: MarketingCampaignResponse;
   isEditable?: boolean;
 }
 
-const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
+const Promotion: React.FC<BasicDataProps> = ({ campaign, isEditable = true }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { showToast } = useToast();
   const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
   const editMode = Boolean(searchParams.get('mode') === 'edit');
+
+  const isPromocode = campaign?.actionType as ACTION_TYPE === 'PROMOCODE_ISSUE';
 
   const [editorContent, setEditorContent] = useState('');
   const [bannerImage, setBannerImage] = useState<string | null>(null);
@@ -105,6 +110,13 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
         setInitialEditorContent(newEditorContent);
         setInitialBannerImageUrl(newBannerImageUrl);
         setInitialPromotionType(newPromotionType);
+      }
+    } else {
+      if (isPromocode) {
+        setPromotionType(MarketingCampaignMobileDisplayType.PersonalPromocode);
+        setEditorContent('');
+      } else {
+        setPromotionType(MarketingCampaignMobileDisplayType.Promo);
       }
     }
   }, [mobileDisplayData]);
@@ -291,7 +303,7 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                     );
                     setEditorContent('');
                   }}
-                  disabled={!isEditable || mobileDisplayData?.type === MarketingCampaignMobileDisplayType.Promo}
+                  disabled={!isPromocode || !isEditable || mobileDisplayData?.type === MarketingCampaignMobileDisplayType.Promo}
                 >
                   {t('marketingCampaigns.icon')}
                 </Button>
@@ -304,7 +316,7 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                   onClick={() =>
                     setPromotionType(MarketingCampaignMobileDisplayType.Promo)
                   }
-                  disabled={!isEditable}
+                  disabled={!isEditable || isPromocode}
                 >
                   {t('marketingCampaigns.banner')}
                 </Button>
