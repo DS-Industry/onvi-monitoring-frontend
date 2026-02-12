@@ -78,11 +78,11 @@ const MarketingCampaignCreate: React.FC = () => {
     //   content: <RewardValidityPeriod />,
     //   icon: <CalendarOutlined />,
     // },
-    ...(isHubPlus
+    ...(marketingCampaign?.ltyProgramId === Number(import.meta.env.VITE_ONVI_PROGRAM_ID)
       ? [
         {
           title: t('marketingCampaigns.promotion'),
-          content: <Promotion />,
+          content: <Promotion campaign={marketingCampaign} />,
           icon: <CarOutlined />,
         },
       ]
