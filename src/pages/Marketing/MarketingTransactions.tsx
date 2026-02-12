@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Select, Table, Input } from 'antd';
+import { Select, Table, Input, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import useSWR from 'swr';
 import { getLoyaltyPrograms, getLoyaltyProgramOrders, SignOper, OrderItem } from '@/services/api/marketing';
@@ -149,6 +149,13 @@ const MarketingTransactions: React.FC = () => {
     }));
   };
 
+  const getOrderStatusBadgeColor = (status: string): 'error' | 'success' | 'warning' => {
+    const s = (status || '').toUpperCase();
+    if (['FAILED', 'CANCELED', 'ERROR'].includes(s)) return 'error';
+    if (s === 'COMPLETED') return 'success';
+    return 'warning';
+  };
+
   const translateOrderStatus = (status: string): string => {
     const statusLower = status.toLowerCase();
     switch (statusLower) {
@@ -284,11 +291,9 @@ const MarketingTransactions: React.FC = () => {
       key: 'statuses',
       width: 150,
       render: (_, record) => (
-        <div>
-          <div>{t('marketingTransactions.order')}: {translateOrderStatus(record.orderStatus)}</div>
-          <div>{t('marketingTransactions.processing')}: {translateOrderStatus(record.orderStatus)}</div>
-          <div>{t('marketingTransactions.execution')}: {record.executionStatus || '-'}</div>
-        </div>
+        <Tag color={getOrderStatusBadgeColor(record.orderStatus)}>
+          {translateOrderStatus(record.orderStatus)}
+        </Tag>
       ),
     },
   ];
