@@ -30,6 +30,30 @@ import {
 
 const { Option } = Select;
 
+const RUSSIAN_PROMO_WORDS = [
+  'Солнце', 'Лето', 'Зима', 'Море', 'Отдых', 'Скидка', 'Бонус', 'Подарок',
+  'Удача', 'Радость', 'Праздник', 'День', 'Ночь', 'Звезда', 'Мечта', 'Счастье',
+  'Весна', 'Осень', 'Дождь', 'Снег', 'Ветер', 'Река', 'Гора', 'Лес', 'Цветок',
+  'Мир', 'Друг', 'Семья', 'Дом', 'Путь', 'Свет', 'Тепло', 'Красота', 'Сила',
+  'Время', 'Шанс', 'Выгода', 'Супер', 'Макси', 'Топ', 'Плюс', 'Про',
+];
+
+function generateRandomRussianPromoCode(): string {
+  const wordCount = 2 + Math.floor(Math.random() * 2);
+  const words: string[] = [];
+  const used = new Set<number>();
+  while (words.length < wordCount) {
+    const idx = Math.floor(Math.random() * RUSSIAN_PROMO_WORDS.length);
+    if (!used.has(idx)) {
+      used.add(idx);
+      words.push(RUSSIAN_PROMO_WORDS[idx]);
+    }
+  }
+  const withNumber = Math.random() > 0.5;
+  const code = words.join('') + (withNumber ? String(10 + Math.floor(Math.random() * 90)) : '');
+  return code;
+}
+
 interface PromoCodeDrawerProps {
   isOpen: boolean;
   onClose: () => void;
@@ -233,16 +257,31 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
         )}
 
         <Form.Item
-          name="code"
           label={t('marketing.promoCode')}
-          rules={[
-            { required: true, message: t('validation.required') },
-          ]}
+          required
         >
-          <Input
-            placeholder={t('marketing.enterPromoCode')}
-            disabled={isCampaignPromocode}
-          />
+          <Space.Compact style={{ width: '100%', maxWidth: 400 }}>
+            <Form.Item
+              name="code"
+              noStyle
+              rules={[
+                { required: true, message: t('validation.required') },
+              ]}
+            >
+              <Input
+                placeholder={t('marketing.enterPromoCode')}
+                disabled={isCampaignPromocode}
+                style={{ minWidth: 200 }}
+              />
+            </Form.Item>
+            <Button
+              type="default"
+              disabled={isCampaignPromocode}
+              onClick={() => form.setFieldValue('code', generateRandomRussianPromoCode())}
+            >
+              {t('marketing.generateRandomPromoCode')}
+            </Button>
+          </Space.Compact>
         </Form.Item>
 
         <Form.Item
@@ -251,10 +290,12 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
           rules={[
             { required: true, message: t('validation.required') },
           ]}
+          className="w-80"
         >
           <Select
             placeholder={t('constants.selectType')}
             disabled={isCampaignPromocode}
+            className="w-80"
             onChange={(value: PromocodeType) => {
               setPromocodeType(value);
               if (value !== PromocodeType.PERSONAL) {
@@ -276,10 +317,12 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
             name="personalUserId"
             label={t('marketing.personalUser')}
             tooltip={t('marketing.personalUserTooltip')}
+            className="w-80"
           >
             <Select
               placeholder={t('marketingCampaigns.selectClient')}
               allowClear
+              className="w-80"
               showSearch
               disabled={isCampaignPromocode}
               loading={clientsLoading}
@@ -297,6 +340,7 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
         <Form.Item
           name="discountType"
           label={t('marketing.discountType')}
+          className="w-80"
         >
           <Select
             placeholder={t('constants.selectType')}
@@ -308,15 +352,13 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
             <Option value={PromocodeDiscountType.FIXED_AMOUNT}>
               {t('marketingCampaigns.fixedAmount')}
             </Option>
-            <Option value={PromocodeDiscountType.FREE_SERVICE}>
-              {t('marketingCampaigns.freeService')}
-            </Option>
           </Select>
         </Form.Item>
 
         <Form.Item
           name="discountValue"
           label={t('marketing.discountValue')}
+          className="w-80"
         >
           <Input
             type="number"
@@ -328,6 +370,7 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
         <Form.Item
           name="minOrderAmount"
           label={t('marketing.minOrderAmount')}
+          className="w-80"
         >
           <Input
             type="number"
@@ -339,6 +382,7 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
         <Form.Item
           name="maxDiscountAmount"
           label={t('marketing.maxDiscountAmount')}
+          className="w-80"
         >
           <Input
             type="number"
@@ -350,6 +394,7 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
         <Form.Item
           name="maxUsage"
           label={t('marketing.maxUsage')}
+          className="w-80"
         >
           <Input
             type="number"
@@ -361,6 +406,7 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
         <Form.Item
           name="maxUsagePerUser"
           label={t('marketing.maxUsagePerUser')}
+          className="w-80"
         >
           <Input
             type="number"
@@ -372,6 +418,7 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
         <Form.Item
           name="validFrom"
           label={t('marketing.validFrom')}
+          className="w-80"
         >
           <DatePicker
             showTime
@@ -384,6 +431,7 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
         <Form.Item
           name="validUntil"
           label={t('marketing.validUntil')}
+          className="w-80"
         >
           <DatePicker
             showTime
@@ -398,6 +446,7 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
           label={t('constants.status')}
           valuePropName="checked"
           initialValue={true}
+          className="w-80"
         >
           <Switch
             checkedChildren={t('constants.active')}

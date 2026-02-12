@@ -781,6 +781,7 @@
     "personalPromocodes": "Personal Promocodes",
     "personalUser": "Personal User",
     "enterPromoCode": "Enter promo code",
+    "generateRandomPromoCode": "Generate",
     "enterDiscountValue": "Enter discount value",
     "minOrderAmount": "Min Order Amount",
     "enterMinOrderAmount": "Enter min order amount",
