@@ -12,6 +12,8 @@ import { useUser } from '@/hooks/useUserStore';
 import { MarketingCampaignStatus } from '@/utils/constants';
 import { useToast } from '@/components/context/useContext';
 
+import Spin from 'antd/es/spin';
+
 const Geography: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
@@ -44,7 +46,7 @@ const Geography: React.FC = () => {
     { revalidateOnFocus: false, revalidateOnReconnect: false }
   );
 
-  const { data: loyaltyProgramsData } = useSWR(
+  const { data: loyaltyProgramsData, isLoading: loyaltyProgramsLoading } = useSWR(
     user.organizationId ? ['get-loyalty-programs', user.organizationId] : null,
     () => getLoyaltyPrograms(user.organizationId),
     { revalidateOnFocus: false, revalidateOnReconnect: false }
@@ -233,6 +235,14 @@ const Geography: React.FC = () => {
     };
   }, [isDragging]);
 
+  if (loadingMarketingCampaign || participantsLoading || loyaltyProgramsLoading || isValidating) {
+    return (
+      <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-background02 p-6 rounded-lg">
+        <Spin size="large" tip={t('common.loading')} />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col bg-background02" style={{ height: '100vh', minHeight: '100vh' }}>
       <div className="hidden sm:flex items-center space-x-4 mb-6 flex-shrink-0 px-4 pt-4">
@@ -276,7 +286,6 @@ const Geography: React.FC = () => {
           <div className="geography-full-map w-full h-full">
             <ParticipantsMap
               participants={visibleParticipants}
-              loading={participantsLoading || loadingMarketingCampaign || isValidating}
             />
           </div>
         </div>

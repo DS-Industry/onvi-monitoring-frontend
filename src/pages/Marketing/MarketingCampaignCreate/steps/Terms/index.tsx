@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { message, Modal } from 'antd';
+import { message, Modal, Spin } from 'antd';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import ConditionModal from './ConditionModal';
@@ -375,10 +375,10 @@ const Terms: React.FC = () => {
         return false;
     };
 
-    if (isLoadingMarketingCampaign) {
+    if (isLoadingMarketingCampaign || isLoading || isValidating) {
         return (
             <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-background02 p-6 rounded-lg">
-                <div className="text-text02">{t('common.loading')}</div>
+                <Spin size="large" tip={t('common.loading')} />
             </div>
         );
     }

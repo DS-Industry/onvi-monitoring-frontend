@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Card, message } from 'antd';
+import { Button, Card, message, Spin } from 'antd';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import {
@@ -261,7 +261,7 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
     if (isLoading || isValidating) {
         return (
             <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-background02 p-6 rounded-lg">
-                <div className="text-text02">{t('common.loading')}</div>
+                <Spin size="large" tip={t('common.loading')} />
             </div>
         );
     }
@@ -307,7 +307,6 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
                             titleKey="marketingCampaigns.behavioral"
                             descriptionKey="marketingCampaigns.behavioralDescription"
                             isSelected={executionType === CampaignExecutionType.BEHAVIORAL}
-                            // isDisabled={!canEdit}
                             isDisabled={true}
                             onClick={() => {
                                 return
@@ -343,13 +342,13 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
 
             {(isEditable || editMode) && (
                 <div className="flex justify-end gap-2 mt-6">
+
                     <Button
                         type="primary"
                         icon={<RightOutlined />}
                         iconPosition="end"
                         loading={isUpdating}
                         onClick={handleNext}
-                        size="large"
                     >
                         {t('common.next')}
                     </Button>

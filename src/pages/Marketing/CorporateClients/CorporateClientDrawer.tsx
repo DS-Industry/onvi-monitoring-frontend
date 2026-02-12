@@ -67,10 +67,10 @@ export default function CorporateClientDrawer({
     useSWR<LoyaltyParticipantProgramsPaginatedResponse>(
       open && user.organizationId
         ? [
-            'corporate-drawer-loyalty-programs',
-            user.organizationId,
-            loyaltyProgramSearch,
-          ]
+          'corporate-drawer-loyalty-programs',
+          user.organizationId,
+          loyaltyProgramSearch,
+        ]
         : null,
       () =>
         getLoyaltyProgramsPaginated({
@@ -91,14 +91,14 @@ export default function CorporateClientDrawer({
   const selectedLtyId = Form.useWatch('ltyProgramId', form);
   const loyaltyProgramOptions =
     selectedLtyId != null &&
-    !loyaltyProgramOptionsRaw.some((o) => o.value === selectedLtyId)
+      !loyaltyProgramOptionsRaw.some((o) => o.value === selectedLtyId)
       ? [
-          {
-            value: selectedLtyId,
-            label: selectedLoyaltyOptionLabel ?? String(selectedLtyId),
-          },
-          ...loyaltyProgramOptionsRaw,
-        ]
+        {
+          value: selectedLtyId,
+          label: selectedLoyaltyOptionLabel ?? String(selectedLtyId),
+        },
+        ...loyaltyProgramOptionsRaw,
+      ]
       : loyaltyProgramOptionsRaw;
 
   useEffect(() => {
@@ -215,6 +215,7 @@ export default function CorporateClientDrawer({
             </div>
             <Form.Item
               name="ltyProgramId"
+              className="w-80"
               rules={[
                 {
                   required: true,
