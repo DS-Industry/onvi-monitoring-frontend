@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Input, Checkbox } from 'antd';
+import { Button, Input, Checkbox, Spin } from 'antd';
 import { useSearchParams } from 'react-router-dom';
 import { RightOutlined, CalendarOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
@@ -106,7 +106,7 @@ const RewardValidityPeriod: React.FC = () => {
     if (isLoading || isValidating) {
         return (
             <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-background02 p-6 rounded-lg">
-                <div className="text-text02">{t('common.loading')}</div>
+                <Spin size="large" tip={t('common.loading')} />
             </div>
         );
     }
