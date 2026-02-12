@@ -41,7 +41,8 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ program, isEditable = tru
     }
   );
 
-  const tiers = tiersData || [];
+  const tiers = (tiersData?.filter((tier: any) => tier.id !== 1) || [])
+    .sort((a: any, b: any) => a.limitBenefit - b.limitBenefit);
 
   const [levelModalOpen, setLevelModalOpen] = useState(false);
   const [editTierId, setEditTierId] = useState<number | null>(null);
@@ -73,6 +74,7 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ program, isEditable = tru
                 <div className="font-bold text-text01 text-2xl">
                   {t('marketingLoyalty.levelsAndBonuses')}
                 </div>
+
                 <div className="text-text02 text-md">
                   {t('marketingLoyalty.creatingLevels')}
                 </div>
@@ -111,11 +113,9 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ program, isEditable = tru
                     <LevelCard
                       key={`${tier.id}-${index}`}
                       tierId={tier.id}
+                      tierName={tier.name}
                       levelNumber={index + 1}
                       fromAmount={String(tier.limitBenefit)}
-                      lossCondition={t('marketingLoyalty.lossCondition', {
-                        defaultValue: '-',
-                      })}
                       description={tier.description || ''}
                       bonuses={bonuses}
                       isEditable={isEditable}

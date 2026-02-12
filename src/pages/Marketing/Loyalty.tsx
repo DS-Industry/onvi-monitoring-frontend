@@ -283,7 +283,7 @@ const Loyalty: React.FC = () => {
               </div>
             </div>
 
-            <div>
+            <div className="mb-3">
               <Text type="secondary" className="text-xs md:text-sm">
                 {t('equipment.start')}
               </Text>
@@ -291,6 +291,15 @@ const Loyalty: React.FC = () => {
                 {clientData.createdAt
                   ? new Date(clientData.createdAt).toLocaleDateString('ru-RU')
                   : 'N/A'}
+              </div>
+            </div>
+
+            <div>
+              <Text type="secondary" className="text-xs md:text-sm">
+                {t('marketing.loyaltyProgram')}
+              </Text>
+              <div className="border border-borderFill rounded-md px-2 py-1 mt-1 text-text01 text-xs md:text-sm">
+                {loyaltyStats.loyaltyProgramName || '-'}
               </div>
             </div>
           </Card>

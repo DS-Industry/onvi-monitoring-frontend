@@ -894,6 +894,7 @@ export type ClientLoyaltyStatsResponseDto = {
   nextTierName?: string;
   currentTierId?: number;
   nextTierId?: number;
+  loyaltyProgramName: string;
 };
 
 export async function getClientLoyaltyStats(
