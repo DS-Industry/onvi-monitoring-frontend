@@ -185,10 +185,18 @@ const GeographyList: React.FC<GeographyListProps> = React.memo(({
           )}
           {participants.length > 0 && (
             <div className="flex gap-2">
-              <Button type="link" size="small" onClick={handleSelectAll} className="p-0 h-auto text-primary">
+              <Button
+                size="small"
+                onClick={handleSelectAll}
+                className="!h-8 !px-3 !text-xs font-medium border border-primary02 text-primary02 bg-transparent hover:!bg-primary02 hover:!text-text04 hover:!border-primary02 rounded-lg transition-colors"
+              >
                 {t('marketingLoyalty.selectAll')}
               </Button>
-              <Button type="link" size="small" onClick={handleDeselectAll} className="p-0 h-auto text-base03">
+              <Button
+                size="small"
+                onClick={handleDeselectAll}
+                className="!h-8 !px-3 !text-xs font-medium border border-borderFill text-base03 bg-transparent hover:!bg-background03 hover:!text-text01 hover:!border-borderFill rounded-lg transition-colors"
+              >
                 {t('marketingLoyalty.deselectAll')}
               </Button>
             </div>
