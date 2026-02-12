@@ -781,6 +781,7 @@
     "personalPromocodes": "Персональные промокоды",
     "personalUser": "Персональный пользователь",
     "enterPromoCode": "Введите промокод",
+    "generateRandomPromoCode": "Сгенерировать",
     "enterDiscountValue": "Введите значение скидки",
     "minOrderAmount": "Минимальная сумма заказа",
     "enterMinOrderAmount": "Введите минимальную сумму заказа",
