@@ -1645,7 +1645,6 @@ export async function getPosesParticipants(id: number): Promise<PosResponse[]> {
   const response: AxiosResponse<PosResponse[]> = await api.get(
     `user/loyalty/program/${id}/participant-poses`
   );
-
   return response.data;
 }
 

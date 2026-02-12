@@ -129,7 +129,7 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
         console.error('Failed to upload image:', error);
         showToast(
           t('errors.other.errorDuringFormSubmission') ||
-            'Failed to upload image',
+          'Failed to upload image',
           'error'
         );
       } finally {
@@ -281,7 +281,7 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                 <Button
                   type={
                     promotionType ===
-                    MarketingCampaignMobileDisplayType.PersonalPromocode
+                      MarketingCampaignMobileDisplayType.PersonalPromocode
                       ? 'primary'
                       : 'default'
                   }
@@ -327,19 +327,19 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                     </div>
                     {promotionType ===
                       MarketingCampaignMobileDisplayType.Promo && (
-                      <div style={{ marginBottom: 16 }}>
-                        <Text
-                          strong
-                          style={{ display: 'block', marginBottom: 8 }}
-                        >
-                          {t('marketingCampaigns.description')}
-                        </Text>
-                        <TipTapEditor
-                          value={editorContent}
-                          onChange={setEditorContent}
-                        />
-                      </div>
-                    )}
+                        <div style={{ marginBottom: 16 }}>
+                          <Text
+                            strong
+                            style={{ display: 'block', marginBottom: 8 }}
+                          >
+                            {t('marketingCampaigns.description')}
+                          </Text>
+                          <TipTapEditor
+                            value={editorContent}
+                            onChange={setEditorContent}
+                          />
+                        </div>
+                      )}
                     <div>
                       <Text
                         strong
@@ -357,40 +357,42 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                       >
                         {t('marketingCampaigns.optimally')}
                       </Text>
-                      {bannerImage ? (
-                        <div
-                          style={{
-                            position: 'relative',
-                            display: 'inline-block',
-                            marginBottom: 8,
-                          }}
-                        >
-                          <img
-                            src={bannerImage}
-                            alt="Banner preview"
+                      <div>
+                        {bannerImage ? (
+                          <div
                             style={{
-                              maxWidth: '100%',
-                              maxHeight: '200px',
-                              borderRadius: '8px',
-                              objectFit: 'contain',
-                            }}
-                          />
-                          <Button
-                            type="text"
-                            danger
-                            icon={<DeleteOutlined />}
-                            onClick={handleRemoveImage}
-                            style={{
-                              position: 'absolute',
-                              top: 4,
-                              right: 4,
-                              background: 'rgba(255, 255, 255, 0.9)',
+                              position: 'relative',
+                              display: 'inline-block',
+                              marginBottom: 8,
                             }}
                           >
-                            {t('marketing.delete')}
-                          </Button>
-                        </div>
-                      ) : null}
+                            <img
+                              src={bannerImage}
+                              alt="Banner preview"
+                              style={{
+                                maxWidth: '100%',
+                                maxHeight: '200px',
+                                borderRadius: '8px',
+                                objectFit: 'contain',
+                              }}
+                            />
+                            <Button
+                              type="text"
+                              danger
+                              icon={<DeleteOutlined />}
+                              onClick={handleRemoveImage}
+                              style={{
+                                position: 'absolute',
+                                top: 4,
+                                right: 4,
+                                background: 'rgba(255, 255, 255, 0.9)',
+                              }}
+                            >
+                              {t('marketing.delete')}
+                            </Button>
+                          </div>
+                        ) : null}
+                      </div>
                       <Upload {...uploadProps}>
                         <Button
                           icon={<UploadOutlined />}
@@ -414,7 +416,7 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                         bannerImage={bannerImage}
                         type={
                           promotionType ===
-                          MarketingCampaignMobileDisplayType.Promo
+                            MarketingCampaignMobileDisplayType.Promo
                             ? 'main'
                             : 'promocode'
                         }
@@ -425,7 +427,7 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                       style={{ width: '337.5px', flexShrink: 0 }}
                     >
                       {promotionType ===
-                      MarketingCampaignMobileDisplayType.Promo ? (
+                        MarketingCampaignMobileDisplayType.Promo ? (
                         <div className="transform scale-[0.9] origin-center">
                           <PhonePreview
                             bannerImage={bannerImage}
