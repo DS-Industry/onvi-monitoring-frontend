@@ -10,8 +10,8 @@ import { useTranslation } from 'react-i18next';
 
 interface LevelCardProps {
   levelNumber: number;
+  tierName: string;
   fromAmount: string;
-  lossCondition: string;
   description: string;
   bonuses: { label: string; value: string }[];
   tierId: number;
@@ -22,8 +22,8 @@ interface LevelCardProps {
 
 const LevelCard: React.FC<LevelCardProps> = ({
   levelNumber,
+  tierName,
   fromAmount,
-  lossCondition,
   description,
   bonuses,
   tierId,
@@ -53,6 +53,9 @@ const LevelCard: React.FC<LevelCardProps> = ({
       <div className="font-semibold text-lg text-text01">
         {t('marketingLoyalty.level')} {levelNumber}
       </div>
+      <div className="font-semibold text-lg text-text01">
+        ({tierName})
+      </div>
       <div className="text-gray-400 text-sm mb-1">
         {t('table.columns.id')} {tierId}
       </div>
@@ -61,10 +64,6 @@ const LevelCard: React.FC<LevelCardProps> = ({
         {t('marketingLoyalty.from')} {fromAmount}
       </div>
       <div className="text-gray-400 text-sm mb-3">{description}</div>
-      <div className="font-semibold mb-1">
-        {t('marketingLoyalty.lossOfLevel')}
-      </div>
-      <div className="text-gray-400 text-sm mb-3">{lossCondition}</div>
 
       <div className="font-semibold mb-2">{t('marketingLoyalty.bonuses')}</div>
       <div className="flex flex-col space-y-2 mb-4 w-full">
