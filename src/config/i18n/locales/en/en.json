@@ -595,6 +595,7 @@
     "qty": "Qty"
   },
   "marketing": {
+    "createOperation": "Create Operation",
     "noClient": "At the moment you have no clients in the system",
     "new": "New Client",
     "editClient": "Edit Client",
@@ -2164,6 +2165,13 @@
     "personalUserTooltip": "Select a client to attach to this personal promocode. Leave empty to remove the attached user.",
     "typeToSearch": "Type to search for clients",
     "campaignPromocodeEditWarning": "Campaign promocodes cannot be edited here. Please edit them through the Marketing Campaign tab.",
-    "campaignPromocodeDeleteWarning": "Campaign promocodes cannot be deleted here. Please delete them through the Marketing Campaign tab."
+    "campaignPromocodeDeleteWarning": "Campaign promocodes cannot be deleted here. Please delete them through the Marketing Campaign tab.",
+    "createBonusOperation": "Create Bonus Operation",
+    "operationType": "Operation Type",
+    "selectOperationType": "Select operation type",
+    "carWashDevice": "Car Wash Device",
+    "selectDevice": "Select device",
+    "comment": "Comment",
+    "enterComment": "Enter comment (optional)"
   }
 }
