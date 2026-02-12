@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Map, View } from 'ol';
 import TileLayer from 'ol/layer/Tile';
 import OSM from 'ol/source/OSM';
@@ -21,13 +21,15 @@ interface ParticipantsMapProps {
   loading?: boolean;
 }
 
-const isValidCoordinate = (lat: string, lon: string): boolean => {
-  if (!lat || !lon || lat.trim() === '' || lon.trim() === '') {
+const isValidCoordinate = (lat: string | number, lon: string | number): boolean => {
+  const latStr = lat != null ? String(lat).trim() : '';
+  const lonStr = lon != null ? String(lon).trim() : '';
+  if (latStr === '' || lonStr === '') {
     return false;
   }
 
-  const latNum = parseFloat(lat);
-  const lonNum = parseFloat(lon);
+  const latNum = parseFloat(latStr);
+  const lonNum = parseFloat(lonStr);
 
   if (isNaN(latNum) || isNaN(lonNum)) {
     return false;
@@ -44,6 +46,10 @@ const ParticipantsMap: React.FC<ParticipantsMapProps> = ({ participants, loading
   const vectorLayerRef = useRef<VectorLayer | null>(null);
   const [isClient, setIsClient] = useState(false);
   const [isMapReady, setIsMapReady] = useState(false);
+  const participantIdsKey = useMemo(
+    () => participants.map(p => p.id).sort((a, b) => a - b).join(','),
+    [participants]
+  );
 
   const getInitialMapCenter = () => {
     return fromLonLat([15.0, 50.0]);
@@ -69,8 +75,6 @@ const ParticipantsMap: React.FC<ParticipantsMapProps> = ({ participants, loading
         center: initialCenter,
         zoom: 4,
       }),
-      interactions: [],
-      controls: [],
     });
 
     mapInstanceRef.current = map;
@@ -88,28 +92,34 @@ const ParticipantsMap: React.FC<ParticipantsMapProps> = ({ participants, loading
   useEffect(() => {
     if (!mapInstanceRef.current || !isMapReady || loading) return;
 
-    if (vectorLayerRef.current) {
-      mapInstanceRef.current.removeLayer(vectorLayerRef.current);
+    const validParticipants = participants.filter(participant =>
+      isValidCoordinate(participant.address.lat, participant.address.lon)
+    );
+
+    let vectorSource: VectorSource;
+    const existingLayer = vectorLayerRef.current;
+
+    if (existingLayer) {
+      vectorSource = existingLayer.getSource() as VectorSource;
+      vectorSource.clear();
+    } else {
+      vectorSource = new VectorSource();
+      const vectorLayer = new VectorLayer({ source: vectorSource });
+      mapInstanceRef.current.addLayer(vectorLayer);
+      vectorLayerRef.current = vectorLayer;
     }
 
-    const validParticipants = participants.filter(participant => {
-      const isValid = isValidCoordinate(participant.address.lat, participant.address.lon);
-      return isValid;
-    });
-
-    if (validParticipants.length === 0) {
-      return;
-    }
-
-    const vectorSource = new VectorSource();
-    const vectorLayer = new VectorLayer({
-      source: vectorSource,
+    const markerStyle = new Style({
+      image: new Icon({
+        src: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+        scale: 0.8,
+      }),
     });
 
     validParticipants.forEach((participant) => {
-      const lat = parseFloat(participant.address.lat);
-      const lon = parseFloat(participant.address.lon);
-
+      const lat = parseFloat(String(participant.address.lat));
+      const lon = parseFloat(String(participant.address.lon));
+      if (isNaN(lat) || isNaN(lon)) return;
       const marker = new Feature({
         geometry: new Point(fromLonLat([lon, lat])),
         name: participant.name,
@@ -119,23 +129,12 @@ const ParticipantsMap: React.FC<ParticipantsMapProps> = ({ participants, loading
         rating: participant.rating,
         status: participant.status,
       });
-
-      marker.setStyle(new Style({
-        image: new Icon({
-          src: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-          scale: 0.8,
-        }),
-      }));
-
+      marker.setStyle(markerStyle);
       vectorSource.addFeature(marker);
     });
 
-    mapInstanceRef.current.addLayer(vectorLayer);
-    vectorLayerRef.current = vectorLayer;
-
     if (validParticipants.length > 0 && mapInstanceRef.current) {
       const extent = vectorSource.getExtent();
-
       setTimeout(() => {
         if (mapInstanceRef.current) {
           mapInstanceRef.current.getView().fit(extent, {
@@ -146,7 +145,7 @@ const ParticipantsMap: React.FC<ParticipantsMapProps> = ({ participants, loading
         }
       }, 100);
     }
-  }, [participants, isMapReady, loading]);
+  }, [participants, participantIdsKey, isMapReady, loading]);
 
   useEffect(() => {
     return () => {
