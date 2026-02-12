@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import BonusImage from '@icons/BasicBonus.svg?react';
 import { useTranslation } from 'react-i18next';
 import useFormHook from '@/hooks/useFormHook';
-import { Button, DatePicker, Form, Input, Select } from 'antd';
+import { Button, DatePicker, Form, Input, Select, Spin } from 'antd';
 import BasicCampaign from '@/assets/BasicCampaign.webp';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
@@ -151,7 +151,7 @@ const BasicInformationUpdate: React.FC<BasicDataProps> = ({
     if (isLoading) {
         return (
             <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-background02 p-6 rounded-lg">
-                <div className="text-text02">{t('common.loading')}</div>
+                <Spin size="large" tip={t('common.loading')} />
             </div>
         );
     }

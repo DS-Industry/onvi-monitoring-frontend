@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import useFormHook from '@/hooks/useFormHook';
-import { Button, Row, Col, Card, Typography, Upload } from 'antd';
+import { Button, Row, Col, Card, Typography, Upload, Spin } from 'antd';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { RightOutlined } from '@ant-design/icons';
@@ -246,7 +246,7 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-background02 p-6 rounded-lg">
-        <div className="text-text02">{t('common.loading')}</div>
+        <Spin size="large" tip={t('common.loading')} />
       </div>
     );
   }
@@ -291,7 +291,7 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                     );
                     setEditorContent('');
                   }}
-                  disabled={!isEditable}
+                  disabled={!isEditable || mobileDisplayData?.type === MarketingCampaignMobileDisplayType.Promo}
                 >
                   {t('marketingCampaigns.icon')}
                 </Button>
@@ -405,6 +405,20 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                         </Button>
                       </Upload>
                     </div>
+                    {isEditable && (
+                      <div className="flex justify-end gap-2 mt-3">
+                        <Button
+                          htmlType="submit"
+                          type="primary"
+                          icon={<RightOutlined />}
+                          iconPosition="end"
+                          loading={uploadingImage || isLoading || isSubmiting}
+                          disabled={!bannerImageUrl}
+                        >
+                          {t('common.next')}
+                        </Button>
+                      </div>
+                    )}
                   </Card>
                 </Col>
 
@@ -446,20 +460,6 @@ const Promotion: React.FC<BasicDataProps> = ({ isEditable = true }) => {
 
         <div className="hidden lg:flex xl:w-8/12 rounded-r-lg xl:ml-20"></div>
       </div>
-      {isEditable && (
-        <div className="flex justify-end gap-2 mt-3">
-          <Button
-            htmlType="submit"
-            type="primary"
-            icon={<RightOutlined />}
-            iconPosition="end"
-            loading={uploadingImage || isLoading || isSubmiting}
-            disabled={!bannerImageUrl}
-          >
-            {t('common.next')}
-          </Button>
-        </div>
-      )}
     </form>
   );
 };
