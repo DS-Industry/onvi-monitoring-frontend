@@ -12,7 +12,7 @@ import {
 } from '@/services/api/finance';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
 import DateTimeInput from '@/components/ui/Input/DateTimeInput';
@@ -88,6 +88,7 @@ type Collection = {
 const CollectionCreation: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const userPermissions = usePermissions();
   const { showToast } = useToast();
@@ -205,6 +206,40 @@ const CollectionCreation: React.FC = () => {
   const [cashCollectionDate, setCashCollectionDate] = useState<
     Date | undefined
   >(undefined);
+
+  useEffect(() => {
+    if (location.state?.referrer) {
+      sessionStorage.setItem('collectionCreationReferrer', location.state.referrer);
+    }
+  }, [location.state]);
+
+  const getReferrer = () => {
+    return location.state?.referrer || sessionStorage.getItem('collectionCreationReferrer');
+  };
+
+  const clearReferrer = () => {
+    sessionStorage.removeItem('collectionCreationReferrer');
+  };
+
+  const navigateToCollection = () => {
+    const referrer = getReferrer();
+    clearReferrer();
+    if (referrer) {
+      navigate(`/finance/collection?${referrer}`);
+    } else {
+      navigate('/finance/collection');
+    }
+  };
+
+  const navigateBackWithReferrer = () => {
+    const referrer = getReferrer();
+    clearReferrer();
+    if (referrer) {
+      navigate(`/finance/collection?${referrer}`);
+    } else {
+      navigate(-1);
+    }
+  };
 
   const handleTableChange = (
     id: number,
@@ -331,9 +366,10 @@ const CollectionCreation: React.FC = () => {
       setTableData(result.cashCollectionDeviceType);
       setDeviceData(result.cashCollectionDevice);
       setCollectionData(result);
-      (setOldCashCollectionDate(result.oldCashCollectionDate),
-        setCashCollectionDate(result.cashCollectionDate));
-      navigate('/finance/collection');
+      setOldCashCollectionDate(result.oldCashCollectionDate);
+      setCashCollectionDate(result.cashCollectionDate);
+      
+      navigateToCollection();
     }
   };
 
@@ -350,7 +386,7 @@ const CollectionCreation: React.FC = () => {
       : await returnCollection(collectionId);
 
     if (result) {
-      navigate(-1);
+      navigateToCollection();
     }
   };
 
@@ -372,7 +408,7 @@ const CollectionCreation: React.FC = () => {
       );
 
       if (result) {
-        navigate('/finance/collection');
+        navigateToCollection();
       }
     } catch (error) {
       showToast(t('success.recordDeleted'), 'error');
@@ -385,9 +421,7 @@ const CollectionCreation: React.FC = () => {
     <div className="space-y-6">
       <div
         className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
-        onClick={() => {
-          navigate(-1);
-        }}
+        onClick={navigateBackWithReferrer}
       >
         <ArrowLeftOutlined />
         <p className="ms-2">{t('login.back')}</p>
@@ -602,7 +636,7 @@ const CollectionCreation: React.FC = () => {
       </div>
       {collectionData && Object.keys(collectionData).length > 0 && (
         <div className="flex space-x-3">
-          <Button onClick={() => navigate(-1)}>
+          <Button onClick={navigateBackWithReferrer}>
             {t('organizations.cancel')}
           </Button>
           <Can
