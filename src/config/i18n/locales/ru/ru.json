@@ -2114,6 +2114,7 @@
     "discountDescription": "Возможность предоставления скидки клиенту",
     "promocode": "Промокодная",
     "promocodeDescription": "Возможность создания и выдачи промокодов (ONVI и участники)",
+    "promocodeOnlyForOnvi": "Доступно только для маркетинговых кампаний ONVI",
     "noPromocodeLinked": "К этой кампании не привязан промокод",
     "points": "Бальная",
     "pointsDescription": "Возможность начисления баллов клиенту (ONVI)",

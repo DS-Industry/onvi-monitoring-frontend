@@ -24,6 +24,8 @@ import {
 } from '@/services/api/marketing';
 import ActionTypeCard from './ActionTypeCard';
 
+const ONVI_PROGRAM_ID = Number(import.meta.env.VITE_ONVI_PROGRAM_ID) || 0;
+
 interface ExecutionTypeProps {
     isEditable?: boolean;
 }
@@ -167,6 +169,9 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
             setActionType(marketingCampaign.actionType as ACTION_TYPE);
         }
     }, [marketingCampaign]);
+
+    const loyaltyProgramId = marketingCampaign?.ltyProgramId ?? 0;
+    const isOnviProgram = loyaltyProgramId === ONVI_PROGRAM_ID;
 
     const isConfigurationLocked = useMemo(
         () => editMode && marketingCampaign?.executionType && marketingCampaign?.actionType,
@@ -334,6 +339,14 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
                                 executionType={executionType}
                                 isEditable={canEdit}
                                 onSelect={setActionType}
+                                forceDisabled={
+                                    config.actionType === 'PROMOCODE_ISSUE' && !isOnviProgram
+                                }
+                                forceDisabledMessageKey={
+                                    config.actionType === 'PROMOCODE_ISSUE' && !isOnviProgram
+                                        ? 'marketingCampaigns.promocodeOnlyForOnvi'
+                                        : undefined
+                                }
                             />
                         ))}
                     </div>
