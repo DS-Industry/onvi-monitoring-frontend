@@ -2114,6 +2114,7 @@
     "discountDescription": "Possibility of providing a discount to the client",
     "promocode": "Promo Code",
     "promocodeDescription": "Possibility of creating and issuing promo codes (ONVI and participants)",
+    "promocodeOnlyForOnvi": "Only available for ONVI marketing campaigns",
     "noPromocodeLinked": "No promocode linked to this campaign",
     "points": "Points",
     "pointsDescription": "Possibility of accruing points to the client (ONVI)",
