@@ -630,9 +630,12 @@ export async function createBenefit(
   return response.data;
 }
 
-export async function getBenefits(): Promise<BenefitResponse[]> {
+export async function getBenefits(params?: {
+  loyaltyProgramId?: number;
+}): Promise<BenefitResponse[]> {
   const response: AxiosResponse<BenefitResponse[]> = await api.get(
-    MARKETING.LOYALTY + `/benefits`
+    MARKETING.LOYALTY + `/benefits`,
+    params ? { params } : undefined
   );
 
   return response.data;
