@@ -2,7 +2,9 @@ import DropdownInput from '@/components/ui/Input/DropdownInput';
 import useFormHook from '@/hooks/useFormHook';
 import { getPoses } from '@/services/api/equipment';
 import {
+  AllWorkersResponse,
   deleteCollectionById,
+  getAllWorkers,
   getCollectionById,
   postCollection,
   recalculateCollection,
@@ -10,7 +12,7 @@ import {
   returnCollection,
   sendCollection,
 } from '@/services/api/finance';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
@@ -26,6 +28,7 @@ import CashCollectionDeviceTypeTable from '@/pages/Finance/CashCollectionDeviceT
 import CollectionDeviceTable from '@/pages/Finance/CollectionDeviceTable';
 import { formatNumber } from '@/utils/tableUnits';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { useUser } from '@/hooks/useUserStore';
 
 type TableRow = {
   id: number;
@@ -62,6 +65,8 @@ type Collection = {
   countCar: number;
   countCarCard: number;
   averageCheck: number;
+  manageId?: number;
+  managerName?: string;
   cashCollectionDeviceType: {
     id: number;
     typeName: string;
@@ -93,10 +98,13 @@ const CollectionCreation: React.FC = () => {
   const userPermissions = usePermissions();
   const { showToast } = useToast();
   const [isDeletingCollection, setIsDeletingCollection] = useState(false);
-
+  const [selectedManageId, setSelectedManageId] = useState<number | undefined>(undefined);
+  const user = useUser();
+  
   const id = searchParams.get('id');
   const status = searchParams.get('status');
   const city = Number(searchParams.get('city')) || undefined;
+  const posIdFromParams = searchParams.get('posId') ? Number(searchParams.get('posId')) : undefined;
 
   const { data: posData } = useSWR(
     [`get-pos`, city],
@@ -110,7 +118,7 @@ const CollectionCreation: React.FC = () => {
   );
 
   const { data: collections } = useSWR(
-    id ? [`get-collection`] : null,
+    id ? [`get-collection`, id] : null,
     () => getCollectionById(Number(id)),
     {
       revalidateOnFocus: false,
@@ -124,7 +132,7 @@ const CollectionCreation: React.FC = () => {
     posData?.map(item => ({ name: item.name, value: item.id })) || [];
 
   const defaultValues = {
-    posId: 0,
+    posId: posIdFromParams || 0,
     cashCollectionDate: '',
   };
 
@@ -132,12 +140,57 @@ const CollectionCreation: React.FC = () => {
 
   const { register, handleSubmit, errors, setValue } = useFormHook(formData);
 
+  const { data: workersData } = useSWR(
+    formData.posId ? [`get-workers`, formData.posId] : null,
+    () => getAllWorkers(formData.posId),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false,
+    }
+  );
+
+  const workersMap = useMemo(() => {
+    const map = new Map<number, AllWorkersResponse['props']>();
+    workersData?.forEach((worker: AllWorkersResponse) => {
+      if (worker.props) {
+        map.set(worker.props.id, worker.props);
+      }
+    });
+    return map;
+  }, [workersData]);
+
+  const workers: { name: string; value: number; key: number }[] = useMemo(() => {
+    return workersData
+      ?.map((worker: AllWorkersResponse) => {
+        if (!worker.props) return null;
+        return {
+          name: worker.props.surname 
+            ? `${worker.props.name} ${worker.props.surname}` 
+            : worker.props.name,
+          value: worker.props.id,
+          key: worker.props.id
+        };
+      })
+      .filter(Boolean) as { name: string; value: number; key: number }[] || [];
+  }, [workersData]);
+
+  useEffect(() => {
+    if (collections?.manageId) {
+      setSelectedManageId(collections.manageId);
+    } else if (user?.id) {
+      setSelectedManageId(user.id);      
+    }
+  }, [collections, id, user]);
+  
   const { trigger: postColl, isMutating: collectionLoading } = useSWRMutation(
     ['post-collection'],
     async () =>
       postCollection({
         cashCollectionDate: new Date(formData.cashCollectionDate),
         posId: formData.posId,
+        manageId: selectedManageId,
       })
   );
 
@@ -153,6 +206,10 @@ const CollectionCreation: React.FC = () => {
     const updatedValue = numericFields.includes(field) ? Number(value) : value;
     setFormData(prev => ({ ...prev, [field]: updatedValue }));
     setValue(field, value);
+    
+    if (field === 'posId') {
+      setSelectedManageId(undefined);
+    }
   };
 
   useEffect(() => {
@@ -322,6 +379,7 @@ const CollectionCreation: React.FC = () => {
       cashCollectionDate: cashCollectionDate,
       cashCollectionDeviceData: collectionDevice,
       cashCollectionDeviceTypeData: collectionDeviceType,
+      manageId: selectedManageId,
     });
 
     if (result) {
@@ -360,6 +418,7 @@ const CollectionCreation: React.FC = () => {
       cashCollectionDate: cashCollectionDate,
       cashCollectionDeviceData: collectionDevice,
       cashCollectionDeviceTypeData: collectionDeviceType,
+      manageId: selectedManageId,
     });
 
     if (result) {
@@ -415,6 +474,17 @@ const CollectionCreation: React.FC = () => {
     } finally {
       setIsDeletingCollection(false);
     }
+  };
+
+  const getManagerName = () => {
+    if (collectionData.managerName) {
+      return collectionData.managerName;
+    }
+    if (collectionData.manageId && workersMap) {
+      const worker = workersMap.get(collectionData.manageId);
+      return worker ? (worker.surname ? `${worker.name} ${worker.surname}` : worker.name) : '-';
+    }
+    return '-';
   };
 
   return (
@@ -553,6 +623,26 @@ const CollectionCreation: React.FC = () => {
             </div>
             <div className="flex space-x-2 items-center">
               <div className="text-black opacity-40 font-medium">
+                {t('finance.responsible')} :
+              </div>
+              {status === t('tables.SENT') ? (
+                <div className="font-bold w-64">
+                  {getManagerName()}
+                </div>
+              ) : (
+                <DropdownInput
+                  title=""
+                  options={workers}
+                  classname="w-64"
+                  value={selectedManageId || 0}
+                  onChange={(value) => setSelectedManageId(Number(value))}
+                  error={false}
+                />
+              )}
+            </div>
+
+            <div className="flex space-x-2 items-center">
+              <div className="text-black opacity-40 font-medium min-w-[150px]">
                 {t('finance.cashDate')} :
               </div>
               {status === t('tables.SENT') ? (

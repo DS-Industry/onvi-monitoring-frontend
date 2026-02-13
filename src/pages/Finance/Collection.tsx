@@ -150,12 +150,12 @@ const Collection: React.FC = () => {
         title: t('marketing.carWashBranch'),
         dataIndex: 'posName',
         key: 'posName',
-        render: (text: string, record: { id: number; status: string }) => {
+        render: (text: string, record: { id: number; status: string; posId: number }) => {
           return (
             <Link
               to={{
                 pathname: '/finance/collection/creation',
-                search: `?id=${record.id}&status=${record.status}`,
+                search: `?id=${record.id}&status=${record.status}&posId=${record.posId}`,
               }}
               state={{ referrer: searchParams.toString() }}
               className="text-blue-500 hover:text-blue-700 font-semibold"
@@ -281,14 +281,15 @@ const Collection: React.FC = () => {
   const { checkedList, setCheckedList, options, visibleColumns } =
     useColumnSelector(columns, 'collections-table-columns');
 
-  const handleCreateClick = () => {
-    navigate('/finance/collection/creation', {
-      state: { 
-        referrer: searchParams.toString(),
-        fromPage: 'collection' 
+    const handleCreateClick = () => {
+      const currentPosId = searchParams.get('posId');
+      const createParams = new URLSearchParams();
+      if (currentPosId && currentPosId !== '*') {
+        createParams.set('posId', currentPosId);
       }
-    });
-  };
+    
+      navigate(`/finance/collection/creation?${createParams.toString()}`);
+    };
 
   return (
     <div>

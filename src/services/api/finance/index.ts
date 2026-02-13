@@ -70,6 +70,7 @@ export enum ManagerPaperTypeClass {
 type CollectionBody = {
   cashCollectionDate: Date;
   posId: number;
+  manageId?: number;
 };
 
 type CollectionResponse = {
@@ -84,6 +85,7 @@ type CollectionResponse = {
   countCar: number;
   countCarCard: number;
   averageCheck: number;
+  manageId: number;
   cashCollectionDeviceType: {
     id: number;
     typeName: string;
@@ -110,6 +112,7 @@ type CollectionResponse = {
 export type RecalculateCollectionBody = {
   oldCashCollectionDate?: Date;
   cashCollectionDate?: Date;
+  manageId?: number;
   cashCollectionDeviceData: {
     cashCollectionDeviceId: number;
     oldTookMoneyTime?: Date;
@@ -528,7 +531,7 @@ type ManagerPeriodIdResponse = {
   }[];
 };
 
-type AllWorkersResponse = {
+export type AllWorkersResponse = {
   props: {
     id: number;
     userRoleId: number;

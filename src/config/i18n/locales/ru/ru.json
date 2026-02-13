@@ -1214,7 +1214,8 @@
     "return": "Вернуть",
     "collectionDate": "Дата инкассации",
     "oldCashDate": "Старая дата сбора наличных",
-    "cashDate": "Дата получения наличных"
+    "cashDate": "Дата получения наличных",
+    "responsible": "Ответственный"
   },
   "shift-management": {
     "shift-create-modal": {
