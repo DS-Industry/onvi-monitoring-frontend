@@ -157,6 +157,7 @@ const Collection: React.FC = () => {
                 pathname: '/finance/collection/creation',
                 search: `?id=${record.id}&status=${record.status}`,
               }}
+              state={{ referrer: searchParams.toString() }}
               className="text-blue-500 hover:text-blue-700 font-semibold"
             >
               {text}
@@ -221,7 +222,7 @@ const Collection: React.FC = () => {
         key: 'createdByName',
       },
     ],
-    []
+    [t, renderCurrency, renderStatus, searchParams]
   );
 
   const { columns, transformedData } = useMemo(() => {
@@ -275,10 +276,19 @@ const Collection: React.FC = () => {
       ] as ColumnsType<CashCollectionLevel>,
       transformedData: sortedData,
     };
-  }, [collectionsData, baseColumns, poses, t]);
+  }, [collectionsData, baseColumns, poses, t, workerData]);
 
   const { checkedList, setCheckedList, options, visibleColumns } =
     useColumnSelector(columns, 'collections-table-columns');
+
+  const handleCreateClick = () => {
+    navigate('/finance/collection/creation', {
+      state: { 
+        referrer: searchParams.toString(),
+        fromPage: 'collection' 
+      }
+    });
+  };
 
   return (
     <div>
@@ -291,7 +301,7 @@ const Collection: React.FC = () => {
         <Button
           icon={<PlusOutlined />}
           className="btn-primary"
-          onClick={() => navigate('/finance/collection/creation')}
+          onClick={handleCreateClick}
         >
           <span className="hidden sm:flex">{t('routes.create')}</span>
         </Button>
