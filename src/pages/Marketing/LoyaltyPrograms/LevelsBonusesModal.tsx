@@ -13,8 +13,9 @@ import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
 import { useTranslation } from 'react-i18next';
 import { useToast } from '@/components/context/useContext';
-import { useSearchParams } from 'react-router-dom';
 import { useEffect } from 'react';
+
+const ONVI_PROGRAM_ID = Number(import.meta.env.VITE_ONVI_PROGRAM_ID) || 0;
 
 type Props = {
   open: boolean;
@@ -37,9 +38,8 @@ const LevelsBonusesModal: React.FC<Props> = ({
   const [selectedBenefitKeys, setSelectedBenefitKeys] = useState<string[]>([]);
   const isEdit = !!tierId;
 
-  const [searchParams] = useSearchParams();
-
-  const ltyProgramId = searchParams.get('loyaltyProgramId');
+  const isOnviProgram = loyaltyProgramId === ONVI_PROGRAM_ID;
+  const allowedBenefitType = isOnviProgram ? BenefitType.CASHBACK : BenefitType.DISCOUNT;
 
   const levelDefaults = {
     name: '',
@@ -75,29 +75,35 @@ const LevelsBonusesModal: React.FC<Props> = ({
       })
   );
 
-  const { data: benefitsData } = useSWR([`get-benefits`], () => getBenefits(), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-  });
-  const benefitOptions = useMemo(
-    () =>
-      (benefitsData || []).map(b => ({
-        key: String(b.props.id),
-        title: b.props.name,
-        id: b.props.id,
-        type: b.props.benefitType,
-        bonus: b.props.bonus,
-      })),
-    [benefitsData]
+  const { data: benefitsData } = useSWR(
+    [`get-benefits`, loyaltyProgramId],
+    () => getBenefits({ loyaltyProgramId: loyaltyProgramId }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
   );
+  const benefitOptions = useMemo(() => {
+    const all = (benefitsData || []).map(b => ({
+      key: String(b.props.id),
+      title: b.props.name,
+      id: b.props.id,
+      type: b.props.benefitType,
+      bonus: b.props.bonus,
+    }));
+    return all.filter(b => b.type === allowedBenefitType);
+  }, [benefitsData, allowedBenefitType]);
 
-  const benefitDefaults = {
-    name: '',
-    type: '',
-    bonus: 0,
-    benefitActionTypeId: undefined as number | undefined,
-  };
+  const benefitDefaults = useMemo(
+    () => ({
+      name: '',
+      type: isOnviProgram ? BenefitType.CASHBACK : BenefitType.DISCOUNT,
+      bonus: 0,
+      benefitActionTypeId: undefined as number | undefined,
+    }),
+    [isOnviProgram]
+  );
 
   const [benefitForm, setBenefitForm] = useState(benefitDefaults);
   const {
@@ -120,12 +126,19 @@ const LevelsBonusesModal: React.FC<Props> = ({
     useSWRMutation(['create-benefit'], async () =>
       createBenefit({
         name: benefitForm.name,
-        type: benefitForm.type as BenefitType,
+        type: allowedBenefitType,
         bonus: Number(benefitForm.bonus) || 0,
         benefitActionTypeId: benefitForm.benefitActionTypeId,
-        ltyProgramId: Number(ltyProgramId) || 0,
+        ltyProgramId: loyaltyProgramId,
       })
     );
+
+  useEffect(() => {
+    if (open) {
+      setBenefitForm(prev => ({ ...prev, type: allowedBenefitType }));
+      setBenefitValue('type', allowedBenefitType);
+    }
+  }, [open, allowedBenefitType, setBenefitValue]);
 
   useEffect(() => {
     const prefillForEdit = async () => {
@@ -166,7 +179,7 @@ const LevelsBonusesModal: React.FC<Props> = ({
     try {
       const res = await doCreateBenefit();
       if (res?.props?.id) {
-        await mutate([`get-benefits`]);
+        await mutate([`get-benefits`, loyaltyProgramId]);
         resetBenefit(benefitDefaults);
         showToast(t('routes.savedSuccessfully'), 'success');
       }
@@ -333,8 +346,12 @@ const LevelsBonusesModal: React.FC<Props> = ({
           <div className="w-full flex justify-center">
             <Transfer
               dataSource={benefitOptions}
-              targetKeys={selectedBenefitKeys}
-              onChange={keys => setSelectedBenefitKeys(keys as string[])}
+              targetKeys={selectedBenefitKeys.filter(k =>
+                benefitOptions.some(o => o.key === k)
+              )}
+              onChange={keys =>
+                setSelectedBenefitKeys((keys as string[]).slice(-1))
+              }
               render={item => (
                 <div className="flex flex-col">
                   <span className="font-medium text-text01">{item.title}</span>
@@ -416,15 +433,22 @@ const LevelsBonusesModal: React.FC<Props> = ({
                     </div>
                     <Select
                       placeholder={t('warehouse.notSel')}
-                      value={benefitForm.type}
-                      onChange={v => handleBenefitChange('type', v)}
+                      value={allowedBenefitType}
+                      disabled
                       options={[
-                        { label: t('marketing.CASHBACK'), value: 'CASHBACK' },
-                        { label: t('marketing.DISCOUNT'), value: 'DISCOUNT' },
-                        {
-                          label: t('marketing.GIFT_POINTS'),
-                          value: 'GIFT_POINTS',
-                        },
+                        ...(isOnviProgram
+                          ? [
+                            {
+                              label: t('marketing.CASHBACK'),
+                              value: BenefitType.CASHBACK,
+                            },
+                          ]
+                          : [
+                            {
+                              label: t('marketing.DISCOUNT'),
+                              value: BenefitType.DISCOUNT,
+                            },
+                          ]),
                       ]}
                       className="w-72"
                     />

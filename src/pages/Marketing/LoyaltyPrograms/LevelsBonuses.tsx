@@ -48,11 +48,15 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ program, isEditable = tru
   const [editTierId, setEditTierId] = useState<number | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const { data: benefitsData } = useSWR([`get-benefits`], () => getBenefits(), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-  });
+  const { data: benefitsData } = useSWR(
+    [`get-benefits`, loyaltyProgramId],
+    () => getBenefits({ loyaltyProgramId }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+    }
+  );
 
   const goBack = () => {
     updateSearchParams(searchParams, setSearchParams, {
