@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import TotalVisitorsIcon from '@icons/total-visitors.svg?react';
 import ProfitIcon from '@icons/profit.svg?react';
-import TotalDownTimeIcon from '@icons/total-downtime.svg?react';
 import Notification from '@ui/Notification';
 import LineChart from '@ui/LineChart';
 import useSWR from 'swr';
@@ -135,15 +134,15 @@ const Indicators: React.FC = () => {
       percentage: '15',
       day: 'К предыдущему дню',
     },
-    {
-      title: 'downtime',
-      number: 7,
-      unit: 'мин',
-      icon: TotalDownTimeIcon,
-      isPositive: true,
-      percentage: '15',
-      day: 'К предыдущему дню',
-    },
+    // {
+    //   title: 'downtime',
+    //   number: 7,
+    //   unit: 'мин',
+    //   icon: TotalDownTimeIcon,
+    //   isPositive: true,
+    //   percentage: '15',
+    //   day: 'К предыдущему дню',
+    // },
   ];
 
   const handleDurationClickRev = (duration: 'today' | 'week' | 'month') => {
