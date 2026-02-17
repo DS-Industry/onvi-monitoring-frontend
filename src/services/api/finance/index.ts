@@ -611,14 +611,10 @@ export async function sendCollection(
   body: RecalculateCollectionBody,
   id: number
 ): Promise<CollectionResponse> {
-  console.log("sendCollection body", body);
-  
   const response: AxiosResponse<CollectionResponse> = await api.post(
     FINANCE.POST_CASH_COLLECTION + `/send/${id}`,
     body
-  );
-  console.log("sendCollection", response.data);
-  
+  );  
   return response.data;
 }
 
@@ -636,9 +632,7 @@ export async function getCollectionById(
 ): Promise<CollectionResponse> {
   const response: AxiosResponse<CollectionResponse> = await api.get(
     FINANCE.POST_CASH_COLLECTION + `/${id}`
-  );
-  console.log("getCollectionById", response.data);
-  
+  );  
   return response.data;
 }
 
