@@ -1426,7 +1426,8 @@
     "enterPosition": "Введите позицию",
     "aboutPosition": "О позиции",
     "prepaymentSum": "Выплачено аванс",
-    "paymentSum": "Основная часть ЗП"
+    "paymentSum": "Основная часть ЗП",
+    "selectPosesWarning": "Для сотрудника еще не выбраны точки продаж. Пожалуйста, выберите точки."
   },
   "notifications": {
     "fav": "Избранное",
