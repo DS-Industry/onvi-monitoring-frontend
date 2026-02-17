@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import useSWR, { mutate } from 'swr';
@@ -51,7 +51,7 @@ const Employees: React.FC = () => {
   const city = Number(searchParams.get('city')) || undefined;
   const user = useUser();
   const userPermissions = usePermissions();
-
+  const navigate = useNavigate();
   const { showToast } = useToast();
 
   const screens = Grid.useBreakpoint();
@@ -317,6 +317,10 @@ const Employees: React.FC = () => {
         ]);
         showToast(t('success.recordCreated'), 'success');
         resetForm();
+        const newWorkerId = result.props.id;
+        navigate(`/hr/employees/profile?workerId=${newWorkerId}&tab=poses`, {
+          state: { newWorker: true }
+        });
       } else {
         throw new Error('Invalid response from API');
       }

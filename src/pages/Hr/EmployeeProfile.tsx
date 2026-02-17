@@ -1,7 +1,7 @@
 import SearchInput from '@/components/ui/Input/SearchInput';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import useFormHook from '@/hooks/useFormHook';
 import Input from '@/components/ui/Input/Input';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
@@ -46,11 +46,20 @@ const DoubleSkeleton = () => (
   </>
 );
 
+enum EmployeeTab {
+  Info = 'info',
+  Additional = 'addi',
+  Salary = 'salary',
+  Poses = 'poses',
+  Scheduling = 'sch',
+}
+
 const EmployeeProfile: React.FC = () => {
   const { t } = useTranslation();
   const [searchEmp, setSearchEmp] = useState('');
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('info');
+  const location = useLocation();
+  const [activeTab, setActiveTab] = useState<EmployeeTab>(EmployeeTab.Info);
   const user = useUser();
   const userPermissions = usePermissions();
 
@@ -165,11 +174,20 @@ const EmployeeProfile: React.FC = () => {
       ) || [];
 
   const tabs = [
-    { id: 'info', name: t('hr.info') },
-    { id: 'addi', name: t('hr.addi') },
-    { id: 'salary', name: t('hr.salary') },
-    { id: 'poses', name: t('hr.poses') },
+    { id: EmployeeTab.Info, name: t('hr.info') },
+    { id: EmployeeTab.Additional, name: t('hr.addi') },
+    { id: EmployeeTab.Salary, name: t('hr.salary') },
+    { id: EmployeeTab.Poses, name: t('hr.poses') },
   ];
+
+  useEffect(() => {
+    const tabParam = searchParams.get('tab') as EmployeeTab | null;
+    if (tabParam && Object.values(EmployeeTab).includes(tabParam)) {
+      setActiveTab(tabParam);
+    } else {
+      setActiveTab(EmployeeTab.Info);
+    }
+  }, [searchParams]);
 
   const defaultValues: UpdateWorkerRequest = {
     workerId: '0',
@@ -449,6 +467,23 @@ const EmployeeProfile: React.FC = () => {
     { action: 'update', subject: 'Hr' },
   ]);
 
+  const handleEmployeeSelect = (workerId: number) => {
+    updateSearchParams(searchParams, setSearchParams, {
+      workerId: workerId.toString(),
+      tab: undefined,
+    });
+  };
+
+  const newWorkerFlag = location.state?.newWorker === true;
+
+  useEffect(() => {
+    if (activeTab === EmployeeTab.Poses && connectedPosesData && newWorkerFlag) {
+      if (connectedPosesData.poses.length === 0) {
+        showToast(t('hr.selectPosesWarning'), 'warning');
+      }
+    }
+  }, [activeTab, connectedPosesData, t, showToast, newWorkerFlag]);
+
   return (
     <div className="mt-2">
       <div className="flex items-center justify-between">
@@ -495,12 +530,9 @@ const EmployeeProfile: React.FC = () => {
                 ? DoubleSkeleton()
                 : employeeDetails.map(emp => (
                     <div
+                      key={emp.workerId}
                       className="flex rounded-lg hover:bg-background05 p-2.5 cursor-pointer space-x-2"
-                      onClick={() => {
-                        updateSearchParams(searchParams, setSearchParams, {
-                          workerId: emp.workerId.toString(),
-                        });
-                      }}
+                      onClick={() => handleEmployeeSelect(emp.workerId)}
                     >
                       {emp.avatar ? (
                         <img
@@ -529,8 +561,15 @@ const EmployeeProfile: React.FC = () => {
               {tabs.map(tab => (
                 <button
                   key={tab.id}
-                  className={`p-2 flex-1 min-w-[120px] sm:w-40 text-center ${activeTab === tab.id ? 'text-text01 border-b-[3px] border-primary02' : 'text-text02'}`}
-                  onClick={() => setActiveTab(tab.id)}
+                  className={`p-2 flex-1 min-w-[120px] sm:w-40 text-center ${
+                    activeTab === tab.id
+                      ? 'text-text01 border-b-[3px] border-primary02'
+                      : 'text-text02'
+                  }`}
+                  onClick={() => {
+                    setActiveTab(tab.id);
+                    updateSearchParams(searchParams, setSearchParams, { tab: tab.id });
+                  }}
                 >
                   {tab.name}
                 </button>
@@ -542,7 +581,7 @@ const EmployeeProfile: React.FC = () => {
                 <div className="mt-4">{DoubleSkeleton()}</div>
               ) : (
                 <div className="mt-4">
-                  {activeTab === 'info' && (
+                  {activeTab === EmployeeTab.Info && (
                     <div className="space-y-4">
                       <Input
                         type=""
@@ -697,7 +736,7 @@ const EmployeeProfile: React.FC = () => {
                       </div>
                     </div>
                   )}
-                  {activeTab === 'addi' && (
+                  {activeTab === EmployeeTab.Additional && (
                     <div className="space-y-4">
                       <DropdownInput
                         title={`${t('marketing.floor')}`}
@@ -813,7 +852,7 @@ const EmployeeProfile: React.FC = () => {
                       />
                     </div>
                   )}
-                  {activeTab === 'salary' && (
+                  {activeTab === EmployeeTab.Salary && (
                     <div className="space-y-4">
                       <Input
                         title={`${t('hr.month')}`}
@@ -862,7 +901,7 @@ const EmployeeProfile: React.FC = () => {
                       />
                     </div>
                   )}
-                  {activeTab === 'poses' && (
+                  {activeTab === EmployeeTab.Poses && (
                     <div className="space-y-4">
                       <div className="text-lg font-semibold text-text01 mb-4">
                         {t('hr.connectedPoses')}

@@ -1425,7 +1425,8 @@
     "enterPosition": "Enter position",
     "aboutPosition": "About the position",
     "prepaymentSum": "Prepayment Sum",
-    "paymentSum": "Payment Sum"
+    "paymentSum": "Payment Sum",
+    "selectPosesWarning": "The employee has no points of sale assigned yet. Please select points."
   },
   "notifications": {
     "fav": "Favorite",
