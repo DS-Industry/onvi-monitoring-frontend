@@ -65,7 +65,7 @@ type Collection = {
   countCar: number;
   countCarCard: number;
   averageCheck: number;
-  manageId?: number;
+  managerId?: number;
   managerName?: string;
   cashCollectionDeviceType: {
     id: number;
@@ -98,7 +98,7 @@ const CollectionCreation: React.FC = () => {
   const userPermissions = usePermissions();
   const { showToast } = useToast();
   const [isDeletingCollection, setIsDeletingCollection] = useState(false);
-  const [selectedManageId, setSelectedManageId] = useState<number | undefined>(undefined);
+  const [selectedManagerId, setSelectedManagerId] = useState<number | undefined>(undefined);
   const user = useUser();
   
   const id = searchParams.get('id');
@@ -177,10 +177,10 @@ const CollectionCreation: React.FC = () => {
   }, [workersData]);
 
   useEffect(() => {
-    if (collections?.manageId) {
-      setSelectedManageId(collections.manageId);
+    if (collections?.managerId) {
+      setSelectedManagerId(collections.managerId);
     } else if (user?.id) {
-      setSelectedManageId(user.id);      
+      setSelectedManagerId(user.id);      
     }
   }, [collections, id, user]);
   
@@ -190,7 +190,7 @@ const CollectionCreation: React.FC = () => {
       postCollection({
         cashCollectionDate: new Date(formData.cashCollectionDate),
         posId: formData.posId,
-        manageId: selectedManageId,
+        managerId: selectedManagerId,
       })
   );
 
@@ -208,7 +208,7 @@ const CollectionCreation: React.FC = () => {
     setValue(field, value);
     
     if (field === 'posId') {
-      setSelectedManageId(undefined);
+      setSelectedManagerId(undefined);
     }
   };
 
@@ -379,7 +379,7 @@ const CollectionCreation: React.FC = () => {
       cashCollectionDate: cashCollectionDate,
       cashCollectionDeviceData: collectionDevice,
       cashCollectionDeviceTypeData: collectionDeviceType,
-      manageId: selectedManageId,
+      managerId: selectedManagerId,
     });
 
     if (result) {
@@ -418,7 +418,7 @@ const CollectionCreation: React.FC = () => {
       cashCollectionDate: cashCollectionDate,
       cashCollectionDeviceData: collectionDevice,
       cashCollectionDeviceTypeData: collectionDeviceType,
-      manageId: selectedManageId,
+      managerId: selectedManagerId,
     });
 
     if (result) {
@@ -480,8 +480,8 @@ const CollectionCreation: React.FC = () => {
     if (collectionData.managerName) {
       return collectionData.managerName;
     }
-    if (collectionData.manageId && workersMap) {
-      const worker = workersMap.get(collectionData.manageId);
+    if (collectionData.managerId && workersMap) {
+      const worker = workersMap.get(collectionData.managerId);
       return worker ? (worker.surname ? `${worker.name} ${worker.surname}` : worker.name) : '-';
     }
     return '-';
@@ -634,8 +634,8 @@ const CollectionCreation: React.FC = () => {
                   title=""
                   options={workers}
                   classname="w-64"
-                  value={selectedManageId || 0}
-                  onChange={(value) => setSelectedManageId(Number(value))}
+                  value={selectedManagerId || 0}
+                  onChange={(value) => setSelectedManagerId(Number(value))}
                   error={false}
                 />
               )}
