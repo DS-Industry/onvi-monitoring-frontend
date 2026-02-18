@@ -322,6 +322,7 @@ type TechTaskShapeBody = {
     value: string;
     imageUrl?: string;
   }[];
+  sendWorkDate?: Date;
 };
 
 type TechTaskShapeWithUrlsBody = {
