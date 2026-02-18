@@ -124,7 +124,8 @@
     "creatingCampaign": "Creating a Marketing Campaign",
     "editingCampaign": "Editing a Marketing Campaign",
     "viewBranch": "View Branch",
-    "marketingTransactions": "Transactions"
+    "marketingTransactions": "Transactions",
+    "balanceTransferRequests": "Balance transfer requests"
   },
   "marketingTransactions": {
     "columns": {

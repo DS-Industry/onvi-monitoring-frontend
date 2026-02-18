@@ -137,6 +137,9 @@ const Card = React.lazy(() => import('@/pages/Marketing/Cards/Card'));
 const PromoCodeManagement = React.lazy(
   () => import('@/pages/Marketing/PromoCodeManagement')
 );
+const BalanceTransferRequests = React.lazy(
+  () => import('@/pages/Marketing/BalanceTransferRequests')
+);
 const EmployeeAdvanceCreation = React.lazy(
   () => import('@/pages/Hr/EmployeeAdvanceCreation')
 );
@@ -1112,6 +1115,16 @@ const routes = [
         isVisible: true,
         path: '/marketing/promo-code-management',
         component: PromoCodeManagement,
+        permissions: [{ action: 'update', subject: 'LTYProgram' }],
+        isSidebar: true,
+        subNav: [],
+        subMenu: false,
+      },
+      {
+        name: 'balanceTransferRequests',
+        isVisible: true,
+        path: '/marketing/balance-transfer-requests',
+        component: BalanceTransferRequests,
         permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: true,
         subNav: [],

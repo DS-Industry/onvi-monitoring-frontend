@@ -124,7 +124,8 @@
     "creatingCampaign": "Создание маркетинговой кампании",
     "editingCampaign": "Редактирование маркетинговой кампании",
     "viewBranch": "Просмотр филиала",
-    "marketingTransactions": "Транзакции"
+    "marketingTransactions": "Транзакции",
+    "balanceTransferRequests": "Запросы на перенос баланса"
   },
   "marketingTransactions": {
     "columns": {
