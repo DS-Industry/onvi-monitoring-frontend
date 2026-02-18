@@ -5,10 +5,12 @@ import TechTaskCard from '../../../TechTaskCard';
 import type { UploadRequestOption as RcCustomRequestOptions } from 'rc-upload/lib/interface';
 import { useToast } from '@/hooks/useToast';
 import { uploadFileWithPresignedUrl, generateTechTaskImageKey } from '@/services/api/s3';
+import { Dayjs } from 'dayjs';
 
 interface TechTaskViewModeProps {
   techTaskData?: TechTaskShapeResponse;
   onSave?: () => void;
+  sendWorkDate?: Dayjs | null;
 }
 
 export interface TechTaskViewModeRef {
@@ -18,6 +20,7 @@ export interface TechTaskViewModeRef {
 const TechTaskViewMode = forwardRef<TechTaskViewModeRef, TechTaskViewModeProps>(({
   techTaskData,
   onSave,
+  sendWorkDate,
 }, ref) => {
   const { t } = useTranslation();
   const { showToast } = useToast();
@@ -145,9 +148,12 @@ const TechTaskViewMode = forwardRef<TechTaskViewModeRef, TechTaskViewModeProps>(
         };
       });
 
-      await createTechTaskShape(techTaskData.id, {
-        valueData,
-      });
+      const body: any = { valueData };
+      if (sendWorkDate) {
+        body.sendWorkDate = sendWorkDate.toDate();
+      }
+
+      await createTechTaskShape(techTaskData.id, body);
 
       showToast(t('techTasks.saveSuccess') || 'Tech task saved successfully', 'success');
       onSave?.();

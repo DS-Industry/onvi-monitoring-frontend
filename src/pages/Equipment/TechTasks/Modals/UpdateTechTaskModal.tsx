@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, Form, Spin, Tabs, Input } from 'antd';
+import { Modal, Form, Spin, Tabs, Input, DatePicker } from 'antd';
 import dayjs from 'dayjs';
 import {
   updateTechTask,
@@ -62,6 +62,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   const techTaskViewModeRef = useRef<TechTaskViewModeRef>(null);
   const techTaskCommentsRef = useRef<TechTaskCommentsRef>(null);
 
+  const [sendWorkDate, setSendWorkDate] = useState<dayjs.Dayjs | undefined>(undefined);
 
   const TABS = [
     {
@@ -133,6 +134,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       setIsEditMode(false);
       setHasFormChanges(false);
       setSelectedTab('progress');
+      setSendWorkDate(undefined);
 
       if (techTaskCommentsRef.current) {
         techTaskCommentsRef.current.cleanup();
@@ -145,6 +147,16 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   useEffect(() => {
     initForm()
   }, [techTaskDetails, open, form, templates, isEditMode]);
+
+  useEffect(() => {
+    if (techTaskDetails && open) {
+      if (techTaskDetails.status === StatusTechTask.FINISHED) {
+        setSendWorkDate(techTaskDetails.sendWorkDate ? dayjs(techTaskDetails.sendWorkDate) : undefined);
+      } else {
+        setSendWorkDate(techTaskDetails.sendWorkDate ? dayjs(techTaskDetails.sendWorkDate) : dayjs());
+      }
+    }
+  }, [techTaskDetails, open]);
 
   const initForm = () => {
     if (techTaskDetails && open && templates.length > 0) {
@@ -163,7 +175,7 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
       });
 
       setSelectedTemplates(selectedTemplatesList);
-      setAvailableTemplates(availableTemplatesList);      
+      setAvailableTemplates(availableTemplatesList);
 
       form.setFieldsValue({
         name: techTaskDetails.name,
@@ -173,15 +185,12 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
         customPeriodDays: techTaskDetails.periodType === PeriodType.CUSTOM ? techTaskDetails.customPeriodDays : undefined,
         markdownDescription: techTaskDetails.markdownDescription || '',
         endDate: techTaskDetails.endSpecifiedDate ? dayjs(techTaskDetails.endSpecifiedDate) : undefined,
-        sendWorkDate: techTaskDetails.sendWorkDate 
-          ? dayjs(techTaskDetails.sendWorkDate) 
-          : (isEditMode ? dayjs() : undefined),
         tags: techTaskDetails.tags?.map(tag => tag.id) || [],
       });
 
       setHasFormChanges(false);
     }
-  }
+  };
 
   const handleTemplatesChange = (selected: TemplateItem[], available: TemplateItem[]) => {
     setSelectedTemplates(selected);
@@ -201,21 +210,26 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
     }
 
     try {
-      if (!isEditMode && techTaskViewModeRef.current) {
-        await techTaskViewModeRef.current.handleSubmit();
-        onSuccess?.();
-        onClose();
-      } else {
-        const result = await updateTechTaskMutation({
+      if (!isEditMode) {
+        await techTaskViewModeRef.current?.handleSubmit();
+
+        await updateTechTaskMutation({
           techTaskId: techTaskDetails.id,
           status: StatusTechTask.FINISHED,
         });
 
-        if (result) {
-          showToast(t('techTasks.completeSuccess') || 'Задача успешно завершена', 'success');
-          onSuccess?.();
-          onClose();
-        }
+        showToast(t('techTasks.completeSuccess') || 'Задача успешно завершена', 'success');
+        onSuccess?.();
+        onClose();
+      } else {
+        await updateTechTaskMutation({
+          techTaskId: techTaskDetails.id,
+          status: StatusTechTask.FINISHED,
+        });
+
+        showToast(t('techTasks.completeSuccess') || 'Задача успешно завершена', 'success');
+        onSuccess?.();
+        onClose();
       }
     } catch (error) {
       console.error('Failed to complete tech task:', error);
@@ -268,7 +282,6 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
         customPeriodDays: values.periodType === PeriodType.CUSTOM ? Number(values.customPeriodDays) : undefined,
         markdownDescription: values.markdownDescription,
         endSpecifiedDate: values.endDate ? dayjs(values.endDate).toDate() : undefined,
-        sendWorkDate: values.sendWorkDate ? dayjs(values.sendWorkDate).toDate() : undefined,
         techTaskItem: selectedTemplates.map(item => item.id),
         tagIds: values.tags || [],
       };
@@ -324,6 +337,8 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
 
     setIsEditMode(!isEditMode);
   };
+
+  const isTaskFinished = techTaskDetails?.status === StatusTechTask.FINISHED;
 
   return (
     <Modal
@@ -393,13 +408,28 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                     totalTemplates={templates.length}
                     onTemplatesChange={handleTemplatesChange}
                   />
+
+                  {!isEditMode && (
+                    <div className="mb-4">
+                      <Form.Item label={t('techTasks.reportDate')}>
+                        <DatePicker
+                          showTime
+                          value={sendWorkDate}
+                          onChange={(date) => setSendWorkDate(date || undefined)}
+                          format="DD.MM.YYYY HH:mm"
+                          className="w-full"
+                          disabled={isTaskFinished} 
+                        />
+                      </Form.Item>
+                    </div>
+                  )}
+
                   {!isEditMode && (
                     <TechTaskViewMode
                       ref={techTaskViewModeRef}
                       techTaskData={techTaskDetails}
+                      sendWorkDate={sendWorkDate}
                       onSave={() => {
-                        onSuccess?.();
-                        onClose();
                       }}
                     />
                   )}
@@ -419,7 +449,6 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
                   tagsData={tagsData}
                   createdBy={techTaskDetails?.createdBy}
                   executor={techTaskDetails?.executor}
-                  sendWorkDate={techTaskDetails?.sendWorkDate} 
                 />
               </div>
             </div>
