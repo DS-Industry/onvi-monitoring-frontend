@@ -121,10 +121,10 @@
     "falseDeposit": "False deposit",
     "createLoyalty": "Creating a loyalty program",
     "viewLoyalty": "Viewing a loyalty program",
-    "viewBranch": "View Branch",
     "creatingCampaign": "Creating a Marketing Campaign",
     "editingCampaign": "Editing a Marketing Campaign",
-    "marketingTransactions": "Transactions"
+    "viewBranch": "View Branch",
+    "marketingTransactions": "Orders"
   },
   "marketingTransactions": {
     "columns": {
@@ -150,8 +150,8 @@
       "amount": "Amount",
       "comment": "Comment"
     },
-    "full": "Full",
-    "real": "Real",
+    "full": "Full Sum",
+    "real": "Real Sum",
     "bonuses": "Bonuses",
     "discount": "Discount",
     "cashback": "Cashback",
