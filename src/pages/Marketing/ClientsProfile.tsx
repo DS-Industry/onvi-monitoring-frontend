@@ -29,6 +29,7 @@ const ClientsProfile: React.FC = () => {
   const userId = searchParams.get('userId')
     ? Number(searchParams.get('userId'))
     : undefined;
+  const fromOrders = searchParams.get('from') === 'orders';
 
   const { data: clientData, isLoading, isValidating } = useSWR(
     userId ? [`get-client-by-id`, userId] : null,
@@ -99,7 +100,7 @@ const ClientsProfile: React.FC = () => {
       <div
         className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
         onClick={() => {
-          navigate('/marketing/clients');
+          navigate(fromOrders ? '/marketing/marketing-transactions' : '/marketing/clients');
         }}
       >
         <ArrowLeftOutlined />

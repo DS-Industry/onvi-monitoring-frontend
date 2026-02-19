@@ -8,7 +8,7 @@ import { useUser } from '@/hooks/useUserStore';
 import { ContractType } from '@/utils/constants';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { SearchOutlined } from '@ant-design/icons';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
 import { debounce } from 'lodash';
@@ -26,6 +26,7 @@ interface ExpandedRowData {
 
 const MarketingTransactions: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const user = useUser();
   const [selectedLoyaltyProgram, setSelectedLoyaltyProgram] = useState<number | undefined>(undefined);
   const [expandedRowKeys, setExpandedRowKeys] = useState<number[]>([]);
@@ -209,7 +210,21 @@ const MarketingTransactions: React.FC = () => {
       render: (_, record) => {
         if (!record.client) return '-';
         return (
-          <div>
+          <div
+            role="button"
+            tabIndex={0}
+            className="cursor-pointer text-primary02 hover:underline"
+            onClick={e => {
+              e.stopPropagation();
+              navigate(`/marketing/clients/profile?userId=${record.client!.id}&from=orders`);
+            }}
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.stopPropagation();
+                navigate(`/marketing/clients/profile?userId=${record.client!.id}&from=orders`);
+              }
+            }}
+          >
             <div>{record.client.name}</div>
             <div className="text-text02 text-sm">{record.client.phone}</div>
           </div>
@@ -222,7 +237,25 @@ const MarketingTransactions: React.FC = () => {
       width: 120,
       render: (_, record) => {
         if (!record.card) return '-';
-        return record.card.number;
+        return (
+          <span
+            role="button"
+            tabIndex={0}
+            className="cursor-pointer text-primary02 hover:underline"
+            onClick={e => {
+              e.stopPropagation();
+              navigate(`/marketing/cards/card/${record.card!.id}?from=orders`);
+            }}
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.stopPropagation();
+                navigate(`/marketing/cards/card/${record.card!.id}?from=orders`);
+              }
+            }}
+          >
+            {record.card.number}
+          </span>
+        );
       },
     },
     {
@@ -264,15 +297,18 @@ const MarketingTransactions: React.FC = () => {
       render: (contractType: ContractType) => translateContractType(contractType),
     },
     {
-      title: t('marketingTransactions.columns.sums'),
-      key: 'sums',
-      width: 150,
-      render: (_, record) => (
-        <div>
-          <div>{t('marketingTransactions.full')}: {currencyRender(record.sumFull)}</div>
-          <div>{t('marketingTransactions.real')}: {currencyRender(record.sumReal)}</div>
-        </div>
-      ),
+      title: t('marketingTransactions.full'),
+      dataIndex: 'sumFull',
+      key: 'sumFull',
+      width: 120,
+      render: (sum: number) => currencyRender(sum),
+    },
+    {
+      title: t('marketingTransactions.real'),
+      dataIndex: 'sumReal',
+      key: 'sumReal',
+      width: 120,
+      render: (sum: number) => currencyRender(sum),
     },
     {
       title: t('marketingTransactions.columns.bonuses'),

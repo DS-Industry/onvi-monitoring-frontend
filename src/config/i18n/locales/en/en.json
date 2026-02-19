@@ -124,7 +124,7 @@
     "creatingCampaign": "Creating a Marketing Campaign",
     "editingCampaign": "Editing a Marketing Campaign",
     "viewBranch": "View Branch",
-    "marketingTransactions": "Transactions"
+    "marketingTransactions": "Orders"
   },
   "marketingTransactions": {
     "columns": {
@@ -150,8 +150,8 @@
       "amount": "Amount",
       "comment": "Comment"
     },
-    "full": "Full",
-    "real": "Real",
+    "full": "Full Sum",
+    "real": "Real Sum",
     "bonuses": "Bonuses",
     "discount": "Discount",
     "cashback": "Cashback",
