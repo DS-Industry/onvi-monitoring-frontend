@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
 import {
   getCardById,
@@ -18,10 +18,12 @@ const { Option } = Select;
 const Card: React.FC = () => {
   const { t } = useTranslation();
   const { cardId: cardIdParam } = useParams<{ cardId: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { showToast } = useToast();
 
   const cardId = cardIdParam ? Number(cardIdParam) : undefined;
+  const fromOrders = searchParams.get('from') === 'orders';
 
   const [selectedTierId, setSelectedTierId] = useState<number | undefined>(undefined);
   const [selectedStatus, setSelectedStatus] = useState<'ACTIVE' | 'INACTIVE'>('ACTIVE');
@@ -119,7 +121,7 @@ const Card: React.FC = () => {
     <div className="space-y-6">
       <div
         className="flex text-primary02 mb-5 cursor-pointer"
-        onClick={() => navigate('/marketing/cards')}
+        onClick={() => navigate(fromOrders ? '/marketing/marketing-transactions' : '/marketing/cards')}
       >
         <ArrowLeftOutlined />
         <p className="ms-2">{t('login.back')}</p>
