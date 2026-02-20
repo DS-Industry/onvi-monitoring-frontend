@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Table, Tag, Space, Modal, Input } from 'antd';
+import { Button, Table, Tag, Space, Modal, Input, Select } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
@@ -18,6 +18,7 @@ import {
   approveBalanceTransfer,
   rejectBalanceTransfer 
 } from '@/services/api/marketing';
+import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 
 const useBalanceTransfers = (
   currentPage: number,
@@ -118,6 +119,24 @@ const BalanceTransferRequests: React.FC = () => {
     [searchParams, setSearchParams]
   );
 
+  const handleResetFilters = useCallback(() => {
+    updateSearchParams(searchParams, setSearchParams, {
+      page: String(DEFAULT_PAGE),
+      size: String(DEFAULT_PAGE_SIZE),
+      status: undefined,
+      search: '',
+      startDate: '',
+      endDate: '',
+    });
+  }, [searchParams, setSearchParams]);
+
+  const handleStatusChange = useCallback((value: string) => {
+    updateSearchParams(searchParams, setSearchParams, {
+      status: value || undefined,
+      page: String(DEFAULT_PAGE),
+    });
+  }, [searchParams, setSearchParams]);
+
   const handleApproveClick = useCallback((record: BalanceTransferResponse) => {
     let comment = '';
 
@@ -126,7 +145,7 @@ const BalanceTransferRequests: React.FC = () => {
       content: (
         <div className="space-y-4">
           <div className="text-sm text-gray-600 space-y-2">
-            <p><strong>{t('marketing.transferRequestId')}:</strong> #{record.id}</p>
+            <p><strong>{t('marketing.transferRequestId')}:</strong> {record.id}</p>
             <p><strong>{t('marketing.transferClientInfo')}:</strong> {record.clientName || t('marketing.transferNoName')} ({record.clientPhone || t('marketing.transferNoPhone')})</p>
             <p><strong>{t('marketing.transferFromCard')}:</strong> {record.fromCardNumber || '-'}</p>
             <p><strong>{t('marketing.transferToCard')}:</strong> {record.toCardNumber || '-'}</p>
@@ -170,7 +189,7 @@ const BalanceTransferRequests: React.FC = () => {
       content: (
         <div className="space-y-4">
           <div className="text-sm text-gray-600 space-y-2">
-            <p><strong>{t('marketing.transferRequestId')}:</strong> #{record.id}</p>
+            <p><strong>{t('marketing.transferRequestId')}:</strong> {record.id}</p>
             <p><strong>{t('marketing.transferClientInfo')}:</strong> {record.clientName || t('marketing.transferNoName')} ({record.clientPhone || t('marketing.transferNoPhone')})</p>
             <p><strong>{t('marketing.transferFromCard')}:</strong> {record.fromCardNumber || '-'}</p>
             <p><strong>{t('marketing.transferToCard')}:</strong> {record.toCardNumber || '-'}</p>
@@ -239,7 +258,7 @@ const BalanceTransferRequests: React.FC = () => {
       dataIndex: 'id',
       key: 'id',
       width: 80,
-      render: (id: number) => <span className="font-medium">#{id}</span>,
+      render: (id: number) => <span className="font-medium">{id}</span>,
     },
     {
       title: t('marketing.transferClientInfo'),
@@ -353,6 +372,32 @@ const BalanceTransferRequests: React.FC = () => {
         </div>
       </div>
 
+      <GeneralFilters
+        count={pagination?.total || 0}
+        display={['count']}
+        onReset={handleResetFilters}
+      >
+        <div>
+          <label className="block mb-1 text-sm font-medium text-gray-700">
+            {t('constants.status')}
+          </label>
+          <Select
+            allowClear
+            placeholder="Все статусы"
+            className="w-full sm:w-80"
+            value={status}
+            onChange={handleStatusChange}
+            options={[
+              { label: 'Все', value: '' },
+              { label: t('marketing.transferStatusPending'), value: BalanceTransferStatus.PENDING },
+              { label: t('marketing.transferStatusApproved'), value: BalanceTransferStatus.APPROVED },
+              { label: t('marketing.transferStatusRejected'), value: BalanceTransferStatus.REJECTED },
+              { label: t('marketing.transferStatusCompleted'), value: BalanceTransferStatus.COMPLETED },
+            ]}
+          />
+        </div>
+      </GeneralFilters>
+
       <Table
         columns={columns}
         dataSource={transfers}
@@ -374,7 +419,6 @@ const BalanceTransferRequests: React.FC = () => {
             : false
         }
         scroll={{ x: 1200 }}
-        locale={{ emptyText: t('table.noData') }}
       />
     </>
   );

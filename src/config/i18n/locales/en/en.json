@@ -919,7 +919,7 @@
     "loyaltyProgram": "Loyalty Program",
     "selectProgramToViewTransactions": "Select a loyalty program to view transactions",
     "transferRequests": "Balance Transfer Requests",
-    "transferRequestId": "Request ID",
+    "transferRequestId": "ID",
     "transferClientInfo": "Client",
     "transferFromCard": "Old Card",
     "transferToCard": "New Card",

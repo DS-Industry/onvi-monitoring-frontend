@@ -919,7 +919,7 @@
     "loyaltyProgram": "Программа лояльности",
     "selectProgramToViewTransactions": "Выберите программу лояльности для просмотра транзакций",
     "transferRequests": "Запросы на перенос баланса",
-    "transferRequestId": "№ запроса",
+    "transferRequestId": "ID",
     "transferClientInfo": "Клиент",
     "transferFromCard": "Старая карта",
     "transferToCard": "Новая карта",
