@@ -2234,3 +2234,112 @@ export async function createManualTransaction(
   );
   return response.data;
 }
+
+export enum BalanceTransferStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  COMPLETED = 'COMPLETED'
+}
+
+export type BalanceTransfersParams = {
+  organizationId?: number;
+  status?: BalanceTransferStatus;
+  search?: string; 
+  startDate?: string; 
+  endDate?: string;
+  page?: number;
+  size?: number;
+};
+
+export type BalanceTransfersPaginatedResponse = {
+  items: BalanceTransferResponse[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+};
+
+export type BalanceTransferResponse = {
+  id: number;
+  fromCardId: number;
+  toCardId: number;
+  amount: number;
+  status: BalanceTransferStatus;
+  comment: string | null;
+  createdAt: string;
+  processedAt: string | null;
+  fromCardNumber: string | null;
+  toCardNumber: string | null;
+  clientPhone: string | null;
+  clientName: string | null;
+  processedByName: string | null;
+};
+
+export type CardInfo = {
+  id: number;
+  number: string;
+  devNumber: string;
+  balance: number;
+};
+
+export type ClientInfo = {
+  id: number;
+  name: string;
+  phone: string;
+  email: string | null;
+};
+
+export async function getBalanceTransfers(
+  params: BalanceTransfersParams
+): Promise<BalanceTransfersPaginatedResponse> {  
+  const response: AxiosResponse<BalanceTransfersPaginatedResponse> = await api.get('user/loyalty/balance-transfers', { params });  
+  return response.data;
+}
+
+export type ApproveTransferParams = {
+  transferId: number;
+  status: 'APPROVED' | 'REJECTED';
+  comment?: string;
+};
+
+export type ApproveTransferResponse = {
+  id: number;
+  fromCardId: number;
+  toCardId: number;
+  amount: number;
+  status: BalanceTransferStatus;
+  processedAt: string;
+  processedById: number;
+  comment?: string | null;
+};
+
+export async function approveBalanceTransfer(
+  transferId: number,
+  comment?: string
+): Promise<ApproveTransferResponse> {
+  const response: AxiosResponse<ApproveTransferResponse> = await api.post(
+    `user/loyalty/balance-transfer/${transferId}/approve`,
+    { 
+      status: BalanceTransferStatus.APPROVED,
+      comment 
+    }
+  );
+  return response.data;
+}
+
+export async function rejectBalanceTransfer(
+  transferId: number,
+  comment?: string
+): Promise<ApproveTransferResponse> {
+  const response: AxiosResponse<ApproveTransferResponse> = await api.post(
+    `user/loyalty/balance-transfer/${transferId}/approve`,
+    { 
+      status: BalanceTransferStatus.REJECTED,
+      comment 
+    }
+  );
+  return response.data;
+}
