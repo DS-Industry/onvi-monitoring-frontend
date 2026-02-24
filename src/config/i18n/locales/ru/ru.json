@@ -124,7 +124,7 @@
     "creatingCampaign": "Создание маркетинговой кампании",
     "editingCampaign": "Редактирование маркетинговой кампании",
     "viewBranch": "Просмотр филиала",
-    "marketingTransactions": "Транзакции",
+    "marketingTransactions": "Заказы",
     "balanceTransferRequests": "Запросы на перенос баланса"
   },
   "marketingTransactions": {
@@ -151,8 +151,8 @@
       "amount": "Сумма",
       "comment": "Комментарий"
     },
-    "full": "Полная",
-    "real": "Реальная",
+    "full": "Полная Сумма",
+    "real": "Реальная Сумма",
     "bonuses": "Бонусы",
     "discount": "Скидка",
     "cashback": "Кэшбэк",
