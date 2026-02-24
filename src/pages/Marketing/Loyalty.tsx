@@ -96,6 +96,7 @@ const Loyalty: React.FC = () => {
     }
   }, [clientData]);
 
+
   const handleAssignCard = async () => {
     if (!userId || !selectedCardId) {
       message.error('Client ID or Card ID not found');
