@@ -943,7 +943,10 @@
     "transferRejected": "Transfer request rejected successfully",
     "alreadyApproved": "Approved",
     "alreadyRejected": "Rejected",
-    "alreadyCompleted": "Completed"
+    "alreadyCompleted": "Completed",
+    "fromClient": "Old client",
+    "toClient": "New Client",
+    "phoneMismatchWarning": "The phones don't match"
   },
   "errors": {
     "574": "An internal server error occurred. Please try again later.",

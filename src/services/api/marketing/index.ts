@@ -2273,9 +2273,12 @@ export type BalanceTransferResponse = {
   processedAt: string | null;
   fromCardNumber: string | null;
   toCardNumber: string | null;
-  clientPhone: string | null;
-  clientName: string | null;
-  processedByName: string | null;
+  fromClientName: string | null;
+  fromClientPhone: string | null;
+  toClientName: string | null;
+  toClientPhone: string | null;
+  processedByName?: string | null;
+  isPhoneMatch?: boolean;
 };
 
 export type CardInfo = {

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Table, Tag, Space, Modal, Input, Select } from 'antd';
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons';
@@ -78,6 +78,7 @@ const BalanceTransferRequests: React.FC = () => {
   const { showToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const [modal, contextHolder] = Modal.useModal();
+  const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
@@ -137,6 +138,15 @@ const BalanceTransferRequests: React.FC = () => {
     });
   }, [searchParams, setSearchParams]);
 
+  const handleRowClick = (record: BalanceTransferResponse) => {
+    const key = record.id;
+    if (expandedRowKeys.includes(key)) {
+      setExpandedRowKeys(expandedRowKeys.filter(k => k !== key));
+    } else {
+      setExpandedRowKeys([...expandedRowKeys, key]);
+    }
+  };
+
   const handleApproveClick = useCallback((record: BalanceTransferResponse) => {
     let comment = '';
 
@@ -146,7 +156,7 @@ const BalanceTransferRequests: React.FC = () => {
         <div className="space-y-4">
           <div className="text-sm text-gray-600 space-y-2">
             <p><strong>{t('marketing.transferRequestId')}:</strong> {record.id}</p>
-            <p><strong>{t('marketing.transferClientInfo')}:</strong> {record.clientName || t('marketing.transferNoName')} ({record.clientPhone || t('marketing.transferNoPhone')})</p>
+            <p><strong>{t('marketing.transferClientInfo')}:</strong> {record.toClientName || t('marketing.transferNoName')} ({record.toClientPhone || t('marketing.transferNoPhone')})</p>
             <p><strong>{t('marketing.transferFromCard')}:</strong> {record.fromCardNumber || '-'}</p>
             <p><strong>{t('marketing.transferToCard')}:</strong> {record.toCardNumber || '-'}</p>
             <p><strong>{t('marketing.transferAmount')}:</strong> {record.amount} ₽</p>
@@ -190,7 +200,7 @@ const BalanceTransferRequests: React.FC = () => {
         <div className="space-y-4">
           <div className="text-sm text-gray-600 space-y-2">
             <p><strong>{t('marketing.transferRequestId')}:</strong> {record.id}</p>
-            <p><strong>{t('marketing.transferClientInfo')}:</strong> {record.clientName || t('marketing.transferNoName')} ({record.clientPhone || t('marketing.transferNoPhone')})</p>
+            <p><strong>{t('marketing.transferClientInfo')}:</strong> {record.toClientName || t('marketing.transferNoName')} ({record.toClientPhone || t('marketing.transferNoPhone')})</p>
             <p><strong>{t('marketing.transferFromCard')}:</strong> {record.fromCardNumber || '-'}</p>
             <p><strong>{t('marketing.transferToCard')}:</strong> {record.toCardNumber || '-'}</p>
             <p><strong>{t('marketing.transferAmount')}:</strong> {record.amount} ₽</p>
@@ -258,32 +268,23 @@ const BalanceTransferRequests: React.FC = () => {
       dataIndex: 'id',
       key: 'id',
       width: 80,
-      render: (id: number) => <span className="font-medium">{id}</span>,
+      render: (id: number, record: BalanceTransferResponse) => (
+        <span className="font-medium">
+          {id}
+          {record.isPhoneMatch === false && <span className="ml-1">⚠️</span>}
+        </span>
+      ),
     },
     {
       title: t('marketing.transferClientInfo'),
       key: 'clientInfo',
-      width: 200,
+      width: 220,
       render: (record: BalanceTransferResponse) => (
         <div>
-          <div className="font-medium">{record.clientName || t('marketing.transferNoName')}</div>
-          <div className="text-sm text-gray-500">{record.clientPhone || t('marketing.transferNoPhone')}</div>
+          <div className="font-medium">{record.toClientName || t('marketing.transferNoName')}</div>
+          <div className="text-sm text-gray-500">{record.toClientPhone || t('marketing.transferNoPhone')}</div>
         </div>
       ),
-    },
-    {
-      title: t('marketing.transferFromCard'),
-      dataIndex: 'fromCardNumber',
-      key: 'fromCardNumber',
-      width: 150,
-      render: (text: string | null) => text || '-',
-    },
-    {
-      title: t('marketing.transferToCard'),
-      dataIndex: 'toCardNumber',
-      key: 'toCardNumber',
-      width: 150,
-      render: (text: string | null) => text || '-',
     },
     {
       title: t('marketing.transferAmount'),
@@ -332,7 +333,7 @@ const BalanceTransferRequests: React.FC = () => {
                 type="primary"
                 size="small"
                 icon={<CheckOutlined />}
-                onClick={() => handleApproveClick(record)}
+                onClick={(e) => { e.stopPropagation(); handleApproveClick(record); }}
                 loading={isApproving}
                 style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
               >
@@ -342,7 +343,7 @@ const BalanceTransferRequests: React.FC = () => {
                 danger
                 size="small"
                 icon={<CloseOutlined />}
-                onClick={() => handleRejectClick(record)}
+                onClick={(e) => { e.stopPropagation(); handleRejectClick(record); }}
                 loading={isRejecting}
               >
                 {t('constants.reject')}
@@ -360,6 +361,38 @@ const BalanceTransferRequests: React.FC = () => {
       ),
     },
   ];
+
+  const expandedRowRender = (record: BalanceTransferResponse) => {
+    return (
+      <div className="p-4 bg-gray-50 rounded-lg">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-1">
+            <div className="text-xs text-gray-500">{t('marketing.fromClient')}</div>
+            <div className="font-medium">{record.fromClientName || t('marketing.transferNoName')}</div>
+            <div className="text-sm">{record.fromClientPhone || t('marketing.transferNoPhone')}</div>
+          </div>
+          <div className="space-y-1">
+            <div className="text-xs text-gray-500">{t('marketing.transferFromCard')}</div>
+            <div className="font-mono text-sm">{record.fromCardNumber || '-'}</div>
+          </div>
+          <div className="space-y-1">
+            <div className="text-xs text-gray-500">{t('marketing.toClient')}</div>
+            <div className="font-medium">{record.toClientName || t('marketing.transferNoName')}</div>
+            <div className="text-sm">{record.toClientPhone || t('marketing.transferNoPhone')}</div>
+          </div>
+          <div className="space-y-1">
+            <div className="text-xs text-gray-500">{t('marketing.transferToCard')}</div>
+            <div className="font-mono text-sm">{record.toCardNumber || '-'}</div>
+          </div>
+        </div>
+        {record.isPhoneMatch === false && (
+          <div className="mt-2 text-xs text-red-500 flex items-center gap-1">
+            <span>⚠️</span> {t('marketing.phoneMismatchWarning')}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <>
@@ -383,12 +416,12 @@ const BalanceTransferRequests: React.FC = () => {
           </label>
           <Select
             allowClear
-            placeholder="Все статусы"
+            placeholder={t('constants.allStatuses')}
             className="w-full sm:w-80"
             value={status}
             onChange={handleStatusChange}
             options={[
-              { label: 'Все', value: '' },
+              { label: t('constants.all'), value: '' },
               { label: t('marketing.transferStatusPending'), value: BalanceTransferStatus.PENDING },
               { label: t('marketing.transferStatusApproved'), value: BalanceTransferStatus.APPROVED },
               { label: t('marketing.transferStatusRejected'), value: BalanceTransferStatus.REJECTED },
@@ -418,6 +451,22 @@ const BalanceTransferRequests: React.FC = () => {
               }
             : false
         }
+        expandable={{
+          expandedRowRender,
+          expandedRowKeys,
+          onExpand: (expanded, record) => {
+            const key = record.id;
+            if (expanded) {
+              setExpandedRowKeys([...expandedRowKeys, key]);
+            } else {
+              setExpandedRowKeys(expandedRowKeys.filter(k => k !== key));
+            }
+          },
+        }}
+        onRow={(record) => ({
+          onClick: () => handleRowClick(record),
+          style: { cursor: 'pointer' },
+        })}
         scroll={{ x: 1200 }}
       />
     </>

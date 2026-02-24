@@ -943,7 +943,10 @@
     "transferRejected": "Заявка отклонена",
     "alreadyApproved": "Одобрено",
     "alreadyRejected": "Отклонено",
-    "alreadyCompleted": "Выполнено"
+    "alreadyCompleted": "Выполнено",
+    "fromClient": "Старый клиент",
+    "toClient": "Новый клиент",
+    "phoneMismatchWarning": "Телефоны не совпадают"
   },
   "errors": {
     "574": "Произошла внутренняя ошибка сервера. Пожалуйста, попробуйте позже.",
