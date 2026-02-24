@@ -70,6 +70,7 @@ export enum ManagerPaperTypeClass {
 type CollectionBody = {
   cashCollectionDate: Date;
   posId: number;
+  managerId?: number;
 };
 
 type CollectionResponse = {
@@ -84,6 +85,7 @@ type CollectionResponse = {
   countCar: number;
   countCarCard: number;
   averageCheck: number;
+  managerId: number;
   cashCollectionDeviceType: {
     id: number;
     typeName: string;
@@ -110,6 +112,7 @@ type CollectionResponse = {
 export type RecalculateCollectionBody = {
   oldCashCollectionDate?: Date;
   cashCollectionDate?: Date;
+  managerId?: number;
   cashCollectionDeviceData: {
     cashCollectionDeviceId: number;
     oldTookMoneyTime?: Date;
@@ -528,7 +531,7 @@ type ManagerPeriodIdResponse = {
   }[];
 };
 
-type AllWorkersResponse = {
+export type AllWorkersResponse = {
   props: {
     id: number;
     userRoleId: number;
@@ -611,7 +614,7 @@ export async function sendCollection(
   const response: AxiosResponse<CollectionResponse> = await api.post(
     FINANCE.POST_CASH_COLLECTION + `/send/${id}`,
     body
-  );
+  );  
   return response.data;
 }
 
@@ -629,7 +632,7 @@ export async function getCollectionById(
 ): Promise<CollectionResponse> {
   const response: AxiosResponse<CollectionResponse> = await api.get(
     FINANCE.POST_CASH_COLLECTION + `/${id}`
-  );
+  );  
   return response.data;
 }
 
