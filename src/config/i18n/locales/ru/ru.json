@@ -124,7 +124,8 @@
     "creatingCampaign": "Создание маркетинговой кампании",
     "editingCampaign": "Редактирование маркетинговой кампании",
     "viewBranch": "Просмотр филиала",
-    "marketingTransactions": "Заказы"
+    "marketingTransactions": "Заказы",
+    "balanceTransferRequests": "Запросы на перенос баланса"
   },
   "marketingTransactions": {
     "columns": {
@@ -916,7 +917,36 @@
     "value": "Значение",
     "tier": "Уровень",
     "loyaltyProgram": "Программа лояльности",
-    "selectProgramToViewTransactions": "Выберите программу лояльности для просмотра транзакций"
+    "selectProgramToViewTransactions": "Выберите программу лояльности для просмотра транзакций",
+    "transferRequests": "Запросы на перенос баланса",
+    "transferRequestId": "ID",
+    "transferClientInfo": "Клиент",
+    "transferFromCard": "Старая карта",
+    "transferToCard": "Новая карта",
+    "transferAmount": "Сумма",
+    "transferComment": "Комментарий",
+    "transferCreatedAt": "Создано",
+    "transferProcessedAt": "Обработано",
+    "transferNoName": "Без имени",
+    "transferNoPhone": "Нет телефона",
+    "transferStatusPending": "Ожидает",
+    "transferStatusApproved": "Одобрено",
+    "transferStatusRejected": "Отклонено",
+    "transferStatusCompleted": "Выполнено",
+    "transferRequestsCount": "заявок",
+    "approveTransfer": "Одобрить заявку",
+    "rejectTransfer": "Отклонить заявку",
+    "commentOptional": "необязательно",
+    "approvalComment": "Введите комментарий к одобрению (необязательно)",
+    "rejectionComment": "Введите причину отклонения (необязательно)",
+    "transferApproved": "Заявка успешно одобрена",
+    "transferRejected": "Заявка отклонена",
+    "alreadyApproved": "Одобрено",
+    "alreadyRejected": "Отклонено",
+    "alreadyCompleted": "Выполнено",
+    "fromClient": "Старый клиент",
+    "toClient": "Новый клиент",
+    "phoneMismatchWarning": "Телефоны не совпадают"
   },
   "errors": {
     "574": "Произошла внутренняя ошибка сервера. Пожалуйста, попробуйте позже.",
