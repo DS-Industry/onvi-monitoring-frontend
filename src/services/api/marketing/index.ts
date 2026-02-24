@@ -1110,6 +1110,7 @@ export type MarketingCampaignResponse = {
     maxUsagePerUser: number;
   };
   activeDays?: number;
+  campaignUsage: number;
   createdBy: {
     id: number;
     name: string;
@@ -1285,6 +1286,55 @@ export async function getMarketingCampaignById(
     `user/loyalty/marketing-campaigns/${id}`
   );
 
+  return response.data;
+}
+
+export type DeleteResponseDto = {
+  message: string;
+};
+
+export async function deleteMarketingCampaign(
+  id: number
+): Promise<DeleteResponseDto> {
+  const response: AxiosResponse<DeleteResponseDto> = await api.delete(
+    `user/loyalty/marketing-campaigns/${id}`
+  );
+  return response.data;
+}
+
+export async function deleteDraftMarketingCampaign(
+  id: number
+): Promise<DeleteResponseDto> {
+  const response: AxiosResponse<DeleteResponseDto> = await api.delete(
+    `user/loyalty/marketing-campaigns/${id}`
+  );
+  return response.data;
+}
+
+export async function pauseMarketingCampaign(
+  id: number
+): Promise<DeleteResponseDto> {
+  const response: AxiosResponse<DeleteResponseDto> = await api.patch(
+    `user/loyalty/marketing-campaigns/${id}/pause`
+  );
+  return response.data;
+}
+
+export async function cancelMarketingCampaign(
+  id: number
+): Promise<DeleteResponseDto> {
+  const response: AxiosResponse<DeleteResponseDto> = await api.patch(
+    `user/loyalty/marketing-campaigns/${id}/cancel`
+  );
+  return response.data;
+}
+
+export async function reactivateMarketingCampaign(
+  id: number
+): Promise<DeleteResponseDto> {
+  const response: AxiosResponse<DeleteResponseDto> = await api.patch(
+    `user/loyalty/marketing-campaigns/${id}/reactivate`
+  );
   return response.data;
 }
 
