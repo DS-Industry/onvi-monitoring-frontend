@@ -1,15 +1,20 @@
-import { Button, Table, Pagination, Input, Tag, Spin } from 'antd';
+import { Button, Table, Pagination, Input, Tag, Spin, Popconfirm, Space } from 'antd';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CopyOutlined, PlusOutlined, TableOutlined } from '@ant-design/icons';
+import { CopyOutlined, PlusOutlined, TableOutlined, StopOutlined, DeleteOutlined, PauseCircleOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import Notification from '@ui/Notification.tsx';
 import { getStatusColor } from '@/utils/tableUnits';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import {
   getMarketingCampaign,
   MarketingCampaignResponse,
+  cancelMarketingCampaign,
+  deleteDraftMarketingCampaign,
+  pauseMarketingCampaign,
+  reactivateMarketingCampaign,
 } from '@/services/api/marketing';
+import { useToast } from '@/components/context/useContext';
 import dayjs from 'dayjs';
 import { ColumnsType } from 'antd/es/table';
 import { useUser } from '@/hooks/useUserStore';
@@ -38,6 +43,7 @@ const MarketingCampaigns: React.FC = () => {
 
   const navigate = useNavigate();
   const user = useUser();
+  const { showToast } = useToast();
 
   const debouncedSearch = useCallback(
     debounce((value: string) => {
@@ -71,13 +77,13 @@ const MarketingCampaigns: React.FC = () => {
   } = useSWR(
     user.organizationId
       ? [
-          'marketing-campaigns',
-          user.organizationId,
-          status,
-          currentPage,
-          pageSize,
-          name,
-        ]
+        'marketing-campaigns',
+        user.organizationId,
+        status,
+        currentPage,
+        pageSize,
+        name,
+      ]
       : null,
     () =>
       getMarketingCampaign({
@@ -88,7 +94,7 @@ const MarketingCampaigns: React.FC = () => {
         search: name,
       }),
     {
-      revalidsearchateOnFocus: false,
+      revalidateOnFocus: false,
       revalidateOnReconnect: true,
       dedupingInterval: 5000,
       shouldRetryOnError: false,
@@ -99,7 +105,74 @@ const MarketingCampaigns: React.FC = () => {
     promotionsData?.data?.map(item => ({
       ...item,
       status: t(`tables.${item.status}`),
+      rawStatus: item.status,
     })) || [];
+
+  const revalidateList = () =>
+    mutate([
+      'marketing-campaigns',
+      user.organizationId,
+      status,
+      currentPage,
+      pageSize,
+      name,
+    ]);
+
+  const handleCancelCampaign = async (id: number) => {
+    try {
+      const res = await cancelMarketingCampaign(id);
+      revalidateList();
+      showToast(res?.message ?? t('marketing.campaignCancelled') ?? 'Marketing campaign cancelled successfully', 'success');
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message ??
+        t('errors.deleteFailed') ??
+        'Failed to cancel marketing campaign';
+      showToast(errorMessage, 'error');
+    }
+  };
+
+  const handleDeleteDraftCampaign = async (id: number) => {
+    try {
+      const res = await deleteDraftMarketingCampaign(id);
+      revalidateList();
+      showToast(res?.message ?? t('success.recordDeleted') ?? 'Draft campaign deleted successfully', 'success');
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message ??
+        t('errors.deleteFailed') ??
+        'Failed to delete draft campaign';
+      showToast(errorMessage, 'error');
+    }
+  };
+
+  const handlePauseCampaign = async (id: number) => {
+    try {
+      const res = await pauseMarketingCampaign(id);
+      revalidateList();
+      showToast(res?.message ?? t('marketing.campaignPaused') ?? 'Marketing campaign paused successfully', 'success');
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message ??
+        t('errors.deleteFailed') ??
+        'Failed to pause marketing campaign';
+      showToast(errorMessage, 'error');
+    }
+  };
+
+  const handleReactivateCampaign = async (id: number) => {
+    try {
+      const res = await reactivateMarketingCampaign(id);
+      revalidateList();
+      showToast(res?.message ?? t('marketing.campaignReactivated') ?? 'Marketing campaign reactivated successfully', 'success');
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message ??
+        t('errors.deleteFailed') ??
+        'Failed to reactivate marketing campaign';
+      showToast(errorMessage, 'error');
+    }
+  };
 
   const columns: ColumnsType<MarketingCampaignResponse> = [
     {
@@ -156,6 +229,83 @@ const MarketingCampaigns: React.FC = () => {
       title: t('marketingLoyalty.numberOfBranches'),
       dataIndex: 'posCount',
       key: 'posCount',
+    },
+    {
+      title: t('constants.actions'),
+      key: 'actions',
+      width: 220,
+      render: (_: unknown, record: MarketingCampaignResponse & { rawStatus?: string }) => {
+        const isActive = record.rawStatus === 'ACTIVE';
+        const isPaused = record.rawStatus === 'PAUSED';
+        const canDelete = record.campaignUsage === 0;
+
+        if (isActive) {
+          return (
+            <Space wrap>
+              <Popconfirm
+                title={t('marketing.confirmPauseCampaign')}
+                onConfirm={() => handlePauseCampaign(record.id)}
+                okText={t('marketing.pauseCampaign')}
+                okType="default"
+                cancelText={t('common.cancel')}
+              >
+                <Button type="link" icon={<PauseCircleOutlined />} size="small">
+                  {t('marketing.pauseCampaign')}
+                </Button>
+              </Popconfirm>
+              <Popconfirm
+                title={t('marketing.confirmCancelCampaign')}
+                onConfirm={() => handleCancelCampaign(record.id)}
+                okText={t('marketing.cancelCampaign')}
+                okType="danger"
+                cancelText={t('common.cancel')}
+              >
+                <Button type="link" danger icon={<StopOutlined />} size="small">
+                  {t('marketing.cancelCampaign')}
+                </Button>
+              </Popconfirm>
+            </Space>
+          );
+        }
+
+        if (isPaused) {
+          return (
+            <Space>
+              <Popconfirm
+                title={t('marketing.confirmReactivateCampaign')}
+                onConfirm={() => handleReactivateCampaign(record.id)}
+                okText={t('marketing.reactivateCampaign')}
+                okType="default"
+                cancelText={t('common.cancel')}
+              >
+                <Button type="link" icon={<PlayCircleOutlined />} size="small">
+                  {t('marketing.reactivateCampaign')}
+                </Button>
+              </Popconfirm>
+            </Space>
+          );
+        }
+
+        if (canDelete) {
+          return (
+            <Space>
+              <Popconfirm
+                title={t('techTasks.confirmDelete')}
+                onConfirm={() => handleDeleteDraftCampaign(record.id)}
+                okText={t('common.delete')}
+                okType="danger"
+                cancelText={t('common.cancel')}
+              >
+                <Button type="link" danger icon={<DeleteOutlined />} size="small">
+                  {t('common.delete')}
+                </Button>
+              </Popconfirm>
+            </Space>
+          );
+        }
+
+        return null;
+      },
     },
   ];
 
