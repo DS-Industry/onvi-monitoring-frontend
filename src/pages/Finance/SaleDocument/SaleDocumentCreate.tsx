@@ -23,6 +23,9 @@ export type ModalTableData = {
   fullSum: number;
 };
 
+
+
+
 const SaleDocumentCreate: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
