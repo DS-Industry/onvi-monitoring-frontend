@@ -12,6 +12,8 @@ import {
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import Search from 'antd/es/input/Search';
 import { DownloadOutlined } from '@ant-design/icons';
+import { Can } from '@/permissions/Can';
+import useAuthStore from '@/config/store/authSlice';
 
 const { Text } = Typography;
 
@@ -23,6 +25,7 @@ const Cards: React.FC = () => {
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
   const search = searchParams.get('search') || '';
   const navigate = useNavigate();
+  const userPermissions = useAuthStore(state => state.permissions);
 
   const swrKey = clientId
     ? ['get-client-cards', clientId, currentPage, pageSize, search]
@@ -126,13 +129,17 @@ const Cards: React.FC = () => {
             }}
           />
         </div>
-        <Button
-          icon={<DownloadOutlined />}
-          className="mt-6"
-          onClick={() => navigate(`/marketing/clients/import?corporateClientId=${clientId}`)}
-        >
-          <span>{t('marketing.importCards')}</span>
-        </Button>
+        <Can requiredPermissions={[{ action: 'delete', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
+          {allowed => allowed && (
+            <Button
+              icon={<DownloadOutlined />}
+              className="mt-6"
+              onClick={() => navigate(`/marketing/clients/import?corporateClientId=${clientId}`)}
+            >
+              <span>{t('marketing.importCards')}</span>
+            </Button>
+          )}
+        </Can>
       </div>
       <Table
         dataSource={dataSource}

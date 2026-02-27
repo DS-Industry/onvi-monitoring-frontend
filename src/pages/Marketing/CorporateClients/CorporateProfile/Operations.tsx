@@ -13,6 +13,8 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import Search from 'antd/es/input/Search';
 import { PlusOutlined } from '@ant-design/icons';
 import CreateBonusOperationModal from './CreateBonusOperationModal';
+import { Can } from '@/permissions/Can';
+import useAuthStore from '@/config/store/authSlice';
 
 const { Text } = Typography;
 
@@ -24,6 +26,7 @@ const Operations: React.FC = () => {
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
   const search = searchParams.get('search') || '';
+  const userPermissions = useAuthStore(state => state.permissions);
 
   const { data: operations, isLoading } = useSWR(
     clientId
@@ -213,13 +216,17 @@ const Operations: React.FC = () => {
           {t('marketing.operations')}
         </div>
         {clientId && (
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => setIsModalOpen(true)}
-          >
-            {t('marketing.createOperation')}
-          </Button>
+          <Can requiredPermissions={[{ action: 'delete', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
+            {allowed => allowed && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => setIsModalOpen(true)}
+              >
+                {t('marketing.createOperation')}
+              </Button>
+            )}
+          </Can>
         )}
       </div>
       <div className="w-full sm:w-80">
