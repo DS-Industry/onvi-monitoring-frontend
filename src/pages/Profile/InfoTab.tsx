@@ -106,7 +106,9 @@ const InfoTab: React.FC = () => {
       const [updatedData] = await Promise.all([updateUserData]);
 
       if (updatedData) {
-        setUser({ user: updatedData?.props });
+        setUser({
+          user: { ...user, ...updatedData?.props },
+        });
       } else {
         throw new Error('Failed to update user profile');
       }
