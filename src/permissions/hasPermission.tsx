@@ -19,7 +19,7 @@ const hasPermission = memoize(
       userPermissions.some(
         userPermission =>
           userPermission.subject === required.subject &&
-          userPermission.action === required.action
+          (userPermission.action === required.action || userPermission.action === 'manage')
       )
     );
   },
