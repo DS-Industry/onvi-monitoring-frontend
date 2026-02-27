@@ -16,8 +16,9 @@ import Promotion from './steps/Promotion';
 import Geography from './steps/Geography';
 import { Steps } from 'antd';
 import BasicInformationUpdate from './steps/BasicInformationUpdate';
-import { getMarketingCampaignById } from '@/services/api/marketing';
+import { getMarketingCampaignById, getLoyaltyProgramById } from '@/services/api/marketing';
 import useSWR from 'swr';
+import { useUser } from '@/hooks/useUserStore';
 
 const { Step } = Steps;
 
@@ -26,6 +27,8 @@ const MarketingCampaignCreate: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentStep = (Number(searchParams.get('step')) || 1) - 1;
+
+  const user = useUser();
 
   const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
 
@@ -48,6 +51,17 @@ const MarketingCampaignCreate: React.FC = () => {
   );
 
   const isHubPlus = marketingCampaign?.ltyProgramHubPlus ?? false;
+
+  const ltyProgramId = marketingCampaign?.ltyProgramId;
+  const { data: loyaltyProgram } = useSWR(
+    ltyProgramId ? [`get-loyalty-program-by-id`, ltyProgramId] : null,
+    () => getLoyaltyProgramById(ltyProgramId!),
+    { revalidateOnFocus: false }
+  );
+
+  const isLoyaltyProgramOwner = Boolean(
+    loyaltyProgram && user?.organizationId && loyaltyProgram.ownerOrganizationId === user.organizationId
+  );
 
   const steps = useMemo(() => [
     {
@@ -78,7 +92,7 @@ const MarketingCampaignCreate: React.FC = () => {
     //   content: <RewardValidityPeriod />,
     //   icon: <CalendarOutlined />,
     // },
-    ...(marketingCampaign?.ltyProgramId === Number(import.meta.env.VITE_ONVI_PROGRAM_ID)
+    ...(marketingCampaign?.ltyProgramId === Number(import.meta.env.VITE_ONVI_PROGRAM_ID) && isLoyaltyProgramOwner
       ? [
         {
           title: t('marketingCampaigns.promotion'),
