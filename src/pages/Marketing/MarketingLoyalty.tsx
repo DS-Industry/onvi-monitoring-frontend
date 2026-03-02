@@ -28,6 +28,8 @@ import {
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
 import { useToast } from '@/components/context/useContext';
+import { Can } from '@/permissions/Can';
+import useAuthStore from '@/config/store/authSlice';
 
 const MarketingLoyalty: React.FC = () => {
   const { t } = useTranslation();
@@ -45,6 +47,7 @@ const MarketingLoyalty: React.FC = () => {
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
   const [searchValue, setSearchValue] = useState(name || '');
   const [view, setView] = useState<'table' | 'cards'>('table');
+  const userPermissions = useAuthStore(state => state.permissions);
 
   const user = useUser();
   const permissions = usePermissions();
@@ -74,17 +77,6 @@ const MarketingLoyalty: React.FC = () => {
     debouncedSearch(value);
   };
 
-  const hasPermission = user?.organizationId
-    ? permissions.some(
-      permission =>
-        (permission.action === 'create' ||
-          permission.action === 'manage' ||
-          permission.action === 'read') &&
-        permission.subject === 'Pos' &&
-        Array.isArray(permission.conditions?.organizationId?.in) &&
-        permission.conditions.organizationId.in.includes(user.organizationId!)
-    )
-    : false;
 
   const { data: loyaltyProgramsData, isLoading: loyaltyProgramsLoading } =
     useSWR<LoyaltyParticipantProgramsPaginatedResponse>(
@@ -154,17 +146,21 @@ const MarketingLoyalty: React.FC = () => {
         key: 'name',
         render: (text: string, record) => {
           return (
-            <>
-              <Link
-                to={{
-                  pathname: `/marketing/loyalty/program/${record.id}`,
-                  search: `?loyaltyProgramId=${record.id}&step=1&mode=edit`,
-                }}
-                className="text-blue-500 hover:text-blue-700 font-semibold"
-              >
-                {text}
-              </Link>
-            </>
+            <Can requiredPermissions={[{ action: 'create', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
+              {allowed => allowed ? (
+                <Link
+                  to={{
+                    pathname: `/marketing/loyalty/program/${record.id}`,
+                    search: `?loyaltyProgramId=${record.id}&step=1&mode=edit`,
+                  }}
+                  className="text-blue-500 hover:text-blue-700 font-semibold"
+                >
+                  {text}
+                </Link>
+              ) : (
+                <span className="text-gray-700">{text}</span>
+              )}
+            </Can>
           );
         },
       },
@@ -225,32 +221,29 @@ const MarketingLoyalty: React.FC = () => {
         render: (_: any, record) => {
           const isOwner = record.ownerOrganizationId === user.organizationId;
 
-          if (!isOwner) {
-            return null;
-          }
-
+          if (!isOwner) return null;
+          
           return (
-            <Space>
-              <Popconfirm
-                title={t('techTasks.confirmDelete')}
-                onConfirm={() => handleDelete(record.id)}
-                okText={t('common.delete')}
-                okType="danger"
-                cancelText={t('common.cancel')}
-              >
-                <Button
-                  type="link"
-                  danger
-                  icon={<DeleteOutlined />}
-                  size="small"
-                >
-                  {t('common.delete')}
-                </Button>
-              </Popconfirm>
-            </Space>
+            <Can requiredPermissions={[{ action: 'create', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
+              {allowed => allowed && (
+                <Space>
+                  <Popconfirm
+                    title={t('techTasks.confirmDelete')}
+                    onConfirm={() => handleDelete(record.id)}
+                    okText={t('common.delete')}
+                    okType="danger"
+                    cancelText={t('common.cancel')}
+                  >
+                    <Button type="link" danger icon={<DeleteOutlined />} size="small">
+                      {t('common.delete')}
+                    </Button>
+                  </Popconfirm>
+                </Space>
+              )}
+            </Can>
           );
         },
-      },
+      }
     ];
 
   return (
@@ -263,24 +256,28 @@ const MarketingLoyalty: React.FC = () => {
         </div>
         {!loyaltyProgramsLoading && user && permissions && (
           <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-2">
-            {hasPermission && (
-              <Button
-                icon={<PlusOutlined />}
-                className="btn-outline-primary"
-                onClick={() => {
-                  navigate('/marketing/loyalty/program');
-                }}
-              >
-                {t('routes.add')}
-              </Button>
-            )}
-            <Button
-              icon={<PlusOutlined />}
-              className="btn-primary"
-              onClick={() => setIsParticipantModalOpen(true)}
-            >
-              {t('loyaltyProgramsTable.join')}
-            </Button>
+            <Can requiredPermissions={[{ action: 'create', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
+              {allowed => allowed && (
+                <Button
+                  icon={<PlusOutlined />}
+                  className="btn-outline-primary"
+                  onClick={() => navigate('/marketing/loyalty/program')}
+                >
+                  {t('routes.add')}
+                </Button>
+              )}
+            </Can>
+            <Can requiredPermissions={[{ action: 'create', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
+              {allowed => allowed && (
+                <Button
+                  icon={<PlusOutlined />}
+                  className="btn-primary"
+                  onClick={() => setIsParticipantModalOpen(true)}
+                >
+                  {t('loyaltyProgramsTable.join')}
+                </Button>
+              )}
+            </Can>
           </div>
         )}
       </div>

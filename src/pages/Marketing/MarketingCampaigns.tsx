@@ -28,6 +28,8 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { debounce } from 'lodash';
 import FilterCampaign from './FilterCampaign';
 import CampaignCard from './CampaignCard';
+import useAuthStore from '@/config/store/authSlice';
+import { Can } from '@/permissions/Can';
 
 const MarketingCampaigns: React.FC = () => {
   const { t } = useTranslation();
@@ -40,7 +42,7 @@ const MarketingCampaigns: React.FC = () => {
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
   const [searchValue, setSearchValue] = useState(name || '');
   const [view, setView] = useState<'table' | 'cards'>('table');
-
+  const userPermissions = useAuthStore(state => state.permissions);
   const navigate = useNavigate();
   const user = useUser();
   const { showToast } = useToast();
@@ -181,15 +183,21 @@ const MarketingCampaigns: React.FC = () => {
       key: 'name',
       render: (text, record) => {
         return (
-          <Link
-            to={{
-              pathname: '/marketing/campaign/create',
-              search: `?marketingCampaignId=${record.id}&mode=edit`,
-            }}
-            className="text-primary02 hover:text-primary02_Hover font-semibold"
-          >
-            {text}
-          </Link>
+          <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
+            {allowed => allowed ? (
+              <Link
+                to={{
+                  pathname: '/marketing/campaign/create',
+                  search: `?marketingCampaignId=${record.id}&mode=edit`,
+                }}
+                className="text-primary02 hover:text-primary02_Hover font-semibold"
+              >
+                {text}
+              </Link>
+            ) : (
+              <span className="text-gray-700">{text}</span> 
+            )}
+          </Can>
         );
       },
     },
@@ -238,75 +246,83 @@ const MarketingCampaigns: React.FC = () => {
         const isActive = record.rawStatus === 'ACTIVE';
         const isPaused = record.rawStatus === 'PAUSED';
         const canDelete = record.campaignUsage === 0;
-
-        if (isActive) {
-          return (
-            <Space wrap>
-              <Popconfirm
-                title={t('marketing.confirmPauseCampaign')}
-                onConfirm={() => handlePauseCampaign(record.id)}
-                okText={t('marketing.pauseCampaign')}
-                okType="default"
-                cancelText={t('common.cancel')}
-              >
-                <Button type="link" icon={<PauseCircleOutlined />} size="small">
-                  {t('marketing.pauseCampaign')}
-                </Button>
-              </Popconfirm>
-              <Popconfirm
-                title={t('marketing.confirmCancelCampaign')}
-                onConfirm={() => handleCancelCampaign(record.id)}
-                okText={t('marketing.cancelCampaign')}
-                okType="danger"
-                cancelText={t('common.cancel')}
-              >
-                <Button type="link" danger icon={<StopOutlined />} size="small">
-                  {t('marketing.cancelCampaign')}
-                </Button>
-              </Popconfirm>
-            </Space>
-          );
-        }
-
-        if (isPaused) {
-          return (
-            <Space>
-              <Popconfirm
-                title={t('marketing.confirmReactivateCampaign')}
-                onConfirm={() => handleReactivateCampaign(record.id)}
-                okText={t('marketing.reactivateCampaign')}
-                okType="default"
-                cancelText={t('common.cancel')}
-              >
-                <Button type="link" icon={<PlayCircleOutlined />} size="small">
-                  {t('marketing.reactivateCampaign')}
-                </Button>
-              </Popconfirm>
-            </Space>
-          );
-        }
-
-        if (canDelete) {
-          return (
-            <Space>
-              <Popconfirm
-                title={t('techTasks.confirmDelete')}
-                onConfirm={() => handleDeleteDraftCampaign(record.id)}
-                okText={t('common.delete')}
-                okType="danger"
-                cancelText={t('common.cancel')}
-              >
-                <Button type="link" danger icon={<DeleteOutlined />} size="small">
-                  {t('common.delete')}
-                </Button>
-              </Popconfirm>
-            </Space>
-          );
-        }
-
-        return null;
+    
+        return (
+          <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
+            {allowed => {
+              if (!allowed) return null;
+    
+              if (isActive) {
+                return (
+                  <Space wrap>
+                    <Popconfirm
+                      title={t('marketing.confirmPauseCampaign')}
+                      onConfirm={() => handlePauseCampaign(record.id)}
+                      okText={t('marketing.pauseCampaign')}
+                      okType="default"
+                      cancelText={t('common.cancel')}
+                    >
+                      <Button type="link" icon={<PauseCircleOutlined />} size="small">
+                        {t('marketing.pauseCampaign')}
+                      </Button>
+                    </Popconfirm>
+                    <Popconfirm
+                      title={t('marketing.confirmCancelCampaign')}
+                      onConfirm={() => handleCancelCampaign(record.id)}
+                      okText={t('marketing.cancelCampaign')}
+                      okType="danger"
+                      cancelText={t('common.cancel')}
+                    >
+                      <Button type="link" danger icon={<StopOutlined />} size="small">
+                        {t('marketing.cancelCampaign')}
+                      </Button>
+                    </Popconfirm>
+                  </Space>
+                );
+              }
+    
+              if (isPaused) {
+                return (
+                  <Space>
+                    <Popconfirm
+                      title={t('marketing.confirmReactivateCampaign')}
+                      onConfirm={() => handleReactivateCampaign(record.id)}
+                      okText={t('marketing.reactivateCampaign')}
+                      okType="default"
+                      cancelText={t('common.cancel')}
+                    >
+                      <Button type="link" icon={<PlayCircleOutlined />} size="small">
+                        {t('marketing.reactivateCampaign')}
+                      </Button>
+                    </Popconfirm>
+                  </Space>
+                );
+              }
+    
+              if (canDelete) {
+                return (
+                  <Space>
+                    <Popconfirm
+                      title={t('techTasks.confirmDelete')}
+                      onConfirm={() => handleDeleteDraftCampaign(record.id)}
+                      okText={t('common.delete')}
+                      okType="danger"
+                      cancelText={t('common.cancel')}
+                    >
+                      <Button type="link" danger icon={<DeleteOutlined />} size="small">
+                        {t('common.delete')}
+                      </Button>
+                    </Popconfirm>
+                  </Space>
+                );
+              }
+    
+              return null;
+            }}
+          </Can>
+        );
       },
-    },
+    }
   ];
 
   return (
@@ -317,13 +333,17 @@ const MarketingCampaigns: React.FC = () => {
             {t('routes.marketingCompanies')}
           </span>
         </div>
-        <Button
-          icon={<PlusOutlined />}
-          className="btn-primary"
-          onClick={() => navigate('/marketing/campaign/create')}
-        >
-          <div className="hidden sm:flex">{t('routes.newPromotion')}</div>
-        </Button>
+        <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
+          {allowed => allowed && (
+            <Button
+              icon={<PlusOutlined />}
+              className="btn-primary"
+              onClick={() => navigate('/marketing/campaign/create')}
+            >
+              <div className="hidden sm:flex">{t('routes.newPromotion')}</div>
+            </Button>
+          )}
+        </Can>
       </div>
       <div className="mt-2">
         {notificationVisible && (
