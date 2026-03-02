@@ -11,6 +11,8 @@ import {
 import { Spin, Card as AntCard, Typography, Select, Button, message, Skeleton } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useToast } from '@/components/context/useContext';
+import { Can } from '@/permissions/Can';
+import useAuthStore from '@/config/store/authSlice';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -22,6 +24,7 @@ const Card: React.FC = () => {
   const navigate = useNavigate();
   const { showToast } = useToast();
 
+  const userPermissions = useAuthStore(state => state.permissions);
   const cardId = cardIdParam ? Number(cardIdParam) : undefined;
   const fromOrders = searchParams.get('from') === 'orders';
 
@@ -167,48 +170,64 @@ const Card: React.FC = () => {
             </Title>
           </div>
 
-          <div>
-            <Text className="text-text02 text-sm">{t('marketing.level')}:</Text>
-            {tiersLoading ? (
-              <div className="mt-2">
-                <Skeleton.Input active style={{ width: '100%', height: 32 }} />
-              </div>
-            ) : (
+          <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
+            {allowed => (
               <>
-                <Select
-                  className="w-full mt-2"
-                  placeholder={t('marketing.selectTier') || 'Select Tier'}
-                  value={selectedTierId}
-                  onChange={setSelectedTierId}
-                  allowClear
-                >
-                  {tiersData?.map(tier => (
-                    <Option key={tier.id} value={tier.id}>
-                      {tier.name} ({t('marketing.discount')} {Math.floor(tier.limitBenefit)}%)
-                    </Option>
-                  ))}
-                </Select>
-                {card.cardTier && (
-                  <Text className="text-text02 text-xs mt-1 block">
-                    {t('marketing.currentTier') || 'Current'}: {card.cardTier.name}
-                  </Text>
-                )}
+                <div>
+                  <Text className="text-text02 text-sm">{t('marketing.level')}:</Text>
+                  {tiersLoading ? (
+                    <div className="mt-2">
+                      <Skeleton.Input active style={{ width: '100%', height: 32 }} />
+                    </div>
+                  ) : allowed ? (
+                    <>
+                      <Select
+                        className="w-full mt-2"
+                        placeholder={t('marketing.selectTier') || 'Select Tier'}
+                        value={selectedTierId}
+                        onChange={setSelectedTierId}
+                        allowClear
+                      >
+                        {tiersData?.map(tier => (
+                          <Option key={tier.id} value={tier.id}>
+                            {tier.name} ({t('marketing.discount')} {Math.floor(tier.limitBenefit)}%)
+                          </Option>
+                        ))}
+                      </Select>
+                      {card.cardTier && (
+                        <Text className="text-text02 text-xs mt-1 block">
+                          {t('marketing.currentTier') || 'Current'}: {card.cardTier.name}
+                        </Text>
+                      )}
+                    </>
+                  ) : (
+                    <Title level={4} className="mt-1">
+                      {card.cardTier ? `${card.cardTier.name} (${Math.floor(card.cardTier.limitBenefit)}%)` : '-'}
+                    </Title>
+                  )}
+                </div>
+
+                <div>
+                  <Text className="text-text02 text-sm">{t('marketing.status') || 'Status'}:</Text>
+                  {allowed ? (
+                    <Select
+                      className="w-full mt-2"
+                      placeholder={t('marketing.selectStatus') || 'Select Status'}
+                      value={selectedStatus}
+                      onChange={setSelectedStatus}
+                    >
+                      <Option value="ACTIVE">{t('marketing.active')}</Option>
+                      <Option value="INACTIVE">{t('marketing.inactive')}</Option>
+                    </Select>
+                  ) : (
+                    <Title level={4} className="mt-1">
+                      {card.status === 'INACTIVE' ? t('marketing.inactive') : t('marketing.active')}
+                    </Title>
+                  )}
+                </div>
               </>
             )}
-          </div>
-
-          <div>
-            <Text className="text-text02 text-sm">{t('marketing.status') || 'Status'}:</Text>
-            <Select
-              className="w-full mt-2"
-              placeholder={t('marketing.selectStatus') || 'Select Status'}
-              value={selectedStatus}
-              onChange={setSelectedStatus}
-            >
-              <Option value="ACTIVE">{t('marketing.active')}</Option>
-              <Option value="INACTIVE">{t('marketing.inactive')}</Option>
-            </Select>
-          </div>
+          </Can>
 
           {card.corporate && (
             <div>
@@ -225,16 +244,20 @@ const Card: React.FC = () => {
             </div>
           )}
 
-          <div className="pt-4 border-t">
-            <Button
-              type="primary"
-              onClick={handleUpdateCard}
-              loading={isUpdating}
-              disabled={isUpdating}
-            >
-              {t('organizations.save') || 'Save Changes'}
-            </Button>
-          </div>
+          <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
+            {allowed => allowed && (
+              <div className="pt-4 border-t">
+                <Button
+                  type="primary"
+                  onClick={handleUpdateCard}
+                  loading={isUpdating}
+                  disabled={isUpdating}
+                >
+                  {t('organizations.save') || 'Save Changes'}
+                </Button>
+              </div>
+            )}
+          </Can>
         </div>
       </AntCard>
     </div>

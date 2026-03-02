@@ -23,6 +23,8 @@ import {
 } from '@/utils/constants';
 import CorporateClientDrawer from './CorporateClientDrawer';
 import { getStatusTagRender } from '@/utils/tableUnits';
+import { Can } from '@/permissions/Can';
+import useAuthStore from '@/config/store/authSlice';
 
 const CorporateClients: React.FC = () => {
   const { t } = useTranslation();
@@ -36,6 +38,8 @@ const CorporateClients: React.FC = () => {
   const inn = searchParams.get('inn') || undefined;
   const ownerPhone = searchParams.get('ownerPhone') || undefined;
   const name = searchParams.get('name') || undefined;
+
+  const userPermissions = useAuthStore(state => state.permissions);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedClient, setSelectedClient] =
@@ -153,20 +157,23 @@ const CorporateClients: React.FC = () => {
       },
       {
         title: t('actions.actions'),
-        dataIndex: 'actions',
         key: 'actions',
-        render: (_, record: CorporateClientResponse) => (
-          <Button
-            type="link"
-            onClick={() => {
-              setSelectedClient(record);
-              setDrawerOpen(true);
-            }}
-          >
-            {t('actions.edit')}
-          </Button>
+        render: (_: any, record: CorporateClientResponse) => (
+          <Can requiredPermissions={[{ action: 'delete', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
+            {allowed => allowed && (
+              <Button
+                type="link"
+                onClick={() => {
+                  setSelectedClient(record);
+                  setDrawerOpen(true);
+                }}
+              >
+                {t('actions.edit')}
+              </Button>
+            )}
+          </Can>
         ),
-      },
+      }
     ],
     [t]
   );
@@ -179,16 +186,20 @@ const CorporateClients: React.FC = () => {
             {t('routes.corporateClients')}
           </span>
         </div>
-        <Button
-          onClick={() => {
-            setSelectedClient(null);
-            setDrawerOpen(true);
-          }}
-          className="btn-primary"
-          icon={<PlusOutlined />}
-        >
-          {t('routes.create')}
-        </Button>
+        <Can requiredPermissions={[{ action: 'delete', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
+          {allowed => allowed && (
+            <Button
+              onClick={() => {
+                setSelectedClient(null);
+                setDrawerOpen(true);
+              }}
+              className="btn-primary"
+              icon={<PlusOutlined />}
+            >
+              {t('routes.create')}
+            </Button>
+          )}
+        </Can>
       </div>
 
       <div className="mt-4">
