@@ -159,7 +159,8 @@ const BalanceTransferRequests: React.FC = () => {
             <p><strong>{t('marketing.transferClientInfo')}:</strong> {record.toClientName || t('marketing.transferNoName')} ({record.toClientPhone || t('marketing.transferNoPhone')})</p>
             <p><strong>{t('marketing.transferFromCard')}:</strong> {record.fromCardNumber || '-'}</p>
             <p><strong>{t('marketing.transferToCard')}:</strong> {record.toCardNumber || '-'}</p>
-            <p><strong>{t('marketing.transferAmount')}:</strong> {record.amount} ₽</p>
+            <p><strong>{t('marketing.realBalance')}:</strong> {record.realAmount} ₽</p>
+            <p><strong>{t('marketing.airBalance')}:</strong> {record.airAmount} ₽</p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -203,7 +204,8 @@ const BalanceTransferRequests: React.FC = () => {
             <p><strong>{t('marketing.transferClientInfo')}:</strong> {record.toClientName || t('marketing.transferNoName')} ({record.toClientPhone || t('marketing.transferNoPhone')})</p>
             <p><strong>{t('marketing.transferFromCard')}:</strong> {record.fromCardNumber || '-'}</p>
             <p><strong>{t('marketing.transferToCard')}:</strong> {record.toCardNumber || '-'}</p>
-            <p><strong>{t('marketing.transferAmount')}:</strong> {record.amount} ₽</p>
+            <p><strong>{t('marketing.realBalance')}:</strong> {record.realAmount} ₽</p>
+            <p><strong>{t('marketing.airBalance')}:</strong> {record.airAmount} ₽</p>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -287,11 +289,18 @@ const BalanceTransferRequests: React.FC = () => {
       ),
     },
     {
-      title: t('marketing.transferAmount'),
-      dataIndex: 'amount',
-      key: 'amount',
-      width: 100,
-      render: (amount: number) => <span className="font-medium">{amount} ₽</span>,
+      title: t('marketing.realBalance'),
+      dataIndex: 'realAmount',
+      key: 'realAmount',
+      width: 150,
+      render: (value: number) => <span className="font-medium">{value} ₽</span>,
+    },
+    {
+      title: t('marketing.airBalance'),
+      dataIndex: 'airAmount',
+      key: 'airAmount',
+      width: 150,
+      render: (value: number) => <span className="font-medium">{value} ₽</span>,
     },
     {
       title: t('marketing.transferComment'),

@@ -2317,6 +2317,8 @@ export type BalanceTransferResponse = {
   fromCardId: number;
   toCardId: number;
   amount: number;
+  realAmount: number;
+  airAmount: number;
   status: BalanceTransferStatus;
   comment: string | null;
   createdAt: string;
