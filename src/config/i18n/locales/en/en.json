@@ -930,9 +930,10 @@
     "transferRequests": "Balance Transfer Requests",
     "transferRequestId": "ID",
     "transferClientInfo": "Client",
-    "transferFromCard": "Old Card",
-    "transferToCard": "New Card",
-    "transferAmount": "Amount",
+    "transferFromCard": "Old card",
+    "transferToCard": "New card",
+    "realBalance": "Real balance",
+    "airBalance": "Air balance",
     "transferComment": "Comment",
     "transferCreatedAt": "Created",
     "transferProcessedAt": "Processed",
@@ -954,7 +955,7 @@
     "alreadyRejected": "Rejected",
     "alreadyCompleted": "Completed",
     "fromClient": "Old client",
-    "toClient": "New Client",
+    "toClient": "New client",
     "phoneMismatchWarning": "The phones don't match"
   },
   "errors": {
