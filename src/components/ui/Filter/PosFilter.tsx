@@ -7,6 +7,7 @@ import { getPoses } from '@/services/api/equipment';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
 import { useUser } from '@/hooks/useUserStore.ts';
+import { getNumericPrefix } from '@/utils/getNumericPrefix';
 
 const PosFilter: React.FC = () => {
   const { t } = useTranslation();
@@ -36,8 +37,15 @@ const PosFilter: React.FC = () => {
     });
   };
 
-  const poses =
-    posData?.map(item => ({
+  const sortedPoses = posData
+    ?.slice()
+    .sort((a, b) => {
+      const numA = getNumericPrefix(a.name);
+      const numB = getNumericPrefix(b.name);
+      if (numA !== numB) return numA - numB;
+      return a.name.localeCompare(b.name);
+    })
+    .map(item => ({
       label: item.name,
       value: String(item.id),
     })) || [];
@@ -55,7 +63,7 @@ const PosFilter: React.FC = () => {
         onChange={handleChange}
         loading={isLoading}
         className="w-full"
-        options={poses}
+        options={sortedPoses}
         optionFilterProp="label"
         filterOption={(input, option) =>
           (option?.label ?? '')
