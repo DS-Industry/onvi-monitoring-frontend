@@ -21,6 +21,8 @@ import { getCurrencyRender } from '@/utils/tableUnits';
 // types
 import type { ColumnsType } from 'antd/es/table';
 import { GetDataOperResponse } from '@/services/api/finance';
+import { Can } from '@/permissions/Can';
+import useAuthStore from '@/config/store/authSlice';
 
 interface ExchangeTabProps {
   status?: StatusWorkDayShiftReport;
@@ -31,6 +33,7 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [searchParams] = useSearchParams();
+  const userPermissions = useAuthStore(state => state.permissions);
 
   const shiftId = searchParams.get('id')
     ? Number(searchParams.get('id'))
@@ -88,13 +91,20 @@ const ExchangeTab: React.FC<ExchangeTabProps> = ({ status }) => {
   return (
     <>
       {status !== StatusWorkDayShiftReport.SENT && (
-        <button
-          className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal mb-3 flex items-center gap-1"
-          onClick={() => setIsModalOpen(true)}
+        <Can
+          requiredPermissions={[{ action: 'create', subject: 'ShiftReport' }, { action: 'manage', subject: 'ShiftReport' }]}
+          userPermissions={userPermissions}
         >
-          <PlusOutlined />
-          {t('routes.add')}
-        </button>
+          {allowed => allowed && (
+            <button
+              className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal mb-3 flex items-center gap-1"
+              onClick={() => setIsModalOpen(true)}
+            >
+              <PlusOutlined />
+              {t('routes.add')}
+            </button>
+          )}
+        </Can>
       )}
 
       <Table

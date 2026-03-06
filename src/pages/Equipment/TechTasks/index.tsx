@@ -247,7 +247,7 @@ const TechTasks: React.FC = () => {
               className="text-blue-500 hover:text-blue-700 font-semibold text-left truncate"
             >
               {text}
-            </button>    
+            </button>
             {record.templateToNextCreate && (
               <StarOutlined 
                 style={{ 
@@ -467,14 +467,24 @@ const TechTasks: React.FC = () => {
             </div>
             <div className="flex items-center gap-2 sm:gap-4">
               <div className="w-px h-4 bg-white hidden sm:block"></div>
-              <Button
-                type="text"
-                icon={<DeleteOutlined />}
-                onClick={handleBulkDelete}
-                className="text-white hover:text-gray-200 p-0 h-auto flex-shrink-0"
+              <Can
+                requiredPermissions={[
+                  { action: 'manage', subject: 'TechTask' },
+                  { action: 'update', subject: 'TechTask' },
+                ]}
+                userPermissions={userPermissions}
               >
-                <span className="hidden sm:inline">{t('techTasks.delete')}</span>
-              </Button>
+                {allowed => allowed && (
+                  <Button
+                    type="text"
+                    icon={<DeleteOutlined />}
+                    onClick={handleBulkDelete}
+                    className="text-white hover:text-gray-200 p-0 h-auto flex-shrink-0"
+                  >
+                    <span className="hidden sm:inline">{t('techTasks.delete')}</span>
+                  </Button>
+                )}
+              </Can>
             </div>
           </div>
         </div>

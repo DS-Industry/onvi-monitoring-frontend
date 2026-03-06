@@ -735,7 +735,7 @@ const Articles: React.FC = () => {
           <Can
             requiredPermissions={[
               { action: 'manage', subject: 'ManagerPaper' },
-              { action: 'update', subject: 'ManagerPaper' },
+              { action: 'create', subject: 'ManagerPaper' },
             ]}
             userPermissions={userPermissions}
           >
