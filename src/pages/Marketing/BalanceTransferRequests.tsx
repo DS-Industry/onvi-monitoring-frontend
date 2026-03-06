@@ -6,6 +6,7 @@ import { useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { useToast } from '@/hooks/useToast';
+import { useUser } from '@/hooks/useUserStore';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import {
   DEFAULT_PAGE,
@@ -21,6 +22,7 @@ import {
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 
 const useBalanceTransfers = (
+  organizationId: number | null,
   currentPage: number,
   pageSize: number,
   status?: BalanceTransferStatus,
@@ -29,17 +31,19 @@ const useBalanceTransfers = (
   endDate?: string
 ) => {
   const { data, isLoading, mutate } = useSWR(
-    [
+    organizationId ? [
       'get-balance-transfers',
+      organizationId,
       currentPage,
       pageSize,
       status,
       search,
       startDate,
       endDate,
-    ],
+    ] : null,
     () =>
       getBalanceTransfers({
+        organizationId: organizationId!,
         page: currentPage,
         size: pageSize,
         status,
@@ -79,6 +83,8 @@ const BalanceTransferRequests: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [modal, contextHolder] = Modal.useModal();
   const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
+  const user = useUser();
+  const organizationId = user.organizationId ? Number(user.organizationId) : null;
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
@@ -88,6 +94,7 @@ const BalanceTransferRequests: React.FC = () => {
   const endDate = searchParams.get('endDate') || undefined;
 
   const { transfers, isLoading, mutate, pagination } = useBalanceTransfers(
+    organizationId,
     currentPage,
     pageSize,
     status,

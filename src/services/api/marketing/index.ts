@@ -2293,7 +2293,7 @@ export enum BalanceTransferStatus {
 }
 
 export type BalanceTransfersParams = {
-  organizationId?: number;
+  organizationId: number;
   status?: BalanceTransferStatus;
   search?: string; 
   startDate?: string; 
