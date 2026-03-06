@@ -280,7 +280,6 @@ const routes = [
         component: Pos,
         permissions: [
           { action: 'manage', subject: 'Pos' },
-          { action: 'create', subject: 'Pos' },
           { action: 'read', subject: 'Pos' },
         ],
         isSidebar: true,
@@ -474,7 +473,6 @@ const routes = [
         permissions: [
           { action: 'manage', subject: 'Hr' },
           { action: 'read', subject: 'Hr' },
-          { action: 'update', subject: 'Hr' },
         ],
         isSidebar: true,
         isHr: false,
@@ -507,7 +505,6 @@ const routes = [
         permissions: [
           { action: 'manage', subject: 'Hr' },
           { action: 'read', subject: 'Hr' },
-          { action: 'update', subject: 'Hr' },
         ],
         isSidebar: true,
         isHr: true,
@@ -522,7 +519,6 @@ const routes = [
         component: SalaryCalculation,
         permissions: [
           { action: 'manage', subject: 'Hr' },
-          { action: 'create', subject: 'Hr' },
           { action: 'read', subject: 'Hr' },
         ],
         isSidebar: true,
@@ -555,7 +551,6 @@ const routes = [
         component: EmployeeAdvance,
         permissions: [
           { action: 'manage', subject: 'Hr' },
-          { action: 'create', subject: 'Hr' },
           { action: 'read', subject: 'Hr' },
         ],
         isSidebar: true,
@@ -619,7 +614,6 @@ const routes = [
         permissions: [
           { action: 'manage', subject: 'CashCollection' },
           { action: 'read', subject: 'CashCollection' },
-          { action: 'create', subject: 'CashCollection' },
         ],
         isSidebar: true,
         isHr: false,
@@ -652,7 +646,6 @@ const routes = [
         permissions: [
           { action: 'manage', subject: 'CashCollection' },
           { action: 'read', subject: 'CashCollection' },
-          { action: 'create', subject: 'CashCollection' },
         ],
         isSidebar: true,
         isHr: false,
@@ -680,7 +673,6 @@ const routes = [
         permissions: [
           { action: 'manage', subject: 'ShiftReport' },
           { action: 'read', subject: 'ShiftReport' },
-          { action: 'create', subject: 'ShiftReport' },
         ],
         isSidebar: true,
         isHr: false,
@@ -728,9 +720,6 @@ const routes = [
             permissions: [
               { action: 'manage', subject: 'ManagerPaper' },
               { action: 'read', subject: 'ManagerPaper' },
-              { action: 'create', subject: 'ManagerPaper' },
-              { action: 'update', subject: 'ManagerPaper' },
-              { action: 'delete', subject: 'ManagerPaper' },
             ],
             isSidebar: true,
             isHr: false,
@@ -746,7 +735,6 @@ const routes = [
             permissions: [
               { action: 'manage', subject: 'ManagerPaper' },
               { action: 'read', subject: 'ManagerPaper' },
-              { action: 'update', subject: 'ManagerPaper' },
             ],
             isSidebar: true,
             isHr: false,
@@ -777,8 +765,6 @@ const routes = [
         permissions: [
           { action: 'manage', subject: 'ManagerPaper' },
           { action: 'read', subject: 'ManagerPaper' },
-          { action: 'create', subject: 'ManagerPaper' },
-          { action: 'delete', subject: 'ManagerPaper' },
         ],
         isSidebar: true,
         isHr: false,
@@ -809,8 +795,11 @@ const routes = [
         isVisible: true,
         subMenu: false,
         component: SaleDocument,
+        permissions: [
+          { action: 'manage', subject: 'ManagerPaper' },
+          { action: 'read', subject: 'ManagerPaper' },
+        ],
         isSidebar: true,
-        permissions: [],
       },
       {
         name: 'saleDocumentView',
@@ -852,7 +841,6 @@ const routes = [
             permissions: [
               { action: 'manage', subject: 'Pos' },
               { action: 'read', subject: 'Pos' },
-              { action: 'delete', subject: 'Pos' },
             ],
             isSidebar: true,
             isHr: false,
@@ -1177,9 +1165,6 @@ const routes = [
             permissions: [
               { action: 'manage', subject: 'TechTask' },
               { action: 'create', subject: 'TechTask' },
-              { action: 'read', subject: 'TechTask' },
-              { action: 'update', subject: 'TechTask' },
-              { action: 'delete', subject: 'TechTask' },
             ],
             isSidebar: true,
           },
@@ -1207,7 +1192,7 @@ const routes = [
         component: ConsumptionRate,
         permissions: [
           { action: 'manage', subject: 'Incident' },
-          { action: 'update', subject: 'Incident' },
+          { action: 'read', subject: 'Incident' },
         ],
         isSidebar: true,
         subNav: [],
@@ -1272,7 +1257,6 @@ const routes = [
         permissions: [
           { action: 'manage', subject: 'Warehouse' },
           { action: 'read', subject: 'Warehouse' },
-          { action: 'update', subject: 'Warehouse' },
         ],
         isSidebar: true,
         subNav: [],
@@ -1287,8 +1271,6 @@ const routes = [
         permissions: [
           { action: 'manage', subject: 'Warehouse' },
           { action: 'read', subject: 'Warehouse' },
-          { action: 'update', subject: 'Warehouse' },
-          { action: 'delete', subject: 'Warehouse' },
         ],
         isSidebar: true,
         subNav: [],
@@ -1319,9 +1301,6 @@ const routes = [
         permissions: [
           { action: 'manage', subject: 'Warehouse' },
           { action: 'read', subject: 'Warehouse' },
-          { action: 'create', subject: 'Warehouse' },
-          { action: 'update', subject: 'Warehouse' },
-          { action: 'delete', subject: 'Warehouse' },
         ],
         isSidebar: true,
         subNav: [],
@@ -1335,9 +1314,6 @@ const routes = [
         permissions: [
           { action: 'manage', subject: 'Warehouse' },
           { action: 'read', subject: 'Warehouse' },
-          { action: 'create', subject: 'Warehouse' },
-          { action: 'update', subject: 'Warehouse' },
-          { action: 'delete', subject: 'Warehouse' },
         ],
         isSidebar: true,
         subNav: [],
@@ -1383,9 +1359,6 @@ const routes = [
         permissions: [
           { action: 'manage', subject: 'Warehouse' },
           { action: 'read', subject: 'Warehouse' },
-          { action: 'create', subject: 'Warehouse' },
-          { action: 'update', subject: 'Warehouse' },
-          { action: 'delete', subject: 'Warehouse' },
         ],
         isSidebar: true,
         subNav: [],
@@ -1399,9 +1372,6 @@ const routes = [
         permissions: [
           { action: 'manage', subject: 'Warehouse' },
           { action: 'read', subject: 'Warehouse' },
-          { action: 'create', subject: 'Warehouse' },
-          { action: 'update', subject: 'Warehouse' },
-          { action: 'delete', subject: 'Warehouse' },
         ],
         isSidebar: true,
         subNav: [],
@@ -1413,8 +1383,11 @@ const routes = [
         isVisible: true,
         subMenu: false,
         component: SalePrice,
+        permissions: [
+          { action: 'manage', subject: 'Warehouse' },
+          { action: 'read', subject: 'Warehouse' },
+        ],
         isSidebar: true,
-        permissions: [],
       },
     ],
     permissions: [

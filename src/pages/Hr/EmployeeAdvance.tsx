@@ -559,36 +559,40 @@ const EmployeeAdvance: React.FC = () => {
           />
         </Form>
         {selectedRowKeys.length > 0 && (
-          <div className="fixed bottom-2 sm:bottom-4 left-2 sm:left-1/2 right-2 sm:right-auto sm:transform sm:-translate-x-1/2 z-50">
-            <div className="bg-blue-500 text-white px-3 py-2 sm:px-4 sm:py-3 rounded-lg shadow-lg flex items-center justify-between sm:justify-center gap-2 sm:gap-4 max-w-full sm:max-w-none">
-              <div className="flex items-center gap-2 sm:gap-4">
-                <Button
-                  type="text"
-                  icon={<CloseOutlined />}
-                  onClick={() => setSelectedRowKeys([])}
-                  className="text-white hover:text-gray-200 p-0 h-auto flex-shrink-0"
-                />
-                <span className="text-xs sm:text-sm font-medium truncate">
-                  {t('techTasks.selectedTasks', {
-                    count: selectedRowKeys.length,
-                  })}
-                </span>
+          <Can requiredPermissions={[{ action: 'delete', subject: 'Hr' }, { action: 'manage', subject: 'Hr' }]} userPermissions={userPermissions}>
+            {allowed => allowed && (
+              <div className="fixed bottom-2 sm:bottom-4 left-2 sm:left-1/2 right-2 sm:right-auto sm:transform sm:-translate-x-1/2 z-50">
+                <div className="bg-blue-500 text-white px-3 py-2 sm:px-4 sm:py-3 rounded-lg shadow-lg flex items-center justify-between sm:justify-center gap-2 sm:gap-4 max-w-full sm:max-w-none">
+                  <div className="flex items-center gap-2 sm:gap-4">
+                    <Button
+                      type="text"
+                      icon={<CloseOutlined />}
+                      onClick={() => setSelectedRowKeys([])}
+                      className="text-white hover:text-gray-200 p-0 h-auto flex-shrink-0"
+                    />
+                    <span className="text-xs sm:text-sm font-medium truncate">
+                      {t('techTasks.selectedTasks', {
+                        count: selectedRowKeys.length,
+                      })}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 sm:gap-4">
+                    <div className="w-px h-4 bg-white hidden sm:block"></div>
+                    <Button
+                      type="text"
+                      icon={<DeleteOutlined />}
+                      onClick={handleDeleteRow}
+                      className="text-white hover:text-gray-200 p-0 h-auto flex-shrink-0"
+                    >
+                      <span className="hidden sm:inline">
+                        {t('techTasks.delete')}
+                      </span>
+                    </Button>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-2 sm:gap-4">
-                <div className="w-px h-4 bg-white hidden sm:block"></div>
-                <Button
-                  type="text"
-                  icon={<DeleteOutlined />}
-                  onClick={handleDeleteRow}
-                  className="text-white hover:text-gray-200 p-0 h-auto flex-shrink-0"
-                >
-                  <span className="hidden sm:inline">
-                    {t('techTasks.delete')}
-                  </span>
-                </Button>
-              </div>
-            </div>
-          </div>
+            )}
+          </Can>
         )}
       </div>
     </div>

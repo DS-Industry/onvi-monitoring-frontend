@@ -32,6 +32,8 @@ import {
 
 import { DatePicker } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
 
 const { RangePicker } = DatePicker;
 
@@ -115,6 +117,7 @@ const Clients: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const user = useUser();
+  const userPermissions = usePermissions();
 
   const placementId = searchParams.get('city') || undefined;
   const type = (searchParams.get('userType') as UserType) || '*';
@@ -139,6 +142,11 @@ const Clients: React.FC = () => {
     registrationTo,
     search
   );
+
+  const canUpdate = hasPermission(userPermissions, [
+    { action: 'update', subject: 'LTYProgram' },
+    { action: 'manage', subject: 'LTYProgram' },
+  ]);
 
   const onEditClick = useCallback((id: number) => {
     setSelectedClientId(id);
@@ -201,24 +209,28 @@ const Clients: React.FC = () => {
         dataIndex: 'comment',
         key: 'comment',
       },
-      {
-        title: '',
-        key: 'actions',
-        render: (_: unknown, record: ClientsResponse) => (
-          <Tooltip title={t('actions.edit')}>
-            <Button
-              type="text"
-              icon={
-                <EditOutlined className="text-blue-500 hover:text-blue-700" />
-              }
-              onClick={() => onEditClick(record.id)}
-              style={{ height: '24px' }}
-            />
-          </Tooltip>
-        ),
-      },
+      ...(canUpdate
+        ? [
+            {
+              title: '',
+              key: 'actions',
+              render: (_: unknown, record: ClientsResponse) => (
+                <Tooltip title={t('actions.edit')}>
+                  <Button
+                    type="text"
+                    icon={
+                      <EditOutlined className="text-blue-500 hover:text-blue-700" />
+                    }
+                    onClick={() => onEditClick(record.id)}
+                    style={{ height: '24px' }}
+                  />
+                </Tooltip>
+              ),
+            },
+          ]
+        : []),
     ],
-    [t, onEditClick]
+    [t, onEditClick, canUpdate]
   );
 
   return (
@@ -229,22 +241,24 @@ const Clients: React.FC = () => {
             {t('routes.clients')}
           </span>
         </div>
-        <div className="xs:flex xs:space-x-2">
-          <Button
-            icon={<DownloadOutlined />}
-            className="btn-outline-primary mt-2 sm:mt-0"
-            onClick={() => navigate('/marketing/clients/import')}
-          >
-            <span>{t('marketing.importCards')}</span>
-          </Button>
-          <Button
-            icon={<PlusOutlined />}
+        {canUpdate && (
+          <div className="xs:flex xs:space-x-2">
+            <Button
+              icon={<DownloadOutlined />}
+              className="btn-outline-primary mt-2 sm:mt-0"
+              onClick={() => navigate('/marketing/clients/import')}
+            >
+              <span>{t('marketing.importCards')}</span>
+            </Button>
+            <Button
+              icon={<PlusOutlined />}
             className="btn-primary  mt-2 sm:mt-0"
-            onClick={() => setDrawerOpen(true)}
-          >
-            {t('routes.add')}
-          </Button>
-        </div>
+              onClick={() => setDrawerOpen(true)}
+            >
+              {t('routes.add')}
+            </Button>
+          </div>
+        )}
       </div>
 
       <GeneralFilters
@@ -312,15 +326,17 @@ const Clients: React.FC = () => {
         />
       </div>
 
-      {drawerOpen && <EditClientsDrawer
-        isOpen={drawerOpen}
-        onClose={() => {
-          setDrawerOpen(false);
-          setSelectedClientId(undefined);
-          mutate();
-        }}
-        clientId={selectedClientId}
-      />}
+      {drawerOpen && (
+        <EditClientsDrawer
+          isOpen={drawerOpen}
+          onClose={() => {
+            setDrawerOpen(false);
+            setSelectedClientId(undefined);
+            mutate();
+          }}
+          clientId={selectedClientId}
+        />
+      )}
     </>
   );
 };

@@ -284,8 +284,8 @@ const ConsumptionRate: React.FC = () => {
           </Button>
           <Can
             requiredPermissions={[
-              { action: 'manage', subject: 'TechTask' },
-              { action: 'update', subject: 'TechTask' },
+              { action: 'manage', subject: 'Incident' },
+              { action: 'update', subject: 'Incident' },
             ]}
             userPermissions={userPermissions}
           >

@@ -12,6 +12,8 @@ import dayjs from 'dayjs';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useUser } from '@/hooks/useUserStore';
+import { Can } from '@/permissions/Can';
+import useAuthStore from '@/config/store/authSlice';
 
 type TimestampResponse = {
   deviceId: number;
@@ -34,6 +36,7 @@ const Timestamps: React.FC = () => {
   const { showToast } = useToast();
   const user = useUser();
   const city = Number(searchParams.get('city')) || undefined;
+  const userPermissions = useAuthStore(state => state.permissions);
 
   const { data: posData } = useSWR(
     user.organizationId ? [`get-pos`, city, user.organizationId] : null,
@@ -106,15 +109,22 @@ const Timestamps: React.FC = () => {
       title: t('routes.collection'),
       key: 'begin',
       render: (_: unknown, record: TimestampResponse) => (
-        <div className="flex justify-start">
-          <Button
-            title="Проинкассировал"
-            classname="border border-successFill rounded px-2 py-2 text-successFill hover:border-successFill/80 hover:text-successFill/80"
-            type="outline"
-            handleClick={() => handleBegin(record.deviceId)}
-            disabled={disabledButtons[record.deviceId]}
-          />
-        </div>
+        <Can
+          requiredPermissions={[{ action: 'create', subject: 'CashCollection' }, { action: 'manage', subject: 'CashCollection' }]}
+          userPermissions={userPermissions}
+        >
+          {allowed => allowed && (
+            <div className="flex justify-start">
+              <Button
+                title="Проинкассировал"
+                classname="border border-successFill rounded px-2 py-2 text-successFill hover:border-successFill/80 hover:text-successFill/80"
+                type="outline"
+                handleClick={() => handleBegin(record.deviceId)}
+                disabled={disabledButtons[record.deviceId]}
+              />
+            </div>
+          )}
+        </Can>
       ),
     },
     {

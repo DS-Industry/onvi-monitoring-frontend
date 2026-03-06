@@ -289,6 +289,11 @@ const MonthlyExpanse: React.FC = () => {
     { action: 'create', subject: 'ManagerPaper' },
   ]);
 
+  const canUpdate = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'ManagerPaper' },
+    { action: 'update', subject: 'ManagerPaper' },
+  ]);
+
   const columnsExpanse: ColumnsType<ManagerPeriods> = [
     {
       title: t('table.columns.id'),
@@ -426,7 +431,7 @@ const MonthlyExpanse: React.FC = () => {
     },
   ];
 
-  if (canEdit) {
+  if (canEdit || canUpdate) {
     columnsExpanse.push({
       title: t('marketing.actions'),
       dataIndex: 'actions',
@@ -450,11 +455,18 @@ const MonthlyExpanse: React.FC = () => {
         }
 
         const menuItems = [];
-        if (canEdit && record.status !== ManagerReportPeriodStatus.SENT) {
-          menuItems.push({ key: 'edit', label: 'Редактировать' });
+
+        if (record.status !== ManagerReportPeriodStatus.SENT && canEdit) {
+          menuItems.push({ key: 'edit', label: t('actions.edit') });
+          menuItems.push({ key: 'delete', label: t('actions.delete'), danger: true });
         }
-        if (canEdit && record.status !== ManagerReportPeriodStatus.SENT) {
-          menuItems.push({ key: 'delete', label: 'Удалить', danger: true });
+
+        if (record.status === ManagerReportPeriodStatus.SAVE && canEdit) {
+          menuItems.push({ key: 'send', label: t('actions.send') });
+        }
+
+        if (record.status === ManagerReportPeriodStatus.SENT && canUpdate) {
+          menuItems.push({ key: 'return', label: t('actions.return') });
         }
 
         if (menuItems.length === 0) return null; // User has no access

@@ -9,6 +9,8 @@ import GeneralFilters from '@ui/Filter/GeneralFilters.tsx';
 import { Button, Table } from 'antd';
 import { getDateRender } from '@/utils/tableUnits.tsx';
 import { PlusOutlined } from '@ant-design/icons';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
 
 const SaleDocument: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -27,6 +29,12 @@ const SaleDocument: React.FC = () => {
     dayjs().toDate().toISOString().slice(0, 10);
   const dateEnd =
     searchParams.get('dateEnd') ?? dayjs().toDate().toISOString().slice(0, 10);
+
+  const userPermissions = usePermissions();
+  const canCreate = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'ManagerPaper' },
+    { action: 'create', subject: 'ManagerPaper' },
+  ]);
 
   const { data: salesData, isLoading: saleDocumentLoading } = useSWR(
     [
@@ -103,13 +111,15 @@ const SaleDocument: React.FC = () => {
             {t('routes.saleDocument')}
           </span>
         </div>
-        <Button
-          icon={<PlusOutlined />}
-          className="btn-primary"
-          onClick={() => navigate(`/finance/saleDocument/create`)}
-        >
-          <div className="hidden sm:flex">{t('routes.add')}</div>
-        </Button>
+        {canCreate && (
+          <Button
+            icon={<PlusOutlined />}
+            className="btn-primary"
+            onClick={() => navigate(`/finance/saleDocument/create`)}
+          >
+            <div className="hidden sm:flex">{t('routes.add')}</div>
+          </Button>
+        )}
       </div>
 
       <GeneralFilters display={['city', 'pos', 'warehouse', 'dateTime']} />

@@ -23,6 +23,8 @@ import {
 } from '@/services/api/pos';
 import Table, { ColumnsType } from 'antd/es/table';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
 
 const FalseDeposit: React.FC = () => {
   const { t } = useTranslation();
@@ -35,6 +37,12 @@ const FalseDeposit: React.FC = () => {
   const dateEnd = searchParams.get('dateEnd') || `${formattedDate} 23:59`;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
+
+  const userPermissions = usePermissions();
+  const canDelete = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'Pos' },
+    { action: 'delete', subject: 'Pos' },
+  ]);
 
   const { data: filterData, isLoading } = useSWR(
     [`get-false-device`, dateStart, dateEnd, currentPage, pageSize],
@@ -193,7 +201,7 @@ const FalseDeposit: React.FC = () => {
           }}
         />
       </div>
-      {selectedRowKeys.length > 0 && (
+      {selectedRowKeys.length > 0 && canDelete && (
         <div className="fixed bottom-2 sm:bottom-4 left-2 sm:left-1/2 right-2 sm:right-auto sm:transform sm:-translate-x-1/2 z-50">
           <div className="bg-blue-500 text-white px-3 py-2 sm:px-4 sm:py-3 rounded-lg shadow-lg flex items-center justify-between sm:justify-center gap-2 sm:gap-4 max-w-full sm:max-w-none">
             <div className="flex items-center gap-2 sm:gap-4">

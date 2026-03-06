@@ -370,9 +370,14 @@ const EquipmentFailure: React.FC = () => {
 
   const dateRender = getDateRender();
 
-  const allowed = hasPermission(userPermissions, [
+  const canCreate = hasPermission(userPermissions, [
     { action: 'manage', subject: 'Incident' },
     { action: 'create', subject: 'Incident' },
+  ]);
+
+  const canUpdate = hasPermission(userPermissions, [
+    { action: 'manage', subject: 'Incident' },
+    { action: 'update', subject: 'Incident' },
   ]);
 
   const columnsEquipmentFailure: ColumnsType<Incident> = [
@@ -455,7 +460,7 @@ const EquipmentFailure: React.FC = () => {
     },
   ];
 
-  if (allowed) {
+  if (canUpdate) {
     columnsEquipmentFailure.push({
       title: '',
       dataIndex: 'actions',
@@ -489,7 +494,7 @@ const EquipmentFailure: React.FC = () => {
             {t('routes.equipmentFailure')}
           </span>
         </div>
-        {allowed && (
+        {canCreate && (
           <Button
             icon={<PlusOutlined />}
             className="btn-primary"
