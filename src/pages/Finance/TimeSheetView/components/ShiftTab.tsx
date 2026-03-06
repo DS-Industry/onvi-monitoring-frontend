@@ -348,7 +348,7 @@ const ShiftTab: React.FC = () => {
           <hr />
 
           <div className="flex gap-2 pt-6">
-            {dayShiftData?.status !== StatusWorkDayShiftReport.SENT ? (
+            {dayShiftData?.status !== StatusWorkDayShiftReport.SENT && hasPermissionToUpdate && (
               <Button
                 className="h-[43px] bg-[#FFF] border border-solid border-[#1890FF] text-[#1890FF]"
                 type="primary"
@@ -357,22 +357,11 @@ const ShiftTab: React.FC = () => {
               >
                 {t('routes.save')}
               </Button>
-            ) : (
-              <></>
             )}
-            {dayShiftData?.status !== StatusWorkDayShiftReport.SENT && hasPermissionToUpdate && (
-              <Button
-                className="h-[43px]  bg-[#1890FF]"
-                type="primary"
-                onClick={async () => await returnCash()}
-                loading={loadingReturnCash}
-              >
-                {t('finance.return')}
-              </Button>
-            )}{' '}
+
             {dayShiftData?.status !== StatusWorkDayShiftReport.SENT && hasPermissionToCreate && (
               <Button
-                className="h-[43px]  bg-[#1890FF]"
+                className="h-[43px] bg-[#1890FF]"
                 type="primary"
                 onClick={send}
                 loading={loadingSendCash}
@@ -380,6 +369,18 @@ const ShiftTab: React.FC = () => {
                 {t('finance.send')}
               </Button>
             )}
+
+            {dayShiftData?.status === StatusWorkDayShiftReport.SENT && hasPermissionToUpdate && (
+              <Button
+                className="h-[43px] bg-[#1890FF]"
+                type="primary"
+                onClick={async () => await returnCash()}
+                loading={loadingReturnCash}
+              >
+                {t('finance.return')}
+              </Button>
+            )}
+
             {dayShiftData?.status !== StatusWorkDayShiftReport.SENT && hasPermissionToCreate && (
               <Button
                 className="h-[43px] bg-red-500 hover:bg-red-600 border-red-500"
