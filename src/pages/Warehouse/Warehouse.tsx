@@ -200,7 +200,7 @@ const Warehouse: React.FC = () => {
 
   const allowed = hasPermission(userPermissions, [
     { action: 'manage', subject: 'Warehouse' },
-    { action: 'update', subject: 'Warehouse' },
+    { action: 'create', subject: 'Warehouse' },
   ]);
 
   return (

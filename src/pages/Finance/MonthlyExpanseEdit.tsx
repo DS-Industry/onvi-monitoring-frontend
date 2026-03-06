@@ -418,6 +418,7 @@ const MonthlyExpanseEdit: React.FC = () => {
             <Can
               requiredPermissions={[
                 { action: 'manage', subject: 'ManagerPaper' },
+                { action: 'update', subject: 'ManagerPaper' },
               ]}
               userPermissions={userPermissions}
             >

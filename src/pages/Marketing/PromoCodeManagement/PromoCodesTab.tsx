@@ -36,6 +36,8 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { ColumnsType } from 'antd/es/table';
 import { debounce } from 'lodash';
 import PromoCodeDrawer from './PromoCodeDrawer';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
 
 const { Option } = Select;
 
@@ -49,11 +51,17 @@ const PromoCodesTab: React.FC<PromoCodesTabProps> = ({
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { showToast } = useToast();
+  const userPermissions = usePermissions();
 
   const [promoDrawerOpen, setPromoDrawerOpen] = useState(false);
   const [editingPromo, setEditingPromo] = useState<PersonalPromocodeResponse | null>(null);
   const [searchValue, setSearchValue] = useState('');
   const [isActiveFilter, setIsActiveFilter] = useState<boolean | undefined>(undefined);
+
+  const canUpdate = hasPermission(userPermissions, [
+    { action: 'update', subject: 'LTYProgram' },
+    { action: 'manage', subject: 'LTYProgram' },
+  ]);
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
@@ -272,6 +280,8 @@ const PromoCodesTab: React.FC<PromoCodesTabProps> = ({
       title: t('constants.actions'),
       key: 'actions',
       render: (_: any, record: PersonalPromocodeResponse) => {
+        if (!canUpdate) return null;
+
         const isCampaignPromocode = record.promocodeType === PromocodeType.CAMPAIGN;
 
         return (
@@ -313,15 +323,17 @@ const PromoCodesTab: React.FC<PromoCodesTabProps> = ({
             {t('routes.promoCodeManagement')}
           </span>
         </div>
-        <Button
-          icon={<PlusOutlined />}
-          type="primary"
-          onClick={handleCreatePromo}
-        >
-          <span className="hidden sm:flex">
-            {t('routes.add')}
-          </span>
-        </Button>
+        {canUpdate && (
+          <Button
+            icon={<PlusOutlined />}
+            type="primary"
+            onClick={handleCreatePromo}
+          >
+            <span className="hidden sm:flex">
+              {t('routes.add')}
+            </span>
+          </Button>
+        )}
       </div>
 
       <div className="mt-6 mb-4 flex flex-col sm:flex-row gap-4">

@@ -232,15 +232,6 @@ const ShiftTab: React.FC = () => {
     userPermissions
   );
 
-  const hasPermissionToDelete = hasPermission(
-    [
-      { subject: 'ShiftReport', action: 'manage' },
-      { subject: 'ShiftReport', action: 'delete' },
-      { subject: 'ShiftReport', action: 'create' },
-    ],
-    userPermissions
-  );
-
   return (
     <div className="mt-3">
       {contextHolder}
@@ -369,40 +360,37 @@ const ShiftTab: React.FC = () => {
             ) : (
               <></>
             )}
-            {dayShiftData?.status === StatusWorkDayShiftReport.SENT &&
-              hasPermissionToUpdate && (
-                <Button
-                  className="h-[43px]  bg-[#1890FF]"
-                  type="primary"
-                  onClick={async () => await returnCash()}
-                  loading={loadingReturnCash}
-                >
-                  {t('finance.return')}
-                </Button>
-              )}{' '}
-            {(dayShiftData?.status === StatusWorkDayShiftReport.SENT) !==
-              hasPermissionToCreate && (
-                <Button
-                  className="h-[43px]  bg-[#1890FF]"
-                  type="primary"
-                  onClick={send}
-                  loading={loadingSendCash}
-                >
-                  {t('finance.send')}
-                </Button>
-              )}
-            {dayShiftData?.status !== StatusWorkDayShiftReport.SENT &&
-              hasPermissionToDelete && (
-                <Button
-                  className="h-[43px] bg-red-500 hover:bg-red-600 border-red-500"
-                  type="primary"
-                  danger
-                  onClick={handleDelete}
-                  loading={loadingDelete}
-                >
-                  {t('actions.delete')}
-                </Button>
-              )}
+            {dayShiftData?.status !== StatusWorkDayShiftReport.SENT && hasPermissionToUpdate && (
+              <Button
+                className="h-[43px]  bg-[#1890FF]"
+                type="primary"
+                onClick={async () => await returnCash()}
+                loading={loadingReturnCash}
+              >
+                {t('finance.return')}
+              </Button>
+            )}{' '}
+            {dayShiftData?.status !== StatusWorkDayShiftReport.SENT && hasPermissionToCreate && (
+              <Button
+                className="h-[43px]  bg-[#1890FF]"
+                type="primary"
+                onClick={send}
+                loading={loadingSendCash}
+              >
+                {t('finance.send')}
+              </Button>
+            )}
+            {dayShiftData?.status !== StatusWorkDayShiftReport.SENT && hasPermissionToCreate && (
+              <Button
+                className="h-[43px] bg-red-500 hover:bg-red-600 border-red-500"
+                type="primary"
+                danger
+                onClick={handleDelete}
+                loading={loadingDelete}
+              >
+                {t('actions.delete')}
+              </Button>
+            )}
           </div>
         </Form>
       </div>

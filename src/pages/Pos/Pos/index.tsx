@@ -24,9 +24,14 @@ const Pos: React.FC = () => {
   const [posId, setPosId] = useState<number | null>(null);
   const user = useUser();
 
-  const allowed = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'Organization' },
-    { action: 'create', subject: 'Organization' },
+  const canCreatePos = hasPermission(userPermissions, [
+    { action: 'create', subject: 'Pos' },
+    { action: 'manage', subject: 'Pos' },
+  ]);
+  
+  const canUpdatePos = hasPermission(userPermissions, [
+    { action: 'update', subject: 'Pos' },
+    { action: 'manage', subject: 'Pos' },
   ]);
 
   const { data, isLoading: posLoading } = useSWR(
@@ -180,13 +185,13 @@ const Pos: React.FC = () => {
     },
   ];
 
-  if (allowed) {
+  if (canUpdatePos) {
     columnsPos.push({
       title: '',
       dataIndex: 'actions',
       key: 'actions',
       render: (_: unknown, record: PosResponse) => (
-        <Tooltip title="Редактировать">
+        <Tooltip title={t('actions.edit')}>
           <Button
             type="text"
             icon={
@@ -213,7 +218,7 @@ const Pos: React.FC = () => {
             {t('routes.objectManagement')}
           </span>
         </div>
-        {allowed && (
+        {canCreatePos && (
           <Button
             icon={<PlusOutlined />}
             className="btn-primary"

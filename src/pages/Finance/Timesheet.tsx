@@ -17,6 +17,8 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { Button, message, Select } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useUser } from '@/hooks/useUserStore';
+import { Can } from '@/permissions/Can';
+import useAuthStore from '@/config/store/authSlice';
 
 dayjs.locale('ru');
 
@@ -55,6 +57,7 @@ const Timesheet: React.FC = () => {
 
   const defaultStartDate = dayjs().startOf('month').format('YYYY-MM-DD HH:mm'); // "2025-07-01 00:00"
   const defaultEndDate = dayjs().endOf('month').format('YYYY-MM-DD HH:mm'); // "2025-07-31 23:59"
+  const userPermissions = useAuthStore(state => state.permissions);
 
   const posId = Number(searchParams.get('posId')) || undefined;
   const dateStart = searchParams.get('dateStart') || defaultStartDate;
@@ -221,15 +224,13 @@ const Timesheet: React.FC = () => {
           />
         </div>
       </div>
-      <div className="mb-4">
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={handleCreateEvent}
-        >
-          {t('shift.createShift')}
-        </Button>
-      </div>
+      <Can requiredPermissions={[{ action: 'create', subject: 'ShiftReport' }, { action: 'manage', subject: 'ShiftReport' }]} userPermissions={userPermissions}>
+        {allowed => allowed && (
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateEvent}>
+            {t('shift.createShift')}
+          </Button>
+        )}
+      </Can>
 
       <div className="mt-8">
         <ShiftCreateModal

@@ -71,8 +71,8 @@ const BasicInformation: React.FC = () => {
     }
   );
 
-  const canDelete = hasPermission(userPermissions, [
-    { action: 'delete', subject: 'LTYProgram' },
+  const canUpdate = hasPermission(userPermissions, [
+    { action: 'update', subject: 'LTYProgram' },
     { action: 'manage', subject: 'LTYProgram' }
   ]);
 
@@ -188,7 +188,7 @@ const BasicInformation: React.FC = () => {
   };
 
   const showDeleteConfirm = () => {
-    if (!canDelete) {
+    if (!canUpdate) {
       return;
     }
 
@@ -441,7 +441,7 @@ const BasicInformation: React.FC = () => {
                     {t('actions.edit')}
                   </Button>
                   
-                  {canDelete && (
+                  {canUpdate && (
                     <Button 
                       type="primary" 
                       danger

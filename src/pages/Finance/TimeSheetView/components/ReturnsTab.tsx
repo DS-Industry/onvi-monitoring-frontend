@@ -19,6 +19,8 @@ import { PlusOutlined } from '@ant-design/icons';
 
 // types
 import type { ColumnsType } from 'antd/es/table';
+import { Can } from '@/permissions/Can';
+import useAuthStore from '@/config/store/authSlice';
 
 interface ReturnsTabProps {
   status?: StatusWorkDayShiftReport;
@@ -29,6 +31,7 @@ const ReturnsTab: React.FC<ReturnsTabProps> = ({ status }) => {
   const [isModalOpenReturn, setIsModalOpenReturn] = useState(false);
 
   const [searchParams] = useSearchParams();
+  const userPermissions = useAuthStore(state => state.permissions);
 
   const shiftId = searchParams.get('id')
     ? Number(searchParams.get('id'))
@@ -112,13 +115,20 @@ const ReturnsTab: React.FC<ReturnsTabProps> = ({ status }) => {
     <>
       <div>
         {status !== StatusWorkDayShiftReport.SENT && (
-          <button
-            className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal mb-3 flex items-center gap-1"
-            onClick={() => setIsModalOpenReturn(true)}
+          <Can
+            requiredPermissions={[{ action: 'create', subject: 'ShiftReport' }, { action: 'manage', subject: 'ShiftReport' }]}
+            userPermissions={userPermissions}
           >
-            <PlusOutlined />
-            {t('routes.add')}
-          </button>
+            {allowed => allowed && (
+              <button
+                className="px-2 py-1 rounded text-primary02 bg-background07/50 text-sm font-normal mb-3 flex items-center gap-1"
+                onClick={() => setIsModalOpenReturn(true)}
+              >
+                <PlusOutlined />
+                {t('routes.add')}
+              </button>
+            )}
+          </Can>
         )}
 
         <Table
