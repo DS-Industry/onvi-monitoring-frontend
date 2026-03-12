@@ -96,14 +96,10 @@ const EmployeeProfile: React.FC = () => {
     })) || [];
 
   const getInitials = (fullName: string) => {
-    const words = fullName.trim().split(' ');
-
-    if (words.length < 2) return words.at(0)?.at(0)?.toUpperCase() ?? '';
-
-    return words
-      .slice(0, 2)
-      .map(word => word[0].toUpperCase())
-      .join('');
+    const words = fullName.trim().split(/\s+/).filter(Boolean);
+    if (words.length === 0) return '';
+    if (words.length === 1) return words[0][0]?.toUpperCase() ?? '';
+    return words.slice(0, 2).map(word => word[0]?.toUpperCase() ?? '').join('');
   };
 
   const {
