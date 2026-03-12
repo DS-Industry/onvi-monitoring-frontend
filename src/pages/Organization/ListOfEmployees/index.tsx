@@ -105,10 +105,13 @@ const ListOfEmployees: React.FC = () => {
     setIsModalOpenUpdate(true);
   };
 
-  const allowed = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'Organization' },
-    { action: 'update', subject: 'Organization' },
-  ]);
+  const allowed = hasPermission(
+    [
+      { action: 'manage', subject: 'Organization' },
+      { action: 'update', subject: 'Organization' }
+    ],
+    userPermissions
+  );
 
   const statusRender = getStatusTagRender(t);
 

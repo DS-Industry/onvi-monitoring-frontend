@@ -111,20 +111,29 @@ const UpdateTechTaskModal: React.FC<UpdateTechTaskModalProps> = ({
   );
 
 
-  const hasUpdatePermission = hasPermission(userPermissions, [
-    { action: 'update', subject: 'TechTask' },
-    { action: 'manage', subject: 'TechTask' }
-  ]);
-
-  const hasDeletePermission = hasPermission(userPermissions, [
-    { action: 'delete', subject: 'TechTask' },
-    { action: 'manage', subject: 'TechTask' }
-  ]);
-
-  const hasCompletePermission = hasPermission(userPermissions, [
-    { action: 'read', subject: 'TechTask' },
-    { action: 'manage', subject: 'TechTask' }
-  ]);
+  const hasUpdatePermission = hasPermission(
+    [
+      { action: 'update', subject: 'TechTask' },
+      { action: 'manage', subject: 'TechTask' }
+    ],
+    userPermissions
+  );
+  
+  const hasDeletePermission = hasPermission(
+    [
+      { action: 'delete', subject: 'TechTask' },
+      { action: 'manage', subject: 'TechTask' }
+    ],
+    userPermissions
+  );
+  
+  const hasCompletePermission = hasPermission(
+    [
+      { action: 'read', subject: 'TechTask' },
+      { action: 'manage', subject: 'TechTask' }
+    ],
+    userPermissions
+  );
 
   useEffect(() => {
     if (!open) {

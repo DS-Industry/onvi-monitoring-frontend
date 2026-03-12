@@ -24,15 +24,21 @@ const Pos: React.FC = () => {
   const [posId, setPosId] = useState<number | null>(null);
   const user = useUser();
 
-  const canCreatePos = hasPermission(userPermissions, [
-    { action: 'create', subject: 'Pos' },
-    { action: 'manage', subject: 'Pos' },
-  ]);
+  const canCreatePos = hasPermission(
+    [
+      { action: 'create', subject: 'Pos' },
+      { action: 'manage', subject: 'Pos' }
+    ],
+    userPermissions
+  );
   
-  const canUpdatePos = hasPermission(userPermissions, [
-    { action: 'update', subject: 'Pos' },
-    { action: 'manage', subject: 'Pos' },
-  ]);
+  const canUpdatePos = hasPermission(
+    [
+      { action: 'update', subject: 'Pos' },
+      { action: 'manage', subject: 'Pos' }
+    ],
+    userPermissions
+  );
 
   const { data, isLoading: posLoading } = useSWR(
     user.organizationId ? [`get-pos`, city, user.organizationId] : null,
