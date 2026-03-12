@@ -3,10 +3,10 @@ import { useSearchParams } from 'react-router-dom';
 import { Select } from 'antd';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
-import { getWorkers } from '@/services/api/equipment';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
 import { useUser } from '@/hooks/useUserStore';
+import { getWorkerManager } from '@/services/api/finance';
 
 const EmployeeFilter: React.FC = () => {
   const { t } = useTranslation();
@@ -14,8 +14,8 @@ const EmployeeFilter: React.FC = () => {
   const user = useUser();
 
   const { data: workerData, isLoading } = useSWR(
-    user.organizationId ? [`get-worker`, user.organizationId] : null,
-    () => getWorkers(user.organizationId!),
+    user.organizationId ? [`get-worker-manager`, user.organizationId] : null,
+    () => getWorkerManager(user.organizationId!),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -25,11 +25,11 @@ const EmployeeFilter: React.FC = () => {
   );
 
   const handleChange = (val: string) => {
-      updateSearchParams(searchParams, setSearchParams, {
-        userId: val === '*' ? undefined : val, 
-        page: DEFAULT_PAGE,
-      });
-    };
+    updateSearchParams(searchParams, setSearchParams, {
+      userId: val === '*' ? undefined : val,
+      page: DEFAULT_PAGE,
+    });
+  };
 
   if (!workerData?.length && !isLoading) return null;
 
