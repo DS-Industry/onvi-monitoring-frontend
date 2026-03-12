@@ -1,5 +1,6 @@
 import { AxiosResponse } from 'axios';
 import api from '@/config/axiosConfig';
+import { WorkerResponse } from '../equipment';
 
 enum FINANCE {
   POST_CASH_COLLECTION = 'user/finance/cash-collection',
@@ -8,6 +9,7 @@ enum FINANCE {
   SHIFT_REPORT_CREATE = 'user/finance/shift/create',
   MANAGER_PAPER = 'user/manager-paper',
   GET_WORKER = 'user/permission/worker-by-pos',
+  GET_WORKER_MANAGER = 'user/permission/worker-manger',
 }
 
 export enum ManagerReportPeriodStatus {
@@ -994,5 +996,12 @@ export async function updateManagerPaperType(
     FINANCE.MANAGER_PAPER + `/type`,
     body
   );
+  return response.data;
+}
+
+export async function getWorkerManager(orgId: number): Promise<WorkerResponse[]> {
+  const response: AxiosResponse<WorkerResponse[]> = await api.get(
+    FINANCE.GET_WORKER_MANAGER + `/${orgId}`
+  );  
   return response.data;
 }
