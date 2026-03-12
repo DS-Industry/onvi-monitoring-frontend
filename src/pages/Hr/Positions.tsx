@@ -158,10 +158,13 @@ const Positions: React.FC = () => {
     }
   };
 
-  const allowed = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'Hr' },
-    { action: 'update', subject: 'Hr' },
-  ]);
+  const allowed = hasPermission(
+    [
+      { action: 'manage', subject: 'Hr' },
+      { action: 'update', subject: 'Hr' }
+    ],
+    userPermissions
+  );
 
   const columns: ColumnsType<Positions> = [
     {

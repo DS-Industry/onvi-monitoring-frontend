@@ -369,10 +369,13 @@ const Employees: React.FC = () => {
   const { checkedList, setCheckedList, options, visibleColumns } =
     useColumnSelector<TWorker['props']>(columnsEmployee, 'employee-columns');
 
-  const allowed = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'Hr' },
-    { action: 'update', subject: 'Hr' },
-  ]);
+  const allowed = hasPermission(
+    [
+      { action: 'manage', subject: 'Hr' },
+      { action: 'update', subject: 'Hr' }
+    ],
+    userPermissions
+  );
 
   return (
     <div>

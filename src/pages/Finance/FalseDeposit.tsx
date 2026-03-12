@@ -39,10 +39,13 @@ const FalseDeposit: React.FC = () => {
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
   const userPermissions = usePermissions();
-  const canDelete = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'Pos' },
-    { action: 'delete', subject: 'Pos' },
-  ]);
+  const canDelete = hasPermission(
+    [
+      { action: 'manage', subject: 'Pos' },
+      { action: 'delete', subject: 'Pos' }
+    ],
+    userPermissions
+  );
 
   const { data: filterData, isLoading } = useSWR(
     [`get-false-device`, dateStart, dateEnd, currentPage, pageSize],

@@ -198,10 +198,13 @@ const Warehouse: React.FC = () => {
     visibleColumns,
   } = useColumnSelector(columnsWarehouses, 'warehouse-plan-fact-columns');
 
-  const allowed = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'Warehouse' },
-    { action: 'create', subject: 'Warehouse' },
-  ]);
+  const allowed = hasPermission(
+    [
+      { action: 'manage', subject: 'Warehouse' },
+      { action: 'create', subject: 'Warehouse' }
+    ],
+    userPermissions
+  );
 
   return (
     <div>

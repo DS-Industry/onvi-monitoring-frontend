@@ -357,10 +357,13 @@ const InventoryCreation: React.FC = () => {
     }
   };
 
-  const allowed = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'Warehouse' },
-    { action: 'update', subject: 'Warehouse' },
-  ]);
+  const allowed = hasPermission(
+    [
+      { action: 'manage', subject: 'Warehouse' },
+      { action: 'update', subject: 'Warehouse' }
+    ],
+    userPermissions
+  );
 
   const columnsInventory: ColumnsType<InventoryColumn> = [
     {

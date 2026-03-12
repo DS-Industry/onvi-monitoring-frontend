@@ -176,10 +176,13 @@ const TechTaskCreate: React.FC = () => {
     setDrawerOpen(false);
   };
 
-  const allowed = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'TechTask' },
-    { action: 'create', subject: 'TechTask' },
-  ]);
+  const allowed = hasPermission(
+    [
+      { action: 'manage', subject: 'TechTask' },
+      { action: 'create', subject: 'TechTask' }
+    ],
+    userPermissions
+  );
 
   return (
     <>

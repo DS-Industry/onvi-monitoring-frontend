@@ -43,10 +43,13 @@ const DirectoryArticles: React.FC = () => {
   const getStatusTag = getStatusTagRender(t);
   const userPermissions = usePermissions();
 
-  const allowed = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'ManagerPaper' },
-    { action: 'update', subject: 'ManagerPaper' },
-  ]);
+  const allowed = hasPermission(
+    [
+      { action: 'manage', subject: 'ManagerPaper' },
+      { action: 'update', subject: 'ManagerPaper' }
+    ],
+    userPermissions
+  );
 
   const paperTypes =
     paperTypeData?.map(type => ({
