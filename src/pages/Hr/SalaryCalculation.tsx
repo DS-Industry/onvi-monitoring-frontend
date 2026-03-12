@@ -533,13 +533,13 @@ const SalaryCalculation: React.FC = () => {
       };
     });
 
-    const allowed = hasPermission(
-      [
-        { action: 'manage', subject: 'Hr' },
-        { action: 'create', subject: 'Hr' }
-      ],
-      userPermissions
-    );
+  const allowed = hasPermission(
+    [
+      { action: 'manage', subject: 'Hr' },
+      { action: 'create', subject: 'Hr' }
+    ],
+    userPermissions
+  );
 
   return (
     <div>
