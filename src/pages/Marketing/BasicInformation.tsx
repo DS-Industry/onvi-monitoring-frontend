@@ -71,10 +71,13 @@ const BasicInformation: React.FC = () => {
     }
   );
 
-  const canUpdate = hasPermission(userPermissions, [
-    { action: 'update', subject: 'LTYProgram' },
-    { action: 'manage', subject: 'LTYProgram' }
-  ]);
+  const canUpdate = hasPermission(
+    [
+      { action: 'update', subject: 'LTYProgram' },
+      { action: 'manage', subject: 'LTYProgram' }
+    ],
+    userPermissions
+  );
 
   const defaultValues: ClientFormData = useMemo(
     () => ({

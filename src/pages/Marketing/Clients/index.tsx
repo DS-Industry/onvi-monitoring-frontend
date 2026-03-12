@@ -143,10 +143,13 @@ const Clients: React.FC = () => {
     search
   );
 
-  const canUpdate = hasPermission(userPermissions, [
-    { action: 'update', subject: 'LTYProgram' },
-    { action: 'manage', subject: 'LTYProgram' },
-  ]);
+  const canUpdate = hasPermission(
+    [
+      { action: 'update', subject: 'LTYProgram' },
+      { action: 'manage', subject: 'LTYProgram' }
+    ],
+    userPermissions
+  );
 
   const onEditClick = useCallback((id: number) => {
     setSelectedClientId(id);

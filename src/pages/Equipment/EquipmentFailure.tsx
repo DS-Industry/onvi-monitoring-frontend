@@ -370,15 +370,21 @@ const EquipmentFailure: React.FC = () => {
 
   const dateRender = getDateRender();
 
-  const canCreate = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'Incident' },
-    { action: 'create', subject: 'Incident' },
-  ]);
-
-  const canUpdate = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'Incident' },
-    { action: 'update', subject: 'Incident' },
-  ]);
+  const canCreate = hasPermission(
+    [
+      { action: 'manage', subject: 'Incident' },
+      { action: 'create', subject: 'Incident' }
+    ],
+    userPermissions
+  );
+  
+  const canUpdate = hasPermission(
+    [
+      { action: 'manage', subject: 'Incident' },
+      { action: 'update', subject: 'Incident' }
+    ],
+    userPermissions
+  );
 
   const columnsEquipmentFailure: ColumnsType<Incident> = [
     {

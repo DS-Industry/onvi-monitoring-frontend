@@ -284,15 +284,21 @@ const MonthlyExpanse: React.FC = () => {
     });
   };
 
-  const canEdit = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'ManagerPaper' },
-    { action: 'create', subject: 'ManagerPaper' },
-  ]);
-
-  const canUpdate = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'ManagerPaper' },
-    { action: 'update', subject: 'ManagerPaper' },
-  ]);
+  const canEdit = hasPermission(
+    [
+      { action: 'manage', subject: 'ManagerPaper' },
+      { action: 'create', subject: 'ManagerPaper' }
+    ],
+    userPermissions
+  );
+  
+  const canUpdate = hasPermission(
+    [
+      { action: 'manage', subject: 'ManagerPaper' },
+      { action: 'update', subject: 'ManagerPaper' }
+    ],
+    userPermissions
+  );
 
   const columnsExpanse: ColumnsType<ManagerPeriods> = [
     {

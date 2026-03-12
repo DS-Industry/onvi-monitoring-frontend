@@ -58,10 +58,13 @@ const PromoCodesTab: React.FC<PromoCodesTabProps> = ({
   const [searchValue, setSearchValue] = useState('');
   const [isActiveFilter, setIsActiveFilter] = useState<boolean | undefined>(undefined);
 
-  const canUpdate = hasPermission(userPermissions, [
-    { action: 'update', subject: 'LTYProgram' },
-    { action: 'manage', subject: 'LTYProgram' },
-  ]);
+  const canUpdate = hasPermission(
+    [
+      { action: 'update', subject: 'LTYProgram' },
+      { action: 'manage', subject: 'LTYProgram' }
+    ],
+    userPermissions
+  );
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);

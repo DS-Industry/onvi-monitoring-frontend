@@ -165,10 +165,13 @@ const Suppliers: React.FC = () => {
   const { checkedList, setCheckedList, options, visibleColumns } =
     useColumnSelector(columnsSupplier, 'suppliers-table-columns');
 
-  const allowed = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'Warehouse' },
-    { action: 'update', subject: 'Warehouse' },
-  ]);
+  const allowed = hasPermission(
+    [
+      { action: 'manage', subject: 'Warehouse' },
+      { action: 'update', subject: 'Warehouse' }
+    ],
+    userPermissions
+  );
 
   return (
     <>

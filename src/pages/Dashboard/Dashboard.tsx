@@ -31,10 +31,13 @@ const Dashboard: React.FC = () => {
   };
 
   const { user, setUser } = useUserStore();
-  const allowed = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'Pos' },
-    { action: 'read', subject: 'Pos' },
-  ]);
+  const allowed = hasPermission(
+    [
+      { action: 'manage', subject: 'Pos' },
+      { action: 'read', subject: 'Pos' }
+    ],
+    userPermissions
+  );
 
   const tabItems = [
     {

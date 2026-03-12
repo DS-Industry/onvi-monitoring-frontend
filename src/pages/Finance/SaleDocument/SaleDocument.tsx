@@ -31,11 +31,13 @@ const SaleDocument: React.FC = () => {
     searchParams.get('dateEnd') ?? dayjs().toDate().toISOString().slice(0, 10);
 
   const userPermissions = usePermissions();
-  const canCreate = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'ManagerPaper' },
-    { action: 'create', subject: 'ManagerPaper' },
-  ]);
-
+  const canCreate = hasPermission(
+    [
+      { action: 'manage', subject: 'ManagerPaper' },
+      { action: 'create', subject: 'ManagerPaper' }
+    ],
+    userPermissions
+  );
   const { data: salesData, isLoading: saleDocumentLoading } = useSWR(
     [
       `get-sales-document`,

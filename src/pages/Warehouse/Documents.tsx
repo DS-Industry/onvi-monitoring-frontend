@@ -211,10 +211,13 @@ const Documents: React.FC = () => {
   const { checkedList, setCheckedList, options, visibleColumns } =
     useColumnSelector(columnsAllDocuments, 'documents-table-columns');
 
-  const allowed = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'Warehouse' },
-    { action: 'create', subject: 'Warehouse' },
-  ]);
+    const allowed = hasPermission(
+      [
+        { action: 'manage', subject: 'Warehouse' },
+        { action: 'create', subject: 'Warehouse' }
+      ],
+      userPermissions
+    );
 
   const handleTableChange = (pagination: any) => {
     const { current, pageSize } = pagination;

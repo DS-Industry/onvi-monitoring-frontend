@@ -95,10 +95,13 @@ const Organization: React.FC = () => {
 
   const userPermissions = usePermissions();
 
-  const allowed = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'Organization' },
-    { action: 'create', subject: 'Organization' },
-  ]);
+  const allowed = hasPermission(
+    [
+      { action: 'manage', subject: 'Organization' },
+      { action: 'create', subject: 'Organization' }
+    ],
+    userPermissions
+  );
 
   const dateRender = getDateRender();
   const statusRender = getStatusTagRender(t);

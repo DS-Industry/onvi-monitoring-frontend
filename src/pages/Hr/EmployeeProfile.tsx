@@ -458,10 +458,13 @@ const EmployeeProfile: React.FC = () => {
     setYear(year + 1);
   };
 
-  const allowed = hasPermission(userPermissions, [
-    { action: 'manage', subject: 'Hr' },
-    { action: 'update', subject: 'Hr' },
-  ]);
+  const allowed = hasPermission(
+    [
+      { action: 'manage', subject: 'Hr' },
+      { action: 'update', subject: 'Hr' }
+    ],
+    userPermissions
+  );
 
   const handleEmployeeSelect = (workerId: number) => {
     updateSearchParams(searchParams, setSearchParams, {
