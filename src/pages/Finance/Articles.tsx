@@ -61,6 +61,7 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import hasPermission from '@/permissions/hasPermission';
 
 const { Title, Text } = Typography;
+const RESTRICTED_PAPER_TYPE_IDS = [64, 67];
 
 interface FinancialCardProps {
   title: string;
@@ -554,6 +555,13 @@ const Articles: React.FC = () => {
     }
   }, [allManagersData, workerData]);
 
+  useEffect(() => {
+    const restrictedKeys = data
+      .filter(item => RESTRICTED_PAPER_TYPE_IDS.includes(item.paperTypeId))
+      .map(item => item.key);
+    setSelectedRowKeys(prev => prev.filter(key => !restrictedKeys.includes(String(key))));
+  }, [data]);
+
   const save = async (key: React.Key) => {
     try {
       const row = (await form.validateFields()) as DataType;
@@ -652,6 +660,9 @@ const Articles: React.FC = () => {
     onChange: (newSelectedRowKeys: React.Key[]) => {
       setSelectedRowKeys(newSelectedRowKeys);
     },
+    getCheckboxProps: (record: DataType) => ({
+      disabled: RESTRICTED_PAPER_TYPE_IDS.includes(record.paperTypeId), 
+    }),
   };
 
   const columns = [
@@ -734,6 +745,8 @@ const Articles: React.FC = () => {
       width: '25%',
       render: (_: unknown, record: DataType) => {
         const editable = isEditing(record);
+        const isPaperTypeRestricted = RESTRICTED_PAPER_TYPE_IDS.includes(record.paperTypeId);
+    
         return (
           <Can
             requiredPermissions={[
@@ -742,8 +755,12 @@ const Articles: React.FC = () => {
             ]}
             userPermissions={userPermissions}
           >
-            {allowed =>
-              allowed && (
+            {allowed => {
+              if (!allowed || isPaperTypeRestricted) {
+                return null;
+              }
+    
+              return (
                 <div>
                   {editable ? (
                     <span className="flex space-x-4">
@@ -766,8 +783,8 @@ const Articles: React.FC = () => {
                     </Typography.Link>
                   )}
                 </div>
-              )
-            }
+              );
+            }}
           </Can>
         );
       },
