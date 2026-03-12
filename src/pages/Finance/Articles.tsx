@@ -351,6 +351,7 @@ const Articles: React.FC = () => {
   const { t } = useTranslation();
   const [form] = Form.useForm();
   const [data, setData] = useState<DataType[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [editingKey, setEditingKey] = useState('');
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [isOpenModal, setIsOpenModal] = useState(false);
@@ -524,6 +525,8 @@ const Articles: React.FC = () => {
 
   useEffect(() => {
     if (allManagersData && workerData) {
+      setTotalCount(allManagersData.totalCount || 0);
+      
       const workerMap = new Map<
         number,
         { id: number; name: string; surname: string }
@@ -1295,7 +1298,8 @@ const Articles: React.FC = () => {
                 pagination={{
                   current: currentPage,
                   pageSize: pageSize,
-                  total: data.length,
+                  total: totalCount,
+                  showSizeChanger: true,
                   pageSizeOptions: ALL_PAGE_SIZES,
                   showTotal: (total, range) =>
                     `${range[0]}-${range[1]} of ${total} items`,
