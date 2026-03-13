@@ -377,7 +377,7 @@ const ShiftTab: React.FC = () => {
                 onClick={async () => await returnCash()}
                 loading={loadingReturnCash}
               >
-                {t('finance.return')}
+                {t('finance.return')} 
               </Button>
             )}
 
