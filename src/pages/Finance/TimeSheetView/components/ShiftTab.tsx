@@ -348,7 +348,7 @@ const ShiftTab: React.FC = () => {
           <hr />
 
           <div className="flex gap-2 pt-6">
-            {dayShiftData?.status !== StatusWorkDayShiftReport.SENT && hasPermissionToUpdate && (
+            {dayShiftData?.status !== StatusWorkDayShiftReport.SENT && hasPermissionToCreate && (
               <Button
                 className="h-[43px] bg-[#FFF] border border-solid border-[#1890FF] text-[#1890FF]"
                 type="primary"
