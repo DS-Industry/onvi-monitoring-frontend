@@ -108,6 +108,7 @@ const InventoryCreation: React.FC = () => {
         page: currentPage,
         size: pageSize,
         search: search || undefined,
+        categoryId: category !== '*' ? Number(category) : undefined,
       });
     },
     {
@@ -120,11 +121,12 @@ const InventoryCreation: React.FC = () => {
 
   const { data: inventoryCount } = useSWR(
     user.organizationId
-      ? [`get-nomenclature-count`, user.organizationId, search]
+      ? [`get-nomenclature-count`, user.organizationId, search, category]
       : null,
     () => {
       return getNomenclatureCount(Number(user.organizationId!)!, {
         search: search || undefined,
+        categoryId: category !== '*' ? Number(category) : undefined,
       });
     },
     {
@@ -153,14 +155,7 @@ const InventoryCreation: React.FC = () => {
     }
   );
 
-  const inventories =
-    inventoryData
-      ?.map(item => item.props)
-      ?.filter(
-        (item: { categoryId: number }) =>
-          category === '*' || item.categoryId === Number(category)
-      )
-      ?.map(item => item) || [];
+  const inventories = inventoryData?.map(item => item.props) || [];
 
   const categories: { name: string; value: number | string }[] =
     categoryData?.map(item => ({
