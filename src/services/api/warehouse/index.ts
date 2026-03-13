@@ -322,6 +322,7 @@ type NomenclatureParams = {
   page?: number;
   size?: number;
   search?: string;
+  categoryId?: number;
 };
 
 export async function createNomenclature(
@@ -442,7 +443,7 @@ return response.data;
 
 export async function getNomenclatureCount(
   orgId: number,
-  params?: NomenclatureParams
+  params?: { search?: string; categoryId?: number }
 ): Promise<{ count: number }> {
   const response: AxiosResponse<{ count: number }> = await api.get(
     `user/warehouse/nomenclature-count/${orgId}`,
