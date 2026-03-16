@@ -1255,7 +1255,8 @@
     "collectionDate": "Дата инкассации",
     "oldCashDate": "Старая дата сбора наличных",
     "cashDate": "Дата получения наличных",
-    "responsible": "Ответственный"
+    "responsible": "Ответственный",
+    "shiftInfo": "Информация о смене"
   },
   "shift-management": {
     "shift-create-modal": {
