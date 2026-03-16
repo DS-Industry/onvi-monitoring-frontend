@@ -376,7 +376,7 @@ const EmployeeAdvanceCreation: React.FC = () => {
       render: (_, record) => (
         <InputNumber
           value={record.sum}
-          max={record.sum}
+          min={0}
           onChange={value => handleTableChange(record.id, 'sum', value)}
           formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
           parser={value => Number(value!.replace(/\$\s?|(,*)/g, ''))}
