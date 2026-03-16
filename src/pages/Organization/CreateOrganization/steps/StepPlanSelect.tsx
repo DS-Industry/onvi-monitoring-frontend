@@ -42,6 +42,8 @@ const StepPlanSelect: React.FC = () => {
     pendingRequestId != null && updatePlanAction != null;
   const canSelectPlan = !isSubscriptionRequestReady;
 
+
+
   const handleConnect = async (plan: (typeof PLANS_CONFIG)[number]['id']) => {
     if (organizationId == null) return;
     setSelectedPlan(plan);
