@@ -1,38 +1,29 @@
 import Button from '@/components/ui/Button/Button';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
-import { registerActivationUser } from '@/services/api/platform';
-import { useClearUserData } from '@/hooks/useUserStore';
+import {
+  registerActivationUser,
+  loginPlatformUser,
+} from '@/services/api/platform';
+import { useClearUserData, useSetUser } from '@/hooks/useUserStore';
 import { useSetAuthenticated } from '@/hooks/useAuthStore';
-import { User } from '@/config/store/userSlice';
-
-type Permissions = {
-  action: string;
-  subject: string;
-};
+import useAuthStore from '@/config/store/authSlice';
 
 type Props = {
-  registerObj: { email: string };
-  count: number;
-  setCount: (count: number) => void;
-  setRegisterUser: (user: User | null) => void;
-  setRegisterPermissions: (permissions: Permissions[]) => void;
+  registerObj: { email: string; password: string };
 };
 
-const OTPForm: React.FC<Props> = ({
-  registerObj,
-  count,
-  setCount,
-  setRegisterUser,
-  setRegisterPermissions,
-}: Props) => {
+const OTPForm: React.FC<Props> = ({ registerObj }: Props) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [otp, setOtp] = useState(Array(6).fill(''));
   const [otpString, setOtpString] = useState('');
   const [isError, setIsError] = useState(false);
   const clearData = useClearUserData();
+  const setUser = useSetUser();
   const setAuthenticated = useSetAuthenticated();
 
   const defaultValues = {
@@ -77,13 +68,23 @@ const OTPForm: React.FC<Props> = ({
 
   const onSubmit = async () => {
     try {
-      const result = await trigger();
-      if (result && result.admin && result.permissionInfo) {
-        const { admin, permissionInfo } = result;
-        setRegisterUser(admin?.props);
+      await trigger();
+      const loginResult = await loginPlatformUser({
+        email: registerObj.email,
+        password: registerObj.password,
+      });
+      if (loginResult && loginResult.admin && loginResult.permissionInfo) {
+        const { admin, permissionInfo } = loginResult;
+        setUser({
+          user: {
+            ...admin?.props,
+            organizations: permissionInfo.organizations ?? [],
+            organizationId: permissionInfo.organizations?.at(0)?.id,
+          },
+        });
+        useAuthStore.getState().setPermissions(permissionInfo.permissions);
         setAuthenticated(true);
-        setRegisterPermissions(permissionInfo.permissions);
-        setCount(count + 1);
+        navigate('/');
       } else {
         setIsError(true);
       }

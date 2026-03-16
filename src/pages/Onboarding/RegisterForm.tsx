@@ -13,8 +13,8 @@ import { formatRussianPhone } from '@/utils/tableUnits';
 type Props = {
   count: number;
   setCount: (key: number) => void;
-  registerObj: { email: string };
-  setRegisterObj: (obj: { email: string }) => void;
+  registerObj: { email: string; password: string };
+  setRegisterObj: (obj: { email: string; password: string }) => void;
 };
 
 const RegisterForm: React.FC<Props> = ({
@@ -82,7 +82,7 @@ const RegisterForm: React.FC<Props> = ({
     try {
       const result = await trigger();
       if (result) {
-        setRegisterObj({ email: formData.email });
+        setRegisterObj({ email: formData.email, password: formData.password });
         setCount(count + 1);
       }
     } catch (error) {

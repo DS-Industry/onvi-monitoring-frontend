@@ -5,6 +5,8 @@ import { Can } from '@/permissions/Can';
 import 'react-loading-skeleton/dist/skeleton.css';
 // import { usePermissions } from "./hooks/useAuthStore";
 import useAuthStore from './config/store/authSlice';
+import useUserStore from './config/store/userSlice';
+import useSubscriptionStore from './config/store/subscriptionSlice';
 import { ErrorBoundary } from '@datadog/browser-rum-react';
 import { datadogLogs } from '@datadog/browser-logs';
 import { useFirebaseMessaging } from './hooks/useFirebaseMessaging';
@@ -15,6 +17,7 @@ const PublicRoute = React.lazy(() => import('@/routes/PublicRoute'));
 const PrivateRoute = React.lazy(() => import('@/routes/PrivateRoute'));
 import useSWRMutation from 'swr/mutation';
 import { updateUserProfile } from './services/api/platform';
+import { getActiveSubscription } from './services/api/subscription';
 const DashboardLayout = React.lazy(() => import('@/layout/DashboardLayout'));
 import { ConfigProvider } from 'antd';
 import ruRU from 'antd/es/locale/ru_RU';
@@ -44,6 +47,10 @@ const App: React.FC = () => {
   useFirebaseMessaging();
 
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const user = useUserStore(state => state.user);
+  const setActiveSubscription = useSubscriptionStore(
+    state => state.setActiveSubscription
+  );
 
   const { trigger: updateUser } = useSWRMutation(
     isAuthenticated ? 'user' : null,
@@ -72,6 +79,36 @@ const App: React.FC = () => {
 
     getTokenAndUpdate();
   }, [updateUser, isAuthenticated]);
+
+  useEffect(() => {
+    const organizationId = user?.organizationId;
+
+    if (!isAuthenticated || !organizationId || organizationId < 1) {
+      setActiveSubscription(null);
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchActiveSubscription = async () => {
+      try {
+        const subscription = await getActiveSubscription(organizationId);
+        if (!cancelled) {
+          setActiveSubscription(subscription);
+        }
+      } catch {
+        if (!cancelled) {
+          setActiveSubscription(null);
+        }
+      }
+    };
+
+    fetchActiveSubscription();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, user?.organizationId]);
 
   return (
     <ChunkErrorBoundary>

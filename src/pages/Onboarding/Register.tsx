@@ -2,19 +2,12 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import RegisterImage from '@/assets/RegisterImage.png';
-import PostRegisterImage from '@/assets/PostRegisterImage.png';
 import OTPImage from '@/assets/OTPImage.png';
+
 const RegisterForm = React.lazy(() => import('./RegisterForm'));
 const OTPForm = React.lazy(() => import('./OTPForm'));
-const PostRegisterForm = React.lazy(() => import('./PostRegisterForm'));
 import OnviBlue from '@/assets/onvi_blue.png';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { User } from '@/config/store/userSlice';
-
-type Permissions = {
-  action: string;
-  subject: string;
-};
 
 const Register: React.FC = () => {
   const { t } = useTranslation();
@@ -27,11 +20,7 @@ const Register: React.FC = () => {
     navigate('/login');
   };
 
-  const [registerObj, setRegisterObj] = useState({ email: '' });
-  const [registerUser, setRegisterUser] = useState<User | null>(null);
-  const [registerPermissions, setRegisterPermissions] = useState<Permissions[]>(
-    []
-  );
+  const [registerObj, setRegisterObj] = useState({ email: '', password: '' });
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background02 p-4">
@@ -64,22 +53,8 @@ const Register: React.FC = () => {
             />
           )}
           {count === 1 && (
-            <OTPForm
-              registerObj={registerObj}
-              count={count}
-              setCount={setCount}
-              setRegisterUser={setRegisterUser}
-              setRegisterPermissions={setRegisterPermissions}
-            />
+            <OTPForm registerObj={registerObj} />
           )}
-          {count === 2 &&
-            registerUser &&
-            registerPermissions && (
-              <PostRegisterForm
-                registerUser={registerUser}
-                registerPermissions={registerPermissions}
-              />
-            )}
           <p className="mt-6 text-center text-sm text-opacity01">
             {t('register.terms')}{' '}
           </p>
@@ -114,16 +89,6 @@ const Register: React.FC = () => {
                 src={OTPImage}
                 alt="Rocket illustration"
                 key={'register-image-2'}
-                className="object-contain max-w-full max-h-full"
-                loading="lazy"
-                decoding="async"
-              />
-            )}
-            {count === 2 && (
-              <img
-                src={PostRegisterImage}
-                alt="Rocket illustration"
-                key={'register-image-3'}
                 className="object-contain max-w-full max-h-full"
                 loading="lazy"
                 decoding="async"
