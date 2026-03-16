@@ -19,6 +19,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { useUser } from '@/hooks/useUserStore';
 import { Can } from '@/permissions/Can';
 import useAuthStore from '@/config/store/authSlice';
+import WeekendShiftInfoModal from './WeekendShiftInfoModal';
 
 dayjs.locale('ru');
 
@@ -128,6 +129,7 @@ const Timesheet: React.FC = () => {
   );
 
   const [openSlot, setOpenSlot] = useState(false);
+  const [selectedWeekendEvent, setSelectedWeekendEvent] = useState<(typeof calendarEvents)[0] | null>(null);
 
   const handleSelectSlot = useCallback(() => {
     if (posId) {
@@ -148,6 +150,12 @@ const Timesheet: React.FC = () => {
     } else {
       message.error(t('validation.posRequired'));
     }
+  };
+
+  const handleCloseWeekendModal = () => setSelectedWeekendEvent(null);
+
+  const handleWeekendDeleteSuccess = () => {
+    refetchShifts();
   };
 
   // Transform shifts data to calendar events
@@ -188,6 +196,8 @@ const Timesheet: React.FC = () => {
       navigate(
         `/finance/timesheet/view?id=${event.resource.shiftId}&posId=${event.resource.posId}`
       );
+    } else if (event.resource?.type === TypeWorkDay.WEEKEND) {
+      setSelectedWeekendEvent(event);
     }
   };
 
@@ -241,10 +251,24 @@ const Timesheet: React.FC = () => {
             organizationId: user.organizationId,
           }}
         />
+
+        {selectedWeekendEvent && (
+          <WeekendShiftInfoModal
+            open={!!selectedWeekendEvent}
+            onClose={handleCloseWeekendModal}
+            shiftData={{
+              id: selectedWeekendEvent.resource.shiftId,
+              workerName: selectedWeekendEvent.title,
+              typeWorkDay: selectedWeekendEvent.resource.type,
+              start: selectedWeekendEvent.start,
+              end: selectedWeekendEvent.end,
+            }}
+            onDeleteSuccess={handleWeekendDeleteSuccess}
+          />
+        )}
+
         <div
-          className={`${
-            isLoadingShifts ? 'pointer-events-none opacity-30' : ''
-          }`}
+          className={`${isLoadingShifts ? 'pointer-events-none opacity-30' : ''}`}
         >
           <Calendar
             localizer={localize}

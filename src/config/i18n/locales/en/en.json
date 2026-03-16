@@ -1372,7 +1372,8 @@
     "collectionDate": "Collection Date",
     "oldCashDate": "Old Cash Collection Date",
     "cashDate": "Cash Collection Date",
-    "responsible": "Responsible"
+    "responsible": "Responsible",
+    "shiftInfo": "Shift info"
   },
 
   "shift-management": {
