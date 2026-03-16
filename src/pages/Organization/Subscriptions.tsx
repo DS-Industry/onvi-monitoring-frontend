@@ -1,21 +1,43 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Notification from '@/components/ui/Notification';
 const CurrentTariff = React.lazy(() => import('./CurrentTariff'));
 const ChangeTariff = React.lazy(() => import('./ChangeTariff'));
+const SubscriptionInvoices = React.lazy(
+  () => import('./SubscriptionInvoices')
+);
 import GenericTabs from '@ui/Tabs/GenericTab';
+import useSubscriptionStore from '@/config/store/subscriptionSlice';
 
 const Subscriptions: React.FC = () => {
   const { t } = useTranslation();
   const [activeTabKey, setActiveTabKey] = useState('current');
   const [isNotificationVisible, setIsNotificationVisible] = useState(true);
+  const activeSubscription = useSubscriptionStore(
+    state => state.activeSubscription
+  );
+
+  useEffect(() => {
+    if (!activeSubscription) {
+      setActiveTabKey('change');
+    }
+  }, [activeSubscription]);
 
   const tabItems = [
-    {
-      key: 'current',
-      label: t('subscriptions.current'),
-      content: <CurrentTariff setActiveTab={setActiveTabKey} />,
-    },
+    ...(activeSubscription
+      ? [
+          {
+            key: 'current',
+            label: t('subscriptions.current'),
+            content: <CurrentTariff setActiveTab={setActiveTabKey} />,
+          },
+          {
+            key: 'invoices',
+            label: t('subscriptions.invoices') || 'Invoices',
+            content: <SubscriptionInvoices />,
+          },
+        ]
+      : []),
     {
       key: 'change',
       label: t('subscriptions.change'),
@@ -42,7 +64,7 @@ const Subscriptions: React.FC = () => {
         )}
         <GenericTabs
           tabs={tabItems}
-          defaultActiveKey="current"
+          defaultActiveKey={activeSubscription ? 'current' : 'change'}
           activeKey={activeTabKey}
           onChange={setActiveTabKey}
           tabBarGutter={24}

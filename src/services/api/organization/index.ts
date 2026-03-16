@@ -7,6 +7,7 @@ enum ORGANIZATION {
   GET_STATISTIC = 'user/organization/statistics',
   UPDATE_ORGANIZATION = 'user/organization',
   GET_ORGANIZATION_DOC = 'user/organization/document',
+  ACCEPT_OFFER = 'user/organization/accept-offer',
   GET_ROLES = 'user/permission/roles',
   POS_PERMISSION = 'user/permission/pos',
   UPDATE_ROLE = 'user/permission',
@@ -25,6 +26,7 @@ export type Organization = {
   createdAt: Date;
   updatedAt: Date;
   ownerId: number;
+  offerAcceptedAt?: Date | null;
 };
 
 export type OrganizationBody = {
@@ -330,6 +332,12 @@ export async function getContactById(id: number): Promise<ContactResponse> {
   const url = ORGANIZATION.GET_CONTACT + `/${id}`;
   const response: AxiosResponse<ContactResponse> = await api.get(url);
   return response.data;
+}
+
+export async function acceptOrganizationOffer(
+  organizationId: number
+): Promise<void> {
+  await api.patch(ORGANIZATION.ACCEPT_OFFER, { organizationId });
 }
 
 export async function getStatisticsGraph(
