@@ -1535,6 +1535,7 @@
     "TODAY": "Today",
     "BACK": "Back",
     "NEXT": "Next",
+    "MORE": "More",
     "addEvent": "Add Event",
     "addWorker": "Add Worker",
     "sch": "Schedule Shift",
