@@ -155,6 +155,9 @@ const Subscriptions = React.lazy(
 const ManageInvoices = React.lazy(
   () => import('@/pages/Administration/ManageInvoices')
 );
+const OrganizationRequests = React.lazy(
+  () => import('@/pages/Administration/OrganizationRequests')
+);
 const SubscriptionRequests = React.lazy(
   () => import('@/pages/Organization/SubscriptionRequests')
 );
@@ -214,8 +217,19 @@ const routes = [
         component: ManageInvoices,
         permissions: [
           { action: 'manage', subject: 'Organization' },
-          { action: 'read', subject: 'Organization' },
         ],
+        isSidebar: true,
+        isHr: false,
+        titleName: '',
+        subNav: [],
+        subMenu: false,
+      },
+      {
+        name: 'organizationRequests',
+        isVisible: true,
+        path: '/administration/organization-requests',
+        component: OrganizationRequests,
+        permissions: [{ action: 'manage', subject: 'Organization' }],
         isSidebar: true,
         isHr: false,
         titleName: '',

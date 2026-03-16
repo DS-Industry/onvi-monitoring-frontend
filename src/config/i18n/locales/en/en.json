@@ -5,6 +5,7 @@
     "subscriptions": "Subscriptions",
     "subscriptionRequests": "Subscription Requests",
     "invoices": "Subscriptions Management",
+    "organizationRequests": "Organization Requests",
     "accessRights": "Access Rights",
     "legalEntities": "Legal Entitites",
     "station": "Station",
@@ -258,6 +259,18 @@
     "addPlaceholder": "Enter address",
     "cancel": "Cancel",
     "save": "Save",
+    "name": "Name",
+    "status": "Status",
+    "type": "Type",
+    "createdAt": "Created at",
+    "ownerId": "Owner ID",
+    "noRequests": "No organization requests found.",
+    "approve": "Approve",
+    "decline": "Decline",
+    "approveSuccess": "Organization approved",
+    "approveError": "Failed to approve organization",
+    "declineSuccess": "Organization declined",
+    "declineError": "Failed to decline organization",
     "noLegal": "No legal entities have been created",
     "addLegal": "Add a legal entity",
     "legalDetails": "Legal Details",
@@ -374,6 +387,7 @@
     "for": "For better service performance, please fill in the following fields"
   },
   "createOrganization": {
+    "organizationBlocked": "Your organization has been blocked. Please contact support.",
     "step0": "Select subscription plan",
     "step1": "Enter details",
     "step2": "Connection type",
@@ -389,6 +403,8 @@
     "stepLabel2": "Step 2",
     "stepLabel3": "Step 3",
     "stepLabel4": "Step 4",
+    "stepLabel5": "Step 5",
+    "stepLabel6": "Step 6",
     "planCustom": "Custom",
     "planCustomDesc": "Individual conditions",
     "priceOnRequest": "On request",
@@ -431,6 +447,7 @@
     "customPlanUsers": "Number of users",
     "updatePlan": "Update plan",
     "updateSubscriptionRequest": "Update request",
+    "organizationApprovedRelogin": "Your organization has been approved. Please log out and log in again to continue.",
     "toast": {
       "organizationCreated": "Organization was created successfully",
       "subscriptionRequestCreated": "Subscription request was created successfully",
@@ -1164,6 +1181,8 @@
     "deleteCancelled": "Delete cancelled"
   },
   "tables": {
+    "PAID": "PAID",
+    "APPROVED": "APPROVED",
     "ACTIVE": "ACTIVE",
     "INACTIVE": "INACTIVE",
     "BLOCKED": "BLOCKED",
@@ -1672,7 +1691,9 @@
     "deleteInvoiceConfirm": "Delete this invoice?",
     "selectFile": "Select file",
     "invoiceLink": "Invoice file",
-    "openInvoice": "Open"
+    "openInvoice": "Open",
+    "PAID": "PAID",
+    "DRAFT": "Ready"
   },
   "subscriptionRequests": {
     "ready": "Ready",

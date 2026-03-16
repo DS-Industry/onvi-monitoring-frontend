@@ -31,6 +31,7 @@ const StepPosRequests: React.FC = () => {
 
   const [form] = Form.useForm();
   const [editing, setEditing] = useState<PosRequestResponseDto | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
 
   const {
     data: requests = [],
@@ -58,6 +59,7 @@ const StepPosRequests: React.FC = () => {
     posMigrationId?: number | null;
   }) => {
     if (!organizationId) return;
+    setIsCreating(true);
     try {
       await createPosRequest({
         name: values.name,
@@ -78,6 +80,8 @@ const StepPosRequests: React.FC = () => {
         t('createOrganization.posRequestsCreateError'),
         'error'
       );
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -142,6 +146,7 @@ const StepPosRequests: React.FC = () => {
       title: t('constants.status'),
       dataIndex: 'status',
       key: 'status',
+      render: (value: string) => t(`tables.${value}`),
     },
     {
       title: t('constants.actions'),
@@ -169,7 +174,7 @@ const StepPosRequests: React.FC = () => {
     <div className="w-full max-w-6xl mx-auto">
       <div className="mb-6">
         <span className="inline-block text-xs font-semibold uppercase tracking-wider text-[#BFFA00] mb-2">
-          {t('createOrganization.stepLabel3')}
+          {t('createOrganization.stepLabel4')}
         </span>
         <h1 className="text-lg sm:text-xl font-bold text-white">
           {t('createOrganization.posRequestsTitle')}
@@ -192,6 +197,7 @@ const StepPosRequests: React.FC = () => {
           form={form}
           layout="vertical"
           onFinish={handleCreate}
+          disabled={isCreating}
           className="[&_.ant-form-item-label]:min-h-[1.5rem] [&_.ant-form-item-label]:overflow-visible [&_.ant-form-item-label>label]:leading-normal"
         >
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -259,8 +265,8 @@ const StepPosRequests: React.FC = () => {
             type="basic"
             title={t('createOrganization.posRequestsCreateButton')}
             classname="mt-2 !rounded-xl !py-3 font-semibold"
-            disabled={!canCreateMore}
-            isLoading={isLoading}
+            disabled={!canCreateMore || isCreating}
+            isLoading={isCreating}
             form
           />
           {!canCreateMore && (

@@ -20,6 +20,8 @@ const StepDetails: React.FC = () => {
     isMutatingPrecreate,
     existingOrganization,
     showToast,
+    isVerificateStatus,
+    canCreateOrganization
   } = useCreateOrganizationContext();
 
   const defaultValues: DetailsFormData = {
@@ -58,6 +60,14 @@ const StepDetails: React.FC = () => {
 
   return (
     <div className="w-full max-w-6xl mx-auto">
+      {!isVerificateStatus && !canCreateOrganization && existingOrganization?.organizationStatus !== 'BLOCKED' && (
+        <p className="mb-4 text-sm text-[#F97316]">
+          {t('createOrganization.organizationApprovedRelogin')}
+        </p>
+      )}
+      {existingOrganization?.organizationStatus === "BLOCKED" && <p className="mb-4 text-sm text-[#F97316]">
+        {t('createOrganization.organizationBlocked')}
+      </p>}
       <div className="mb-6">
         <span className="inline-block text-xs font-semibold uppercase tracking-wider text-[#BFFA00] mb-2">
           {t('createOrganization.stepLabel1')}

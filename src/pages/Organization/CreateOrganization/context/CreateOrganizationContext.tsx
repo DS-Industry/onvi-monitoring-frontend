@@ -99,6 +99,7 @@ export type CreateOrganizationContextValue = {
   subError: Error | null;
   mutateOrganizations: () => void | Promise<unknown>;
   mutateSubscriptionRequests: () => void | Promise<unknown>;
+  canCreateOrganization: boolean;
 };
 
 const CreateOrganizationContext =
@@ -165,6 +166,7 @@ export function CreateOrganizationProvider({
     isStepDisabled,
     pendingRequestId,
     isOfferAccepted,
+    canCreateOrganization
   } = state;
 
   const mutations = useCreateOrganizationMutations({
@@ -297,6 +299,7 @@ export function CreateOrganizationProvider({
     subError,
     mutateOrganizations,
     mutateSubscriptionRequests,
+    canCreateOrganization
   };
 
   return (

@@ -27,6 +27,7 @@ export type StepDisabledInput = {
   selectedPlan: PlanId | null;
   isSubscriptionRequestReady: boolean;
   hasSubscriptionRequest: boolean;
+  canCreateOrganization: boolean;
 };
 
 export function isStepDisabled(input: StepDisabledInput): boolean {
@@ -38,19 +39,16 @@ export function isStepDisabled(input: StepDisabledInput): boolean {
     selectedPlan,
     isSubscriptionRequestReady,
     hasSubscriptionRequest,
+    canCreateOrganization,
   } = input;
 
-  const isVerificate = organizationStatus === ORGANIZATION_STATUS.VERIFICATE;
+  const isVerificate =
+    organizationStatus === ORGANIZATION_STATUS.VERIFICATE ||
+    !canCreateOrganization;
+
   const isPending = organizationStatus === ORGANIZATION_STATUS.PENDING;
   const isActive = organizationStatus === ORGANIZATION_STATUS.ACTIVE;
 
-
-  console.log({
-    isVerificate,
-    isPending,
-    isActive,
-    isSubscriptionRequestReady
-  })
 
   if (stepIndex === 0) return false;
   if (stepIndex === 1) return !hasOrganization || isVerificate;

@@ -8,6 +8,7 @@ enum ORGANIZATION {
   UPDATE_ORGANIZATION = 'user/organization',
   GET_ORGANIZATION_DOC = 'user/organization/document',
   ACCEPT_OFFER = 'user/organization/accept-offer',
+  GET_VERIFICATION_REQUESTS = 'user/organization/verificate',
   GET_ROLES = 'user/permission/roles',
   POS_PERMISSION = 'user/permission/pos',
   UPDATE_ROLE = 'user/permission',
@@ -332,6 +333,55 @@ export async function getContactById(id: number): Promise<ContactResponse> {
   const url = ORGANIZATION.GET_CONTACT + `/${id}`;
   const response: AxiosResponse<ContactResponse> = await api.get(url);
   return response.data;
+}
+
+export type OrganizationVerificationItem = {
+  id: number;
+  name: string;
+  slug: string;
+  address: string;
+  organizationDocumentId?: number;
+  organizationStatus: string;
+  organizationType: string;
+  createdAt: string;
+  updatedAt: string;
+  ownerId: number;
+  offerAcceptedAt?: string | null;
+};
+
+export type OrganizationVerificationListResponse = {
+  data: OrganizationVerificationItem[];
+  page: number;
+  size: number;
+  total: number;
+};
+
+export interface GetOrganizationVerificationParams {
+  page?: number;
+  size?: number;
+}
+
+export async function getOrganizationVerificationRequests(
+  params: GetOrganizationVerificationParams = {}
+): Promise<OrganizationVerificationListResponse> {
+  const { page = 1, size = 20 } = params;
+  const response: AxiosResponse<OrganizationVerificationListResponse> =
+    await api.get(ORGANIZATION.GET_VERIFICATION_REQUESTS, {
+      params: { page, size },
+    });
+  return response.data;
+}
+
+export async function approveOrganizationVerification(
+  id: number
+): Promise<void> {
+  await api.patch(`user/organization/approve/${id}`);
+}
+
+export async function declineOrganizationVerification(
+  id: number
+): Promise<void> {
+  await api.patch(`user/organization/decline/${id}`);
 }
 
 export async function acceptOrganizationOffer(
