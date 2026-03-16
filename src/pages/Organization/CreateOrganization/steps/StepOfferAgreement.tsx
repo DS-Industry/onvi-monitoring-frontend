@@ -47,7 +47,7 @@ const StepOfferAgreement: React.FC = () => {
     <div className="w-full max-w-6xl mx-auto">
       <div className="mb-6">
         <span className="inline-block text-xs font-semibold uppercase tracking-wider text-[#BFFA00]">
-          {t('createOrganization.stepLabel4')}
+          {t('createOrganization.stepLabel5')}
         </span>
         <h1 className="mt-2 text-lg sm:text-xl font-bold text-white">
           {t('createOrganization.offerTitle')}

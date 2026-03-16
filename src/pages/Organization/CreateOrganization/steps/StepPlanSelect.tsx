@@ -28,7 +28,6 @@ const StepPlanSelect: React.FC = () => {
     customUsers,
     setCustomUsers,
     setSearchParams,
-    setCurrentStep,
     pendingRequestId,
     isUpdatingPlan,
     isSubmittingSubscription,
@@ -59,7 +58,6 @@ const StepPlanSelect: React.FC = () => {
           customUsers,
         }),
       });
-      setCurrentStep(2);
     } catch {
       showToast(
         t('createOrganization.toast.errorSubscriptionRequest'),
@@ -166,11 +164,10 @@ const StepPlanSelect: React.FC = () => {
           return (
             <div
               key={plan.id}
-              className={`rounded-2xl border-2 overflow-hidden flex flex-col transition-all duration-200 ${
-                isSelected
-                  ? 'border-[#BFFA00] shadow-[0_0_28px_rgba(191,250,0,0.15)]'
-                  : 'border-[#1a1a1a] bg-[#0d0d0d] hover:border-[#2563eb]/40'
-              }`}
+              className={`rounded-2xl border-2 overflow-hidden flex flex-col transition-all duration-200 ${isSelected
+                ? 'border-[#BFFA00] shadow-[0_0_28px_rgba(191,250,0,0.15)]'
+                : 'border-[#1a1a1a] bg-[#0d0d0d] hover:border-[#2563eb]/40'
+                }`}
             >
               <div
                 className={`${plan.headerBg} px-4 py-3 sm:px-5 sm:py-4 ${isBusiness ? 'text-black' : 'text-white'}`}

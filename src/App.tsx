@@ -108,7 +108,7 @@ const App: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [isAuthenticated, user?.organizationId, setActiveSubscription]);
+  }, [isAuthenticated, user?.organizationId]);
 
   return (
     <ChunkErrorBoundary>

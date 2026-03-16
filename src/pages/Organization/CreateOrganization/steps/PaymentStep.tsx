@@ -59,7 +59,7 @@ const PaymentStep: React.FC = () => {
     <div className="w-full max-w-6xl mx-auto">
       <div className="mb-6">
         <span className="inline-block text-xs font-semibold uppercase tracking-wider text-[#BFFA00]">
-          {t('createOrganization.stepLabel4')}
+          {t('createOrganization.stepLabel6')}
         </span>
       </div>
       <div className="py-8 sm:py-10 md:py-14 text-center space-y-6">

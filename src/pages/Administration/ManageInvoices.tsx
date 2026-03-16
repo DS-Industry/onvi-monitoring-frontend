@@ -33,7 +33,7 @@ const ManageInvoices: React.FC = () => {
     OrganizationSubscriptionResponseDto[]
   >([]);
   const [loading, setLoading] = useState(false);
-  const [overdueOnly, setOverdueOnly] = useState(false);
+  const [overdueOnly, setOverdueOnly] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSubscription, setSelectedSubscription] =
     useState<OrganizationSubscriptionResponseDto | null>(null);
@@ -111,6 +111,7 @@ const ManageInvoices: React.FC = () => {
       title: t('subscriptions.status'),
       dataIndex: 'status',
       key: 'status',
+      render: (value: string) => t(`subscriptions.${value}`),
     },
     {
       title: t('subscriptions.invoiceLink'),
@@ -234,18 +235,6 @@ const ManageInvoices: React.FC = () => {
       title: t('subscriptionRequests.planCode'),
       dataIndex: 'planName',
       key: 'planName',
-    },
-    {
-      title: t('subscriptionRequests.posesCount'),
-      dataIndex: 'posesCount',
-      key: 'posesCount',
-      width: 100,
-    },
-    {
-      title: t('subscriptionRequests.usersCount'),
-      dataIndex: 'usersCount',
-      key: 'usersCount',
-      width: 100,
     },
     {
       title: t('subscriptionRequests.onviFeature'),
@@ -377,6 +366,7 @@ const ManageInvoices: React.FC = () => {
             setIsModalOpen(false);
             setSelectedSubscription(null);
             setFile(null);
+            await refetchSubscriptions();
           } catch (error) {
             console.error('Failed to create invoice:', error);
             message.error(

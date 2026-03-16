@@ -96,6 +96,7 @@ const SubscriptionInvoices: React.FC = () => {
       title: t('subscriptions.status'),
       dataIndex: 'status',
       key: 'status',
+      render: (value: string) => t(`subscriptions.${value}`),
     },
     {
       title: t('subscriptions.invoiceLink'),

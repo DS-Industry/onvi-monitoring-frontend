@@ -11,6 +11,7 @@ import {
   ORGANIZATION_STATUS,
 } from '../utils';
 import type { PlanId } from '../types';
+import { usePermissions } from '@/hooks/useAuthStore';
 
 type UserWithOrg = {
   organizationId?: number | null;
@@ -39,6 +40,7 @@ export type UseCreateOrganizationStateResult = {
   isStepDisabled: (index: number) => boolean;
   pendingRequestId: number | null;
   isOfferAccepted: boolean;
+  canCreateOrganization: boolean
 };
 
 export function useCreateOrganizationState(
@@ -96,6 +98,37 @@ export function useCreateOrganizationState(
 
   const isOfferAccepted = Boolean(existingOrganization?.offerAcceptedAt);
 
+  const userPermissions = usePermissions();
+  const canCreateOrganization = useMemo(() => {
+    if (!organizationId) return true;
+
+    return userPermissions.some(permission => {
+      if (permission.subject !== 'Organization') return false;
+      if (
+        permission.action !== 'create' &&
+        permission.action !== 'manage'
+      )
+        return false;
+
+      // For Organization, conditions are specified on "id"
+      const cond = permission.conditions?.id;
+      if (!cond) return true;
+
+      const id = organizationId;
+
+      // If "in" is present but empty, user has no orgs for this permission
+      if (cond.in && cond.in.length === 0) return false;
+
+      if (cond.eq != null && cond.eq !== id) return false;
+      if (cond.ne != null && cond.ne === id) return false;
+      if (cond.in && !cond.in.includes(id)) return false;
+      if (cond.gt != null && !(id > cond.gt)) return false;
+      if (cond.lt != null && !(id < cond.lt)) return false;
+
+      return true;
+    });
+  }, [organizationId, userPermissions]);
+
   const isStepDisabled = useCallback(
     (stepIndex: number) =>
       isStepDisabledFn({
@@ -106,6 +139,7 @@ export function useCreateOrganizationState(
         selectedPlan,
         isSubscriptionRequestReady,
         hasSubscriptionRequest,
+        canCreateOrganization,
       }),
     [
       hasOrganization,
@@ -114,6 +148,8 @@ export function useCreateOrganizationState(
       selectedPlan,
       isSubscriptionRequestReady,
       hasSubscriptionRequest,
+      userPermissions,
+      canCreateOrganization,
     ]
   );
 
@@ -144,5 +180,6 @@ export function useCreateOrganizationState(
     isStepDisabled,
     pendingRequestId,
     isOfferAccepted,
+    canCreateOrganization
   };
 }
