@@ -29,6 +29,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {
   formatNumber,
   getCurrencyRender,
@@ -44,7 +45,8 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  ChartDataLabels,
 );
 
 const Programs: React.FC = () => {
@@ -365,10 +367,11 @@ const Programs: React.FC = () => {
                       font: { size: 20 },
                       align: 'start',
                     },
+                    datalabels: {
+                      color: '#000000',
+                    },
                   },
-                  scales: {
-                    x: { beginAtZero: true },
-                  },
+                  scales: { x: { beginAtZero: true } },
                 }}
               />
             </div>
@@ -396,10 +399,12 @@ const Programs: React.FC = () => {
                       font: { size: 20 },
                       align: 'start',
                     },
+                    datalabels: {
+                      color: '#000000',
+                      formatter: (value) => `${value.toLocaleString()} ₽`,
+                    },
                   },
-                  scales: {
-                    y: { beginAtZero: true },
-                  },
+                  scales: { y: { beginAtZero: true } },
                 }}
               />
             </div>
