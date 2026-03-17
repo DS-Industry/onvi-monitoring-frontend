@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Button, Space, message } from 'antd';
+import { Table, Button, Space, message, Modal, Descriptions } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
+import { EyeOutlined } from '@ant-design/icons';
 import {
   getOrganizationVerificationRequests,
   approveOrganizationVerification,
@@ -22,6 +23,9 @@ const OrganizationRequests: React.FC = () => {
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [total, setTotal] = useState(0);
   const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedOrg, setSelectedOrg] =
+    useState<OrganizationVerificationItem | null>(null);
 
   const fetchData = useCallback(
     async (pageValue: number, sizeValue: number) => {
@@ -87,6 +91,16 @@ const OrganizationRequests: React.FC = () => {
     setPageSize(size);
   };
 
+  const openDetails = (record: OrganizationVerificationItem) => {
+    setSelectedOrg(record);
+    setDetailsOpen(true);
+  };
+
+  const closeDetails = () => {
+    setDetailsOpen(false);
+    setSelectedOrg(null);
+  };
+
   const columns: ColumnsType<OrganizationVerificationItem> = [
     {
       title: 'ID',
@@ -135,6 +149,19 @@ const OrganizationRequests: React.FC = () => {
       dataIndex: 'ownerId',
       key: 'ownerId',
       width: 120,
+    },
+    {
+      title: '',
+      key: 'view',
+      width: 48,
+      render: (_, record) => (
+        <Button
+          type="text"
+          size="small"
+          icon={<EyeOutlined />}
+          onClick={() => openDetails(record)}
+        />
+      ),
     },
     {
       title: t('subscriptions.actions') || 'Actions',
@@ -187,6 +214,83 @@ const OrganizationRequests: React.FC = () => {
         }}
         onChange={handleTableChange}
       />
+      <Modal
+        open={detailsOpen}
+        onCancel={closeDetails}
+        footer={null}
+        width={720}
+        title={
+          selectedOrg
+            ? `${selectedOrg.name} (#${selectedOrg.id})`
+            : t('organizations.details') || 'Organization details'
+        }
+      >
+        {selectedOrg && (
+          <Descriptions
+            bordered
+            size="small"
+            column={2}
+            labelStyle={{ width: 180 }}
+          >
+            <Descriptions.Item label={t('organizations.name')}>
+              {selectedOrg.name}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('organizations.shortName') || 'Short name'}>
+              {selectedOrg.shortName || '—'}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('organizations.address')}>
+              {selectedOrg.address}
+            </Descriptions.Item>
+            <Descriptions.Item
+              label={t('organizations.additionalAddress') || 'Additional address'}
+            >
+              {selectedOrg.additionalAddress || '—'}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('register.phone')}>
+              {selectedOrg.phone || '—'}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('register.email')}>
+              {selectedOrg.email || '—'}
+            </Descriptions.Item>
+            <Descriptions.Item label="INN">
+              {selectedOrg.inn || '—'}
+            </Descriptions.Item>
+            <Descriptions.Item label="KPP">
+              {selectedOrg.kpp || '—'}
+            </Descriptions.Item>
+            <Descriptions.Item label="OGRN">
+              {selectedOrg.ogrn || '—'}
+            </Descriptions.Item>
+            <Descriptions.Item label="OKPO">
+              {selectedOrg.okpo || '—'}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('createOrganization.details.rateVat')}>
+              {selectedOrg.rateVat || '—'}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('createOrganization.details.bank')}>
+              {selectedOrg.bank || '—'}
+            </Descriptions.Item>
+            <Descriptions.Item label={t('createOrganization.details.bik')}>
+              {selectedOrg.bik || '—'}
+            </Descriptions.Item>
+            <Descriptions.Item
+              label={t('createOrganization.details.settlementAccount')}
+            >
+              {selectedOrg.settlementAccount || '—'}
+            </Descriptions.Item>
+            <Descriptions.Item
+              label={t('createOrganization.details.correspondentAccount')}
+            >
+              {selectedOrg.correspondentAccount || '—'}
+            </Descriptions.Item>
+            <Descriptions.Item
+              label={t('createOrganization.details.addressBank')}
+            >
+              {selectedOrg.addressBank || '—'}
+            </Descriptions.Item>
+          </Descriptions>
+        )}
+      </Modal>
     </div>
   );
 };
