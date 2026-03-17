@@ -81,13 +81,11 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
     if (shouldShow('dateTime')) {
       const currentStart = searchParams.get('dateStart');
       const currentEnd = searchParams.get('dateEnd');
-
+  
       if (!currentStart || !currentEnd) {
-        const defaultStart = dayjs()
-          .subtract(7, 'day')
-          .format('YYYY-MM-DDTHH:mm');
-        const defaultEnd = dayjs().format('YYYY-MM-DDTHH:mm');
-
+        const defaultStart = dayjs().startOf('day').format('YYYY-MM-DDTHH:mm');
+        const defaultEnd = dayjs().endOf('day').format('YYYY-MM-DDTHH:mm');
+  
         updateSearchParams(searchParams, setSearchParams, {
           dateStart: defaultStart,
           dateEnd: defaultEnd,
