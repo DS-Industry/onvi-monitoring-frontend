@@ -16,6 +16,7 @@ import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import { formatNumber, getDateRender } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
 import { useUser } from '@/hooks/useUserStore';
+import { formatSecondsToTime } from '@/utils/timeFormatter';
 
 const ProgramDevices: React.FC = () => {
   const { t } = useTranslation();
@@ -132,6 +133,53 @@ const ProgramDevices: React.FC = () => {
   const { checkedList, setCheckedList, options, visibleColumns } =
     useColumnSelector(deviceColumns, 'programs-device-table-columns');
 
+  const renderExpandedRow = (record: Program) => {
+    const programsInfo = record.programsInfo || [];
+
+    const totalCounter = programsInfo.reduce(
+      (acc, item) => acc + (item.counter || 0),
+      0
+    );
+    const totalTimeMinutes = programsInfo.reduce(
+      (acc, item) => acc + (item.totalTime || 0),
+      0
+    );
+
+    const totalTimeSeconds = totalTimeMinutes * 60;
+    const avgTimeSeconds = totalCounter > 0 ? totalTimeSeconds / totalCounter : 0;
+    const formattedAvgTime = formatSecondsToTime(avgTimeSeconds);
+
+    const totalRecord: any = {
+      programName: t('finance.total'),
+      counter: totalCounter,
+      totalTime: totalTimeMinutes,
+      averageTime: formattedAvgTime,
+      lastOper: null,
+    };
+
+    const dataSourceWithTotal = [...programsInfo, totalRecord];
+
+    return (
+      <Table
+        rowKey={row => {
+          if (row === totalRecord) return `${record.id}-total`;
+          return `${record.id}-${row.programName}`;
+        }}
+        dataSource={dataSourceWithTotal}
+        columns={programColumns}
+        pagination={false}
+        bordered
+        size="small"
+        rowClassName={(row) => {
+          if (row.programName === t('finance.total')) {
+            return 'font-bold';
+          }
+          return '';
+        }}
+      />
+    );
+  };
+
   return (
     <>
       <div className="ml-12 md:ml-0 flex items-center space-x-2 mb-5">
@@ -158,16 +206,7 @@ const ProgramDevices: React.FC = () => {
           columns={visibleColumns}
           scroll={{ x: 'max-content' }}
           expandable={{
-            expandedRowRender: (record: Program) => (
-              <Table
-                rowKey={row => `${record.id}-${row.programName}`}
-                dataSource={record.programsInfo}
-                columns={programColumns}
-                pagination={false}
-                bordered
-                size="small"
-              />
-            ),
+            expandedRowRender: renderExpandedRow,
             rowExpandable: record =>
               Array.isArray(record.programsInfo) &&
               record.programsInfo.length > 0,

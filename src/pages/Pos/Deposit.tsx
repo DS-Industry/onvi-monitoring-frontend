@@ -9,7 +9,7 @@ import { getPlacement } from '@/services/api/device';
 
 // utils
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import { getCurrencyRender, getDateRender } from '@/utils/tableUnits';
+import { getCurrencyRender, getDateRender, formatNumber } from '@/utils/tableUnits';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 
 // components
@@ -56,11 +56,10 @@ const Deposit: React.FC = () => {
     [dateStart, dateEnd, posId, cityParam, currentPage, pageSize]
   );
 
-  const swrKey = `get-pos-deposits-${filterParams.posId}-${
-    filterParams.placementId
-  }-${dayjs(filterParams.dateStart).toISOString()}-${dayjs(
-    filterParams.dateEnd
-  ).toISOString()}-${filterParams.page}-${filterParams.size}`;
+  const swrKey = `get-pos-deposits-${filterParams.posId}-${filterParams.placementId
+    }-${dayjs(filterParams.dateStart).toISOString()}-${dayjs(
+      filterParams.dateEnd
+    ).toISOString()}-${filterParams.page}-${filterParams.size}`;
 
   const [totalCount, setTotalCount] = useState(0);
 
@@ -175,6 +174,7 @@ const Deposit: React.FC = () => {
       dataIndex: 'counter',
       key: 'counter',
       sorter: (a, b) => a.counter - b.counter,
+      render: (value) => formatNumber(value),
     },
     {
       title: t('deposit.columns.yandexSum'),
@@ -186,6 +186,36 @@ const Deposit: React.FC = () => {
 
   const { checkedList, setCheckedList, options, visibleColumns } =
     useColumnSelector(columns, 'devices-deposit-table-columns');
+
+  const calculateTotals = () => {
+    if (!devices || devices.length === 0) return null;
+
+    const totals: any = {
+      id: 'total-row',
+      name: t('finance.total'),
+      city: '',
+      lastOper: '',
+      cashSum: 0,
+      virtualSum: 0,
+      cashbackSumCard: 0,
+      discountSum: 0,
+      counter: 0,
+      yandexSum: 0,
+    };
+
+    devices.forEach(item => {
+      totals.cashSum += item.cashSum || 0;
+      totals.virtualSum += item.virtualSum || 0;
+      totals.cashbackSumCard += item.cashbackSumCard || 0;
+      totals.discountSum += item.discountSum || 0;
+      totals.counter += item.counter || 0;
+      totals.yandexSum += item.yandexSum || 0;
+    });
+
+    return totals;
+  };
+
+  const totalsRow = calculateTotals();
 
   return (
     <>
@@ -231,6 +261,45 @@ const Deposit: React.FC = () => {
                 page: String(page),
                 size: String(size),
               }),
+          }}
+          summary={() => {
+            if (!totalsRow) return null;
+            return (
+              <Table.Summary fixed>
+                <Table.Summary.Row>
+                  {visibleColumns.map((col, index) => {
+                    const dataIndex = 'dataIndex' in col ? (col.dataIndex as string) : undefined;
+                    let value: React.ReactNode = '';
+
+                    if (index === 0) {
+                      return (
+                        <Table.Summary.Cell key={col.key?.toString() || index} index={index}>
+                          <span className="font-bold">{t('finance.total')}</span>
+                        </Table.Summary.Cell>
+                      );
+                    }
+
+                    if (dataIndex) {
+                      if (dataIndex === 'name' || dataIndex === 'city' || dataIndex === 'lastOper') {
+                        value = '';
+                      } else if (dataIndex === 'counter') {
+                        value = formatNumber(totalsRow[dataIndex]);
+                      } else if (
+                        ['cashSum', 'virtualSum', 'cashbackSumCard', 'discountSum', 'yandexSum'].includes(dataIndex)
+                      ) {
+                        value = currencyRender(totalsRow[dataIndex]);
+                      }
+                    }
+
+                    return (
+                      <Table.Summary.Cell key={col.key?.toString() || index} index={index}>
+                        <span className="font-bold">{value}</span>
+                      </Table.Summary.Cell>
+                    );
+                  })}
+                </Table.Summary.Row>
+              </Table.Summary>
+            );
           }}
         />
       </div>

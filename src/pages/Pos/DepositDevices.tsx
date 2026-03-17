@@ -210,6 +210,42 @@ const DepositDevices: React.FC = () => {
   const { checkedList, setCheckedList, options, visibleColumns } =
     useColumnSelector(columns, 'pos-deposits-table-columns');
 
+  const calculateTotals = () => {
+    if (!devices || devices.length === 0) return null;
+
+    const totals: any = {
+      id: 'total-row',
+      name: t('finance.total'),
+      city: '',
+      lastOper: '',
+      cashSum: 0,
+      virtualSum: 0,
+      yandexSum: 0,
+      discountSum: 0,
+      cashbackSumCard: 0,
+      counter: 0,
+      mobileSum: 0,
+      cardSum: 0,
+      cashbackSumMub: 0,
+    };
+
+    devices.forEach(item => {
+      totals.cashSum += item.cashSum || 0;
+      totals.virtualSum += item.virtualSum || 0;
+      totals.yandexSum += item.yandexSum || 0;
+      totals.discountSum += item.discountSum || 0;
+      totals.cashbackSumCard += item.cashbackSumCard || 0;
+      totals.counter += item.counter || 0;
+      totals.mobileSum += item.mobileSum || 0;
+      totals.cardSum += item.cardSum || 0;
+      totals.cashbackSumMub += item.cashbackSumMub || 0;
+    });
+
+    return totals;
+  };
+
+  const totalsRow = calculateTotals();
+
   return (
     <>
       <div className="ml-12 md:ml-0 flex items-center space-x-2 mb-5">
@@ -249,6 +285,43 @@ const DepositDevices: React.FC = () => {
                 size: String(size),
               });
             },
+          }}
+          summary={() => {
+            if (!totalsRow) return null;
+            return (
+              <Table.Summary fixed>
+                <Table.Summary.Row>
+                  {visibleColumns.map((col, index) => {
+                    const dataIndex = 'dataIndex' in col ? (col.dataIndex as string) : undefined;
+                    let value: React.ReactNode = '';
+
+                    if (index === 0) {
+                      return (
+                        <Table.Summary.Cell key={col.key?.toString() || index} index={index}>
+                          <span className="font-bold">{t('finance.total')}</span>
+                        </Table.Summary.Cell>
+                      );
+                    }
+
+                    if (dataIndex && totalsRow[dataIndex] !== undefined) {
+                      if (['cashSum', 'virtualSum', 'yandexSum', 'discountSum', 'cashbackSumCard', 'mobileSum', 'cardSum', 'cashbackSumMub'].includes(dataIndex)) {
+                        value = currencyRender(totalsRow[dataIndex]);
+                      } else if (dataIndex === 'counter') {
+                        value = formatNumber(totalsRow[dataIndex]);
+                      } else {
+                        value = '';
+                      }
+                    }
+
+                    return (
+                      <Table.Summary.Cell key={col.key?.toString() || index} index={index}>
+                        <span className="font-bold">{value}</span>
+                      </Table.Summary.Cell>
+                    );
+                  })}
+                </Table.Summary.Row>
+              </Table.Summary>
+            );
           }}
         />
       </div>
