@@ -9,6 +9,7 @@ import useSWR from 'swr';
 import dayjs from 'dayjs';
 import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
+import { getNumericPrefix } from '@/utils/getNumericPrefix';
 
 interface FilterValues {
   branch: string;
@@ -70,10 +71,18 @@ const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
     value: tag.props.name,
   })) || [];
 
-  const branchOptions = posesData?.map(pos => ({
-    label: pos.name,
-    value: pos.id.toString(),
-  })) || [];
+  const branchOptions = posesData
+    ?.slice()
+    .sort((a, b) => {
+      const numA = getNumericPrefix(a.name);
+      const numB = getNumericPrefix(b.name);
+      if (numA !== numB) return numA - numB;
+      return a.name.localeCompare(b.name);
+    })
+    .map(pos => ({
+      label: pos.name,
+      value: pos.id.toString(),
+    })) || [];
 
   const workerOptions = workersData?.map(worker => ({
     label: worker.name + " " + worker.surname,
