@@ -29,6 +29,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {
   formatNumber,
   getCurrencyRender,
@@ -36,6 +37,7 @@ import {
 } from '@/utils/tableUnits';
 import { ColumnsType } from 'antd/es/table';
 import { ArrowLeftOutlined } from '@ant-design/icons';
+import { formatSecondsToTime } from '@/utils/timeFormatter';
 
 ChartJS.register(
   CategoryScale,
@@ -43,7 +45,8 @@ ChartJS.register(
   BarElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  ChartDataLabels,
 );
 
 const Programs: React.FC = () => {
@@ -126,71 +129,71 @@ const Programs: React.FC = () => {
   const childColumns: ColumnsType<ProgramDetail> =
     portalPrograms.length > 0
       ? [
-          {
-            title: t('equipment.program'),
-            dataIndex: 'programName',
-            key: 'programName',
-          },
-          {
-            title: t('table.headers.programs'),
-            dataIndex: 'counter',
-            key: 'counter',
-            render: (_value, record) => formatNumber(record.counter),
-          },
-          {
-            title: t('finance.totalTime'),
-            dataIndex: 'totalTime',
-            key: 'totalTime',
-            render: (_value, record) => formatNumber(record.totalTime),
-          },
-          {
-            title: t('table.headers.averageTime'),
-            dataIndex: 'averageTime',
-            key: 'averageTime',
-          },
-          {
-            title: t('finance.REVENUE'),
-            dataIndex: 'totalProfit',
-            key: 'totalProfit',
-            render: currencyRender,
-          },
-          {
-            title: t('marketing.avg'),
-            dataIndex: 'averageProfit',
-            key: 'averageProfit',
-            render: currencyRender,
-          },
-        ]
+        {
+          title: t('equipment.program'),
+          dataIndex: 'programName',
+          key: 'programName',
+        },
+        {
+          title: t('table.headers.programs'),
+          dataIndex: 'counter',
+          key: 'counter',
+          render: (_value, record) => formatNumber(record.counter),
+        },
+        {
+          title: t('finance.totalTime'),
+          dataIndex: 'totalTime',
+          key: 'totalTime',
+          render: (_value, record) => formatNumber(record.totalTime),
+        },
+        {
+          title: t('table.headers.averageTime'),
+          dataIndex: 'averageTime',
+          key: 'averageTime',
+        },
+        {
+          title: t('finance.REVENUE'),
+          dataIndex: 'totalProfit',
+          key: 'totalProfit',
+          render: currencyRender,
+        },
+        {
+          title: t('marketing.avg'),
+          dataIndex: 'averageProfit',
+          key: 'averageProfit',
+          render: currencyRender,
+        },
+      ]
       : [
-          {
-            title: t('equipment.program'),
-            dataIndex: 'programName',
-            key: 'programName',
-          },
-          {
-            title: t('table.headers.programs'),
-            dataIndex: 'counter',
-            key: 'counter',
-            render: (_value, record) => formatNumber(record.counter),
-          },
-          {
-            title: t('finance.totalTime'),
-            dataIndex: 'totalTime',
-            key: 'totalTime',
-            render: (_value, record) => formatNumber(record.totalTime),
-          },
-          {
-            title: t('table.headers.averageTime'),
-            dataIndex: 'averageTime',
-            key: 'averageTime',
-          },
-          {
-            title: t('table.headers.latestProgram'),
-            dataIndex: 'lastOper',
-            key: 'lastOper',
-            render: getDateRender(),
-          },
-        ];
+        {
+          title: t('equipment.program'),
+          dataIndex: 'programName',
+          key: 'programName',
+        },
+        {
+          title: t('table.headers.programs'),
+          dataIndex: 'counter',
+          key: 'counter',
+          render: (_value, record) => formatNumber(record.counter),
+        },
+        {
+          title: t('finance.totalTime'),
+          dataIndex: 'totalTime',
+          key: 'totalTime',
+          render: (_value, record) => formatNumber(record.totalTime),
+        },
+        {
+          title: t('table.headers.averageTime'),
+          dataIndex: 'averageTime',
+          key: 'averageTime',
+        },
+        {
+          title: t('table.headers.latestProgram'),
+          dataIndex: 'lastOper',
+          key: 'lastOper',
+          render: getDateRender(),
+        },
+      ];
 
   const getRandomColor = (index: number) => {
     const colors = ['#5E5FCD', '#6ECD5E', '#A95ECD', '#CD5E5E'];
@@ -223,6 +226,96 @@ const Programs: React.FC = () => {
   };
 
   const barData = aggregateProgramsData(portalPrograms);
+
+  const renderExpandedRow = (record: Program) => {
+    const programsInfo = record.programsInfo || [];
+
+    const totalCounter = programsInfo.reduce(
+      (acc, item) => acc + (item.counter || 0),
+      0
+    );
+    const totalTimeMinutes = programsInfo.reduce(
+      (acc, item) => acc + (item.totalTime || 0),
+      0
+    );
+    const totalProfit = programsInfo.reduce(
+      (acc, item) => acc + (item.totalProfit || 0),
+      0
+    );
+
+    const totalTimeSeconds = totalTimeMinutes * 60;
+    const avgTimeSeconds = totalCounter > 0 ? totalTimeSeconds / totalCounter : 0;
+    const formattedAvgTime = formatSecondsToTime(avgTimeSeconds);
+
+    const avgProfit = totalCounter > 0 ? totalProfit / totalCounter : 0;
+
+    const totalRecord: any = {
+      programName: t('finance.total'),
+      counter: totalCounter,
+      totalTime: totalTimeMinutes,
+      averageTime: formattedAvgTime,
+    };
+
+    const isPortal = portalPrograms.length > 0;
+    if (isPortal) {
+      totalRecord.totalProfit = totalProfit;
+      totalRecord.averageProfit = avgProfit;
+    } else {
+      totalRecord.lastOper = null;
+    }
+
+    const dataSourceWithTotal = [...programsInfo, totalRecord];
+
+    const modifiedColumns = childColumns.map(col => {
+      if ('dataIndex' in col && isPortal) {
+        const dataIndex = col.dataIndex as string;
+        if (dataIndex === 'counter' || dataIndex === 'totalProfit') {
+          return {
+            ...col,
+            render: (value: number, record: any) => {
+              if (record.programName === t('finance.total')) {
+                if (dataIndex === 'counter') return formatNumber(value);
+                if (dataIndex === 'totalProfit') return currencyRender(value);
+              }
+
+              const total = dataIndex === 'counter' ? totalCounter : totalProfit;
+              const percent = total > 0 ? ((value / total) * 100).toFixed(0) : 0;
+              const formattedValue = dataIndex === 'counter'
+                ? formatNumber(value)
+                : currencyRender(value);
+
+              return (
+                <>
+                  {formattedValue} <span className="font-bold">- {percent}%</span>
+                </>
+              );
+            },
+          };
+        }
+      }
+      return col;
+    });
+
+    return (
+      <Table
+        rowKey={row => {
+          if (row === totalRecord) return `${record.id}-total`;
+          return `${record.id}-${row.programName}`;
+        }}
+        dataSource={dataSourceWithTotal}
+        columns={modifiedColumns}
+        pagination={false}
+        size="small"
+        bordered
+        rowClassName={(row) => {
+          if (row.programName === t('finance.total')) {
+            return 'font-bold';
+          }
+          return '';
+        }}
+      />
+    );
+  };
 
   return (
     <>
@@ -274,10 +367,11 @@ const Programs: React.FC = () => {
                       font: { size: 20 },
                       align: 'start',
                     },
+                    datalabels: {
+                      color: '#000000',
+                    },
                   },
-                  scales: {
-                    x: { beginAtZero: true },
-                  },
+                  scales: { x: { beginAtZero: true } },
                 }}
               />
             </div>
@@ -305,10 +399,12 @@ const Programs: React.FC = () => {
                       font: { size: 20 },
                       align: 'start',
                     },
+                    datalabels: {
+                      color: '#000000',
+                      formatter: (value) => `${value.toLocaleString()} ₽`,
+                    },
                   },
-                  scales: {
-                    y: { beginAtZero: true },
-                  },
+                  scales: { y: { beginAtZero: true } },
                 }}
               />
             </div>
@@ -327,16 +423,7 @@ const Programs: React.FC = () => {
             dataSource={programRaw}
             columns={visibleColumns}
             expandable={{
-              expandedRowRender: record => (
-                <Table
-                  rowKey={row => `${record.id}-${row.programName}`}
-                  dataSource={record.programsInfo}
-                  columns={childColumns}
-                  pagination={false}
-                  size="small"
-                  bordered
-                />
-              ),
+              expandedRowRender: renderExpandedRow,
               rowExpandable: record => record.programsInfo?.length > 0,
             }}
             pagination={{
