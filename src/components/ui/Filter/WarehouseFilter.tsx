@@ -7,6 +7,7 @@ import { getWarehouses } from '@/services/api/warehouse/index.ts';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants.ts';
 import { useUser } from '@/hooks/useUserStore';
+import { getNumericPrefix } from '@/utils/getNumericPrefix';
 
 const WarehouseFilter: React.FC = () => {
   const { t } = useTranslation();
@@ -41,9 +42,18 @@ const WarehouseFilter: React.FC = () => {
     });
   };
 
-  const warehouses =
-    warehouseData?.map(item => ({
-      name: item.props.name,
+  const sortedWarehouses = warehouseData
+    ?.slice()
+    .sort((a, b) => {
+      const nameA = a.props.name;
+      const nameB = b.props.name;
+      const numA = getNumericPrefix(nameA);
+      const numB = getNumericPrefix(nameB);
+      if (numA !== numB) return numA - numB;
+      return nameA.localeCompare(nameB);
+    })
+    .map(item => ({
+      label: item.props.name,
       value: String(item.props.id),
     })) || [];
 
@@ -59,10 +69,7 @@ const WarehouseFilter: React.FC = () => {
         value={getParam(searchParams, 'warehouseId')}
         onChange={handleChange}
         loading={isLoading}
-        options={warehouses.map(item => ({
-          label: item.name,
-          value: item.value,
-        }))}
+        options={sortedWarehouses}
         showSearch={true}
         filterOption={(input, option) =>
           (option?.label ?? '')
