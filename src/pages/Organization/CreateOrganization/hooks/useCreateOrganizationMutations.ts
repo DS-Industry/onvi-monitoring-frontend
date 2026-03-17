@@ -65,8 +65,22 @@ export function useCreateOrganizationMutations({
       ) => {
         return precreateOrganization({
           fullName: arg.fullName,
+          shortName: arg.shortName,
           organizationType: arg.organizationType,
           addressRegistration: arg.addressRegistration,
+          additionalAddress: arg.additionalAddress,
+          phone: arg.phone,
+          email: arg.email,
+          inn: arg.inn,
+          kpp: arg.kpp,
+          ogrn: arg.ogrn,
+          bank: arg.bank,
+          bik: arg.bik,
+          settlementAccount: arg.settlementAccount,
+          correspondentAccount: arg.correspondentAccount,
+          addressBank: arg.addressBank,
+          rateVat: arg.rateVat,
+          okpo: arg.okpo,
         });
       }
     );
