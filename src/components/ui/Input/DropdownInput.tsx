@@ -79,8 +79,13 @@ const DropdownInput: React.FC<DropdownInputProps> = ({
     );
   };
 
+  const wrapperClassName =
+    classname?.includes('w-full') || classname?.includes('!w-full')
+      ? 'relative w-full'
+      : 'relative w-fit';
+
   return (
-    <div className={`relative w-fit`}>
+    <div className={wrapperClassName}>
       {title && (
         <label className="text-sm text-text02">
           {title.endsWith('*') ? (

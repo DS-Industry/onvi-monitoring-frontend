@@ -19,15 +19,32 @@ enum ORGANIZATION {
 export type Organization = {
   id: number;
   name: string;
+  shortName?: string | null;
   slug: string;
   address: string;
-  organizationDocumentId: number | null;
+  additionalAddress?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  organizationDocumentId?: number | null;
   organizationStatus: string;
   organizationType: string;
   createdAt: Date;
   updatedAt: Date;
   ownerId: number;
   offerAcceptedAt?: Date | null;
+
+  rateVat?: string | null;
+  inn?: string | null;
+  okpo?: string | null;
+  kpp?: string | null;
+  ogrn?: string | null;
+  bik?: string | null;
+  correspondentAccount?: string | null;
+  bank?: string | null;
+  settlementAccount?: string | null;
+  addressBank?: string | null;
+  certificateNumber?: string | null;
+  dateCertificate?: string | null;
 };
 
 export type OrganizationBody = {

@@ -243,8 +243,22 @@ type WorkerResponse = {
 
 type OrganizationCreateRquest = {
   fullName: string;
+  shortName: string;
   organizationType: string;
   addressRegistration: string;
+  additionalAddress: string;
+  phone: string;
+  email: string;
+  inn: string;
+  kpp: string;
+  ogrn: string;
+  bank: string;
+  bik: string;
+  settlementAccount: string;
+  correspondentAccount: string;
+  addressBank: string;
+  rateVat: string;
+  okpo: string;
 };
 
 type OrganizationCreateResponse = {
@@ -254,6 +268,7 @@ type OrganizationCreateResponse = {
   address: string;
   organizationStatus: string;
   organizationType: string;
+  organizationDocumentId?: number;
   createdAt: Date;
   updatedAt: Date;
   ownerId: number;

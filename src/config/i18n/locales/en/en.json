@@ -413,6 +413,34 @@
     "connectionTypeCouplingModule": "Coupling Module",
     "createSubscriptionRequest": "Create subscription request",
     "cardHeading": "To register as a legal entity or individual entrepreneur, enter your details",
+    "details": {
+      "organizationType": "Organization type*",
+      "fullName": "Full name*",
+      "shortName": "Short name*",
+      "addressRegistration": "Registration address*",
+      "additionalAddress": "Additional address",
+      "phone": "Phone number*",
+      "email": "Email*",
+      "inn": "INN*",
+      "kpp": "KPP",
+      "ogrn": "OGRN",
+      "bank": "Bank",
+      "bik": "BIK",
+      "settlementAccount": "Settlement account",
+      "correspondentAccount": "Correspondent account",
+      "addressBank": "Bank address",
+      "rateVat": "VAT rate",
+      "okpo": "OKPO"
+    },
+    "sections": {
+      "general": "Organization",
+      "contacts": "Contacts",
+      "requisites": "Requisites",
+      "bank": "Bank details"
+    },
+    "validation": {
+      "required": "This field is required"
+    },
     "addonMobile": "Mobile application ONVI",
     "addonMobilePrice": "+5 000 ₽",
     "addonCorporate": "Corporate clients",
