@@ -221,42 +221,45 @@ export function CreateOrganizationProvider({
   }, [latestSubscriptionRequest]);
 
   useEffect(() => {
-    if (!organizationsData || organizationsData.length !== 1) return;
-    const org = organizationsData[0];
-    setExistingOrganization(org);
+    if (!organizationsData) return;
 
-    const orgInUserList = currentUser?.organizations?.some(o => o.id === org.id);
+    const org = currentUser.organizationId ? organizationsData.find(o => o.id === currentUser.organizationId) : organizationsData?.at(0);
+    setExistingOrganization(org ?? null);
+
+    const orgInUserList = currentUser?.organizations?.some(o => o.id === org?.id);
     if (currentUser && !orgInUserList) {
-      setUser({
-        user: {
-          ...currentUser,
-          organizations: [
-            ...(currentUser.organizations ?? []),
-            { id: org.id, name: org.name },
-          ],
-          organizationId: org.id,
-        },
-      });
+      if (org) {
+        setUser({
+          user: {
+            ...currentUser,
+            organizations: [
+              ...(currentUser.organizations ?? []),
+              { id: org.id, name: org.name },
+            ],
+            organizationId: org.id,
+          },
+        });
+      }
     }
 
     setFormDefaultValues({
-      fullName: org.name,
-      shortName: org.shortName ?? '',
-      organizationType: org.organizationType ?? '',
-      addressRegistration: org.address ?? '',
-      additionalAddress: org.additionalAddress ?? '',
-      phone: org.phone ?? '',
-      email: org.email ?? currentUser?.email ?? '',
-      inn: org.inn ?? '',
-      kpp: org.kpp ?? '',
-      ogrn: org.ogrn ?? '',
-      bank: org.bank ?? '',
-      bik: org.bik ?? '',
-      settlementAccount: org.settlementAccount ?? '',
-      correspondentAccount: org.correspondentAccount ?? '',
-      addressBank: org.addressBank ?? '',
-      rateVat: org.rateVat ?? '',
-      okpo: org.okpo ?? '',
+      fullName: org?.name ?? '',
+      shortName: org?.shortName ?? '',
+      organizationType: org?.organizationType ?? '',
+      addressRegistration: org?.address ?? '',
+      additionalAddress: org?.additionalAddress ?? '',
+      phone: org?.phone ?? '',
+      email: org?.email ?? currentUser?.email ?? '',
+      inn: org?.inn ?? '',
+      kpp: org?.kpp ?? '',
+      ogrn: org?.ogrn ?? '',
+      bank: org?.bank ?? '',
+      bik: org?.bik ?? '',
+      settlementAccount: org?.settlementAccount ?? '',
+      correspondentAccount: org?.correspondentAccount ?? '',
+      addressBank: org?.addressBank ?? '',
+      rateVat: org?.rateVat ?? '',
+      okpo: org?.okpo ?? '',
     });
   }, [
     organizationsData,

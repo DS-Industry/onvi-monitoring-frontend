@@ -355,9 +355,25 @@ export async function getContactById(id: number): Promise<ContactResponse> {
 export type OrganizationVerificationItem = {
   id: number;
   name: string;
+  shortName?: string | null;
   slug: string;
   address: string;
+  additionalAddress?: string | null;
+  phone?: string | null;
+  email?: string | null;
   organizationDocumentId?: number;
+  rateVat?: string | null;
+  inn?: string | null;
+  okpo?: string | null;
+  kpp?: string | null;
+  ogrn?: string | null;
+  bik?: string | null;
+  correspondentAccount?: string | null;
+  bank?: string | null;
+  settlementAccount?: string | null;
+  addressBank?: string | null;
+  certificateNumber?: string | null;
+  dateCertificate?: string | null;
   organizationStatus: string;
   organizationType: string;
   createdAt: string;
