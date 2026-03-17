@@ -411,6 +411,34 @@
     "connectionTypeCouplingModule": "Модуль Сопряжения",
     "createSubscriptionRequest": "Создать заявку на подписку",
     "cardHeading": "Чтобы зарегистрироваться как юр. лицо или ИП, укажите реквизиты",
+    "details": {
+      "organizationType": "Тип организации*",
+      "fullName": "Полное наименование*",
+      "shortName": "Краткое наименование*",
+      "addressRegistration": "Юридический адрес*",
+      "additionalAddress": "Фактический адрес",
+      "phone": "Телефон*",
+      "email": "Email*",
+      "inn": "ИНН*",
+      "kpp": "КПП",
+      "ogrn": "ОГРН",
+      "bank": "Банк",
+      "bik": "БИК",
+      "settlementAccount": "Расчетный счет",
+      "correspondentAccount": "Корреспондентский счет",
+      "addressBank": "Адрес банка",
+      "rateVat": "Ставка НДС",
+      "okpo": "ОКПО"
+    },
+    "sections": {
+      "general": "Организация",
+      "contacts": "Контакты",
+      "requisites": "Реквизиты",
+      "bank": "Банковские реквизиты"
+    },
+    "validation": {
+      "required": "Обязательное поле"
+    },
     "addonMobile": "Мобильное приложение ONVI",
     "addonMobilePrice": "+5 000 ₽",
     "addonCorporate": "Корпоративные клиенты",

@@ -4,14 +4,42 @@ export type ConnectionType = 'DS_EQUIPMENT' | 'COUPLING_MODULE';
 
 export type DetailsFormData = {
   fullName: string;
+  shortName: string;
   organizationType: string;
   addressRegistration: string;
+  additionalAddress: string;
+  phone: string;
+  email: string;
+  inn: string;
+  kpp: string;
+  ogrn: string;
+  bank: string;
+  bik: string;
+  settlementAccount: string;
+  correspondentAccount: string;
+  addressBank: string;
+  rateVat: string;
+  okpo: string;
 };
 
 export type DetailsFormFieldType =
   | 'fullName'
+  | 'shortName'
   | 'organizationType'
-  | 'addressRegistration';
+  | 'addressRegistration'
+  | 'additionalAddress'
+  | 'phone'
+  | 'email'
+  | 'inn'
+  | 'kpp'
+  | 'ogrn'
+  | 'bank'
+  | 'bik'
+  | 'settlementAccount'
+  | 'correspondentAccount'
+  | 'addressBank'
+  | 'rateVat'
+  | 'okpo';
 
 export const PLAN_TO_API: Record<
   PlanId,

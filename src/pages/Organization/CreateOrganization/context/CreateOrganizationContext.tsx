@@ -241,8 +241,22 @@ export function CreateOrganizationProvider({
 
     setFormDefaultValues({
       fullName: org.name,
+      shortName: org.shortName ?? '',
       organizationType: org.organizationType ?? '',
       addressRegistration: org.address ?? '',
+      additionalAddress: org.additionalAddress ?? '',
+      phone: org.phone ?? '',
+      email: org.email ?? currentUser?.email ?? '',
+      inn: org.inn ?? '',
+      kpp: org.kpp ?? '',
+      ogrn: org.ogrn ?? '',
+      bank: org.bank ?? '',
+      bik: org.bik ?? '',
+      settlementAccount: org.settlementAccount ?? '',
+      correspondentAccount: org.correspondentAccount ?? '',
+      addressBank: org.addressBank ?? '',
+      rateVat: org.rateVat ?? '',
+      okpo: org.okpo ?? '',
     });
   }, [
     organizationsData,
