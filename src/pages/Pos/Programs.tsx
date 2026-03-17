@@ -254,7 +254,8 @@ const Programs: React.FC = () => {
       averageTime: formattedAvgTime,
     };
 
-    if (portalPrograms.length > 0) {
+    const isPortal = portalPrograms.length > 0;
+    if (isPortal) {
       totalRecord.totalProfit = totalProfit;
       totalRecord.averageProfit = avgProfit;
     } else {
@@ -263,6 +264,35 @@ const Programs: React.FC = () => {
 
     const dataSourceWithTotal = [...programsInfo, totalRecord];
 
+    const modifiedColumns = childColumns.map(col => {
+      if ('dataIndex' in col && isPortal) {
+        const dataIndex = col.dataIndex as string;
+        if (dataIndex === 'counter' || dataIndex === 'totalProfit') {
+          return {
+            ...col,
+            render: (value: number, record: any) => {
+              if (record.programName === t('finance.total')) {
+                if (dataIndex === 'counter') return formatNumber(value);
+                if (dataIndex === 'totalProfit') return currencyRender(value);
+              }
+
+              const total = dataIndex === 'counter' ? totalCounter : totalProfit;
+              const percent = total > 0 ? ((value / total) * 100).toFixed(0) : 0;
+              const formattedValue = dataIndex === 'counter'
+                ? formatNumber(value)
+                : currencyRender(value);
+
+              return (
+                <>
+                  {formattedValue} <span className="font-bold">- {percent}%</span>
+                </>
+              );
+            },
+          };
+        }
+      }
+      return col;
+    });
 
     return (
       <Table
@@ -271,7 +301,7 @@ const Programs: React.FC = () => {
           return `${record.id}-${row.programName}`;
         }}
         dataSource={dataSourceWithTotal}
-        columns={childColumns}
+        columns={modifiedColumns}
         pagination={false}
         size="small"
         bordered
