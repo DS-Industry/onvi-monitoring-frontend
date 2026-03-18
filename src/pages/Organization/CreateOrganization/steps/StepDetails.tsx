@@ -56,8 +56,12 @@ const StepDetails: React.FC = () => {
   useEffect(() => {
     if (formDefaultValues) {
       setFormData(formDefaultValues);
+
+      Object.entries(formDefaultValues).forEach(([key, value]) => {
+        setValue(key as DetailsFormFieldType, value);
+      });
     }
-  }, [formDefaultValues]);
+  }, [formDefaultValues, setValue]);
 
   const handleInputChange = (field: DetailsFormFieldType, value: string) => {
     setFormData((prev: DetailsFormData) => ({ ...prev, [field]: value }));
