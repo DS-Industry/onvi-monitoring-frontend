@@ -134,6 +134,7 @@ const SalaryCalculation: React.FC = () => {
   const workerId = Number(searchParams.get('hrWorkerId')) || undefined;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
+  const posId = Number(searchParams.get('posId')) || undefined;
 
   const startPaymentDate = startPaymentDateParam
     ? new Date(startPaymentDateParam)
@@ -148,6 +149,7 @@ const SalaryCalculation: React.FC = () => {
       startPaymentDate,
       endPaymentDate,
       workerId,
+      posId,
       currentPage,
       pageSize,
     ],
@@ -156,6 +158,7 @@ const SalaryCalculation: React.FC = () => {
         startPaymentDate: startPaymentDate,
         endPaymentDate: endPaymentDate,
         hrWorkerId: workerId,
+        posId: posId,
         page: currentPage,
         size: pageSize,
       }).finally(() => setIsInitialLoading(false)),
