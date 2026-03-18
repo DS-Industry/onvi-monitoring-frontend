@@ -50,6 +50,7 @@ const TechTaskItem = React.lazy(() => import('@/pages/Equipment/TechTaskItem'));
 const ConsumptionRate = React.lazy(
   () => import('@/pages/Equipment/ConsumptionRate')
 );
+const ObjectConsumables = React.lazy(() => import('@/pages/Equipment/ObjectConsumables/ObjectConsumables'));
 const InventoryCreation = React.lazy(
   () => import('@/pages/Warehouse/InventoryCreation')
 );
@@ -1271,6 +1272,18 @@ const routes = [
         path: '/equipment/replacing/programs',
         component: Default,
         permissions: [{ action: 'hide', subject: 'Incident' }],
+        isSidebar: true,
+        subNav: [],
+      },
+      {
+        name: 'objectConsumables',
+        isVisible: true,
+        path: '/equipment/object-consumables',
+        component: ObjectConsumables,
+        permissions: [
+          { action: 'manage', subject: 'Incident' },
+          { action: 'read', subject: 'Incident' },
+        ],
         isSidebar: true,
         subNav: [],
       },

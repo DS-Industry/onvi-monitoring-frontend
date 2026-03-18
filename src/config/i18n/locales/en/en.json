@@ -129,7 +129,8 @@
     "editingCampaign": "Editing a Marketing Campaign",
     "viewBranch": "View Branch",
     "marketingTransactions": "Orders",
-    "balanceTransferRequests": "Balance transfer requests"
+    "balanceTransferRequests": "Balance transfer requests",
+    "objectConsumables": "Object consumables"
   },
   "marketingTransactions": {
     "columns": {
@@ -563,7 +564,20 @@
     "problem": "Problem",
     "time": "Time to fix",
     "oldQuantity": "Old Quantity",
-    "deviation": "Deviation"
+    "deviation": "Deviation",
+    "addTitle": "Add consumable",
+    "type": "Type",
+    "selectType": "Select type",
+    "types": {
+      "SPARE_EQUIPMENT": "Spare parts",
+      "BRUSH": "Brush + Foam chemistry",
+      "TPOWER": "T-POWER chemistry",
+      "SOAP": "Soap + water chemistry",
+      "WAX": "Wax + protection chemistry",
+      "PRESOAK": "Active chemistry",
+      "TIRE": "Wheel cleaner chemistry",
+      "SALT": "Salt"
+    }
   },
   "daily": {
     "noText": "This section displays reports on daily parameters",

@@ -129,7 +129,8 @@
     "editingCampaign": "Редактирование маркетинговой кампании",
     "viewBranch": "Просмотр филиала",
     "marketingTransactions": "Заказы",
-    "balanceTransferRequests": "Запросы на перенос баланса"
+    "balanceTransferRequests": "Запросы на перенос баланса",
+    "objectConsumables": "Расходники объекта"
   },
   "marketingTransactions": {
     "columns": {
@@ -563,7 +564,20 @@
     "problem": "Проблема",
     "time": "Время исправления",
     "oldQuantity": "Кол-во учет",
-    "deviation": "Отклонение"
+    "deviation": "Отклонение",
+    "addTitle": "Добавить расходный материал",
+    "type": "Тип",
+    "selectType": "Выберите тип",
+    "types": {
+      "SPARE_EQUIPMENT": "Запасные детали",
+      "BRUSH": "Химия \"Щетка + Пена\"",
+      "TPOWER": "Химия \"T-POWER\"",
+      "SOAP": "Химия \"Вода + Шампунь\"",
+      "WAX": "Химия \"Воск + Защита\"",
+      "PRESOAK": "Химия \"Активная химия\"",
+      "TIRE": "Химия \"Мойка дисков\"",
+      "SALT": "Соль"
+    }
   },
   "daily": {
     "noText": "В этом разделе отображаются отчеты по ежедневным параметрам",
