@@ -8,6 +8,7 @@ enum EQUIPMENT {
   GET_EQUIPMENT = 'user/equipment/pos',
   GET_INCIDENT_EQUIPMENT = 'user/equipment/incident-info',
   GET_PROGRAMS = 'user/device/program/type',
+  TECH_EXPENSE = 'user/tech-expense/consumables'
 }
 
 enum TECHTASKS {
@@ -892,6 +893,66 @@ export async function createTechTaskComment(
   const response: AxiosResponse<TechTaskCommentResponse> = await api.post(
     `user/tech-task/${techTaskId}/comments`,
     body
+  );
+  return response.data;
+}
+
+export enum ConsumablesType {
+  SPARE_EQUIPMENT = 'SPARE_EQUIPMENT',
+  BRUSH = 'BRUSH',
+  TPOWER = 'TPOWER',
+  SOAP = 'SOAP',
+  WAX = 'WAX',
+  PRESOAK = 'PRESOAK',
+  TIRE = 'TIRE',
+  SALT = 'SALT',
+}
+
+export interface TechConsumablesResponse {
+  id: number;
+  posId: number;
+  nomenclatureId: number;
+  nomenclatureName: string;
+  type: string;
+}
+
+export interface TechExpenseConsumablesCreateDto {
+  posId: number;
+  nomenclatureId: number;
+  type?: string;
+}
+
+export interface DeleteManyDto {
+  ids: number[];
+}
+
+export async function getTechConsumables(
+  posId: number,
+  params?: { page?: number; size?: number; type?: string }
+): Promise<TechConsumablesResponse[]> {
+  const response: AxiosResponse<TechConsumablesResponse[]> = await api.get(
+    `${EQUIPMENT.TECH_EXPENSE}/${posId}`,
+    { params }
+  );
+  return response.data;
+}
+
+export async function createTechConsumables(
+  data: TechExpenseConsumablesCreateDto
+): Promise<TechConsumablesResponse> {
+  const response: AxiosResponse<TechConsumablesResponse> = await api.post(
+    EQUIPMENT.TECH_EXPENSE,
+    data
+  );
+  return response.data;
+}
+
+export async function deleteTechConsumables(
+  data: DeleteManyDto
+): Promise<{ status: string }> {
+  const response: AxiosResponse<{ status: string }> = await api.delete(
+    `${EQUIPMENT.TECH_EXPENSE}/many`,
+    { data }
   );
   return response.data;
 }

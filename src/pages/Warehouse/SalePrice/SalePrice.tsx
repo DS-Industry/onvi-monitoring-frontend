@@ -236,7 +236,7 @@ const SalePrice: React.FC = () => {
         </div>
       </div>
 
-      <GeneralFilters display={['city', 'pos', 'warehouse']} />
+        <GeneralFilters display={['city', 'pos', 'warehouse']} />
 
       {allowed && (
         <div className="flex flex-col lg:flex-row lg:justify-between gap-4 py-4">
