@@ -161,6 +161,7 @@ export type PrepaymentFilter = {
   endPaymentDate?: Date;
   hrWorkerId?: number;
   billingMonth?: Date;
+  posId?: number;
   page?: number;
   size?: number;
 };

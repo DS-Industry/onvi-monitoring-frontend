@@ -150,6 +150,7 @@ const EmployeeAdvance: React.FC = () => {
   const workerId = Number(searchParams.get('hrWorkerId')) || undefined;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
+  const posId = Number(searchParams.get('posId')) || undefined;
 
   const startPaymentDate = startPaymentDateParam
     ? new Date(startPaymentDateParam)
@@ -164,6 +165,7 @@ const EmployeeAdvance: React.FC = () => {
       startPaymentDate,
       endPaymentDate,
       workerId,
+      posId,
       currentPage,
       pageSize,
     ],
@@ -172,6 +174,7 @@ const EmployeeAdvance: React.FC = () => {
         startPaymentDate: startPaymentDate,
         endPaymentDate: endPaymentDate,
         hrWorkerId: workerId,
+        posId: posId,
         page: currentPage,
         size: pageSize,
       }),
