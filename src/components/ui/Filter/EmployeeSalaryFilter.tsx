@@ -6,7 +6,7 @@ import Button from '@ui/Button/Button.tsx';
 import dayjs, { Dayjs } from 'dayjs';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE } from '@/utils/constants.ts';
-import PosFilter from '@/components/ui/Filter/PosFilter.tsx'; // <-- импорт компонента
+import PosFilter from '@/components/ui/Filter/PosFilter.tsx';
 
 const Text = Typography.Text;
 
