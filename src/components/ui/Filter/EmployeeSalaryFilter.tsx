@@ -6,6 +6,7 @@ import Button from '@ui/Button/Button.tsx';
 import dayjs, { Dayjs } from 'dayjs';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE_SIZE, DEFAULT_PAGE } from '@/utils/constants.ts';
+import PosFilter from '@/components/ui/Filter/PosFilter.tsx';
 
 const Text = Typography.Text;
 
@@ -45,6 +46,7 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
       startPaymentDate: undefined,
       endPaymentDate: undefined,
       hrWorkerId: undefined,
+      posId: undefined,
       page: DEFAULT_PAGE,
       size: DEFAULT_PAGE_SIZE,
     });
@@ -231,6 +233,8 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
                       allowClear={true}
                     />
                   </div>
+
+                  <PosFilter />
                 </div>
               </div>
 
