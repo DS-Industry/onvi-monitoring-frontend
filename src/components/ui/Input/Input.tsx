@@ -32,6 +32,7 @@ type InputProps = {
   isPhone?: boolean;
   countryCode?: string;
   onCountryChange?: (code: string) => void;
+  disableCountrySelect?: boolean;
 };
 
 const Input: React.FC<InputProps> = ({
@@ -51,6 +52,7 @@ const Input: React.FC<InputProps> = ({
   isPhone = false,
   countryCode = '+7',
   onCountryChange,
+  disableCountrySelect = false,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -169,7 +171,7 @@ const Input: React.FC<InputProps> = ({
           <div className="flex items-center">
             <Select
               value={countryCode}
-              disabled={disabled}
+              disabled={disabled || disableCountrySelect}
               onChange={onCountryChange}
               className="!w-28 !mr-2"
             >

@@ -18,6 +18,9 @@ const Pos = React.lazy(() => import('@/pages/Pos/Pos'));
 const Organization = React.lazy(
   () => import('@/pages/Organization/Organizations')
 );
+const CreateOrganization = React.lazy(
+  () => import('@/pages/Organization/CreateOrganization')
+);
 const MarketingCampaignCreate = React.lazy(() => import('@/pages/Marketing/MarketingCampaignCreate'));
 const FalseDeposits = React.lazy(() => import('@/pages/Finance/FalseDeposits'));
 const FalseDeposit = React.lazy(() => import('@/pages/Finance/FalseDeposit'));
@@ -147,6 +150,15 @@ const EmployeeAdvanceCreation = React.lazy(
 const Subscriptions = React.lazy(
   () => import('@/pages/Organization/Subscriptions')
 );
+const ManageInvoices = React.lazy(
+  () => import('@/pages/Administration/ManageInvoices')
+);
+const OrganizationRequests = React.lazy(
+  () => import('@/pages/Administration/OrganizationRequests')
+);
+const SubscriptionRequests = React.lazy(
+  () => import('@/pages/Organization/SubscriptionRequests')
+);
 const Analysis = React.lazy(() => import('@/pages/Analysis/Analysis'));
 const Warehouse = React.lazy(() => import('@/pages/Warehouse/Warehouse'));
 
@@ -190,6 +202,44 @@ const routes = [
           { action: 'update', subject: 'Organization' },
           { action: 'delete', subject: 'Organization' },
         ],
+        isSidebar: true,
+        isHr: false,
+        titleName: '',
+        subNav: [],
+        subMenu: false,
+      },
+      {
+        name: 'invoices',
+        isVisible: true,
+        path: '/administration/invoices',
+        component: ManageInvoices,
+        permissions: [
+          { action: 'manage', subject: 'Organization' },
+        ],
+        isSidebar: true,
+        isHr: false,
+        titleName: '',
+        subNav: [],
+        subMenu: false,
+      },
+      {
+        name: 'organizationRequests',
+        isVisible: true,
+        path: '/administration/organization-requests',
+        component: OrganizationRequests,
+        permissions: [{ action: 'manage', subject: 'Organization' }],
+        isSidebar: true,
+        isHr: false,
+        titleName: '',
+        subNav: [],
+        subMenu: false,
+      },
+      {
+        name: 'subscriptionRequests',
+        isVisible: true,
+        path: '/administration/subscription-requests',
+        component: SubscriptionRequests,
+        permissions: [{ action: 'manage', subject: 'Organization' }],
         isSidebar: true,
         isHr: false,
         titleName: '',
@@ -1445,6 +1495,14 @@ const routes = [
     component: InviteUser,
     isSidebar: false,
     isPublicRoute: true,
+    permissions: [],
+  },
+  {
+    name: 'createOrganization',
+    path: '/create-organization',
+    subMenu: false,
+    component: CreateOrganization,
+    isSidebar: false,
     permissions: [],
   },
   {

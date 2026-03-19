@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Row, Col, Card, Typography, Divider, List, Checkbox } from 'antd';
 import Button from '@/components/ui/Button/Button';
 import { UpOutlined, DownOutlined } from '@ant-design/icons';
+import useSubscriptionStore from '@/config/store/subscriptionSlice';
+import { calculateMonthlyAmountFromSubscription } from './subscriptionPricing';
 
 const { Title, Text } = Typography;
 
@@ -12,12 +14,48 @@ type Props = {
 
 const CurrentTariff: React.FC<Props> = ({ setActiveTab }: Props) => {
   const { t } = useTranslation();
+  const activeSubscription = useSubscriptionStore(
+    state => state.activeSubscription
+  );
 
-  const items = [
-    { key: 'administration', label: t('routes.administration') },
-    { key: 'account', label: t('subscriptions.account') },
-    { key: 'data', label: t('subscriptions.data') },
-  ];
+  const items = useMemo(
+    () => [
+      { key: 'administration', label: t('routes.administration') },
+      { key: 'account', label: t('subscriptions.account') },
+      { key: 'data', label: t('subscriptions.data') },
+    ],
+    [t]
+  );
+
+  const formattedDate = useMemo(() => {
+    if (!activeSubscription?.nextBillingAt) return '';
+    try {
+      const value = activeSubscription.nextBillingAt;
+      const date =
+        typeof value === 'string' ? new Date(value) : new Date(value as any);
+      return Number.isNaN(date.getTime())
+        ? typeof value === 'string'
+          ? value
+          : ''
+        : date.toLocaleDateString();
+    } catch {
+      return typeof activeSubscription.nextBillingAt === 'string'
+        ? activeSubscription.nextBillingAt
+        : '';
+    }
+  }, [activeSubscription]);
+
+  const monthlyAmount = useMemo(() => {
+    if (!activeSubscription) return 0;
+    return calculateMonthlyAmountFromSubscription(activeSubscription);
+  }, [activeSubscription]);
+
+  const yearlyAmount = useMemo(
+    () => monthlyAmount * 12,
+    [monthlyAmount]
+  );
+
+  const isCustomPlan = activeSubscription?.planCode === 'CUSTOM';
 
   const [openItems, setOpenItems] = useState<{ [key: string]: boolean }>({});
 
@@ -43,13 +81,19 @@ const CurrentTariff: React.FC<Props> = ({ setActiveTab }: Props) => {
         </Col>
         <Col xs={24} md={12} className="justify-end mt-4 md:mt-0">
           <Row justify={'space-between'}>
-            <Title level={3}>{t('subscriptions.base')}</Title>
+            <Title level={3}>
+              {activeSubscription?.planName || t('subscriptions.base')}
+            </Title>
             <Button
               title={t('subscriptions.change')}
               handleClick={() => setActiveTab('change')}
             />
           </Row>
-          <Text type="secondary">{t('subscriptions.the')} 10.09.2024</Text>
+          {formattedDate && (
+            <Text type="secondary">
+              {t('subscriptions.the')} {formattedDate}
+            </Text>
+          )}
           <Card className="bg-background05 rounded-lg" variant="borderless">
             <Col>
               <Row className="w-full flex justify-between items-center">
@@ -57,7 +101,7 @@ const CurrentTariff: React.FC<Props> = ({ setActiveTab }: Props) => {
                   {t('subscriptions.cost')}
                 </Title>
                 <Title level={4} style={{ margin: 0 }}>
-                  1 000 ₽
+                  {monthlyAmount.toLocaleString('ru-RU')} ₽
                 </Title>
               </Row>
               <Row className="w-full flex justify-between items-center mt-2">
@@ -65,12 +109,46 @@ const CurrentTariff: React.FC<Props> = ({ setActiveTab }: Props) => {
                   {t('subscriptions.costYr')}
                 </Title>
                 <Title level={4} style={{ margin: 0 }}>
-                  11 000 ₽
+                  {yearlyAmount.toLocaleString('ru-RU')} ₽
                 </Title>
               </Row>
               <Text type="secondary" style={{ fontSize: 16 }}>
                 {t('subscriptions.when')}
               </Text>
+              {(activeSubscription?.onviFeature ||
+                activeSubscription?.corporateClientsFeature ||
+                (isCustomPlan &&
+                  (activeSubscription?.posesCount != null ||
+                    activeSubscription?.usersCount != null))) && (
+                <div className="mt-3 space-y-1">
+                  {activeSubscription?.onviFeature && (
+                    <Text type="secondary">
+                      {t('subscriptionRequests.onviFeature')}
+                    </Text>
+                  )}
+                  {activeSubscription?.corporateClientsFeature && (
+                    <Text type="secondary">
+                      {t('subscriptionRequests.corporateClientsFeature')}
+                    </Text>
+                  )}
+                  {isCustomPlan && (
+                    <>
+                      {activeSubscription?.posesCount != null && (
+                        <Text type="secondary">
+                          {t('subscriptionRequests.posesCount')}:{' '}
+                          {activeSubscription.posesCount}
+                        </Text>
+                      )}
+                      {activeSubscription?.usersCount != null && (
+                        <Text type="secondary">
+                          {t('subscriptionRequests.usersCount')}:{' '}
+                          {activeSubscription.usersCount}
+                        </Text>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
             </Col>
           </Card>
         </Col>

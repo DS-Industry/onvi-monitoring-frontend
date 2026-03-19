@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '@/config/axiosConfig';
 
 // utils
 import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint';
@@ -9,6 +10,7 @@ import {
   SidebarNavigationProvider,
 } from './useSidebarNavigation';
 import debounce from 'lodash/debounce';
+import useSubscriptionStore from '@/config/store/subscriptionSlice';
 
 // components
 import Sider from 'antd/es/layout/Sider';
@@ -34,6 +36,10 @@ interface SidebarProps {
 const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
   const { user: currentUser } = useUserStore();
   const navigate = useNavigate();
+
+  const activeSubscription = useSubscriptionStore(
+    state => state.activeSubscription
+  );
   const screens = useBreakpoint();
   const isMobile = !screens.md;
 
@@ -59,6 +65,15 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
     setIsOpen(false);
     resetSubmenu();
     navigate(path);
+  };
+
+  const handleCreateOrganizationClick = async () => {
+    try {
+      await api.post('/user/auth/refresh');
+    } catch {
+      // Proceed to page even if refresh fails
+    }
+    handleSidebarNavigation('/create-organization');
   };
 
   const debouncedOpenSidebar = useMemo(
@@ -106,9 +121,8 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
         collapsed={!isOpen}
         width={SIDEBAR_WIDTH}
         collapsedWidth={SIDEBAR_COLLAPSED_WIDTH}
-        className={`fixed h-full z-50 bg-[#1c1917] transition-all duration-300 ease-in-out ${
-          isMobile ? (isOpen ? 'left-0' : '-left-20') : 'left-0'
-        }`}
+        className={`fixed h-full z-50 bg-[#1c1917] transition-all duration-300 ease-in-out ${isMobile ? (isOpen ? 'left-0' : '-left-20') : 'left-0'
+          }`}
         onMouseEnter={() => {
           if (!isMobile) debouncedOpenSidebar();
         }}
@@ -141,6 +155,19 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
               )}
             </div>
 
+            {(!currentUser?.organizationId || !activeSubscription) && (
+              <div className="px-4 py-2">
+                <button
+                  type="button"
+                  onClick={handleCreateOrganizationClick}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-md bg-primary01 font-semibold text-sm hover:opacity-90 transition-opacity"
+                  style={{ color: '#000' }}
+                >
+                  {isOpen ? t('routes.buyPlan') : '+'}
+                </button>
+              </div>
+            )}
+
             <SidebarNavigation
               isOpen={isOpen}
               onClick={() => setIsOpen(true)}
@@ -169,9 +196,8 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
             >
               <NotificationYes className={`${isOpen ? 'mr-2' : ''} text-xl`} />
               <span
-                className={`inline-block whitespace-nowrap overflow-hidden transition-[width,opacity,margin] duration-300 ease-in-out ${
-                  isOpen ? 'w-auto opacity-100 ml-0' : 'w-0 opacity-0 ml-0'
-                }`}
+                className={`inline-block whitespace-nowrap overflow-hidden transition-[width,opacity,margin] duration-300 ease-in-out ${isOpen ? 'w-auto opacity-100 ml-0' : 'w-0 opacity-0 ml-0'
+                  }`}
                 style={{ width: isOpen ? 'auto' : 0 }}
               >
                 {t('routes.notifications')}
@@ -204,9 +230,8 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
                 </div>
               )}
               <div
-                className={`text-text02 text-sm hidden md:block transition-all duration-300 ease-in-out ${
-                  isOpen ? 'opacity-100' : 'opacity-0'
-                }`}
+                className={`text-text02 text-sm hidden md:block transition-all duration-300 ease-in-out ${isOpen ? 'opacity-100' : 'opacity-0'
+                  }`}
               >
                 {currentUser?.name || ''}
               </div>
