@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Button, Modal, Select } from 'antd';
 import { SearchOutlined } from '@ant-design/icons';
 import useSWR from 'swr';
-import { getNomenclatureSale } from '@/services/api/warehouse';
+import { getNomenclature } from '@/services/api/warehouse';
 import { useUser } from '@/hooks/useUserStore';
 import { ConsumablesType } from '@/services/api/equipment';
 
@@ -31,7 +31,7 @@ const AddConsumableModal: React.FC<AddConsumableModalProps> = ({
 
   const { data: nomenclatureData } = useSWR(
     isOpen && user.organizationId ? ['get-sale-nomenclatures', user.organizationId] : null,
-    () => getNomenclatureSale(user.organizationId!),
+    () => getNomenclature(user.organizationId!),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,

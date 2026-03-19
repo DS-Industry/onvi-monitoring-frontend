@@ -8,7 +8,8 @@ enum EQUIPMENT {
   GET_EQUIPMENT = 'user/equipment/pos',
   GET_INCIDENT_EQUIPMENT = 'user/equipment/incident-info',
   GET_PROGRAMS = 'user/device/program/type',
-  TECH_EXPENSE = 'user/tech-expense/consumables'
+  TECH_EXPENSE = 'user/tech-expense/consumables',
+  EXPENSE_REPORT = 'user/tech-expense',
 }
 
 enum TECHTASKS {
@@ -414,9 +415,9 @@ type TechTasksManageResponse = {
     id: number;
     name: string;
     posId: number;
-    type: string; 
-    status: string; 
-    periodType?: string; 
+    type: string;
+    status: string;
+    periodType?: string;
     customPeriodDays?: number;
     markdownDescription?: string;
     nextCreateDate?: Date;
@@ -495,7 +496,7 @@ type TechTasksExecutionResponse = {
     id: number;
     name: string;
     posId: number;
-    type: string; 
+    type: string;
     status: string;
     periodType?: string;
     customPeriodDays?: number;
@@ -855,7 +856,7 @@ export type BulkDeleteTechTasksBody = {
 export async function bulkDeleteTechTasks(body: BulkDeleteTechTasksBody): Promise<void> {
   const response: AxiosResponse<void> = await api.delete(
     'user/tech-task/bulk/delete',
-    {data: body}
+    { data: body }
   );
   return response.data;
 }
@@ -954,6 +955,148 @@ export async function deleteTechConsumables(
   const response: AxiosResponse<{ status: string }> = await api.delete(
     `${EQUIPMENT.TECH_EXPENSE}/many`,
     { data }
+  );
+  return response.data;
+}
+
+export enum TechExpenseReportStatus {
+  SAVED = 'SAVED',
+  SENT = 'SENT',
+  CREATED = 'CREATED',
+}
+
+export interface TechExpenseReportCreateDto {
+  posId: number;
+  startPeriod: Date;
+  endPeriod: Date;
+}
+
+export interface TechExpenseReportItem {
+  id: number;
+  techConsumablesId: number;
+  techExpenseReportId: number;
+  quantityAtStart: number;
+  quantityByReport: number;
+  quantityOnWarehouse: number;
+  quantityWriteOff?: number;
+  quantityAtEnd?: number;
+}
+
+export interface TechExpenseReport {
+  id: number;
+  posId: number;
+  startPeriod: Date;
+  endPeriod: Date;
+  status: TechExpenseReportStatus;
+  isWriteOffFromWarehouse: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  createdById: number;
+  updatedById: number;
+  items: TechExpenseReportItem[];
+}
+
+export interface TechExpenseReportItemUpdateDto {
+  id: number;
+  quantityWriteOff?: number;
+  quantityAtEnd?: number;
+}
+
+export interface TechExpenseReportRecalculateDto {
+  startPeriod?: Date;
+  endPeriod?: Date;
+  itemUpdates?: TechExpenseReportItemUpdateDto[];
+}
+
+export interface TechExpenseActionResponse {
+  status: string;
+}
+
+export interface TechExpenseReportsFilter {
+  startPeriod?: Date;
+  endPeriod?: Date;
+  posId?: number;
+  page?: number;
+  size?: number;
+}
+
+export async function getTechExpenseReports(
+  params: TechExpenseReportsFilter
+): Promise<{ reports: TechExpenseReport[]; totalCount: number }> {
+  const response: AxiosResponse<TechExpenseReport[]> = await api.get(
+    `${EQUIPMENT.EXPENSE_REPORT}/report`,
+    { params }
+  );
+  return {
+    reports: response.data,
+    totalCount: response.data.length,
+  };
+}
+
+export async function createTechExpenseReport(
+  data: TechExpenseReportCreateDto
+): Promise<TechExpenseReport> {
+  const response: AxiosResponse<TechExpenseReport> = await api.post(
+    `${EQUIPMENT.EXPENSE_REPORT}/report`,
+    data
+  );
+  return response.data;
+}
+
+export async function recalculateTechExpenseReport(
+  reportId: number,
+  data: TechExpenseReportRecalculateDto
+): Promise<TechExpenseReport> {
+  const response: AxiosResponse<TechExpenseReport> = await api.post(
+    `${EQUIPMENT.EXPENSE_REPORT}/report/recalculate/${reportId}`,
+    data
+  );
+  return response.data;
+}
+
+export async function sendTechExpenseReport(
+  reportId: number,
+  data: TechExpenseReportRecalculateDto
+): Promise<TechExpenseReport> {
+  const response: AxiosResponse<TechExpenseReport> = await api.post(
+    `${EQUIPMENT.EXPENSE_REPORT}/report/send/${reportId}`,
+    data
+  );
+  return response.data;
+}
+
+export async function sendWarehouseTechExpenseReport(
+  reportId: number
+): Promise<TechExpenseActionResponse> {
+  const response: AxiosResponse<TechExpenseActionResponse> = await api.post(
+    `${EQUIPMENT.EXPENSE_REPORT}/report/send-warehouse/${reportId}`
+  );
+  return response.data;
+}
+
+export async function returnTechExpenseReport(
+  reportId: number
+): Promise<TechExpenseActionResponse> {
+  const response: AxiosResponse<TechExpenseActionResponse> = await api.post(
+    `${EQUIPMENT.EXPENSE_REPORT}/report/return/${reportId}`
+  );
+  return response.data;
+}
+
+export async function deleteTechExpenseReport(
+  reportId: number
+): Promise<TechExpenseActionResponse> {
+  const response: AxiosResponse<TechExpenseActionResponse> = await api.delete(
+    `${EQUIPMENT.EXPENSE_REPORT}/report/${reportId}`
+  );
+  return response.data;
+}
+
+export async function getTechExpenseReport(
+  reportId: number
+): Promise<TechExpenseReport> {
+  const response: AxiosResponse<TechExpenseReport> = await api.get(
+    `${EQUIPMENT.EXPENSE_REPORT}/report/${reportId}`
   );
   return response.data;
 }
