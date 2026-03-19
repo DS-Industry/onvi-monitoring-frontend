@@ -433,7 +433,15 @@
       "PRESOAK": "Химия \"Активная химия\"",
       "TIRE": "Химия \"Мойка дисков\"",
       "SALT": "Соль"
-    }
+    },
+    "consumable": "Расходный материал",
+    "quantityAtStart": "Количество на начало",
+    "quantityByReport": "Расход по отчетам",
+    "quantityOnWarehouse": "Количество на складе",
+    "quantityWriteOff": "Списать со склада",
+    "quantityAtEnd": "Количество на конец",
+    "isWriteOffFromWarehouse": "Проведено на складе",
+    "sendToWarehouse": "Провести на складе"
   },
   "daily": {
     "noText": "В этом разделе отображаются отчеты по ежедневным параметрам",
@@ -1072,7 +1080,7 @@
     "SENT": "Отправлено",
     "SAVED": "Сохранено",
     "SAVE": "Сохранить",
-    "CREATED": "СОЗДАННЫЙ",
+    "CREATED": "Создано",
     "KILOGRAM": "кг.",
     "PIECE": "шт.",
     "LITER": "л.",

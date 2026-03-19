@@ -433,7 +433,15 @@
       "PRESOAK": "Active chemistry",
       "TIRE": "Wheel cleaner chemistry",
       "SALT": "Salt"
-    }
+    },
+    "consumable": "Consumable",
+    "quantityAtStart": "Quantity at start",
+    "quantityByReport": "Consumption by reports",
+    "quantityOnWarehouse": "Quantity in warehouse",
+    "quantityWriteOff": "Write off from warehouse",
+    "quantityAtEnd": "Quantity at end",
+    "isWriteOffFromWarehouse": "Warehouse completed",
+    "sendToWarehouse": "Conduct in warehouse"
   },
   "daily": {
     "noText": "This section displays reports on daily parameters",
