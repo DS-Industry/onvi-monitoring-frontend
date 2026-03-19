@@ -88,7 +88,7 @@ const StepConnectionType: React.FC = () => {
         <div className="mt-6">
           <Button
             type="basic"
-            title={t('createOrganization.updateSubscriptionRequest')}
+            title={t('common.next')}
             classname="w-[200px] !bg-[#2563eb] hover:!bg-[#1d4ed8] !rounded-xl !py-4 font-semibold"
             disabled={!selectedConnectionType}
             isLoading={isUpdatingConnectionType}
