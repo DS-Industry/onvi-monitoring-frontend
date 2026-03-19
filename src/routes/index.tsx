@@ -48,6 +48,7 @@ const ConsumptionRate = React.lazy(
   () => import('@/pages/Equipment/ConsumptionRate')
 );
 const ObjectConsumables = React.lazy(() => import('@/pages/Equipment/ObjectConsumables/ObjectConsumables'));
+const ExpenseReport = React.lazy(() => import('@/pages/Equipment/ExpenseReport'));
 const InventoryCreation = React.lazy(
   () => import('@/pages/Warehouse/InventoryCreation')
 );
@@ -1230,6 +1231,18 @@ const routes = [
         isVisible: true,
         path: '/equipment/object-consumables',
         component: ObjectConsumables,
+        permissions: [
+          { action: 'manage', subject: 'Incident' },
+          { action: 'read', subject: 'Incident' },
+        ],
+        isSidebar: true,
+        subNav: [],
+      },
+      {
+        name: 'expenseReport',
+        isVisible: true,
+        path: '/equipment/expense-report',
+        component: ExpenseReport,
         permissions: [
           { action: 'manage', subject: 'Incident' },
           { action: 'read', subject: 'Incident' },

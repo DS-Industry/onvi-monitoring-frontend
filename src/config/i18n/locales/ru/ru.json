@@ -126,7 +126,8 @@
     "viewBranch": "Просмотр филиала",
     "marketingTransactions": "Заказы",
     "balanceTransferRequests": "Запросы на перенос баланса",
-    "objectConsumables": "Расходники объекта"
+    "objectConsumables": "Расходники объекта",
+    "expenseReport": "Отчет по расходу"
   },
   "marketingTransactions": {
     "columns": {

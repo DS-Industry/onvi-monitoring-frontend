@@ -126,7 +126,8 @@
     "viewBranch": "View Branch",
     "marketingTransactions": "Orders",
     "balanceTransferRequests": "Balance transfer requests",
-    "objectConsumables": "Object consumables"
+    "objectConsumables": "Object consumables",
+    "expenseReport": "Expense report"
   },
   "marketingTransactions": {
     "columns": {
