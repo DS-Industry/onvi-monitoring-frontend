@@ -235,14 +235,14 @@ const OrganizationRequests: React.FC = () => {
             <Descriptions.Item label={t('organizations.name')}>
               {selectedOrg.name}
             </Descriptions.Item>
-            <Descriptions.Item label={t('organizations.shortName') || 'Short name'}>
+            <Descriptions.Item label={t('organizations.shortName')}>
               {selectedOrg.shortName || '—'}
             </Descriptions.Item>
             <Descriptions.Item label={t('organizations.address')}>
               {selectedOrg.address}
             </Descriptions.Item>
             <Descriptions.Item
-              label={t('organizations.additionalAddress') || 'Additional address'}
+              label={t('organizations.additionalAddress')}
             >
               {selectedOrg.additionalAddress || '—'}
             </Descriptions.Item>
@@ -252,16 +252,16 @@ const OrganizationRequests: React.FC = () => {
             <Descriptions.Item label={t('register.email')}>
               {selectedOrg.email || '—'}
             </Descriptions.Item>
-            <Descriptions.Item label="INN">
+            <Descriptions.Item label={t('organizations.inn')}>
               {selectedOrg.inn || '—'}
             </Descriptions.Item>
-            <Descriptions.Item label="KPP">
+            <Descriptions.Item label={t('organizations.kpp')}>
               {selectedOrg.kpp || '—'}
             </Descriptions.Item>
-            <Descriptions.Item label="OGRN">
+            <Descriptions.Item label={t('organizations.ogrn')}>
               {selectedOrg.ogrn || '—'}
             </Descriptions.Item>
-            <Descriptions.Item label="OKPO">
+            <Descriptions.Item label={t('organizations.okpo')}>
               {selectedOrg.okpo || '—'}
             </Descriptions.Item>
             <Descriptions.Item label={t('createOrganization.details.rateVat')}>

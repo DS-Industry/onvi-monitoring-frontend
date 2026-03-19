@@ -10,9 +10,14 @@ import {
   CUSTOM_PLAN_MAX_POSES,
   CUSTOM_PLAN_MIN_USERS,
   CUSTOM_PLAN_MAX_USERS,
+  CUSTOM_POS_UNIT_PRICE,
+  CUSTOM_USER_UNIT_PRICE,
 } from '../types';
 
 const DEFAULT_CONNECTION_TYPE = 'DS_EQUIPMENT' as const;
+const ADDON_ELIGIBLE_PLANS = new Set(['business', 'custom']);
+const ADDON_MOBILE_PRICE = 5000;
+const ADDON_CORPORATE_PRICE = 10000;
 
 const StepPlanSelect: React.FC = () => {
   const { t } = useTranslation();
@@ -41,19 +46,73 @@ const StepPlanSelect: React.FC = () => {
   const hasPendingRequest =
     pendingRequestId != null && updatePlanAction != null;
   const canSelectPlan = !isSubscriptionRequestReady;
+  const isSelectedPlanAddonEligible =
+    selectedPlan != null && ADDON_ELIGIBLE_PLANS.has(selectedPlan);
+  const canToggleAddons =
+    hasPendingRequest && isSelectedPlanAddonEligible && !isUpdatingPlan;
+  const selectedPlanPrice =
+    selectedPlan === 'custom'
+      ? customPoses * CUSTOM_POS_UNIT_PRICE + customUsers * CUSTOM_USER_UNIT_PRICE
+      : selectedPlan === 'space'
+        ? 3000
+        : selectedPlan === 'business'
+          ? 5000
+          : 0;
+  const selectedAddonsPrice =
+    (addonMobile ? ADDON_MOBILE_PRICE : 0) +
+    (addonCorporate ? ADDON_CORPORATE_PRICE : 0);
+  const selectedFinalPrice = selectedPlanPrice + selectedAddonsPrice;
+  const shouldShowPriceSummary =
+    selectedPlan === 'custom' ||
+    (isSelectedPlanAddonEligible && (addonMobile || addonCorporate));
+
+  const formatRub = (value: number) =>
+    `${value.toLocaleString('ru-RU')} р`;
+
+  const getAddonValuesForPlan = (plan: (typeof PLANS_CONFIG)[number]['id']) => {
+    if (!ADDON_ELIGIBLE_PLANS.has(plan)) {
+      return {
+        nextAddonMobile: false,
+        nextAddonCorporate: false,
+      };
+    }
+
+    return {
+      nextAddonMobile: addonMobile,
+      nextAddonCorporate: addonCorporate,
+    };
+  };
+
+  React.useEffect(() => {
+    if (selectedPlan && !ADDON_ELIGIBLE_PLANS.has(selectedPlan)) {
+      if (addonMobile || addonCorporate) {
+        setAddonMobile(false);
+        setAddonCorporate(false);
+      }
+      setSearchParams(buildSearchParams(selectedPlan, false, false));
+    }
+  }, [
+    selectedPlan,
+    addonMobile,
+    addonCorporate,
+    setAddonMobile,
+    setAddonCorporate,
+    setSearchParams,
+  ]);
 
 
 
   const handleConnect = async (plan: (typeof PLANS_CONFIG)[number]['id']) => {
     if (organizationId == null) return;
+    const { nextAddonMobile, nextAddonCorporate } = getAddonValuesForPlan(plan);
     setSelectedPlan(plan);
-    setSearchParams(buildSearchParams(plan, addonMobile, addonCorporate));
+    setSearchParams(buildSearchParams(plan, nextAddonMobile, nextAddonCorporate));
     try {
       await createSubscriptionRequestAction({
         organizationId,
         selectedPlan: plan,
-        addonMobile,
-        addonCorporate,
+        addonMobile: nextAddonMobile,
+        addonCorporate: nextAddonCorporate,
         selectedConnectionType: DEFAULT_CONNECTION_TYPE,
         ...(plan === 'custom' && {
           customPoses,
@@ -70,15 +129,50 @@ const StepPlanSelect: React.FC = () => {
 
   const handleUpdatePlan = async (plan: (typeof PLANS_CONFIG)[number]['id']) => {
     if (pendingRequestId == null) return;
+    const { nextAddonMobile, nextAddonCorporate } = getAddonValuesForPlan(plan);
     setSelectedPlan(plan);
-    setSearchParams(buildSearchParams(plan, addonMobile, addonCorporate));
+    setSearchParams(buildSearchParams(plan, nextAddonMobile, nextAddonCorporate));
+    if (!ADDON_ELIGIBLE_PLANS.has(plan)) {
+      setAddonMobile(false);
+      setAddonCorporate(false);
+    }
     try {
       await updatePlanAction({
         requestId: pendingRequestId,
         selectedPlan: plan,
-        addonMobile,
-        addonCorporate,
+        addonMobile: nextAddonMobile,
+        addonCorporate: nextAddonCorporate,
         ...(plan === 'custom' && {
+          customPoses,
+          customUsers,
+        }),
+      });
+    } catch {
+      showToast(t('createOrganization.toast.errorUpdatePlan'), 'error');
+    }
+  };
+
+  const handleAddonToggle = async (nextMobile: boolean, nextCorporate: boolean) => {
+    if (
+      !canToggleAddons ||
+      selectedPlan == null ||
+      pendingRequestId == null ||
+      updatePlanAction == null
+    ) {
+      return;
+    }
+
+    setAddonMobile(nextMobile);
+    setAddonCorporate(nextCorporate);
+    setSearchParams(buildSearchParams(selectedPlan, nextMobile, nextCorporate));
+
+    try {
+      await updatePlanAction({
+        requestId: pendingRequestId,
+        selectedPlan,
+        addonMobile: nextMobile,
+        addonCorporate: nextCorporate,
+        ...(selectedPlan === 'custom' && {
           customPoses,
           customUsers,
         }),
@@ -118,13 +212,10 @@ const StepPlanSelect: React.FC = () => {
           <button
             type="button"
             onClick={() => {
-              const next = !addonMobile;
-              setAddonMobile(next);
-              setSearchParams(
-                buildSearchParams(selectedPlan ?? 'base', next, addonCorporate)
-              );
+              void handleAddonToggle(!addonMobile, addonCorporate);
             }}
-            className={`w-11 h-6 rounded-full transition-all duration-200 relative ${addonMobile ? 'bg-[#BFFA00] shadow-[0_0_12px_rgba(191,250,0,0.4)' : 'bg-[#262626]'}`}
+            disabled={!canToggleAddons}
+            className={`w-11 h-6 rounded-full transition-all duration-200 relative ${addonMobile ? 'bg-[#BFFA00] shadow-[0_0_12px_rgba(191,250,0,0.4)' : 'bg-[#262626]'} ${!canToggleAddons ? 'opacity-50 cursor-not-allowed' : ''}`}
             aria-pressed={addonMobile}
           >
             <span
@@ -143,13 +234,10 @@ const StepPlanSelect: React.FC = () => {
           <button
             type="button"
             onClick={() => {
-              const next = !addonCorporate;
-              setAddonCorporate(next);
-              setSearchParams(
-                buildSearchParams(selectedPlan ?? 'base', addonMobile, next)
-              );
+              void handleAddonToggle(addonMobile, !addonCorporate);
             }}
-            className={`w-11 h-6 rounded-full transition-all duration-200 relative ${addonCorporate ? 'bg-[#BFFA00] shadow-[0_0_12px_rgba(191,250,0,0.4)' : 'bg-[#262626]'}`}
+            disabled={!canToggleAddons}
+            className={`w-11 h-6 rounded-full transition-all duration-200 relative ${addonCorporate ? 'bg-[#BFFA00] shadow-[0_0_12px_rgba(191,250,0,0.4)' : 'bg-[#262626]'} ${!canToggleAddons ? 'opacity-50 cursor-not-allowed' : ''}`}
             aria-pressed={addonCorporate}
           >
             <span
@@ -158,6 +246,39 @@ const StepPlanSelect: React.FC = () => {
           </button>
         </div>
       </div>
+      {shouldShowPriceSummary && (
+        <div className="mb-6 rounded-2xl border border-[#1f2937] bg-[#111827]/25 p-4 sm:p-5">
+          {selectedPlan === 'custom' && (
+            <div className="flex items-center justify-between text-sm sm:text-base text-white mb-2">
+              <span>
+                {t('createOrganization.planCustom')} ({customPoses} POS x{' '}
+                {formatRub(CUSTOM_POS_UNIT_PRICE)} + {customUsers}{' '}
+                {t('createOrganization.customPlanUsers').toLowerCase()} x{' '}
+                {formatRub(CUSTOM_USER_UNIT_PRICE)})
+              </span>
+              <span className="font-semibold">{formatRub(selectedPlanPrice)}</span>
+            </div>
+          )}
+          {addonMobile && (
+            <div className="flex items-center justify-between text-sm sm:text-base text-white mb-2">
+              <span>{t('createOrganization.addonMobile')} +5 000 р</span>
+              <span className="font-semibold">{formatRub(ADDON_MOBILE_PRICE)}</span>
+            </div>
+          )}
+          {addonCorporate && (
+            <div className="flex items-center justify-between text-sm sm:text-base text-white mb-2">
+              <span>{t('createOrganization.addonCorporate')} +10 000 р</span>
+              <span className="font-semibold">
+                {formatRub(ADDON_CORPORATE_PRICE)}
+              </span>
+            </div>
+          )}
+          <div className="mt-3 border-t border-white/10 pt-3 flex items-center justify-between text-white">
+            <span className="font-medium">{t('table.columns.totalSum')}</span>
+            <span className="text-lg font-bold">{formatRub(selectedFinalPrice)}</span>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {PLANS_CONFIG.map(plan => {
@@ -185,7 +306,17 @@ const StepPlanSelect: React.FC = () => {
               </div>
               <div className="px-4 py-3 sm:px-5 sm:py-4 bg-[#141414] flex-1 flex flex-col">
                 <div className="font-bold text-white text-base sm:text-lg mb-2 sm:mb-3">
-                  {plan.priceValue ? (
+                  {plan.id === 'custom' ? (
+                    <>
+                      {formatRub(
+                        customPoses * CUSTOM_POS_UNIT_PRICE +
+                        customUsers * CUSTOM_USER_UNIT_PRICE
+                      )}{' '}
+                      <span className="text-[#737373] font-normal text-sm">
+                        {t('createOrganization.pricePerMonth')}
+                      </span>
+                    </>
+                  ) : plan.priceValue ? (
                     <>
                       {plan.priceValue}{' '}
                       <span className="text-[#737373] font-normal text-sm">

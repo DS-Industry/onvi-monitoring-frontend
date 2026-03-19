@@ -11,7 +11,7 @@ export const PLAN_BASE_PRICES: Record<SubscriptionPlanCode, number> = {
 };
 
 export const CUSTOM_POS_UNIT_PRICE = 1000;
-export const CUSTOM_USER_UNIT_PRICE = 1000;
+export const CUSTOM_USER_UNIT_PRICE = 100;
 
 export const ONVI_FEATURE_PRICE = 5000;
 export const CORPORATE_CLIENTS_FEATURE_PRICE = 10000;

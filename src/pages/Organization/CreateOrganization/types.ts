@@ -90,6 +90,8 @@ export const CUSTOM_PLAN_MIN_POSES = 1;
 export const CUSTOM_PLAN_MAX_POSES = 999;
 export const CUSTOM_PLAN_MIN_USERS = 1;
 export const CUSTOM_PLAN_MAX_USERS = 999;
+export const CUSTOM_POS_UNIT_PRICE = 1000;
+export const CUSTOM_USER_UNIT_PRICE = 100;
 
 export const PLANS_CONFIG: {
   id: PlanId;
