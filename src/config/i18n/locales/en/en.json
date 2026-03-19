@@ -43,7 +43,7 @@
     "dailyOptions": "Daily options technical services",
     "report": "Create Report",
     "create": "Create",
-    "buyPlan": "Buy Plan",
+    "buyPlan": "Connect",
     "list": "List of works",
     "progress": "Completion Report",
     "from": "From REPORTS",
@@ -368,7 +368,7 @@
     "privacy": "Privacy policy",
     "do": "Do you have an account?",
     "join": "Join Onvi-business!",
-    "username": "Username",
+    "username": "Name",
     "other": "Other Onvi-business users will know you by this name.",
     "date": "Date of birth",
     "phone": "Phone Number",
@@ -389,6 +389,7 @@
   },
   "createOrganization": {
     "organizationBlocked": "Your organization has been blocked. Please contact support.",
+    "organizationPending": "Your organization is pending. Please wait for approval.",
     "step0": "Select subscription plan",
     "step1": "Enter details",
     "step2": "Connection type",
@@ -1652,6 +1653,7 @@
     "selectColor": "Select Color"
   },
   "subscriptions": {
+    "request": "Subscription Request",
     "you": "You can switch to one of the new tariffs by selecting the desired configuration.",
     "if": "If you have a valid paid tariff, to receive compensation for it",
     "write": "write to us at: support@onvibiznes.ru",

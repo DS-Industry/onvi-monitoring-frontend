@@ -23,7 +23,6 @@ const RegisterForm: React.FC<Props> = ({
   setRegisterObj,
 }: Props) => {
   const { t } = useTranslation();
-  const [isToggled, setIsToggled] = useState(false);
   const { showToast } = useToast();
 
   const defaultValues: RegisterBody & { confirmPassword: string; } = {
@@ -72,10 +71,6 @@ const RegisterForm: React.FC<Props> = ({
 
     setFormData(prev => ({ ...prev, phone: cleanValue }));
     setValue('phone', cleanValue);
-  };
-
-  const handleToggle = () => {
-    setIsToggled(!isToggled);
   };
 
   const onSubmit = async () => {
@@ -212,36 +207,6 @@ const RegisterForm: React.FC<Props> = ({
             })}
             helperText={errors.email?.message || ''}
           />
-        </div>
-        <div
-          className={`h-32 ${isToggled ? 'bg-background06' : 'bg-disabledFill'}`}
-        >
-          <div className="flex ml-5">
-            <div className="mt-5 flex">
-              <div>
-                <div
-                  onClick={handleToggle}
-                  className={`w-10 h-5 flex items-center rounded-full cursor-pointer transition-colors duration-300 relative ${
-                    isToggled ? 'bg-primary02' : 'bg-opacity01'
-                  }`}
-                >
-                  <div
-                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
-                      isToggled ? 'translate-x-6' : 'translate-x-0'
-                    }`}
-                  />
-                </div>
-              </div>
-              <div className="ml-5">
-                <div className="text-text01 text-lg font-semibold">
-                  {t('register.request')}
-                </div>
-                <div className="text-text01 font-normal text-sm">
-                  {t('register.after')}
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         <Button

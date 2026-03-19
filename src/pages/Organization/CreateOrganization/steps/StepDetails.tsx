@@ -25,7 +25,7 @@ const StepDetails: React.FC = () => {
     canCreateOrganization,
   } = useCreateOrganizationContext();
 
-  const [phoneCountryCode, setPhoneCountryCode] = useState('+7');
+  const phoneCountryCode = '+7';
 
   const defaultValues: DetailsFormData = {
     fullName: '',
@@ -72,29 +72,10 @@ const StepDetails: React.FC = () => {
     const input = e.target.value;
     let digits = input.replace(/\D/g, '');
 
-    if (phoneCountryCode === '+7') {
-      if (digits.startsWith('8')) digits = digits.slice(1);
-      if (digits.startsWith('7')) digits = digits.slice(1);
-      digits = digits.slice(0, 10);
-      handleInputChange('phone', digits ? `+7${digits}` : '');
-      return;
-    }
-
-    if (phoneCountryCode === '+91') {
-      if (digits.startsWith('91')) digits = digits.slice(2);
-      digits = digits.slice(0, 10);
-      handleInputChange('phone', digits ? `+91${digits}` : '');
-      return;
-    }
-
-    if (phoneCountryCode === '+998') {
-      if (digits.startsWith('998')) digits = digits.slice(3);
-      digits = digits.slice(0, 9);
-      handleInputChange('phone', digits ? `+998${digits}` : '');
-      return;
-    }
-
-    handleInputChange('phone', digits ? `${phoneCountryCode}${digits}` : '');
+    if (digits.startsWith('8')) digits = digits.slice(1);
+    if (digits.startsWith('7')) digits = digits.slice(1);
+    digits = digits.slice(0, 10);
+    handleInputChange('phone', digits ? `+7${digits}` : '');
   };
 
   const onSubmit = async () => {
@@ -108,6 +89,15 @@ const StepDetails: React.FC = () => {
 
   const disabled = !!existingOrganization;
 
+  const requiredMessage = t('createOrganization.validation.required');
+  const requiredTitle = (key: string) => `${t(key)}*`;
+  const vatOptions = [
+    { value: 'WithoutVAT', name: t('organizations.withoutVat') },
+    { value: 'Vat10', name: '10%' },
+    { value: 'Vat18', name: '18%' },
+    { value: 'Vat20', name: '20%' },
+  ];
+
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-0">
       {!isVerificateStatus &&
@@ -120,6 +110,11 @@ const StepDetails: React.FC = () => {
       {existingOrganization?.organizationStatus === 'BLOCKED' && (
         <p className="mb-4 text-sm text-[#F97316]">
           {t('createOrganization.organizationBlocked')}
+        </p>
+      )}
+      {existingOrganization?.organizationStatus === "PENDING" || existingOrganization?.organizationStatus === "VERIFICATE" && (
+        <p className="mb-4 text-sm text-[#F97316]">
+          {t('createOrganization.organizationPending')}
         </p>
       )}
       <div className="rounded-2xl bg-gradient-to-b from-[#0f0f10] to-[#070708] border border-white/10 shadow-[0_24px_80px_rgba(0,0,0,0.55)] p-4 sm:p-5 lg:p-7">
@@ -149,11 +144,11 @@ const StepDetails: React.FC = () => {
 
             <div className="col-span-12 md:col-span-4">
               <DropdownInput
-                title={t('createOrganization.details.organizationType')}
+                title={requiredTitle('createOrganization.details.organizationType')}
                 options={ORGANIZATION_TYPE_OPTIONS}
                 classname="!w-full"
                 {...register('organizationType', {
-                  required: t('createOrganization.validation.required'),
+                  required: requiredMessage,
                 })}
                 value={formData.organizationType}
                 onChange={value => handleInputChange('organizationType', value)}
@@ -168,13 +163,13 @@ const StepDetails: React.FC = () => {
             <div className="col-span-12 md:col-span-8">
               <Input
                 type="text"
-                title={t('createOrganization.details.fullName')}
+                title={requiredTitle('createOrganization.details.fullName')}
                 value={formData.fullName}
                 changeValue={e => handleInputChange('fullName', e.target.value)}
                 error={!!errors.fullName}
                 disabled={disabled}
                 {...register('fullName', {
-                  required: t('createOrganization.validation.required'),
+                  required: requiredMessage,
                 })}
                 helperText={(errors.fullName?.message as string) || ''}
               />
@@ -183,13 +178,13 @@ const StepDetails: React.FC = () => {
             <div className="col-span-12 md:col-span-6">
               <Input
                 type="text"
-                title={t('createOrganization.details.shortName')}
+                title={requiredTitle('createOrganization.details.shortName')}
                 value={formData.shortName}
                 changeValue={e => handleInputChange('shortName', e.target.value)}
                 error={!!errors.shortName}
                 disabled={disabled}
                 {...register('shortName', {
-                  required: t('createOrganization.validation.required'),
+                  required: requiredMessage,
                 })}
                 helperText={(errors.shortName?.message as string) || ''}
               />
@@ -198,7 +193,9 @@ const StepDetails: React.FC = () => {
             <div className="col-span-12 md:col-span-6">
               <Input
                 type="text"
-                title={t('createOrganization.details.addressRegistration')}
+                title={requiredTitle(
+                  'createOrganization.details.addressRegistration'
+                )}
                 value={formData.addressRegistration}
                 changeValue={e =>
                   handleInputChange('addressRegistration', e.target.value)
@@ -206,7 +203,7 @@ const StepDetails: React.FC = () => {
                 error={!!errors.addressRegistration}
                 disabled={disabled}
                 {...register('addressRegistration', {
-                  required: t('createOrganization.validation.required'),
+                  required: requiredMessage,
                 })}
                 helperText={(errors.addressRegistration?.message as string) || ''}
               />
@@ -215,14 +212,16 @@ const StepDetails: React.FC = () => {
             <div className="col-span-12">
               <Input
                 type="text"
-                title={t('createOrganization.details.additionalAddress')}
+                title={requiredTitle('createOrganization.details.additionalAddress')}
                 value={formData.additionalAddress}
                 changeValue={e =>
                   handleInputChange('additionalAddress', e.target.value)
                 }
                 error={!!errors.additionalAddress}
                 disabled={disabled}
-                {...register('additionalAddress')}
+                {...register('additionalAddress', {
+                  required: requiredMessage,
+                })}
                 helperText={(errors.additionalAddress?.message as string) || ''}
               />
             </div>
@@ -237,40 +236,23 @@ const StepDetails: React.FC = () => {
             <div className="col-span-12 md:col-span-6">
               <Input
                 type="text"
-                title={t('createOrganization.details.phone')}
+                title={requiredTitle('createOrganization.details.phone')}
                 isPhone={true}
+                classname=""
                 countryCode={phoneCountryCode}
-                onCountryChange={code => {
-                  setPhoneCountryCode(code);
-                  handleInputChange('phone', '');
-                }}
+                disableCountrySelect={true}
                 value={formatPhoneByCountry(formData.phone, phoneCountryCode)}
                 changeValue={handlePhoneChange}
                 error={!!errors.phone}
                 disabled={disabled}
                 {...register('phone', {
-                  required: t('createOrganization.validation.required'),
+                  required: requiredMessage,
                   validate: value => {
                     const digits = (value ?? '').toString().replace(/\D/g, '');
-                    if (phoneCountryCode === '+7') {
-                      return (
-                        (digits.startsWith('7') && digits.length === 11) ||
-                        (t('validation.phoneValidFormat') as string)
-                      );
-                    }
-                    if (phoneCountryCode === '+91') {
-                      return (
-                        (digits.startsWith('91') && digits.length === 12) ||
-                        (t('validation.phoneValidFormat') as string)
-                      );
-                    }
-                    if (phoneCountryCode === '+998') {
-                      return (
-                        (digits.startsWith('998') && digits.length === 12) ||
-                        (t('validation.phoneValidFormat') as string)
-                      );
-                    }
-                    return true;
+                    return (
+                      (digits.startsWith('7') && digits.length === 11) ||
+                      (t('validation.phoneValidFormat') as string)
+                    );
                   },
                 })}
                 helperText={(errors.phone?.message as string) || ''}
@@ -280,13 +262,13 @@ const StepDetails: React.FC = () => {
             <div className="col-span-12 md:col-span-6">
               <Input
                 type="text"
-                title={t('createOrganization.details.email')}
+                title={requiredTitle('createOrganization.details.email')}
                 value={formData.email}
                 changeValue={e => handleInputChange('email', e.target.value)}
                 error={!!errors.email}
                 disabled={disabled}
                 {...register('email', {
-                  required: t('createOrganization.validation.required'),
+                  required: requiredMessage,
                 })}
                 helperText={(errors.email?.message as string) || ''}
               />
@@ -302,13 +284,13 @@ const StepDetails: React.FC = () => {
             <div className="col-span-12 md:col-span-4">
               <Input
                 type="text"
-                title={t('createOrganization.details.inn')}
+                title={requiredTitle('createOrganization.details.inn')}
                 value={formData.inn}
                 changeValue={e => handleInputChange('inn', e.target.value)}
                 error={!!errors.inn}
                 disabled={disabled}
                 {...register('inn', {
-                  required: t('createOrganization.validation.required'),
+                  required: requiredMessage,
                 })}
                 helperText={(errors.inn?.message as string) || ''}
               />
@@ -317,18 +299,13 @@ const StepDetails: React.FC = () => {
             <div className="col-span-12 md:col-span-4">
               <Input
                 type="text"
-                title={t('createOrganization.details.kpp')}
+                title={requiredTitle('createOrganization.details.kpp')}
                 value={formData.kpp}
                 changeValue={e => handleInputChange('kpp', e.target.value)}
                 error={!!errors.kpp}
                 disabled={disabled}
                 {...register('kpp', {
-                  validate: v => {
-                    if (formData.organizationType !== 'LegalEntity') return true;
-                    return v?.trim()
-                      ? true
-                      : (t('createOrganization.validation.required') as string);
-                  },
+                  required: requiredMessage,
                 })}
                 helperText={(errors.kpp?.message as string) || ''}
               />
@@ -337,18 +314,13 @@ const StepDetails: React.FC = () => {
             <div className="col-span-12 md:col-span-4">
               <Input
                 type="text"
-                title={t('createOrganization.details.ogrn')}
+                title={requiredTitle('createOrganization.details.ogrn')}
                 value={formData.ogrn}
                 changeValue={e => handleInputChange('ogrn', e.target.value)}
                 error={!!errors.ogrn}
                 disabled={disabled}
                 {...register('ogrn', {
-                  validate: v => {
-                    if (formData.organizationType !== 'LegalEntity') return true;
-                    return v?.trim()
-                      ? true
-                      : (t('createOrganization.validation.required') as string);
-                  },
+                  required: requiredMessage,
                 })}
                 helperText={(errors.ogrn?.message as string) || ''}
               />
@@ -357,25 +329,30 @@ const StepDetails: React.FC = () => {
             <div className="col-span-12 md:col-span-4">
               <Input
                 type="text"
-                title={t('createOrganization.details.okpo')}
+                title={requiredTitle('createOrganization.details.okpo')}
                 value={formData.okpo}
                 changeValue={e => handleInputChange('okpo', e.target.value)}
                 error={!!errors.okpo}
                 disabled={disabled}
-                {...register('okpo')}
+                {...register('okpo', {
+                  required: requiredMessage,
+                })}
                 helperText={(errors.okpo?.message as string) || ''}
               />
             </div>
 
             <div className="col-span-12 md:col-span-4">
-              <Input
-                type="text"
-                title={t('createOrganization.details.rateVat')}
+              <DropdownInput
+                title={requiredTitle('createOrganization.details.rateVat')}
+                options={vatOptions}
+                classname="!w-full"
+                {...register('rateVat', {
+                  required: requiredMessage,
+                })}
                 value={formData.rateVat}
-                changeValue={e => handleInputChange('rateVat', e.target.value)}
+                onChange={value => handleInputChange('rateVat', value)}
                 error={!!errors.rateVat}
-                disabled={disabled}
-                {...register('rateVat')}
+                isDisabled={disabled}
                 helperText={(errors.rateVat?.message as string) || ''}
               />
             </div>
@@ -390,12 +367,14 @@ const StepDetails: React.FC = () => {
             <div className="col-span-12 md:col-span-6">
               <Input
                 type="text"
-                title={t('createOrganization.details.bank')}
+                title={requiredTitle('createOrganization.details.bank')}
                 value={formData.bank}
                 changeValue={e => handleInputChange('bank', e.target.value)}
                 error={!!errors.bank}
                 disabled={disabled}
-                {...register('bank')}
+                {...register('bank', {
+                  required: requiredMessage,
+                })}
                 helperText={(errors.bank?.message as string) || ''}
               />
             </div>
@@ -403,12 +382,14 @@ const StepDetails: React.FC = () => {
             <div className="col-span-12 md:col-span-6">
               <Input
                 type="text"
-                title={t('createOrganization.details.bik')}
+                title={requiredTitle('createOrganization.details.bik')}
                 value={formData.bik}
                 changeValue={e => handleInputChange('bik', e.target.value)}
                 error={!!errors.bik}
                 disabled={disabled}
-                {...register('bik')}
+                {...register('bik', {
+                  required: requiredMessage,
+                })}
                 helperText={(errors.bik?.message as string) || ''}
               />
             </div>
@@ -416,14 +397,16 @@ const StepDetails: React.FC = () => {
             <div className="col-span-12 md:col-span-6">
               <Input
                 type="text"
-                title={t('createOrganization.details.settlementAccount')}
+                title={requiredTitle('createOrganization.details.settlementAccount')}
                 value={formData.settlementAccount}
                 changeValue={e =>
                   handleInputChange('settlementAccount', e.target.value)
                 }
                 error={!!errors.settlementAccount}
                 disabled={disabled}
-                {...register('settlementAccount')}
+                {...register('settlementAccount', {
+                  required: requiredMessage,
+                })}
                 helperText={(errors.settlementAccount?.message as string) || ''}
               />
             </div>
@@ -431,14 +414,18 @@ const StepDetails: React.FC = () => {
             <div className="col-span-12 md:col-span-6">
               <Input
                 type="text"
-                title={t('createOrganization.details.correspondentAccount')}
+                title={requiredTitle(
+                  'createOrganization.details.correspondentAccount'
+                )}
                 value={formData.correspondentAccount}
                 changeValue={e =>
                   handleInputChange('correspondentAccount', e.target.value)
                 }
                 error={!!errors.correspondentAccount}
                 disabled={disabled}
-                {...register('correspondentAccount')}
+                {...register('correspondentAccount', {
+                  required: requiredMessage,
+                })}
                 helperText={
                   (errors.correspondentAccount?.message as string) || ''
                 }
@@ -448,12 +435,14 @@ const StepDetails: React.FC = () => {
             <div className="col-span-12">
               <Input
                 type="text"
-                title={t('createOrganization.details.addressBank')}
+                title={requiredTitle('createOrganization.details.addressBank')}
                 value={formData.addressBank}
                 changeValue={e => handleInputChange('addressBank', e.target.value)}
                 error={!!errors.addressBank}
                 disabled={disabled}
-                {...register('addressBank')}
+                {...register('addressBank', {
+                  required: requiredMessage,
+                })}
                 helperText={(errors.addressBank?.message as string) || ''}
               />
             </div>
