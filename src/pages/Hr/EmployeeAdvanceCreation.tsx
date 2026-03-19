@@ -126,13 +126,12 @@ const EmployeeAdvanceCreation: React.FC = () => {
   const organizations =
     organizationData?.map(item => ({ label: item.name, value: item.id })) || [];
 
-  const workers = [
-    ...(workersData?.map(work => ({
+  const workers =
+    workersData?.map(work => ({
       key: String(work.props.id),
       title: work.props.name,
       value: work.props.id,
-    })) || []),
-  ];
+    })) || [];
 
   const positions =
     positionData?.map(pos => ({
@@ -190,10 +189,10 @@ const EmployeeAdvanceCreation: React.FC = () => {
         setPaymentsData(
           result.map(res => ({
             ...res,
+            monthlySalary: 0,
             paymentDate: new Date(),
             check: false,
             countShifts: res.numberOfShiftsWorked,
-            monthlySalary: 0,
             id: res.hrWorkerId,
             payoutTimestamp: new Date(),
           }))
@@ -289,17 +288,25 @@ const EmployeeAdvanceCreation: React.FC = () => {
     try {
       const result = await addWork();
       if (result) {
-        if (result.length === 0) showToast(t('hr.noAdvance'), 'error');
         setPaymentsData(
-          result.map(res => ({
-            ...res,
-            paymentDate: new Date(),
-            check: false,
-            countShifts: res.numberOfShiftsWorked,
-            monthlySalary: 0,
-            id: res.hrWorkerId,
-            payoutTimestamp: new Date(),
-          }))
+          result.map(res => {
+            const employeeName = (res as any).employeeName ?? (res as any).name;
+            const bonusPayout = (res as any).bonusPayout ?? (res as any).maxBonusSalary;
+            const numberOfShiftsWorked = (res as any).numberOfShiftsWorked ?? (res as any).countShifts;
+
+            return {
+              ...res,
+              monthlySalary: 0,
+              employeeName,
+              bonusPayout,
+              numberOfShiftsWorked,
+              paymentDate: new Date(),
+              check: false,
+              countShifts: numberOfShiftsWorked,
+              id: res.hrWorkerId,
+              payoutTimestamp: new Date(),
+            };
+          })
         );
         resetFormWorker();
       } else {
@@ -343,13 +350,6 @@ const EmployeeAdvanceCreation: React.FC = () => {
       key: 'billingMonth',
       render: (_, record) =>
         record.billingMonth ? dayjs(record.billingMonth).format('MM.YYYY') : '',
-    },
-    {
-      title: t('finance.salary'),
-      dataIndex: 'monthlySalary',
-      key: 'monthlySalary',
-      sorter: (a, b) => a.monthlySalary - b.monthlySalary,
-      render: getCurrencyRender(),
     },
     {
       title: t('hr.dailySalary'),
@@ -584,14 +584,14 @@ const EmployeeAdvanceCreation: React.FC = () => {
                 <Button
                   icon={<ArrowUpOutlined />}
                   onClick={() => {
-                    const sortedData = paymentsData.sort((a, b) => a.id - b.id);
+                    const sortedData = [...paymentsData].sort((a, b) => a.id - b.id);
                     setPaymentsData(sortedData);
                   }}
                 />
                 <Button
                   icon={<ArrowDownOutlined />}
                   onClick={() => {
-                    const sortedData = paymentsData.sort((a, b) => b.id - a.id);
+                    const sortedData = [...paymentsData].sort((a, b) => b.id - a.id);
                     setPaymentsData(sortedData);
                   }}
                 />
