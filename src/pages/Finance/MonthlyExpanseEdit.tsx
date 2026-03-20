@@ -45,6 +45,7 @@ type ExpenseItem = {
   eventDate: Date;
   sum: number;
   imageProductReceipt?: string;
+  rowKey: string;
 };
 
 const MonthlyExpanseEdit: React.FC = () => {
@@ -59,7 +60,7 @@ const MonthlyExpanseEdit: React.FC = () => {
   const ownerId = Number(searchParams.get('ownerId'));
   const status = searchParams.get('status') as ManagerReportPeriodStatus;
 
-  const tagRender = getStatusTagRender(t);
+  const tagRender = useMemo(() => getStatusTagRender(t), [t]);
 
   const user = useUser();
 
@@ -70,13 +71,13 @@ const MonthlyExpanseEdit: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
   const workerMap = workerData
-      ? new Map(workerData.map(work => [work.id, `${work.name} ${work.surname}`]))
-      : new Map();
+    ? new Map(workerData.map(work => [work.id, `${work.name} ${work.surname}`]))
+    : new Map();
 
   const { data: posData } = useSWR(
     [`get-pos`, city],
@@ -130,7 +131,7 @@ const MonthlyExpanseEdit: React.FC = () => {
     ];
 
     const expenses =
-      managerPeriodData.managerPaper?.map(item => ({
+      managerPeriodData.managerPaper?.map((item, idx) => ({
         id: item.paperTypeId,
         deviceId: managerPeriodData.id,
         group: groups.find(g => g.value === item.group)?.name || item.group,
@@ -142,6 +143,7 @@ const MonthlyExpanseEdit: React.FC = () => {
         eventDate: new Date(item.eventDate),
         sum: item.sum,
         imageProductReceipt: item.imageProductReceipt || undefined,
+        rowKey: `${item.paperTypeId}_${new Date(item.eventDate).getTime()}_${item.sum}_${idx}`,
       })) || [];
 
     return {
@@ -477,7 +479,7 @@ const MonthlyExpanseEdit: React.FC = () => {
                 return (
                   <Table
                     key={`expanded-${record.id}`}
-                    rowKey="id"
+                    rowKey="rowKey"
                     dataSource={expensesForRecord}
                     columns={expenseColumns}
                     pagination={false}
