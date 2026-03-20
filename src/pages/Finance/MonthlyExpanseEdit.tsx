@@ -256,66 +256,69 @@ const MonthlyExpanseEdit: React.FC = () => {
     },
   ];
 
-  const expenseColumns: ColumnsType<ExpenseItem> = [
-    {
-      title: t('finance.group'),
-      dataIndex: 'group',
-      key: 'group',
-      filters: groups.map(g => ({ text: g.name, value: g.name })),
-      onFilter: (value, record) => record.group === value,
-      sorter: (a, b) => a.group.localeCompare(b.group),
-    },
-    {
-      title: t('marketing.carWashBranch'),
-      dataIndex: 'posName',
-      key: 'posName',
-      filters: poses.map(p => ({ text: p.name, value: p.name })),
-      onFilter: (value, record) => record.posName === value,
-      sorter: (a, b) => a.posName.localeCompare(b.posName),
-    },
-    {
-      title: t('finance.article'),
-      dataIndex: 'paperTypeName',
-      key: 'paperTypeName',
-      sorter: (a, b) => a.paperTypeName.localeCompare(b.paperTypeName),
-    },
-    {
-      title: t('finance.articleType'),
-      dataIndex: 'paperTypeType',
-      key: 'paperTypeType',
-      render: tagRender,
-      filters: [
-        { text: t('finance.RECEIPT'), value: t('finance.RECEIPT') },
-        { text: t('finance.EXPENDITURE'), value: t('finance.EXPENDITURE') },
-      ],
-      onFilter: (value, record) => record.paperTypeType === value,
-      sorter: (a, b) => a.paperTypeType.localeCompare(b.paperTypeType),
-    },
-    {
-      title: t('finance.dat'),
-      dataIndex: 'eventDate',
-      key: 'eventDate',
-      render: dateRender,
-      sorter: (a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime(),
-    },
-    {
-      title: t('marketing.amount'),
-      dataIndex: 'sum',
-      key: 'sum',
-      render: (value, record) => {
-        const formattedCurrency = TableUtils.createCurrencyFormat(
-          formatNumber(Number(value))
-        );
-        if (record.paperTypeType === t('finance.RECEIPT')) {
-          return <div className="text-successFill">+{formattedCurrency}</div>;
-        } else if (record.paperTypeType === t('finance.EXPENDITURE')) {
-          return <div className="text-errorFill">-{formattedCurrency}</div>;
-        }
-        return formattedCurrency;
+  const expenseColumns = useMemo<ColumnsType<ExpenseItem>>(
+    () => [
+      {
+        title: t('finance.group'),
+        dataIndex: 'group',
+        key: 'group',
+        filters: groups.map(g => ({ text: g.name, value: g.name })),
+        onFilter: (value, record) => record.group === value,
+        sorter: (a, b) => a.group.localeCompare(b.group),
       },
-      sorter: (a, b) => a.sum - b.sum,
-    },
-  ];
+      {
+        title: t('marketing.carWashBranch'),
+        dataIndex: 'posName',
+        key: 'posName',
+        filters: poses.map(p => ({ text: p.name, value: p.name })),
+        onFilter: (value, record) => record.posName === value,
+        sorter: (a, b) => a.posName.localeCompare(b.posName),
+      },
+      {
+        title: t('finance.article'),
+        dataIndex: 'paperTypeName',
+        key: 'paperTypeName',
+        sorter: (a, b) => a.paperTypeName.localeCompare(b.paperTypeName),
+      },
+      {
+        title: t('finance.articleType'),
+        dataIndex: 'paperTypeType',
+        key: 'paperTypeType',
+        render: tagRender,
+        filters: [
+          { text: t('finance.RECEIPT'), value: t('finance.RECEIPT') },
+          { text: t('finance.EXPENDITURE'), value: t('finance.EXPENDITURE') },
+        ],
+        onFilter: (value, record) => record.paperTypeType === value,
+        sorter: (a, b) => a.paperTypeType.localeCompare(b.paperTypeType),
+      },
+      {
+        title: t('finance.dat'),
+        dataIndex: 'eventDate',
+        key: 'eventDate',
+        render: dateRender,
+        sorter: (a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime(),
+      },
+      {
+        title: t('marketing.amount'),
+        dataIndex: 'sum',
+        key: 'sum',
+        render: (value, record) => {
+          const formattedCurrency = TableUtils.createCurrencyFormat(
+            formatNumber(Number(value))
+          );
+          if (record.paperTypeType === t('finance.RECEIPT')) {
+            return <div className="text-successFill">+{formattedCurrency}</div>;
+          } else if (record.paperTypeType === t('finance.EXPENDITURE')) {
+            return <div className="text-errorFill">-{formattedCurrency}</div>;
+          }
+          return formattedCurrency;
+        },
+        sorter: (a, b) => a.sum - b.sum,
+      },
+    ],
+    [t, groups, poses, tagRender, dateRender]
+  );
 
   return (
     <div>
@@ -473,6 +476,7 @@ const MonthlyExpanseEdit: React.FC = () => {
                 );
                 return (
                   <Table
+                    key={`expanded-${record.id}`}
                     rowKey="id"
                     dataSource={expensesForRecord}
                     columns={expenseColumns}
