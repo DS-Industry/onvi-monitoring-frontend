@@ -100,12 +100,18 @@ const FalseDeposit: React.FC = () => {
           await deleteFalseOperations({
             ids: selectedRowKeys.map(key => Number(key)),
           });
-
-          await mutate([`get-false-device`, dateStart, dateEnd, currentPage, pageSize]);
-
+  
+          await mutate(
+            [`get-false-device`, dateStart, dateEnd, currentPage, pageSize],
+            undefined,
+            { revalidate: true }
+          );
+  
           setSelectedRowKeys([]);
+          showToast(t('success.recordDeleted'), 'success');
         } catch (error) {
           console.error('Error deleting false deposit:', error);
+          showToast(t('analysis.ERROR'), 'error');
         }
       },
       onCancel() {
