@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -70,6 +70,24 @@ const FalseDeposit: React.FC = () => {
   const currencyRender = getCurrencyRender();
   const dateRender = getDateRender();
 
+  const falseDeposits = useMemo(() => {
+    return (
+      filterData?.oper?.sort(
+        (a, b) =>
+          new Date(a.dateOper).getTime() - new Date(b.dateOper).getTime()
+      ) || []
+    );
+  }, [filterData]);
+
+  useEffect(() => {
+    if (falseDeposits.length > 0) {
+      const validKeys = falseDeposits
+        .filter(record => record.falseCheck)
+        .map(record => record.id);
+      setSelectedRowKeys(prev => prev.filter(key => validKeys.includes(Number(key))));
+    }
+  }, [falseDeposits]);
+
   const handleDeleteRow = async () => {
     modal.confirm({
       title: t('common.title'),
@@ -79,25 +97,13 @@ const FalseDeposit: React.FC = () => {
       cancelText: t('common.cancel'),
       async onOk() {
         try {
-          const result = await mutate(
-            [`delete-manager-data`],
-            () =>
-              deleteFalseOperations({
-                ids: selectedRowKeys.map(key => Number(key)),
-              }),
-            false
-          );
+          await deleteFalseOperations({
+            ids: selectedRowKeys.map(key => Number(key)),
+          });
 
-          if (result) {
-            mutate([
-              `get-false-device`,
-              dateStart,
-              dateEnd,
-              currentPage,
-              pageSize,
-            ]);
-            setSelectedRowKeys([]);
-          }
+          await mutate([`get-false-device`, dateStart, dateEnd, currentPage, pageSize]);
+
+          setSelectedRowKeys([]);
         } catch (error) {
           console.error('Error deleting false deposit:', error);
         }
@@ -113,6 +119,9 @@ const FalseDeposit: React.FC = () => {
     onChange: (newSelectedRowKeys: React.Key[]) => {
       setSelectedRowKeys(newSelectedRowKeys);
     },
+    getCheckboxProps: (record: FalseDepositDeviceResponse['oper'][0]) => ({
+      disabled: !record.falseCheck,
+    }),
   };
 
   const columns: ColumnsType<FalseDepositDeviceResponse['oper'][0]> = [
@@ -150,15 +159,6 @@ const FalseDeposit: React.FC = () => {
       key: 'currencyType',
     },
   ];
-
-  const falseDeposits = useMemo(() => {
-    return (
-      filterData?.oper?.sort(
-        (a, b) =>
-          new Date(a.dateOper).getTime() - new Date(b.dateOper).getTime()
-      ) || []
-    );
-  }, [filterData]);
 
   const totalCount = filterData?.totalCount || 0;
 
