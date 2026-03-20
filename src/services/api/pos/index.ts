@@ -523,7 +523,10 @@ export async function getFalseDepositDeviceById(
 ): Promise<FalseDepositDeviceResponse> {
   const response: AxiosResponse<FalseDepositDeviceResponse> = await api.get(
     `/user/device/false-operations/${deviceId}`,
-    { params }
+    { 
+      params,
+      headers: { 'Cache-Control': 'no-cache' }
+    }
   );
   return response.data;
 }
