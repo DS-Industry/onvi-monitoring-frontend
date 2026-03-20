@@ -31,7 +31,6 @@ import {
 import { groups } from '@/utils/constants';
 import TableUtils from '@/utils/TableUtils.tsx';
 import { ColumnsType } from 'antd/es/table';
-import { Key } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
 import { useUser } from '@/hooks/useUserStore';
 
@@ -263,21 +262,22 @@ const MonthlyExpanseEdit: React.FC = () => {
       dataIndex: 'group',
       key: 'group',
       filters: groups.map(g => ({ text: g.name, value: g.name })),
-      onFilter: (value: boolean | Key, record: ExpenseItem) =>
-        record.group === value,
+      onFilter: (value, record) => record.group === value,
+      sorter: (a, b) => a.group.localeCompare(b.group),
     },
     {
       title: t('marketing.carWashBranch'),
       dataIndex: 'posName',
       key: 'posName',
       filters: poses.map(p => ({ text: p.name, value: p.name })),
-      onFilter: (value: boolean | Key, record: ExpenseItem) =>
-        record.posName === value,
+      onFilter: (value, record) => record.posName === value,
+      sorter: (a, b) => a.posName.localeCompare(b.posName),
     },
     {
       title: t('finance.article'),
       dataIndex: 'paperTypeName',
       key: 'paperTypeName',
+      sorter: (a, b) => a.paperTypeName.localeCompare(b.paperTypeName),
     },
     {
       title: t('finance.articleType'),
@@ -285,23 +285,24 @@ const MonthlyExpanseEdit: React.FC = () => {
       key: 'paperTypeType',
       render: tagRender,
       filters: [
-        { name: t('finance.RECEIPT') },
-        { name: t('finance.EXPENDITURE') },
-      ].map(p => ({ text: p.name, value: p.name })),
-      onFilter: (value: boolean | Key, record: ExpenseItem) =>
-        record.paperTypeType === value,
+        { text: t('finance.RECEIPT'), value: t('finance.RECEIPT') },
+        { text: t('finance.EXPENDITURE'), value: t('finance.EXPENDITURE') },
+      ],
+      onFilter: (value, record) => record.paperTypeType === value,
+      sorter: (a, b) => a.paperTypeType.localeCompare(b.paperTypeType),
     },
     {
       title: t('finance.dat'),
       dataIndex: 'eventDate',
       key: 'eventDate',
       render: dateRender,
+      sorter: (a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime(),
     },
     {
       title: t('marketing.amount'),
       dataIndex: 'sum',
       key: 'sum',
-      render: (value: string, record: { paperTypeType: string }) => {
+      render: (value, record) => {
         const formattedCurrency = TableUtils.createCurrencyFormat(
           formatNumber(Number(value))
         );
@@ -312,6 +313,7 @@ const MonthlyExpanseEdit: React.FC = () => {
         }
         return formattedCurrency;
       },
+      sorter: (a, b) => a.sum - b.sum,
     },
   ];
 
