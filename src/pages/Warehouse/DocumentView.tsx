@@ -2,6 +2,7 @@ import {
   getDocument,
   getNomenclature,
   getWarehouses,
+  WarehouseDocumentStatus,
 } from '@/services/api/warehouse';
 import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -207,7 +208,7 @@ const DocumentView: React.FC = () => {
             {t(`routes.${documentType}`)}
           </span>
         </div>
-        {allowed && (
+        {allowed && document?.document.props.status !== WarehouseDocumentStatus.SENT && (
           <Button
             icon={<PlusOutlined />}
             className="btn-primary"
