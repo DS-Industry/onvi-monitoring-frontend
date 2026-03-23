@@ -422,6 +422,7 @@ export type ManagerParams = {
   dateEndEvent?: Date;
   page?: number;
   size?: number;
+  organizationId?: number;
 };
 
 type ManagersResponse = {

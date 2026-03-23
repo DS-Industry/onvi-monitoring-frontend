@@ -24,6 +24,7 @@ import { PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
+import { useUser } from '@/hooks/useUserStore';
 
 type Documents = {
   statusCheck: string;
@@ -38,6 +39,7 @@ type Documents = {
 
 const Documents: React.FC = () => {
   const { t } = useTranslation();
+  const user = useUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const today = dayjs().toDate();
   const formattedDate = today.toISOString().slice(0, 10);
@@ -69,11 +71,12 @@ const Documents: React.FC = () => {
       placementId: cityParam,
       page: currentPage,
       size: pageSize,
+      organizationId: user.organizationId,
     }),
-    [dateStart, dateEnd, warehouseId, cityParam, formattedDate, currentPage, pageSize]
+    [dateStart, dateEnd, warehouseId, cityParam, formattedDate, currentPage, pageSize, user.organizationId]
   );
 
-  const swrKey = `get-all-documents-${filterParams.warehouseId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}`;
+  const swrKey = `get-all-documents-${filterParams.warehouseId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}-${filterParams.organizationId}`; // ✅ обновлён ключ
 
   const { data: allDocuments, isLoading: documentsLoading } = useSWR(
     swrKey,
