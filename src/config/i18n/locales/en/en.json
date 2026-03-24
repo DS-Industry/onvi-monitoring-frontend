@@ -496,7 +496,7 @@
     "retry": "Retry",
     "offerTitle": "Accept the public offer",
     "offerDescription": "Please read the public offer. By checking the box below, you confirm that you have read and agree with its terms.",
-    "offerCheckbox": "I have read and agree with the terms of the public offer",
+    "offerCheckbox": "By checking this box, I agree to the <offerLink>License Agreement (Offer)</offerLink> and the <userAgreementLink>User Agreement</userAgreementLink>.",
     "offerAcceptButton": "Accept offer",
     "offerAlreadyAccepted": "The offer has already been accepted for this organization.",
       "posRequestsStep": "POS requests",
@@ -2445,5 +2445,33 @@
     "selectDevice": "Select device",
     "comment": "Comment",
     "enterComment": "Enter comment (optional)"
+  },
+  "subscriptionPlaceholder": {
+    "defaultModule": "This section",
+    "title": "Plan upgrade is required to access this section",
+    "description": "This module is not available on your current plan. Upgrade your subscription to unlock this functionality.",
+    "currentPlan": "Current plan: {{plan}}",
+    "noActivePlan": "No active plan",
+    "selectPlanHint": "Select an available plan and continue",
+    "upgradeButton": "Upgrade plan",
+    "dashboardButton": "Go to dashboard",
+    "availablePlansTitle": "Available plans for this section",
+    "availablePlansHint": "Your current plan is excluded from this list.",
+    "contactSupport": "Contact support for plan upgrade",
+    "requiredFeaturesTitle": "Required feature codes:",
+    "manageSubscriptionLink": "Go to subscription management",
+    "reason": {
+      "missing_subscription": "No active subscription found",
+      "inactive_subscription": "Subscription is not active",
+      "feature": "This feature is not included in your current plan",
+      "plan": "Your current plan does not meet the minimum requirements",
+      "fallback": "Plan extension is required for access"
+    },
+    "planNames": {
+      "BASIC": "Basic",
+      "SPACE": "Space",
+      "BUSINESS": "Business",
+      "CUSTOM": "Custom"
+    }
   }
 }

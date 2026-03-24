@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Routes, Route, Navigate, BrowserRouter } from 'react-router-dom';
 import routes from '@/routes';
 import { Can } from '@/permissions/Can';
+import TariffGuard from '@/permissions/TariffGuard';
 import 'react-loading-skeleton/dist/skeleton.css';
 // import { usePermissions } from "./hooks/useAuthStore";
 import useAuthStore from './config/store/authSlice';
@@ -23,6 +24,7 @@ import { ConfigProvider } from 'antd';
 import ruRU from 'antd/es/locale/ru_RU';
 import enUS from 'antd/es/locale/en_US';
 import { useTranslation } from 'react-i18next';
+import type { TariffRequirements } from '@/subscription/tariffAccess';
 
 type ErrorFallbackProps = {
   error: Error;
@@ -51,6 +53,7 @@ const App: React.FC = () => {
   const setActiveSubscription = useSubscriptionStore(
     state => state.setActiveSubscription
   );
+  const setSubscriptionStatus = useSubscriptionStore(state => state.setStatus);
 
   const { trigger: updateUser } = useSWRMutation(
     isAuthenticated ? 'user' : null,
@@ -85,20 +88,26 @@ const App: React.FC = () => {
 
     if (!isAuthenticated || !organizationId || organizationId < 1) {
       setActiveSubscription(null);
+      setSubscriptionStatus('idle');
       return;
     }
 
     let cancelled = false;
 
     const fetchActiveSubscription = async () => {
+      if (!cancelled) {
+        setSubscriptionStatus('loading');
+      }
       try {
         const subscription = await getActiveSubscription(organizationId);
         if (!cancelled) {
           setActiveSubscription(subscription);
+          setSubscriptionStatus('ready');
         }
       } catch {
         if (!cancelled) {
           setActiveSubscription(null);
+          setSubscriptionStatus('error');
         }
       }
     };
@@ -108,7 +117,28 @@ const App: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [isAuthenticated, user?.organizationId]);
+  }, [
+    isAuthenticated,
+    user?.organizationId,
+    setActiveSubscription,
+    setSubscriptionStatus,
+  ]);
+
+  const resolveRouteTariffRequirements = (
+    parent?: TariffRequirements,
+    current?: TariffRequirements
+  ): TariffRequirements | undefined => {
+    if (!parent && !current) return undefined;
+    return {
+      requiredTariffFeatures:
+        current?.requiredTariffFeatures ?? parent?.requiredTariffFeatures,
+      requiredTariffFeaturesMode:
+        current?.requiredTariffFeaturesMode ??
+        parent?.requiredTariffFeaturesMode,
+      requiredPlanCodes: current?.requiredPlanCodes ?? parent?.requiredPlanCodes,
+      tariffFallback: current?.tariffFallback ?? parent?.tariffFallback,
+    };
+  };
 
   return (
     <ChunkErrorBoundary>
@@ -132,6 +162,16 @@ const App: React.FC = () => {
               {/* Private Routes */}
               <Route element={<PrivateRoute element={<DashboardLayout />} />}>
                 {routes.map(route => {
+                  const routeTariffRequirements = resolveRouteTariffRequirements(
+                    undefined,
+                    {
+                      requiredTariffFeatures: route.requiredTariffFeatures,
+                      requiredTariffFeaturesMode:
+                        route.requiredTariffFeaturesMode,
+                      requiredPlanCodes: route.requiredPlanCodes,
+                      tariffFallback: route.tariffFallback,
+                    }
+                  );
                   return (
                     <Route
                       key={route.path}
@@ -150,7 +190,14 @@ const App: React.FC = () => {
                               });
                             }
                             return allowed ? (
-                              <route.component />
+                              <TariffGuard
+                                routeName={route.name}
+                                requirements={routeTariffRequirements}
+                                permissions={route.permissions || []}
+                                fallback={route.tariffFallback}
+                              >
+                                <route.component />
+                              </TariffGuard>
                             ) : (
                               <Navigate to="/" replace />
                             );
@@ -166,6 +213,27 @@ const App: React.FC = () => {
                   route =>
                     route.subNav &&
                     route.subNav.map(subRoute => (
+                      (() => {
+                        const subRouteTariffRequirements =
+                          resolveRouteTariffRequirements(
+                            {
+                              requiredTariffFeatures:
+                                route.requiredTariffFeatures,
+                              requiredTariffFeaturesMode:
+                                route.requiredTariffFeaturesMode,
+                              requiredPlanCodes: route.requiredPlanCodes,
+                              tariffFallback: route.tariffFallback,
+                            },
+                            {
+                              requiredTariffFeatures:
+                                subRoute.requiredTariffFeatures,
+                              requiredTariffFeaturesMode:
+                                subRoute.requiredTariffFeaturesMode,
+                              requiredPlanCodes: subRoute.requiredPlanCodes,
+                              tariffFallback: subRoute.tariffFallback,
+                            }
+                          );
+                        return (
                       <Route
                         key={subRoute.path}
                         path={subRoute.path}
@@ -183,7 +251,14 @@ const App: React.FC = () => {
                                 });
                               }
                               return allowed ? (
-                                <subRoute.component />
+                                <TariffGuard
+                                  routeName={subRoute.name}
+                                  requirements={subRouteTariffRequirements}
+                                  permissions={subRoute.permissions || []}
+                                  fallback={subRoute.tariffFallback}
+                                >
+                                  <subRoute.component />
+                                </TariffGuard>
                               ) : (
                                 <Navigate to="/" replace />
                               );
@@ -191,6 +266,8 @@ const App: React.FC = () => {
                           </Can>
                         }
                       />
+                        );
+                      })()
                     ))
                 )}
                 {routes.map(
@@ -199,38 +276,80 @@ const App: React.FC = () => {
                     route.subNav.map(
                       subRoute =>
                         subRoute.subNav &&
-                        subRoute.subNav.map(subSubRoute => (
-                          <Route
-                            key={subSubRoute.path}
-                            path={subSubRoute.path}
-                            element={
-                              <Can
-                                requiredPermissions={
-                                  subSubRoute.permissions || []
+                        subRoute.subNav.map(subSubRoute => {
+                          const subSubRouteTariffRequirements =
+                            resolveRouteTariffRequirements(
+                              resolveRouteTariffRequirements(
+                                {
+                                  requiredTariffFeatures:
+                                    route.requiredTariffFeatures,
+                                  requiredTariffFeaturesMode:
+                                    route.requiredTariffFeaturesMode,
+                                  requiredPlanCodes: route.requiredPlanCodes,
+                                  tariffFallback: route.tariffFallback,
+                                },
+                                {
+                                  requiredTariffFeatures:
+                                    subRoute.requiredTariffFeatures,
+                                  requiredTariffFeaturesMode:
+                                    subRoute.requiredTariffFeaturesMode,
+                                  requiredPlanCodes:
+                                    subRoute.requiredPlanCodes,
+                                  tariffFallback: subRoute.tariffFallback,
                                 }
-                                userPermissions={userPermissions}
-                              >
-                                {allowed => {
-                                  if (!allowed) {
-                                    datadogLogs.logger.warn(
-                                      'Permission denied',
-                                      {
-                                        route: subSubRoute.path,
-                                        userPermissions,
-                                        required: subSubRoute.permissions,
-                                      }
-                                    );
+                              ),
+                              {
+                                requiredTariffFeatures:
+                                  subSubRoute.requiredTariffFeatures,
+                                requiredTariffFeaturesMode:
+                                  subSubRoute.requiredTariffFeaturesMode,
+                                requiredPlanCodes:
+                                  subSubRoute.requiredPlanCodes,
+                                tariffFallback: subSubRoute.tariffFallback,
+                              }
+                            );
+                          return (
+                            <Route
+                              key={subSubRoute.path}
+                              path={subSubRoute.path}
+                              element={
+                                <Can
+                                  requiredPermissions={
+                                    subSubRoute.permissions || []
                                   }
-                                  return allowed ? (
-                                    <subSubRoute.component />
-                                  ) : (
-                                    <Navigate to="/" replace />
-                                  );
-                                }}
-                              </Can>
-                            }
-                          />
-                        ))
+                                  userPermissions={userPermissions}
+                                >
+                                  {allowed => {
+                                    if (!allowed) {
+                                      datadogLogs.logger.warn(
+                                        'Permission denied',
+                                        {
+                                          route: subSubRoute.path,
+                                          userPermissions,
+                                          required: subSubRoute.permissions,
+                                        }
+                                      );
+                                    }
+                                    return allowed ? (
+                                      <TariffGuard
+                                        routeName={subSubRoute.name}
+                                        requirements={subSubRouteTariffRequirements}
+                                        permissions={
+                                          subSubRoute.permissions || []
+                                        }
+                                        fallback={subSubRoute.tariffFallback}
+                                      >
+                                        <subSubRoute.component />
+                                      </TariffGuard>
+                                    ) : (
+                                      <Navigate to="/" replace />
+                                    );
+                                  }}
+                                </Can>
+                              }
+                            />
+                          );
+                        })
                     )
                 )}
               </Route>

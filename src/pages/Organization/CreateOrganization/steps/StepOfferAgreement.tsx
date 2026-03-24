@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Checkbox } from 'antd';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import Button from '@/components/ui/Button/Button';
 import { useCreateOrganizationContext } from '../context';
 import { acceptOrganizationOffer } from '@/services/api/organization';
@@ -66,7 +66,27 @@ const StepOfferAgreement: React.FC = () => {
           }}
           className="text-sm text-[#d4d4d4]"
         >
-          {t('createOrganization.offerCheckbox')}
+          <Trans
+            i18nKey="createOrganization.offerCheckbox"
+            components={{
+              offerLink: (
+                <a
+                  href="https://onvione.ru/legal/dogovor-oferty"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#BFFA00] underline"
+                />
+              ),
+              userAgreementLink: (
+                <a
+                  href="https://onvione.ru/legal/polzovatelskoe-soglashenie"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#BFFA00] underline"
+                />
+              ),
+            }}
+          />
         </Checkbox>
 
         {isOfferAccepted && (

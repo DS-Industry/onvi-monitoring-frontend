@@ -8,6 +8,7 @@ import LoyaltyIcon from '@icons/loyalty-icon.svg?react';
 import EquipmentIcon from '@icons/equipment-icon.svg?react';
 import WarehouseIcon from '@icons/warehouse-icon.svg?react';
 import React from 'react';
+import type { SubscriptionPlanCode } from '@/services/api/subscription';
 import Articles from '@/pages/Finance/Articles';
 import MonthlyExpanse from '@/pages/Finance/MonthlyExpanse';
 import MonthlyExpanseEdit from '@/pages/Finance/MonthlyExpanseEdit';
@@ -164,7 +165,16 @@ const SubscriptionRequests = React.lazy(
 const Analysis = React.lazy(() => import('@/pages/Analysis/Analysis'));
 const Warehouse = React.lazy(() => import('@/pages/Warehouse/Warehouse'));
 
-const routes = [
+const BASIC_AND_UP: SubscriptionPlanCode[] = [
+  'BASIC',
+  'SPACE',
+  'BUSINESS',
+  'CUSTOM',
+];
+const SPACE_AND_UP: SubscriptionPlanCode[] = ['SPACE', 'BUSINESS', 'CUSTOM'];
+const BUSINESS_AND_UP: SubscriptionPlanCode[] = ['BUSINESS', 'CUSTOM'];
+
+const routes: RouteItem[] = [
   {
     name: 'dashboard',
     path: '/',
@@ -181,6 +191,7 @@ const routes = [
     icon: AdministrationIcon,
     subNavHeading: '',
     component: Default,
+    requiredPlanCodes: BASIC_AND_UP,
     permissions: [
       { action: 'manage', subject: 'Organization' },
       { action: 'create', subject: 'Organization' },
@@ -502,6 +513,7 @@ const routes = [
     ],
     component: Default,
     isSidebar: true,
+    requiredPlanCodes: BASIC_AND_UP,
   },
   {
     name: 'hr',
@@ -510,6 +522,7 @@ const routes = [
     icon: PersonnelIcon,
     component: Default,
     isSidebar: true,
+    requiredPlanCodes: SPACE_AND_UP,
     permissions: [
       { action: 'manage', subject: 'Hr' },
       { action: 'create', subject: 'Hr' },
@@ -638,6 +651,7 @@ const routes = [
     icon: FinancesIcon,
     component: Default,
     isSidebar: true,
+    requiredPlanCodes: SPACE_AND_UP,
     permissions: [
       { action: 'manage', subject: 'CashCollection' },
       { action: 'read', subject: 'CashCollection' },
@@ -929,6 +943,7 @@ const routes = [
     icon: MonitoringIcon,
     component: Default,
     isSidebar: true,
+    requiredPlanCodes: SPACE_AND_UP,
     permissions: [],
     subNavHeading: '',
     subNav: [
@@ -993,6 +1008,9 @@ const routes = [
         path: '/marketing/corporate-clients',
         component: CorporateClients,
         permissions: [{ action: 'read', subject: 'LTYProgram' }],
+        requiredTariffFeatures: ['LTYProgram', 'CORPORATE_CLIENTS'],
+        requiredTariffFeaturesMode: 'all',
+        tariffFallback: 'placeholder',
         isSidebar: true,
         subNav: [],
         subMenu: false,
@@ -1005,6 +1023,9 @@ const routes = [
           () => import('@/pages/Marketing/CorporateClients/CorporateProfile')
         ),
         permissions: [{ action: 'update', subject: 'LTYProgram' }],
+        requiredTariffFeatures: ['LTYProgram', 'CORPORATE_CLIENTS'],
+        requiredTariffFeaturesMode: 'all',
+        tariffFallback: 'placeholder',
         isSidebar: false,
         subNav: [],
         subMenu: false,
@@ -1157,6 +1178,9 @@ const routes = [
         path: '/marketing/promo-code-management',
         component: PromoCodeManagement,
         permissions: [{ action: 'update', subject: 'LTYProgram' }],
+        requiredTariffFeatures: ['LTYProgram', 'ONVI'],
+        requiredTariffFeaturesMode: 'all',
+        tariffFallback: 'placeholder',
         isSidebar: true,
         subNav: [],
         subMenu: false,
@@ -1174,6 +1198,7 @@ const routes = [
     ],
     component: Marketing,
     isSidebar: true,
+    requiredPlanCodes: BUSINESS_AND_UP,
     permissions: [{ action: 'update', subject: 'LTYProgram' }],
   },
   {
@@ -1319,6 +1344,7 @@ const routes = [
     ],
     component: Default,
     isSidebar: true,
+    requiredPlanCodes: BUSINESS_AND_UP,
     permissions: [
       { action: 'manage', subject: 'Incident' },
       { action: 'create', subject: 'Incident' },
@@ -1339,6 +1365,7 @@ const routes = [
     icon: WarehouseIcon,
     component: Default,
     isSidebar: true,
+    requiredPlanCodes: SPACE_AND_UP,
     subNavHeading: '',
     subNav: [
       {
@@ -1562,6 +1589,7 @@ interface Permission {
 export interface RouteItem {
   name: string;
   path: string;
+  component: React.ComponentType<any>;
   icon?: React.ComponentType<{ className?: string }>;
   isSidebar?: boolean;
   permissions?: Permission[];
@@ -1570,4 +1598,11 @@ export interface RouteItem {
   subNavHeading?: string;
   titleName?: string;
   isHr?: boolean;
+  isVisible?: boolean;
+  isPublicRoute?: boolean;
+  isImport?: boolean;
+  requiredTariffFeatures?: string[];
+  requiredTariffFeaturesMode?: 'all' | 'any';
+  requiredPlanCodes?: SubscriptionPlanCode[];
+  tariffFallback?: 'placeholder' | 'redirect';
 }
