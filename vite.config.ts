@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 import path from 'path';
@@ -60,6 +60,12 @@ export default defineConfig(() => {
         '@icons': path.resolve(__dirname, 'src/assets/icons'),
         '@routes': path.resolve(__dirname, 'src/routes'),
       },
+    },
+    test: {
+      environment: 'jsdom',
+      setupFiles: ['./src/test/setup.ts'],
+      css: true,
+      globals: true,
     },
   };
 });

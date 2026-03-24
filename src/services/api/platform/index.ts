@@ -58,6 +58,10 @@ type LoginResponse = {
   permissionInfo: {
     organizations: { id: number; name: string }[];
     permissions: Array<{ subject: string; action: string }>;
+    subscriptionPermissions?: Array<{
+      organizationId: number;
+      featureCodes: string[];
+    }>;
     role: string;
   };
 };
