@@ -390,6 +390,7 @@ const Articles: React.FC = () => {
       dateEndEvent: dateEndParam,
       page: currentPage,
       size: pageSize,
+      organizationId: user.organizationId,
     }),
     [
       groupParam,
@@ -400,6 +401,7 @@ const Articles: React.FC = () => {
       dateEndParam,
       currentPage,
       pageSize,
+      user.organizationId,
     ]
   );
 
@@ -414,8 +416,8 @@ const Articles: React.FC = () => {
     setEditingKey('');
   };
 
-  const swrKeyManagerData = `get-manager-data-${filterParams.group}-${filterParams.posId}-${filterParams.paperTypeId}-${filterParams.userId}-${filterParams.dateStartEvent}-${filterParams.dateEndEvent}-${filterParams.page}-${filterParams.size}`;
-
+  const swrKeyManagerData = `get-manager-data-${filterParams.group}-${filterParams.posId}-${filterParams.paperTypeId}-${filterParams.userId}-${filterParams.dateStartEvent}-${filterParams.dateEndEvent}-${filterParams.page}-${filterParams.size}-${filterParams.organizationId}`;
+  
   const { data: allManagersData, isLoading: loadingManagerData } = useSWR(
     swrKeyManagerData,
     () => getAllManagerPaper(filterParams),

@@ -168,6 +168,7 @@ const EmployeeAdvance: React.FC = () => {
       posId,
       currentPage,
       pageSize,
+      user.organizationId,
     ],
     () =>
       getPrepayments({
@@ -177,6 +178,7 @@ const EmployeeAdvance: React.FC = () => {
         posId: posId,
         page: currentPage,
         size: pageSize,
+        organizationId: user.organizationId,
       }),
     {
       revalidateOnFocus: false,
@@ -227,6 +229,7 @@ const EmployeeAdvance: React.FC = () => {
         startPaymentDate: startPaymentDate,
         endPaymentDate: endPaymentDate,
         hrWorkerId: workerId,
+        organizationId: user.organizationId,
       }),
     {
       revalidateOnFocus: false,

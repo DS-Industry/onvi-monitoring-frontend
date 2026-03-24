@@ -206,6 +206,7 @@ type DOCUMENT_PARAMS = {
   placementId?: number;
   page?: number;
   size?: number;
+  organizationId?: number;
 };
 
 type DOCUMENTS_RESPONSE = {

@@ -164,6 +164,7 @@ export type PrepaymentFilter = {
   posId?: number;
   page?: number;
   size?: number;
+  organizationId?: number;
 };
 
 export type PrepaymentResponse = {
