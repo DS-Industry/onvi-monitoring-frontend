@@ -136,13 +136,12 @@ const ParticipantsMap: React.FC<ParticipantsMapProps> = ({ participants, loading
     if (validParticipants.length > 0 && mapInstanceRef.current) {
       const extent = vectorSource.getExtent();
       setTimeout(() => {
-        if (mapInstanceRef.current) {
-          mapInstanceRef.current.getView().fit(extent, {
-            padding: [80, 80, 80, 80],
-            duration: 800,
-            maxZoom: 10,
-          });
-        }
+        if (!mapInstanceRef.current || !extent) return;
+        mapInstanceRef.current.getView().fit(extent, {
+          padding: [80, 80, 80, 80],
+          duration: 800,
+          maxZoom: 10,
+        });
       }, 100);
     }
   }, [participants, participantIdsKey, isMapReady, loading]);
