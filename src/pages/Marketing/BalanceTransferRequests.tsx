@@ -30,14 +30,13 @@ const useBalanceTransfers = (
   startDate?: string,
   endDate?: string
 ) => {
-  // Определяем статус для API
   let apiStatus: BalanceTransferStatus | undefined;
   if (statusParam === 'ALL') {
     apiStatus = undefined;
   } else if (statusParam) {
     apiStatus = statusParam as BalanceTransferStatus;
   } else {
-    apiStatus = BalanceTransferStatus.PENDING; // по умолчанию
+    apiStatus = BalanceTransferStatus.PENDING;
   }
 
   const { data, isLoading, mutate } = useSWR(
