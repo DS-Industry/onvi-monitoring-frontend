@@ -12,12 +12,12 @@ import {
   DEFAULT_PAGE,
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
-import { 
-  BalanceTransferResponse, 
-  BalanceTransferStatus, 
+import {
+  BalanceTransferResponse,
+  BalanceTransferStatus,
   getBalanceTransfers,
   approveBalanceTransfer,
-  rejectBalanceTransfer 
+  rejectBalanceTransfer
 } from '@/services/api/marketing';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 
@@ -66,13 +66,13 @@ const useBalanceTransfers = (
     mutate,
     pagination: data
       ? {
-          total: data.total,
-          currentPage: data.page,
-          pageSize: data.size,
-          totalPages: data.totalPages,
-          hasNext: data.page < data.totalPages,
-          hasPrevious: data.page > 1,
-        }
+        total: data.total,
+        currentPage: data.page,
+        pageSize: data.size,
+        totalPages: data.totalPages,
+        hasNext: data.page < data.totalPages,
+        hasPrevious: data.page > 1,
+      }
       : null,
   };
 };
@@ -246,21 +246,21 @@ const BalanceTransferRequests: React.FC = () => {
 
   const getStatusTag = (status: BalanceTransferStatus) => {
     const statusConfig = {
-      [BalanceTransferStatus.PENDING]: { 
-        color: 'orange', 
-        text: t('marketing.transferStatusPending') 
+      [BalanceTransferStatus.PENDING]: {
+        color: 'orange',
+        text: t('marketing.transferStatusPending')
       },
-      [BalanceTransferStatus.APPROVED]: { 
-        color: 'green', 
-        text: t('marketing.transferStatusApproved') 
+      [BalanceTransferStatus.APPROVED]: {
+        color: 'green',
+        text: t('marketing.transferStatusApproved')
       },
-      [BalanceTransferStatus.REJECTED]: { 
-        color: 'red', 
-        text: t('marketing.transferStatusRejected') 
+      [BalanceTransferStatus.REJECTED]: {
+        color: 'red',
+        text: t('marketing.transferStatusRejected')
       },
-      [BalanceTransferStatus.COMPLETED]: { 
-        color: 'blue', 
-        text: t('marketing.transferStatusCompleted') 
+      [BalanceTransferStatus.COMPLETED]: {
+        color: 'blue',
+        text: t('marketing.transferStatusCompleted')
       },
     };
 
@@ -423,7 +423,7 @@ const BalanceTransferRequests: React.FC = () => {
 
       <GeneralFilters
         count={pagination?.total || 0}
-        display={['count']}
+        display={['search', 'count', 'reset']}
         onReset={handleResetFilters}
       >
         <div>
@@ -455,16 +455,16 @@ const BalanceTransferRequests: React.FC = () => {
         pagination={
           pagination
             ? {
-                current: pagination.currentPage,
-                pageSize: pagination.pageSize,
-                total: pagination.total,
-                showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total, range) =>
-                  `${range[0]}-${range[1]} / ${total} ${t('marketing.transferRequestsCount')}`,
-                onChange: handlePaginationChange,
-                onShowSizeChange: handlePaginationChange,
-              }
+              current: pagination.currentPage,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} / ${total} ${t('marketing.transferRequestsCount')}`,
+              onChange: handlePaginationChange,
+              onShowSizeChange: handlePaginationChange,
+            }
             : false
         }
         expandable={{
