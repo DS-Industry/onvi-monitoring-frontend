@@ -25,18 +25,27 @@ const useBalanceTransfers = (
   organizationId: number | null,
   currentPage: number,
   pageSize: number,
-  status?: BalanceTransferStatus,
+  statusParam?: string,
   search?: string,
   startDate?: string,
   endDate?: string
 ) => {
+  let apiStatus: BalanceTransferStatus | undefined;
+  if (statusParam === 'ALL') {
+    apiStatus = undefined;
+  } else if (statusParam) {
+    apiStatus = statusParam as BalanceTransferStatus;
+  } else {
+    apiStatus = BalanceTransferStatus.PENDING;
+  }
+
   const { data, isLoading, mutate } = useSWR(
     organizationId ? [
       'get-balance-transfers',
       organizationId,
       currentPage,
       pageSize,
-      status,
+      apiStatus,
       search,
       startDate,
       endDate,
@@ -46,7 +55,7 @@ const useBalanceTransfers = (
         organizationId: organizationId!,
         page: currentPage,
         size: pageSize,
-        status,
+        status: apiStatus,
         search,
         startDate,
         endDate,
@@ -88,7 +97,8 @@ const BalanceTransferRequests: React.FC = () => {
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
-  const status = (searchParams.get('status') as BalanceTransferStatus) || undefined;
+  const statusParam = searchParams.get('status');
+  const effectiveStatus = statusParam || BalanceTransferStatus.PENDING;
   const search = searchParams.get('search') || undefined;
   const startDate = searchParams.get('startDate') || undefined;
   const endDate = searchParams.get('endDate') || undefined;
@@ -97,7 +107,7 @@ const BalanceTransferRequests: React.FC = () => {
     organizationId,
     currentPage,
     pageSize,
-    status,
+    statusParam || undefined,
     search,
     startDate,
     endDate
@@ -139,10 +149,20 @@ const BalanceTransferRequests: React.FC = () => {
   }, [searchParams, setSearchParams]);
 
   const handleStatusChange = useCallback((value: string) => {
-    updateSearchParams(searchParams, setSearchParams, {
-      status: value || undefined,
-      page: String(DEFAULT_PAGE),
-    });
+    if (value === 'ALL') {
+      updateSearchParams(searchParams, setSearchParams, {
+        status: 'ALL',
+        page: String(DEFAULT_PAGE),
+      });
+    } else if (value === BalanceTransferStatus.PENDING) {
+      searchParams.delete('status');
+      setSearchParams(searchParams);
+    } else {
+      updateSearchParams(searchParams, setSearchParams, {
+        status: value,
+        page: String(DEFAULT_PAGE),
+      });
+    }
   }, [searchParams, setSearchParams]);
 
   const handleRowClick = (record: BalanceTransferResponse) => {
@@ -431,13 +451,13 @@ const BalanceTransferRequests: React.FC = () => {
             {t('constants.status')}
           </label>
           <Select
-            allowClear
+            allowClear={false}
             placeholder={t('constants.allStatuses')}
             className="w-full sm:w-80"
-            value={status}
+            value={effectiveStatus}
             onChange={handleStatusChange}
             options={[
-              { label: t('constants.all'), value: '' },
+              { label: t('constants.all'), value: 'ALL' },
               { label: t('marketing.transferStatusPending'), value: BalanceTransferStatus.PENDING },
               { label: t('marketing.transferStatusApproved'), value: BalanceTransferStatus.APPROVED },
               { label: t('marketing.transferStatusRejected'), value: BalanceTransferStatus.REJECTED },
