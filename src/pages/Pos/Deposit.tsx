@@ -157,15 +157,9 @@ const Deposit: React.FC = () => {
       render: currencyRender,
     },
     {
-      title: t('deposit.columns.cashbackCard'),
-      dataIndex: 'cashbackSumCard',
-      key: 'cashbackSumCard',
-      render: currencyRender,
-    },
-    {
-      title: t('deposit.columns.discountSum'),
-      dataIndex: 'discountSum',
-      key: 'discountSum',
+      title: t('deposit.columns.onviSum'),
+      dataIndex: 'onviSum',
+      key: 'onviSum',
       render: currencyRender,
     },
     {
@@ -196,8 +190,7 @@ const Deposit: React.FC = () => {
       lastOper: '',
       cashSum: 0,
       virtualSum: 0,
-      cashbackSumCard: 0,
-      discountSum: 0,
+      onviSum: 0,
       counter: 0,
       yandexSum: 0,
     };
@@ -205,8 +198,7 @@ const Deposit: React.FC = () => {
     devices.forEach(item => {
       totals.cashSum += item.cashSum || 0;
       totals.virtualSum += item.virtualSum || 0;
-      totals.cashbackSumCard += item.cashbackSumCard || 0;
-      totals.discountSum += item.discountSum || 0;
+      totals.onviSum += item.onviSum || 0;
       totals.counter += item.counter || 0;
       totals.yandexSum += item.yandexSum || 0;
     });
@@ -284,7 +276,7 @@ const Deposit: React.FC = () => {
                       } else if (dataIndex === 'counter') {
                         value = formatNumber(totalsRow[dataIndex]);
                       } else if (
-                        ['cashSum', 'virtualSum', 'cashbackSumCard', 'discountSum', 'yandexSum'].includes(dataIndex)
+                        ['cashSum', 'virtualSum', 'onviSum', 'yandexSum'].includes(dataIndex)
                       ) {
                         value = currencyRender(totalsRow[dataIndex]);
                       }

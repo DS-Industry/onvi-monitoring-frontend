@@ -188,6 +188,7 @@ export type DepositResponse = {
   cashSum: number;
   virtualSum: number;
   yandexSum: number;
+  onviSum: number;
   mobileSum: number;
   cardSum: number;
   lastOper: Date;
@@ -205,6 +206,7 @@ type DepositPosResponse = {
     cashSum: number;
     virtualSum: number;
     yandexSum: number;
+    onviSum: number;
     mobileSum: number;
     cardSum: number;
     lastOper: Date;

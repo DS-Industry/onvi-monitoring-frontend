@@ -180,15 +180,9 @@ const DepositDevices: React.FC = () => {
       render: currencyRender,
     },
     {
-      title: t('deposit.columns.cashbackCard'),
-      dataIndex: 'cashbackSumCard',
-      key: 'cashbackSumCard',
-      render: currencyRender,
-    },
-    {
-      title: t('deposit.columns.discountSum'),
-      dataIndex: 'discountSum',
-      key: 'discountSum',
+      title: t('deposit.columns.onviSum'),
+      dataIndex: 'onviSum',
+      key: 'onviSum',
       render: currencyRender,
     },
     {
@@ -219,9 +213,8 @@ const DepositDevices: React.FC = () => {
       lastOper: '',
       cashSum: 0,
       virtualSum: 0,
+      onviSum: 0,
       yandexSum: 0,
-      discountSum: 0,
-      cashbackSumCard: 0,
       counter: 0,
       mobileSum: 0,
       cardSum: 0,
@@ -231,9 +224,8 @@ const DepositDevices: React.FC = () => {
     devices.forEach(item => {
       totals.cashSum += item.cashSum || 0;
       totals.virtualSum += item.virtualSum || 0;
+      totals.onviSum += item.onviSum || 0;
       totals.yandexSum += item.yandexSum || 0;
-      totals.discountSum += item.discountSum || 0;
-      totals.cashbackSumCard += item.cashbackSumCard || 0;
       totals.counter += item.counter || 0;
       totals.mobileSum += item.mobileSum || 0;
       totals.cardSum += item.cardSum || 0;
@@ -303,7 +295,7 @@ const DepositDevices: React.FC = () => {
                     }
 
                     if (dataIndex && totalsRow[dataIndex] !== undefined) {
-                      if (['cashSum', 'virtualSum', 'yandexSum', 'discountSum', 'cashbackSumCard', 'mobileSum', 'cardSum', 'cashbackSumMub'].includes(dataIndex)) {
+                      if (['cashSum', 'virtualSum', 'onviSum', 'yandexSum', 'mobileSum', 'cardSum', 'cashbackSumMub'].includes(dataIndex)) {
                         value = currencyRender(totalsRow[dataIndex]);
                       } else if (dataIndex === 'counter') {
                         value = formatNumber(totalsRow[dataIndex]);
