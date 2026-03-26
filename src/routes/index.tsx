@@ -24,6 +24,9 @@ const CreateOrganization = React.lazy(
 );
 const MarketingCampaignCreate = React.lazy(() => import('@/pages/Marketing/MarketingCampaignCreate'));
 const FalseDeposits = React.lazy(() => import('@/pages/Finance/FalseDeposits'));
+const Partners = React.lazy(() => import('@/pages/Finance/Partners'));
+const ProfitCalculation = React.lazy(() => import('@/pages/Finance/ProfitCalculation'));
+const PercentageOfObjects = React.lazy(() => import('@/pages/Finance/PercentageOfObjects'));
 const FalseDeposit = React.lazy(() => import('@/pages/Finance/FalseDeposit'));
 const DepositDevice = React.lazy(() => import('@/pages/Pos/DepositDevice'));
 const ProgramDevices = React.lazy(() => import('@/pages/Pos/ProgramDevices'));
@@ -926,6 +929,68 @@ const routes: RouteItem[] = [
               { action: 'delete', subject: 'Pos' },
             ],
             isSidebar: false,
+            isHr: false,
+            titleName: '',
+            subNav: [],
+            subMenu: false,
+          },
+        ],
+        subMenu: true,
+      },
+      {
+        name: 'settlementsWithPartners',
+        isVisible: true,
+        path: '/finance/debugging',
+        component: Default,
+        permissions: [
+          { action: 'manage', subject: 'Pos' },
+          { action: 'read', subject: 'Pos' },
+          { action: 'delete', subject: 'Pos' },
+        ],
+        isSidebar: true,
+        isHr: true,
+        titleName: '',
+        subNav: [
+          {
+            name: 'partners',
+            isVisible: true,
+            path: '/finance/settlements-partners/partners',
+            component: Partners,
+            permissions: [
+              { action: 'manage', subject: 'Pos' },
+              { action: 'read', subject: 'Pos' },
+            ],
+            isSidebar: true,
+            isHr: false,
+            titleName: '',
+            subNav: [],
+            subMenu: false,
+          },
+          {
+            name: 'profitCalculation',
+            isVisible: true,
+            path: '/finance/settlements-partners/profit-calculation',
+            component: ProfitCalculation,
+            permissions: [
+              { action: 'manage', subject: 'Pos' },
+              { action: 'read', subject: 'Pos' },
+            ],
+            isSidebar: true,
+            isHr: false,
+            titleName: '',
+            subNav: [],
+            subMenu: false,
+          },
+          {
+            name: 'percentageOfObjects',
+            isVisible: true,
+            path: '/finance/settlements-partners/percentage-objects',
+            component: PercentageOfObjects,
+            permissions: [
+              { action: 'manage', subject: 'Pos' },
+              { action: 'read', subject: 'Pos' },
+            ],
+            isSidebar: true,
             isHr: false,
             titleName: '',
             subNav: [],

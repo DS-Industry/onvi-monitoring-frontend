@@ -131,7 +131,11 @@
     "marketingTransactions": "Заказы",
     "balanceTransferRequests": "Запросы на перенос баланса",
     "objectConsumables": "Расходники объекта",
-    "expenseReport": "Отчет по расходу"
+    "expenseReport": "Отчет по расходу",
+    "settlementsWithPartners": "Расчет с партнерами",
+    "partners": "Партнеры",
+    "profitCalculation": "Расчет прибыли",
+    "percentageOfObjects": "Процент объектов"
   },
   "marketingTransactions": {
     "columns": {

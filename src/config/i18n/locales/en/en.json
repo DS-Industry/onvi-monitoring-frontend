@@ -131,7 +131,11 @@
     "marketingTransactions": "Orders",
     "balanceTransferRequests": "Balance transfer requests",
     "objectConsumables": "Object consumables",
-    "expenseReport": "Expense report"
+    "expenseReport": "Expense report",
+    "settlementsWithPartners": "Settlements with partners",
+    "partners": "Partners",
+    "profitCalculation": "Profit calculation",
+    "percentageOfObjects": "Percentage of objects"
   },
   "marketingTransactions": {
     "columns": {
