@@ -1917,6 +1917,7 @@
       "discountSum": "Discount Amount",
       "operationsCount": "Operations Count",
       "yandexSum": "Yandex Amount",
+      "onviSum": "ONVI Amount",
       "sumOper": "Transaction amount",
       "uploadDate": "Upload date",
       "localId": "Local ID",
