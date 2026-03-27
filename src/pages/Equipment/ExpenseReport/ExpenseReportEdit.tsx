@@ -51,7 +51,8 @@ const ExpenseReportEdit: React.FC = () => {
       setReportData(fetchedReport);
       setEditedStartPeriod(fetchedReport.startPeriod);
       setEditedEndPeriod(fetchedReport.endPeriod);
-      setEditedCarryingDocumentWarehouseAt(fetchedReport.carryingDocumentWarehouseAt ?? null);
+      const initialCarryingDate = fetchedReport.carryingDocumentWarehouseAt ?? fetchedReport.endPeriod;
+      setEditedCarryingDocumentWarehouseAt(initialCarryingDate);
       setEditedItems(new Map());
     }
   }, [fetchedReport]);
@@ -342,7 +343,9 @@ const ExpenseReportEdit: React.FC = () => {
                 <span className="font-bold">
                   {reportData.carryingDocumentWarehouseAt
                     ? dayjs(reportData.carryingDocumentWarehouseAt).format('DD.MM.YYYY HH:mm')
-                    : '-'}
+                    : reportData.endPeriod
+                      ? dayjs(reportData.endPeriod).format('DD.MM.YYYY HH:mm')
+                      : '-'}
                 </span>
               )}
             </Descriptions.Item>
