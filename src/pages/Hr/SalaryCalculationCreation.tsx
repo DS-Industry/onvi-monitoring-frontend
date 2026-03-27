@@ -299,24 +299,25 @@ const SalaryCalculationCreation: React.FC = () => {
   const onSubmitWorker = async () => {
     try {
       const result = await addWork();
-      if (result) {
-        if (result.length === 0) showToast(t('hr.noSalary'), 'error');
-        setPaymentsData(
-          result.map((res, index) => ({
-            ...res,
-            paymentDate: new Date(),
-            check: false,
-            numberOfShiftsWorked: 0,
-            prize: 0,
-            fine: 0,
-            sum: 0,
-            id: index,
-            paymentSum: 0,
-            totalPayment: 0,
-            totalPaymentFinal: 0,
-          }))
-        );
+      if (result && result.length > 0) {
+        const newRecords: PaymentRecord[] = result.map((res, idx) => ({
+          ...res,
+          id: paymentsData.length + idx,
+          check: false,
+          paymentDate: new Date(),
+          prize: 0,
+          fine: 0,
+          virtualSum: undefined,
+          comment: undefined,
+          paymentSum: res.sum,
+          totalPayment: 0,
+          totalPaymentFinal: 0,
+        }));
+        setPaymentsData(prev => [...prev, ...newRecords]);
         resetFormWorker();
+        setIsModalOpen(false);
+      } else if (result && result.length === 0) {
+        showToast(t('hr.noSalary'), 'error');
       } else {
         throw new Error('Invalid response from API');
       }
@@ -390,6 +391,7 @@ const SalaryCalculationCreation: React.FC = () => {
       dataIndex: 'bonusPayout',
       key: 'bonusPayout',
       sorter: (a, b) => a.bonusPayout - b.bonusPayout,
+      render: getCurrencyRender(),
     },
     {
       title: t('hr.prepaymentSum'),
