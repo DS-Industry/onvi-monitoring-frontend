@@ -587,7 +587,10 @@
     "quantityWriteOff": "Write off from warehouse",
     "quantityAtEnd": "Quantity at end",
     "isWriteOffFromWarehouse": "Warehouse completed",
-    "sendToWarehouse": "Conduct in warehouse"
+    "sendToWarehouse": "Conduct in warehouse",
+    "quantityExpensesOnWarehouse": "Quantity expenses on warehouse",
+    "quantityComingOnWarehouse": "Quantity coming on warehouse",
+    "carryingDocumentWarehouseAt": "Carrying document warehouse at"
   },
   "daily": {
     "noText": "This section displays reports on daily parameters",

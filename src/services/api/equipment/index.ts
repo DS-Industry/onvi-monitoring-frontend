@@ -973,12 +973,15 @@ export interface TechExpenseReportCreateDto {
 export interface TechExpenseReportItem {
   id: number;
   techConsumablesId: number;
+  techConsumablesName: string;
   techExpenseReportId: number;
   quantityAtStart: number;
   quantityByReport: number;
   quantityOnWarehouse: number;
   quantityWriteOff?: number;
   quantityAtEnd?: number;
+  quantityExpensesOnWarehouse?: number;
+  quantityComingOnWarehouse?: number;
 }
 
 export interface TechExpenseReport {
@@ -986,6 +989,7 @@ export interface TechExpenseReport {
   posId: number;
   startPeriod: Date;
   endPeriod: Date;
+  carryingDocumentWarehouseAt?: Date;
   status: TechExpenseReportStatus;
   isWriteOffFromWarehouse: boolean;
   createdAt: Date;
@@ -1004,6 +1008,7 @@ export interface TechExpenseReportItemUpdateDto {
 export interface TechExpenseReportRecalculateDto {
   startPeriod?: Date;
   endPeriod?: Date;
+  carryingDocumentWarehouseAt?: Date;
   itemUpdates?: TechExpenseReportItemUpdateDto[];
 }
 

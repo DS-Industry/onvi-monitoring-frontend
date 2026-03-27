@@ -37,6 +37,7 @@ const ExpenseReportEdit: React.FC = () => {
   const [reportData, setReportData] = useState<TechExpenseReport | null>(null);
   const [editedStartPeriod, setEditedStartPeriod] = useState<Date | null>(null);
   const [editedEndPeriod, setEditedEndPeriod] = useState<Date | null>(null);
+  const [editedCarryingDocumentWarehouseAt, setEditedCarryingDocumentWarehouseAt] = useState<Date | null>(null);
   const [editedItems, setEditedItems] = useState<Map<number, { quantityWriteOff?: number; quantityAtEnd?: number }>>(new Map());
 
   const { data: fetchedReport, isLoading } = useSWR(
@@ -50,6 +51,7 @@ const ExpenseReportEdit: React.FC = () => {
       setReportData(fetchedReport);
       setEditedStartPeriod(fetchedReport.startPeriod);
       setEditedEndPeriod(fetchedReport.endPeriod);
+      setEditedCarryingDocumentWarehouseAt(fetchedReport.carryingDocumentWarehouseAt ?? null);
       setEditedItems(new Map());
     }
   }, [fetchedReport]);
@@ -76,6 +78,10 @@ const ExpenseReportEdit: React.FC = () => {
     setEditedEndPeriod(date ? date.toDate() : null);
   };
 
+  const handleCarryingDocumentWarehouseAtChange = (date: dayjs.Dayjs | undefined) => {
+    setEditedCarryingDocumentWarehouseAt(date ? date.toDate() : null);
+  };
+
   const handleItemChange = (id: number, field: 'quantityWriteOff' | 'quantityAtEnd', value: number) => {
     setEditedItems(prev => {
       const newMap = new Map(prev);
@@ -93,6 +99,7 @@ const ExpenseReportEdit: React.FC = () => {
     return {
       startPeriod: editedStartPeriod ?? undefined,
       endPeriod: editedEndPeriod ?? undefined,
+      carryingDocumentWarehouseAt: editedCarryingDocumentWarehouseAt ?? undefined,
       itemUpdates,
     };
   };
@@ -179,13 +186,9 @@ const ExpenseReportEdit: React.FC = () => {
     },
     {
       title: t('equipment.consumable'),
-      dataIndex: 'techConsumablesId',
-      key: 'techConsumablesId',
-      render: (_: any, record: any) => (
-        <span className="text-primary02 hover:text-primary02_Hover cursor-pointer font-semibold">
-          {record.techConsumablesId}
-        </span>
-      ),
+      dataIndex: 'techConsumablesName',
+      key: 'techConsumablesName',
+      render: (text: string) => text || '-',
     },
     {
       title: t('equipment.quantityAtStart'),
@@ -201,6 +204,18 @@ const ExpenseReportEdit: React.FC = () => {
       title: t('equipment.quantityOnWarehouse'),
       dataIndex: 'quantityOnWarehouse',
       key: 'quantityOnWarehouse',
+    },
+    {
+      title: t('equipment.quantityExpensesOnWarehouse'),
+      dataIndex: 'quantityExpensesOnWarehouse',
+      key: 'quantityExpensesOnWarehouse',
+      render: (val?: number) => val ?? '-',
+    },
+    {
+      title: t('equipment.quantityComingOnWarehouse'),
+      dataIndex: 'quantityComingOnWarehouse',
+      key: 'quantityComingOnWarehouse',
+      render: (val?: number) => val ?? '-',
     },
     {
       title: t('equipment.quantityWriteOff'),
@@ -312,6 +327,22 @@ const ExpenseReportEdit: React.FC = () => {
               ) : (
                 <span className="font-bold">
                   {dayjs(reportData.endPeriod).format('DD.MM.YYYY HH:mm')}
+                </span>
+              )}
+            </Descriptions.Item>
+
+            <Descriptions.Item label={t('equipment.carryingDocumentWarehouseAt')}>
+              {isEditable ? (
+                <DateTimeInput
+                  value={editedCarryingDocumentWarehouseAt ? dayjs(editedCarryingDocumentWarehouseAt) : undefined}
+                  changeValue={handleCarryingDocumentWarehouseAtChange}
+                  classname="w-64"
+                />
+              ) : (
+                <span className="font-bold">
+                  {reportData.carryingDocumentWarehouseAt
+                    ? dayjs(reportData.carryingDocumentWarehouseAt).format('DD.MM.YYYY HH:mm')
+                    : '-'}
                 </span>
               )}
             </Descriptions.Item>
