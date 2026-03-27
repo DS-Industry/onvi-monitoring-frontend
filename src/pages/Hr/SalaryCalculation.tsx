@@ -401,6 +401,7 @@ const SalaryCalculation: React.FC = () => {
       title: t('validation.bonusPayout'),
       dataIndex: 'bonusPayout',
       key: 'bonusPayout',
+      render: currencyRender,
       editable: false,
     },
     {
