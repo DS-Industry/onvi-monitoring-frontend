@@ -587,7 +587,10 @@
     "quantityWriteOff": "Списать со склада",
     "quantityAtEnd": "Количество на конец",
     "isWriteOffFromWarehouse": "Проведено на складе",
-    "sendToWarehouse": "Провести на складе"
+    "sendToWarehouse": "Провести на складе",
+    "quantityExpensesOnWarehouse": "Расход по складу",
+    "quantityComingOnWarehouse": "Приход по складу",
+    "carryingDocumentWarehouseAt": "Дата проведения документа по складу"
   },
   "daily": {
     "noText": "В этом разделе отображаются отчеты по ежедневным параметрам",
