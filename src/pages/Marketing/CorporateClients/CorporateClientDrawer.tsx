@@ -274,7 +274,7 @@ export default function CorporateClientDrawer({
             rules={[
               { required: true, message: t('marketing.enterInn') },
               {
-                pattern: /^\d{10}$/,
+                pattern: /^\d{10,12}$/,
                 message: t('marketing.innPattern'),
               },
             ]}
