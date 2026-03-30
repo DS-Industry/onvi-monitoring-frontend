@@ -259,6 +259,14 @@ const StepPosRequests: React.FC = () => {
                 className="w-full"
                 placeholder={t('createOrganization.posRequestsPosMigrationIdPlaceholder')}
               />
+              <a
+                href="https://cw-moy-ka.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 text-xs text-[#a3a3a3] hover:underline inline-block"
+              >
+                https://cw-moy-ka.com
+              </a>
             </Form.Item>
           </div>
           <Button

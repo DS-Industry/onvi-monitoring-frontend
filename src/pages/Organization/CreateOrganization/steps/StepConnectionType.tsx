@@ -14,6 +14,7 @@ const StepConnectionType: React.FC = () => {
     isUpdatingConnectionType,
     updateConnectionTypeAction,
     showToast,
+    setCurrentStep,
   } = useCreateOrganizationContext();
 
   const isConnectionTypeLocked = isSubscriptionRequestReady;
@@ -25,6 +26,7 @@ const StepConnectionType: React.FC = () => {
         requestId: pendingRequestId,
         selectedConnectionType,
       });
+      setCurrentStep(3);
     } catch {
       showToast(
         t('createOrganization.toast.errorUpdateConnection'),
