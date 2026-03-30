@@ -314,7 +314,6 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
                             isSelected={executionType === CampaignExecutionType.BEHAVIORAL}
                             isDisabled={true}
                             onClick={() => {
-                                return
                                 handleExecutionTypeChange(CampaignExecutionType.BEHAVIORAL)
                             }}
                         />
