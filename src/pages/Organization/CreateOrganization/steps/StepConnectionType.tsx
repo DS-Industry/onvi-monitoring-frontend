@@ -28,7 +28,7 @@ const StepConnectionType: React.FC = () => {
       });
       setCurrentStep(3);
     } catch {
-      showToast(
+      showToast( 
         t('createOrganization.toast.errorUpdateConnection'),
         'error'
       );
