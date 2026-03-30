@@ -1451,7 +1451,11 @@
     "action": "Action",
     "addFile": "Add file",
     "download": "Download",
-    "replaceFile": "Replace file"
+    "replaceFile": "Replace file",
+    "partnerCount": "Partner count",
+    "includeInReport": "Include in report",
+    "cost": "Cost",
+    "percent": "Percent"
   },
 
   "shift-management": {

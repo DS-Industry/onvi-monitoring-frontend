@@ -1451,7 +1451,11 @@
     "action": "Действие",
     "addFile": "Добавить файл",
     "download": "Скачать",
-    "replaceFile": "Заменить файл"
+    "replaceFile": "Заменить файл",
+    "partnerCount": "Кол-во партнеров",
+    "includeInReport": "Учитывать в отчете",
+    "cost": "Стоимость",
+    "percent": "Сумма процентов"
   },
   "shift-management": {
     "shift-create-modal": {
