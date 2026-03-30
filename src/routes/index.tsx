@@ -24,7 +24,6 @@ const CreateOrganization = React.lazy(
 );
 const MarketingCampaignCreate = React.lazy(() => import('@/pages/Marketing/MarketingCampaignCreate'));
 const FalseDeposits = React.lazy(() => import('@/pages/Finance/FalseDeposits'));
-const Partners = React.lazy(() => import('@/pages/Finance/Partners'));
 const ProfitCalculation = React.lazy(() => import('@/pages/Finance/ProfitCalculation'));
 const PercentageOfObjects = React.lazy(() => import('@/pages/Finance/PercentageOfObjects'));
 const FalseDeposit = React.lazy(() => import('@/pages/Finance/FalseDeposit'));
@@ -951,21 +950,6 @@ const routes: RouteItem[] = [
         isHr: true,
         titleName: '',
         subNav: [
-          {
-            name: 'partners',
-            isVisible: true,
-            path: '/finance/settlements-partners/partners',
-            component: Partners,
-            permissions: [
-              { action: 'manage', subject: 'Pos' },
-              { action: 'read', subject: 'Pos' },
-            ],
-            isSidebar: true,
-            isHr: false,
-            titleName: '',
-            subNav: [],
-            subMenu: false,
-          },
           {
             name: 'profitCalculation',
             isVisible: true,

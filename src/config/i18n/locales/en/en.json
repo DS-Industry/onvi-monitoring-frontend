@@ -1431,7 +1431,27 @@
     "oldCashDate": "Old Cash Collection Date",
     "cashDate": "Cash Collection Date",
     "responsible": "Responsible",
-    "shiftInfo": "Shift info"
+    "shiftInfo": "Shift info",
+    "id": "ID",
+    "month": "Month",
+    "city": "City",
+    "revenue": "Revenue",
+    "profit": "Profit",
+    "profitPercent": "Profitability %",
+    "profitabilityPercent": "Return on Assets %",
+    "partnerName": "Partner",
+    "partnerShare": "Partner Share",
+    "dividendSum": "Dividend Amount",
+    "dividendMonth": "Month",
+    "noPartners": "No partner data",
+    "records": "records",
+    "sends": "Send",
+    "calculate": "Calculation",
+    "file": "File",
+    "action": "Action",
+    "addFile": "Add file",
+    "download": "Download",
+    "replaceFile": "Replace file"
   },
 
   "shift-management": {
@@ -1847,7 +1867,9 @@
     "enterCorrectPassword": "Please enter a valid password",
     "descriptionRequired": "Description is required",
     "required": "This field is required",
-    "positiveNumber": "Must be a positive number"
+    "positiveNumber": "Must be a positive number",
+    "fillExpense": "Fill in the expense",
+    "fillRevenue": "Fill in the revenue"
   },
   "table": {
     "noData": "No Data",

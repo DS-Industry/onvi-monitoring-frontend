@@ -1431,7 +1431,27 @@
     "oldCashDate": "Старая дата сбора наличных",
     "cashDate": "Дата получения наличных",
     "responsible": "Ответственный",
-    "shiftInfo": "Информация о смене"
+    "shiftInfo": "Информация о смене",
+    "id": "ID",
+    "month": "Месяц",
+    "city": "Город",
+    "revenue": "Выручка",
+    "profit": "Прибыль",
+    "profitPercent": "% доходности",
+    "profitabilityPercent": "% рентабельности",
+    "partnerName": "Партнёр",
+    "partnerShare": "Доля партнёра",
+    "dividendSum": "Сумма дивидендов",
+    "dividendMonth": "Месяц",
+    "noPartners": "Нет данных о партнёрах",
+    "records": "записей",
+    "sends": "Отправка",
+    "calculate": "Расчет",
+    "file": "Файл",
+    "action": "Действие",
+    "addFile": "Добавить файл",
+    "download": "Скачать",
+    "replaceFile": "Заменить файл"
   },
   "shift-management": {
     "shift-create-modal": {
@@ -1847,7 +1867,9 @@
     "enterCorrectPassword": "Введите правильный пароль",
     "descriptionRequired": "Описание обязательно",
     "required": "Это поле обязательно",
-    "positiveNumber": "Должно быть положительным числом"
+    "positiveNumber": "Должно быть положительным числом",
+    "fillExpense": "Заполните расход",
+    "fillRevenue": "Заполните выручку"
   },
   "table": {
     "noData": "Ничего не найдено",
