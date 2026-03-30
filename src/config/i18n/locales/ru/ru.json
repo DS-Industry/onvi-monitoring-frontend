@@ -412,7 +412,7 @@
     "planCustomDesc": "Индивидуальные условия",
     "priceOnRequest": "По запросу",
     "connectionTypeHeading": "Выберите тип подключения",
-    "connectionTypeDsEquipment": "Оборудование DS",
+    "connectionTypeDsEquipment": "Оборудование DS", 
     "connectionTypeCouplingModule": "Модуль Сопряжения",
     "createSubscriptionRequest": "Создать заявку на подписку",
     "cardHeading": "Чтобы зарегистрироваться как юр. лицо или ИП, укажите реквизиты",
