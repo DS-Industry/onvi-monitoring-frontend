@@ -978,6 +978,7 @@ export interface TechExpenseReportItem {
   quantityAtStart: number;
   quantityByReport: number;
   quantityOnWarehouse: number;
+  calculationQuantityOnWarehouse: number;
   quantityWriteOff?: number;
   quantityAtEnd?: number;
   quantityExpensesOnWarehouse?: number;
