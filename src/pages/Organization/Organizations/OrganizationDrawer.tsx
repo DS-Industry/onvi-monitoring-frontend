@@ -168,9 +168,11 @@ const OrganizationDrawer: React.FC<OrganizationDrawerProps> = ({
 
   const vatOptions = [
     { label: t('organizations.withoutVat'), value: 'WithoutVAT' },
+    { label: '5%', value: 'Vat5' },
     { label: '10%', value: 'Vat10' },
     { label: '18%', value: 'Vat18' },
     { label: '20%', value: 'Vat20' },
+    { label: '22%', value: 'Vat22' },
   ];
 
   return (
