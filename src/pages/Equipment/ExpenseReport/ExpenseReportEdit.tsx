@@ -83,11 +83,35 @@ const ExpenseReportEdit: React.FC = () => {
     setEditedCarryingDocumentWarehouseAt(date ? date.toDate() : null);
   };
 
-  const handleItemChange = (id: number, field: 'quantityWriteOff' | 'quantityAtEnd', value: number) => {
+  const handleItemChange = (
+    id: number,
+    field: 'quantityWriteOff' | 'quantityAtEnd',
+    value: number,
+    currentRecord: any
+  ) => {
+    const warehouseQty = currentRecord.quantityOnWarehouse;
+
+    if (isNaN(value) || value < 0) value = 0;
+
     setEditedItems(prev => {
       const newMap = new Map(prev);
-      const existing = newMap.get(id) || {};
-      newMap.set(id, { ...existing, [field]: value });
+
+      if (field === 'quantityAtEnd') {
+        const newAtEnd = Math.min(value, warehouseQty);
+        const newWriteOff = warehouseQty - newAtEnd;
+        newMap.set(id, {
+          quantityAtEnd: newAtEnd,
+          quantityWriteOff: newWriteOff,
+        });
+      } else if (field === 'quantityWriteOff') {
+        const newWriteOff = Math.min(value, warehouseQty);
+        const newAtEnd = warehouseQty - newWriteOff;
+        newMap.set(id, {
+          quantityWriteOff: newWriteOff,
+          quantityAtEnd: newAtEnd,
+        });
+      }
+
       return newMap;
     });
   };
@@ -207,6 +231,12 @@ const ExpenseReportEdit: React.FC = () => {
       key: 'quantityOnWarehouse',
     },
     {
+      title: t('equipment.calculationQuantityOnWarehouse'),
+      dataIndex: 'calculationQuantityOnWarehouse',
+      key: 'calculationQuantityOnWarehouse',
+      render: (val?: number) => val ?? '-',
+    },
+    {
       title: t('equipment.quantityExpensesOnWarehouse'),
       dataIndex: 'quantityExpensesOnWarehouse',
       key: 'quantityExpensesOnWarehouse',
@@ -224,18 +254,21 @@ const ExpenseReportEdit: React.FC = () => {
       key: 'quantityWriteOff',
       render: (_: any, record: any) => {
         if (!isEditable) return record.quantityWriteOff ?? '-';
-        const value = editedItems.get(record.id)?.quantityWriteOff ?? record.quantityWriteOff ?? '';
+        const edited = editedItems.get(record.id);
+        const value = edited?.quantityWriteOff !== undefined
+          ? edited.quantityWriteOff
+          : (record.quantityWriteOff ?? '');
         return (
           <input
             type="number"
             className="w-24 border rounded px-2 py-1"
             value={value}
-            max={record.quantityOnWarehouse}
             min={0}
+            max={record.quantityOnWarehouse}
             onChange={(e) => {
               const val = parseFloat(e.target.value);
-              if (val <= record.quantityOnWarehouse) {
-                handleItemChange(record.id, 'quantityWriteOff', val);
+              if (!isNaN(val)) {
+                handleItemChange(record.id, 'quantityWriteOff', val, record);
               }
             }}
           />
@@ -248,21 +281,28 @@ const ExpenseReportEdit: React.FC = () => {
       key: 'quantityAtEnd',
       render: (_: any, record: any) => {
         if (!isEditable) return record.quantityAtEnd ?? '-';
-        const value = editedItems.get(record.id)?.quantityAtEnd ?? record.quantityAtEnd ?? '';
+        const edited = editedItems.get(record.id);
+        const value = edited?.quantityAtEnd !== undefined
+          ? edited.quantityAtEnd
+          : (record.quantityAtEnd ?? record.calculationQuantityOnWarehouse ?? '');
         return (
           <input
             type="number"
             className="w-24 border rounded px-2 py-1"
             value={value}
             min={0}
-            onChange={(e) => handleItemChange(record.id, 'quantityAtEnd', parseFloat(e.target.value))}
+            max={record.quantityOnWarehouse}
+            onChange={(e) => {
+              const val = parseFloat(e.target.value);
+              if (!isNaN(val)) {
+                handleItemChange(record.id, 'quantityAtEnd', val, record);
+              }
+            }}
           />
         );
       },
     },
   ];
-
-  if (isLoading) return <div>Loading...</div>;
 
   return (
     <div className="space-y-6">

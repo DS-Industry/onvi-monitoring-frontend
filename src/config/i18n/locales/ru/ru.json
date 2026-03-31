@@ -583,13 +583,14 @@
     "consumable": "Расходный материал",
     "quantityAtStart": "Количество на начало",
     "quantityByReport": "Расход по отчетам",
-    "quantityOnWarehouse": "Количество на складе",
+    "quantityOnWarehouse": "Количество на складе (по документам)",
+    "calculationQuantityOnWarehouse": "Количество на складе (расчет)",
     "quantityWriteOff": "Списать со склада",
     "quantityAtEnd": "Количество на конец",
-    "isWriteOffFromWarehouse": "Проведено на складе",
-    "sendToWarehouse": "Провести на складе",
     "quantityExpensesOnWarehouse": "Расход по складу",
     "quantityComingOnWarehouse": "Приход по складу",
+    "isWriteOffFromWarehouse": "Проведено на складе",
+    "sendToWarehouse": "Провести на складе",
     "carryingDocumentWarehouseAt": "Дата проведения документа по складу"
   },
   "daily": {
