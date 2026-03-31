@@ -159,6 +159,26 @@ const ProgramDevices: React.FC = () => {
 
     const dataSourceWithTotal = [...programsInfo, totalRecord];
 
+    const modifiedColumns = programColumns.map(col => {
+      if ('dataIndex' in col && col.dataIndex === 'counter') {
+        return {
+          ...col,
+          render: (value: number, record: any) => {
+            if (record.programName === t('finance.total')) {
+              return formatNumber(value);
+            }
+            const percent = totalCounter > 0 ? ((value / totalCounter) * 100).toFixed(0) : 0;
+            return (
+              <>
+                {formatNumber(value)} <span className="font-bold">- {percent}%</span>
+              </>
+            );
+          },
+        };
+      }
+      return col;
+    });
+
     return (
       <Table
         rowKey={row => {
@@ -166,7 +186,7 @@ const ProgramDevices: React.FC = () => {
           return `${record.id}-${row.programName}`;
         }}
         dataSource={dataSourceWithTotal}
-        columns={programColumns}
+        columns={modifiedColumns}
         pagination={false}
         bordered
         size="small"
