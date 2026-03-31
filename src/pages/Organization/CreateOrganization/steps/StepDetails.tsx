@@ -93,9 +93,11 @@ const StepDetails: React.FC = () => {
   const requiredTitle = (key: string) => `${t(key)}*`;
   const vatOptions = [
     { value: 'WithoutVAT', name: t('organizations.withoutVat') },
+    { value: 'Vat5', name: '5%' },
     { value: 'Vat10', name: '10%' },
     { value: 'Vat18', name: '18%' },
     { value: 'Vat20', name: '20%' },
+    { value: 'Vat22', name: '22%' },
   ];
 
   return (
