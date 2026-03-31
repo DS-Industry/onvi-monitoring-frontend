@@ -53,7 +53,15 @@ const ExpenseReportEdit: React.FC = () => {
       setEditedEndPeriod(fetchedReport.endPeriod);
       const initialCarryingDate = fetchedReport.carryingDocumentWarehouseAt ?? fetchedReport.endPeriod;
       setEditedCarryingDocumentWarehouseAt(initialCarryingDate);
-      setEditedItems(new Map());
+
+      const newEditedItems = new Map();
+      fetchedReport.items.forEach(item => {
+        newEditedItems.set(item.id, {
+          quantityAtEnd: item.quantityAtEnd ?? 0,
+          quantityWriteOff: item.quantityWriteOff ?? 0,
+        });
+      });
+      setEditedItems(newEditedItems);
     }
   }, [fetchedReport]);
 
@@ -90,28 +98,16 @@ const ExpenseReportEdit: React.FC = () => {
     currentRecord: any
   ) => {
     const warehouseQty = currentRecord.quantityOnWarehouse;
-
-    if (isNaN(value) || value < 0) value = 0;
+    if (isNaN(value)) value = 0;
+    const clampedValue = Math.min(warehouseQty, Math.max(0, value));
 
     setEditedItems(prev => {
       const newMap = new Map(prev);
-
-      if (field === 'quantityAtEnd') {
-        const newAtEnd = Math.min(value, warehouseQty);
-        const newWriteOff = warehouseQty - newAtEnd;
-        newMap.set(id, {
-          quantityAtEnd: newAtEnd,
-          quantityWriteOff: newWriteOff,
-        });
-      } else if (field === 'quantityWriteOff') {
-        const newWriteOff = Math.min(value, warehouseQty);
-        const newAtEnd = warehouseQty - newWriteOff;
-        newMap.set(id, {
-          quantityWriteOff: newWriteOff,
-          quantityAtEnd: newAtEnd,
-        });
-      }
-
+      const existing = newMap.get(id) || {};
+      newMap.set(id, {
+        ...existing,
+        [field]: clampedValue,
+      });
       return newMap;
     });
   };
@@ -226,17 +222,6 @@ const ExpenseReportEdit: React.FC = () => {
       key: 'quantityByReport',
     },
     {
-      title: t('equipment.quantityOnWarehouse'),
-      dataIndex: 'quantityOnWarehouse',
-      key: 'quantityOnWarehouse',
-    },
-    {
-      title: t('equipment.calculationQuantityOnWarehouse'),
-      dataIndex: 'calculationQuantityOnWarehouse',
-      key: 'calculationQuantityOnWarehouse',
-      render: (val?: number) => val ?? '-',
-    },
-    {
       title: t('equipment.quantityExpensesOnWarehouse'),
       dataIndex: 'quantityExpensesOnWarehouse',
       key: 'quantityExpensesOnWarehouse',
@@ -249,42 +234,24 @@ const ExpenseReportEdit: React.FC = () => {
       render: (val?: number) => val ?? '-',
     },
     {
-      title: t('equipment.quantityWriteOff'),
-      dataIndex: 'quantityWriteOff',
-      key: 'quantityWriteOff',
-      render: (_: any, record: any) => {
-        if (!isEditable) return record.quantityWriteOff ?? '-';
-        const edited = editedItems.get(record.id);
-        const value = edited?.quantityWriteOff !== undefined
-          ? edited.quantityWriteOff
-          : (record.quantityWriteOff ?? '');
-        return (
-          <input
-            type="number"
-            className="w-24 border rounded px-2 py-1"
-            value={value}
-            min={0}
-            max={record.quantityOnWarehouse}
-            onChange={(e) => {
-              const val = parseFloat(e.target.value);
-              if (!isNaN(val)) {
-                handleItemChange(record.id, 'quantityWriteOff', val, record);
-              }
-            }}
-          />
-        );
-      },
+      title: t('equipment.calculationQuantityOnWarehouse'),
+      dataIndex: 'calculationQuantityOnWarehouse',
+      key: 'calculationQuantityOnWarehouse',
+      render: (val?: number) => val ?? '-',
+    },
+    {
+      title: t('equipment.quantityOnWarehouse'),
+      dataIndex: 'quantityOnWarehouse',
+      key: 'quantityOnWarehouse',
     },
     {
       title: t('equipment.quantityAtEnd'),
       dataIndex: 'quantityAtEnd',
       key: 'quantityAtEnd',
       render: (_: any, record: any) => {
-        if (!isEditable) return record.quantityAtEnd ?? '-';
         const edited = editedItems.get(record.id);
-        const value = edited?.quantityAtEnd !== undefined
-          ? edited.quantityAtEnd
-          : (record.quantityAtEnd ?? record.calculationQuantityOnWarehouse ?? '');
+        const value = edited?.quantityAtEnd !== undefined ? edited.quantityAtEnd : (record.quantityAtEnd ?? 0);
+        if (!isEditable) return value;
         return (
           <input
             type="number"
@@ -293,12 +260,37 @@ const ExpenseReportEdit: React.FC = () => {
             min={0}
             max={record.quantityOnWarehouse}
             onChange={(e) => {
-              const val = parseFloat(e.target.value);
-              if (!isNaN(val)) {
-                handleItemChange(record.id, 'quantityAtEnd', val, record);
-              }
+              let val = parseFloat(e.target.value);
+              if (isNaN(val)) val = 0;
+              val = Math.min(record.quantityOnWarehouse, Math.max(0, val));
+              handleItemChange(record.id, 'quantityAtEnd', val, record);
             }}
           />
+        );
+      },
+    },
+    {
+      title: t('equipment.quantityWriteOff'),
+      dataIndex: 'quantityWriteOff',
+      key: 'quantityWriteOff',
+      render: (_: any, record: any) => {
+        const edited = editedItems.get(record.id);
+        const value = edited?.quantityWriteOff !== undefined ? edited.quantityWriteOff : (record.quantityWriteOff ?? 0);
+        if (!isEditable) return value;
+        return (
+          <input
+            type="number"
+            className="w-24 border rounded px-2 py-1"
+            value={value}
+            min={0}
+            max={record.quantityOnWarehouse}
+            onChange={(e) => {
+              let val = parseFloat(e.target.value);
+              if (isNaN(val)) val = 0;
+              val = Math.min(record.quantityOnWarehouse, Math.max(0, val));
+              handleItemChange(record.id, 'quantityWriteOff', val, record);
+            }}
+          /> 
         );
       },
     },
