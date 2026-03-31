@@ -20,6 +20,7 @@ const Pos: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchParams] = useSearchParams();
   const city = Number(searchParams.get('city')) || undefined;
+  const posIdFilter = Number(searchParams.get('posId')) || undefined;
   const userPermissions = usePermissions();
   const [posId, setPosId] = useState<number | null>(null);
   const user = useUser();
@@ -41,11 +42,12 @@ const Pos: React.FC = () => {
   );
 
   const { data, isLoading: posLoading } = useSWR(
-    user.organizationId ? [`get-pos`, city, user.organizationId] : null,
+    user.organizationId ? [`get-pos`, city, posIdFilter, user.organizationId] : null,
     () =>
       getPoses({
         placementId: city,
         organizationId: user.organizationId,
+        posId: posIdFilter, 
       }),
     {
       revalidateOnFocus: false,
@@ -213,7 +215,7 @@ const Pos: React.FC = () => {
 
   const onClose = () => {
     setDrawerOpen(false);
-    setPosId(null)
+    setPosId(null);
   };
 
   return (
@@ -234,7 +236,7 @@ const Pos: React.FC = () => {
           </Button>
         )}
       </div>
-      <GeneralFilters count={poses.length} display={['city', 'count']} />
+      <GeneralFilters count={poses.length} display={['city', 'count', 'pos']} />
       <div className="mt-8">
         <Table
           dataSource={poses}

@@ -384,6 +384,7 @@ type ConsumptionRateCoeffPatchResponse = {
 type PosParams = {
   placementId?: number;
   organizationId?: number;
+  posId?: number;
 };
 
 type ProgramParams = {
