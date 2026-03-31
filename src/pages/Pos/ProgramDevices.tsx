@@ -136,6 +136,8 @@ const ProgramDevices: React.FC = () => {
   const renderExpandedRow = (record: Program) => {
     const programsInfo = record.programsInfo || [];
 
+    const isPortal = record.posType === 'Portal';
+
     const totalCounter = programsInfo.reduce(
       (acc, item) => acc + (item.counter || 0),
       0
@@ -157,6 +159,27 @@ const ProgramDevices: React.FC = () => {
       lastOper: null,
     };
 
+    const modifiedProgramColumns = programColumns.map(col => {
+      if ('dataIndex' in col && col.dataIndex === 'counter' && isPortal) {
+        return {
+          ...col,
+          render: (_value: number, record: any) => {
+            if (record.programName === t('finance.total')) {
+              return formatNumber(record.counter);
+            }
+            const value = record.counter;
+            const percent = totalCounter > 0 ? ((value / totalCounter) * 100).toFixed(0) : 0;
+            return (
+              <>
+                {formatNumber(value)} <span className="font-bold">- {percent}%</span>
+              </>
+            );
+          },
+        };
+      }
+      return col;
+    });
+
     const dataSourceWithTotal = [...programsInfo, totalRecord];
 
     return (
@@ -166,10 +189,10 @@ const ProgramDevices: React.FC = () => {
           return `${record.id}-${row.programName}`;
         }}
         dataSource={dataSourceWithTotal}
-        columns={programColumns}
+        columns={modifiedProgramColumns}
         pagination={false}
-        bordered
         size="small"
+        bordered
         rowClassName={(row) => {
           if (row.programName === t('finance.total')) {
             return 'font-bold';
