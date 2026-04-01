@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Select, Table, Input, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import useSWR from 'swr';
-import { getLoyaltyPrograms, getLoyaltyProgramOrders, SignOper, OrderItem } from '@/services/api/marketing';
+import { getLoyaltyPrograms, getLoyaltyProgramOrders, SignOper, OrderItem, OrderStatus } from '@/services/api/marketing';
 import { useUser } from '@/hooks/useUserStore';
 import { ContractType } from '@/utils/constants';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
@@ -35,9 +35,25 @@ const MarketingTransactions: React.FC = () => {
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
+  const posId = Number(searchParams.get('posId')) || undefined;
+  const orderStatusParam = searchParams.get('orderStatus');
+  const effectiveOrderStatus = orderStatusParam === 'ALL' ? undefined : orderStatusParam || undefined;
 
   const dateRender = getDateRender();
   const currencyRender = getCurrencyRender();
+
+  const orderStatusOptions = [
+    { label: t('constants.all'), value: 'ALL' },
+    { label: t('marketingTransactions.statuses.created'), value: OrderStatus.CREATED },
+    { label: t('marketingTransactions.statuses.completed'), value: OrderStatus.COMPLETED },
+    { label: t('marketingTransactions.statuses.canceled'), value: OrderStatus.CANCELED },
+    { label: t('marketingTransactions.statuses.freeProcessing'), value: OrderStatus.FREE_PROCESSING },
+    { label: t('marketingTransactions.statuses.payed'), value: OrderStatus.PAYED },
+    { label: t('marketingTransactions.statuses.failed'), value: OrderStatus.FAILED },
+    { label: t('marketingTransactions.statuses.posProcessed'), value: OrderStatus.POS_PROCESSED },
+    { label: t('marketingTransactions.statuses.paymentProcessing'), value: OrderStatus.PAYMENT_PROCESSING },
+    { label: t('marketingTransactions.statuses.waitingPayment'), value: OrderStatus.WAITING_PAYMENT },
+  ];
 
   const debouncedSearch = useCallback(
     debounce((value: string) => {
@@ -55,6 +71,13 @@ const MarketingTransactions: React.FC = () => {
     debouncedSearch(value);
   };
 
+  const handleOrderStatusChange = (value: string) => {
+    updateSearchParams(searchParams, setSearchParams, {
+      orderStatus: value === 'ALL' ? 'ALL' : value || undefined,
+      page: '1',
+    });
+  };
+
   const { data: loyaltyProgramsData, isLoading: programsLoading } = useSWR(
     user.organizationId ? ['get-loyalty-programs', user.organizationId] : null,
     () => getLoyaltyPrograms(user.organizationId!),
@@ -67,21 +90,25 @@ const MarketingTransactions: React.FC = () => {
       selectedLoyaltyProgram,
       currentPage,
       pageSize,
-      searchParams.get('search')
+      searchParams.get('search'),
+      posId,
+      effectiveOrderStatus,
     ] : null,
     () => getLoyaltyProgramOrders(
       selectedLoyaltyProgram!,
       {
         page: currentPage,
         size: pageSize,
-        search: searchParams.get('search') || undefined
+        search: searchParams.get('search') || undefined,
+        posId,
+        orderStatus: effectiveOrderStatus,
       }
     ),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -92,6 +119,7 @@ const MarketingTransactions: React.FC = () => {
     updateSearchParams(searchParams, setSearchParams, {
       page: String(DEFAULT_PAGE),
       search: undefined,
+      orderStatus: undefined,
     });
   };
 
@@ -146,7 +174,7 @@ const MarketingTransactions: React.FC = () => {
       typeName: oper.type?.name || '-',
       signOper: oper.type?.signOper || '-',
       sum: oper.sum,
-      comment: oper.comment
+      comment: oper.comment,
     }));
   };
 
@@ -157,25 +185,26 @@ const MarketingTransactions: React.FC = () => {
     return 'warning';
   };
 
-  const translateOrderStatus = (status: string): string => {
-    const statusLower = status.toLowerCase();
-    switch (statusLower) {
-      case 'completed':
+  const translateOrderStatus = (status: OrderStatus | string): string => {
+    switch (status) {
+      case OrderStatus.COMPLETED:
         return t('marketingTransactions.statuses.completed');
-      case 'created':
+      case OrderStatus.CREATED:
         return t('marketingTransactions.statuses.created');
-      case 'canceled':
+      case OrderStatus.CANCELED:
         return t('marketingTransactions.statuses.canceled');
-      case 'processing':
-        return t('marketingTransactions.statuses.processing');
-      case 'refunded':
-        return t('marketingTransactions.statuses.refunded');
-      case 'payed':
+      case OrderStatus.FREE_PROCESSING:
+        return t('marketingTransactions.statuses.freeProcessing');
+      case OrderStatus.PAYED:
         return t('marketingTransactions.statuses.payed');
-      case 'waiting_payment':
-        return t('marketingTransactions.statuses.waitingPayment');
-      case 'pos_processed':
+      case OrderStatus.FAILED:
+        return t('marketingTransactions.statuses.failed');
+      case OrderStatus.POS_PROCESSED:
         return t('marketingTransactions.statuses.posProcessed');
+      case OrderStatus.PAYMENT_PROCESSING:
+        return t('marketingTransactions.statuses.paymentProcessing');
+      case OrderStatus.WAITING_PAYMENT:
+        return t('marketingTransactions.statuses.waitingPayment');
       default:
         return status;
     }
@@ -439,7 +468,21 @@ const MarketingTransactions: React.FC = () => {
       </div>
 
       {selectedLoyaltyProgram && (
-        <GeneralFilters count={ordersData?.orders?.length || 0} display={[]}>
+        <GeneralFilters count={ordersData?.orders?.length || 0} display={['pos']}>
+          <div>
+            <div className="text-sm text-text02 mb-1">
+              {t('constants.status')}
+            </div>
+            <Select
+              allowClear={false}
+              placeholder={t('marketingTransactions.allStatuses')}
+              className="w-full sm:w-80"
+              value={orderStatusParam || 'ALL'}
+              onChange={handleOrderStatusChange}
+              options={orderStatusOptions}
+            />
+          </div>
+
           <div>
             <div className="text-sm text-text02 mb-1">
               {t('marketingTransactions.searchLabel')}

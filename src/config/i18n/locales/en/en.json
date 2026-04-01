@@ -175,18 +175,19 @@
     },
     "noBonusOperations": "No bonus operations",
     "bonusOperations": "Bonus operations",
-    "searchLabel": "User / Card / Transaction ID",
+    "searchLabel": "User / Phone number / Card / Transaction ID",
     "transactions": "transactions",
     "of": "of",
     "statuses": {
       "completed": "Completed",
       "created": "Created",
       "canceled": "Canceled",
-      "processing": "Processing",
-      "refunded": "Refunded",
+      "freeProcessing": "Free processing",
       "payed": "Payed",
-      "waitingPayment": "Waiting payment",
-      "posProcessed": "Processed"
+      "failed": "Failed",
+      "posProcessed": "POS processed",
+      "paymentProcessing": "Payment processing",
+      "waitingPayment": "Waiting payment"
     }
   },
   "dashboard": {

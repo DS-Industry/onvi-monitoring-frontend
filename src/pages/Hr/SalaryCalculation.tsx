@@ -152,12 +152,14 @@ const SalaryCalculation: React.FC = () => {
       posId,
       currentPage,
       pageSize,
+      user.organizationId
     ],
     () =>
       getPayments({
         startPaymentDate: startPaymentDate,
         endPaymentDate: endPaymentDate,
         hrWorkerId: workerId,
+        organizationId: user.organizationId,
         posId: posId,
         page: currentPage,
         size: pageSize,
