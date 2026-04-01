@@ -516,6 +516,16 @@ export async function getPayments(
   return response.data;
 }
 
+export async function getPaymentsCount(
+  params: PrepaymentFilter
+): Promise<{ count: number }> {
+  const response: AxiosResponse<{ count: number }> = await api.get(
+    HR.PAYMENT + 's/count',
+    { params }
+  );
+  return response.data;
+}
+
 export async function updatePayment(
   body: PaymentUpdateRequest
 ): Promise<PaymentUpdateResponse> {
