@@ -17,6 +17,7 @@ import EmployeeSalaryFilter from '@/components/ui/Filter/EmployeeSalaryFilter';
 import {
   deletePayments,
   getPayments,
+  getPaymentsCount,
   getPositions,
   getWorkers,
   PaymentsResponse,
@@ -172,6 +173,32 @@ const SalaryCalculation: React.FC = () => {
     }
   );
 
+  const { data: countData } = useSWR(
+    [
+      'get-payments-count',
+      startPaymentDate,
+      endPaymentDate,
+      workerId,
+      posId,
+      user.organizationId
+    ],
+    () =>
+      getPaymentsCount({
+        startPaymentDate: startPaymentDate,
+        endPaymentDate: endPaymentDate,
+        hrWorkerId: workerId,
+        posId: posId,
+        organizationId: user.organizationId,
+      }),
+    {
+      revalidateOnFocus: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false,
+    }
+  );
+
+  const totalCount = countData?.count || 0;
+
   useEffect(() => {
     if (paymentsData) {
       setData(
@@ -253,8 +280,6 @@ const SalaryCalculation: React.FC = () => {
     );
   }, [data, positionsMap]);
 
-  const totalCount = paymentsData?.length || 0;
-
   const isEditing = (record: DataType) => record.key === editingKey;
 
   const edit = (record: Partial<DataType> & { key: React.Key }) => {
@@ -297,6 +322,14 @@ const SalaryCalculation: React.FC = () => {
             currentPage,
             pageSize,
           ]);
+          mutate([
+            'get-payments-count',
+            startPaymentDate,
+            endPaymentDate,
+            workerId,
+            posId,
+            user.organizationId,
+          ]);
           newData.splice(index, 1, updatedItem);
           setData(newData);
           setEditingKey('');
@@ -337,6 +370,14 @@ const SalaryCalculation: React.FC = () => {
               workerId,
               currentPage,
               pageSize,
+            ]);
+            mutate([
+              'get-payments-count',
+              startPaymentDate,
+              endPaymentDate,
+              workerId,
+              posId,
+              user.organizationId,
             ]);
             setSelectedRowKeys([]);
             if (selectedRowKeys.includes(editingKey)) {
@@ -586,6 +627,7 @@ const SalaryCalculation: React.FC = () => {
             pagination={{
               current: currentPage,
               pageSize: pageSize,
+              total: totalCount,
               showSizeChanger: true,
               pageSizeOptions: ALL_PAGE_SIZES,
               showTotal: (total, range) =>
