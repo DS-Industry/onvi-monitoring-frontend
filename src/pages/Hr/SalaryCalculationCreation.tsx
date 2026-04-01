@@ -237,8 +237,7 @@ const SalaryCalculationCreation: React.FC = () => {
           paymentDate: data.paymentDate,
           billingMonth: data.billingMonth,
           countShifts: Number(data.numberOfShiftsWorked),
-          sum:
-            data.dailySalary * data.numberOfShiftsWorked - data.prepaymentSum,
+          sum: data.paymentSum,
           prize: Number(data.prize),
           fine: Number(data.fine),
           virtualSum: data.virtualSum,
