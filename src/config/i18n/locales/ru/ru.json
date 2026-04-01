@@ -175,18 +175,19 @@
     },
     "noBonusOperations": "Нет операций с бонусами",
     "bonusOperations": "Операции с бонусами",
-    "searchLabel": "Пользователь / Карта / ID транзакции",
+    "searchLabel": "Пользователь / Номер телефона / Карта / ID транзакции",
     "transactions": "транзакций",
     "of": "из",
     "statuses": {
       "completed": "Завершено",
       "created": "Создано",
       "canceled": "Отменено",
-      "processing": "В обработке",
-      "refunded": "Возвращено",
+      "freeProcessing": "Бесплатная обработка",
       "payed": "Оплачено",
-      "waitingPayment": "Ожидание оплаты",
-      "posProcessed": "Обработано"
+      "failed": "Ошибка",
+      "posProcessed": "POS обработан",
+      "paymentProcessing": "Обработка платежа",
+      "waitingPayment": "Ожидание оплаты"
     }
   },
   "dashboard": {

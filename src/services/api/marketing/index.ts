@@ -165,14 +165,15 @@ type UpdateLoyaltyRequest = {
 };
 
 export enum OrderStatus {
-  COMPLETED = 'COMPLETED',
   CREATED = 'CREATED',
+  COMPLETED = 'COMPLETED',
   CANCELED = 'CANCELED',
-  PROCESSING = 'PROCESSING',
-  PENDING = 'PENDING',
-  DELIVERED = 'DELIVERED',
-  REFUNDED = 'REFUNDED',
-  PAYED = 'PAYED'
+  FREE_PROCESSING = 'FREE_PROCESSING',
+  PAYED = 'PAYED',
+  FAILED = 'FAILED',
+  POS_PROCESSED = 'POS_PROCESSED',
+  PAYMENT_PROCESSING = 'PAYMENT_PROCESSING',
+  WAITING_PAYMENT = 'WAITING_PAYMENT'
 }
 
 export enum PlatformType {
@@ -519,6 +520,7 @@ export async function getLoyaltyProgramOrders(
     page?: number;
     size?: number;
     search?: string;
+    posId?: number;
     orderStatus?: string;
     platform?: string;
     contractType?: string;
