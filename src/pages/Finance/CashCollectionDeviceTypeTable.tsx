@@ -61,6 +61,7 @@ type Props = {
   t: TFunction;
   handleTableChange: (id: number, key: string, value: number) => void;
   loading: boolean;
+  hideVirtualSum?: boolean;
 };
 
 const CashCollectionDeviceTypeTable: React.FC<Props> = ({
@@ -69,52 +70,62 @@ const CashCollectionDeviceTypeTable: React.FC<Props> = ({
   t,
   handleTableChange,
   loading,
+  hideVirtualSum = false,
 }) => {
-  const getColumns = () => [
-    {
-      title: t('table.columns.type'),
-      dataIndex: 'typeName',
-      key: 'typeName',
-    },
-    {
-      title: t('table.columns.banknotes'),
-      dataIndex: 'sumPaperDeviceType',
-      key: 'sumPaperDeviceType',
-      editable: status !== t('tables.SENT'),
-    },
-    {
-      title: t('table.columns.coins'),
-      dataIndex: 'sumCoinDeviceType',
-      key: 'sumCoinDeviceType',
-      editable: status !== t('tables.SENT'),
-    },
-    {
-      title: t('table.columns.totalSum'),
-      dataIndex: 'sumFactDeviceType',
-      key: 'sumFactDeviceType',
-      render: getCurrencyRender(),
-    },
-    {
-      title: t('finance.short'),
-      dataIndex: 'shortageDeviceType',
-      key: 'shortageDeviceType',
-      render: (val: number) => (
-        <div className={'text-errorFill'}>{`${formatNumber(val)} ₽`}</div>
-      ),
-    },
-    {
-      title: t('finance.cash'),
-      dataIndex: 'virtualSumDeviceType',
-      key: 'virtualSumDeviceType',
-      render: getCurrencyRender(),
-    },
-  ];
+  const getColumns = () => {
+    const baseColumns = [
+      {
+        title: t('table.columns.type'),
+        dataIndex: 'typeName',
+        key: 'typeName',
+      },
+      {
+        title: t('table.columns.banknotes'),
+        dataIndex: 'sumPaperDeviceType',
+        key: 'sumPaperDeviceType',
+        editable: status !== t('tables.SENT'),
+      },
+      {
+        title: t('table.columns.coins'),
+        dataIndex: 'sumCoinDeviceType',
+        key: 'sumCoinDeviceType',
+        editable: status !== t('tables.SENT'),
+      },
+      {
+        title: t('table.columns.totalSum'),
+        dataIndex: 'sumFactDeviceType',
+        key: 'sumFactDeviceType',
+        render: getCurrencyRender(),
+      },
+      {
+        title: t('finance.short'),
+        dataIndex: 'shortageDeviceType',
+        key: 'shortageDeviceType',
+        render: (val: number) => (
+          <div className={'text-errorFill'}>{`${formatNumber(val)} ₽`}</div>
+        ),
+      },
+    ];
+
+    if (!hideVirtualSum) {
+      baseColumns.push({
+        title: t('finance.cash'),
+        dataIndex: 'virtualSumDeviceType',
+        key: 'virtualSumDeviceType',
+        render: getCurrencyRender(),
+      });
+    }
+
+    return baseColumns;
+  };
+
+  const columns = getColumns();
 
   return (
     <Table
       dataSource={tableData}
       columns={
-        getColumns().map(col =>
+        columns.map(col =>
           col.editable
             ? {
                 ...col,
@@ -164,9 +175,11 @@ const CashCollectionDeviceTypeTable: React.FC<Props> = ({
               <Table.Summary.Cell index={4}>
                 <strong>{`${totalShortage} ₽`}</strong>
               </Table.Summary.Cell>
-              <Table.Summary.Cell index={5}>
-                <strong>{`${totalVirtual} ₽`}</strong>
-              </Table.Summary.Cell>
+              {!hideVirtualSum && (
+                <Table.Summary.Cell index={5}>
+                  <strong>{`${totalVirtual} ₽`}</strong>
+                </Table.Summary.Cell>
+              )}
             </Table.Summary.Row>
           </Table.Summary>
         );
