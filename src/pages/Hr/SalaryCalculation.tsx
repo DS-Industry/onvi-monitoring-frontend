@@ -29,7 +29,7 @@ import {
   DEFAULT_PAGE_SIZE,
   ALL_PAGE_SIZES,
 } from '@/utils/constants';
-import { getCurrencyRender, getDateRender } from '@/utils/tableUnits';
+import { getCurrencyRender, getDateRender, formatNumber } from '@/utils/tableUnits';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { CloseOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
@@ -580,6 +580,36 @@ const SalaryCalculation: React.FC = () => {
       };
     });
 
+  const calculateTotals = () => {
+    if (!payments || payments.length === 0) return null;
+
+    const totals = {
+      numberOfShiftsWorked: 0,
+      prepaymentSum: 0,
+      paymentSum: 0,
+      prize: 0,
+      fine: 0,
+      virtualSum: 0,
+      totalPayment: 0,
+      totalPaymentFinal: 0,
+    };
+
+    payments.forEach(item => {
+      totals.numberOfShiftsWorked += item.numberOfShiftsWorked || 0;
+      totals.prepaymentSum += item.prepaymentSum || 0;
+      totals.paymentSum += item.paymentSum || 0;
+      totals.prize += item.prize || 0;
+      totals.fine += item.fine || 0;
+      totals.virtualSum += item.virtualSum || 0;
+      totals.totalPayment += item.totalPayment || 0;
+      totals.totalPaymentFinal += item.totalPaymentFinal || 0;
+    });
+
+    return totals;
+  };
+
+  const totalsRow = calculateTotals();
+
   const allowed = hasPermission(
     [
       { action: 'manage', subject: 'Hr' },
@@ -637,6 +667,65 @@ const SalaryCalculation: React.FC = () => {
                   page: String(page),
                   size: String(size),
                 }),
+            }}
+            summary={() => {
+              if (!totalsRow) return null;
+              return (
+                <Table.Summary fixed>
+                  <Table.Summary.Row>
+                    <Table.Summary.Cell index={0}>
+                      <span className="font-bold">{t('finance.total')}</span>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={1} />
+                    <Table.Summary.Cell index={2} />
+                    <Table.Summary.Cell index={3} />
+                    <Table.Summary.Cell index={4} />
+                    <Table.Summary.Cell index={5} />
+                    <Table.Summary.Cell index={6} />
+                    <Table.Summary.Cell index={7}>
+                      <span className="font-bold">
+                        {formatNumber(totalsRow.numberOfShiftsWorked)}
+                      </span>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={8}>
+                      <span className="font-bold">
+                        {currencyRender(totalsRow.prepaymentSum)}
+                      </span>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={9}>
+                      <span className="font-bold">
+                        {currencyRender(totalsRow.paymentSum)}
+                      </span>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={10}>
+                      <span className="font-bold">
+                        {currencyRender(totalsRow.prize)}
+                      </span>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={11}>
+                      <span className="font-bold">
+                        {currencyRender(totalsRow.fine)}
+                      </span>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={12}>
+                      <span className="font-bold">
+                        {currencyRender(totalsRow.virtualSum)}
+                      </span>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={13}>
+                      <span className="font-bold">
+                        {currencyRender(totalsRow.totalPayment)}
+                      </span>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={14}>
+                      <span className="font-bold">
+                        {currencyRender(totalsRow.totalPaymentFinal)}
+                      </span>
+                    </Table.Summary.Cell>
+                    <Table.Summary.Cell index={15} />
+                  </Table.Summary.Row>
+                </Table.Summary>
+              );
             }}
           />
         </Form>
