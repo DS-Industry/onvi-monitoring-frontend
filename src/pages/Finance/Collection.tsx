@@ -172,10 +172,8 @@ const Collection: React.FC = () => {
         render: (_, record: CashCollectionLevel) => {
           return (
             <div>
-              {dayjs(record.oldCashCollectionDate).format(
-                'DD-MM-YYYY hh:mm:ss'
-              )}{' '}
-              - {dayjs(record.cashCollectionDate).format('DD-MM-YYYY hh:mm:ss')}
+              {dayjs(record.oldCashCollectionDate).format('DD-MM-YYYY HH:mm:ss')} -{' '}
+              {dayjs(record.cashCollectionDate).format('DD-MM-YYYY HH:mm:ss')}
             </div>
           );
         },
@@ -229,13 +227,9 @@ const Collection: React.FC = () => {
     if (!collectionsData?.length)
       return { columns: baseColumns, transformedData: collectionsData };
 
-    const dynamicColumns: { title: string; dataIndex: string; key: string }[] =
-      [];
+    const dynamicColumns: { title: string; dataIndex: string; key: string }[] = [];
 
-    const workerMap = new Map<
-      number,
-      { id: number; name: string; surname: string }
-    >();
+    const workerMap = new Map<number, { id: number; name: string; surname: string }>();
     workerData?.forEach(work => workerMap.set(work.id, work));
 
     const transformedData = collectionsData.map(item => {
@@ -265,31 +259,55 @@ const Collection: React.FC = () => {
       return transformed;
     });
     const sortedData = transformedData.sort(
-      (a, b) =>
-        (b.parsedPeriod as Date).getTime() - (a.parsedPeriod as Date).getTime()
+      (a, b) => (b.parsedPeriod as Date).getTime() - (a.parsedPeriod as Date).getTime()
     );
 
     return {
-      columns: [
-        ...baseColumns,
-        ...dynamicColumns,
-      ] as ColumnsType<CashCollectionLevel>,
+      columns: [...baseColumns, ...dynamicColumns] as ColumnsType<CashCollectionLevel>,
       transformedData: sortedData,
     };
   }, [collectionsData, baseColumns, poses, t, workerData]);
 
-  const { checkedList, setCheckedList, options, visibleColumns } =
-    useColumnSelector(columns, 'collections-table-columns');
+  const { checkedList, setCheckedList, options, visibleColumns } = useColumnSelector(
+    columns,
+    'collections-table-columns'
+  );
 
-    const handleCreateClick = () => {
-      const currentPosId = searchParams.get('posId');
-      const createParams = new URLSearchParams();
-      if (currentPosId && currentPosId !== '*') {
-        createParams.set('posId', currentPosId);
-      }
+  const handleCreateClick = () => {
+    const currentPosId = searchParams.get('posId');
+    const createParams = new URLSearchParams();
+    if (currentPosId && currentPosId !== '*') {
+      createParams.set('posId', currentPosId);
+    }
     
-      navigate(`/finance/collection/creation?${createParams.toString()}`);
+    navigate(`/finance/collection/creation?${createParams.toString()}`);
+  };
+
+  const getTotalRow = (data: CashCollectionLevel[]) => {
+    const totals: Record<string, number> = {
+      sumFact: 0,
+      sumCard: 0,
+      sumVirtual: 0,
+      profit: 0,
+      shortage: 0,
     };
+
+    data.forEach(item => {
+      totals.sumFact += item.sumFact || 0;
+      totals.sumCard += item.sumCard || 0;
+      totals.sumVirtual += item.sumVirtual || 0;
+      totals.profit += item.profit || 0;
+      totals.shortage += item.shortage || 0;
+
+      Object.keys(item).forEach(key => {
+        if (key.startsWith('collection_') && typeof item[key] === 'number') {
+          totals[key] = (totals[key] || 0) + (item[key] as number);
+        }
+      });
+    });
+
+    return totals;
+  };
 
   return (
     <div>
@@ -310,7 +328,7 @@ const Collection: React.FC = () => {
 
       <div className="mt-8">
         <GeneralFilters
-          count={collectionsData?.length || 0}
+          count={transformedData?.length || 0}
           display={['pos', 'city', 'dateTime']}
         />
 
@@ -340,6 +358,44 @@ const Collection: React.FC = () => {
             },
           }}
           scroll={{ x: 'max-content' }}
+          summary={(pageData) => {
+            if (!pageData.length) return null;
+            const totals = getTotalRow(pageData as CashCollectionLevel[]);
+          
+            return (
+              <Table.Summary fixed>
+                <Table.Summary.Row>
+                  {visibleColumns.map((col, idx) => {
+                    const dataIndex = 'dataIndex' in col ? col.dataIndex : undefined;
+                    let value: React.ReactNode = null;
+          
+                    if (idx === 0) {
+                      value = <strong>{t('finance.total')}</strong>;
+                    } else if (dataIndex === 'sumFact') {
+                      value = <strong>{renderCurrency(totals.sumFact)}</strong>;
+                    } else if (dataIndex === 'sumCard') {
+                      value = <strong>{renderCurrency(totals.sumCard)}</strong>;
+                    } else if (dataIndex === 'sumVirtual') {
+                      value = <strong>{renderCurrency(totals.sumVirtual)}</strong>;
+                    } else if (dataIndex === 'profit') {
+                      value = <strong>{renderCurrency(totals.profit)}</strong>;
+                    } else if (dataIndex === 'shortage') {
+                      value = <strong>{renderCurrency(totals.shortage)}</strong>;
+                    } else if (typeof dataIndex === 'string' && dataIndex.startsWith('collection_')) {
+                      const dynamicTotal = totals[dataIndex] ?? 0;
+                      value = <strong>{renderCurrency(dynamicTotal)}</strong>;
+                    }
+          
+                    return (
+                      <Table.Summary.Cell key={col.key || idx} index={idx}>
+                        {value}
+                      </Table.Summary.Cell>
+                    );
+                  })}
+                </Table.Summary.Row>
+              </Table.Summary>
+            );
+          }}
         />
       </div>
     </div>
