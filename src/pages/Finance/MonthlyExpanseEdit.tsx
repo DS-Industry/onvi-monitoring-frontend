@@ -304,6 +304,12 @@ const MonthlyExpanseEdit: React.FC = () => {
         sorter: (a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime(),
       },
       {
+        title: t('marketing.comment'),
+        dataIndex: 'comment',
+        key: 'comment',
+        render: (text: string) => text || '—',
+      },
+      {
         title: t('marketing.amount'),
         dataIndex: 'sum',
         key: 'sum',
@@ -319,13 +325,6 @@ const MonthlyExpanseEdit: React.FC = () => {
           return formattedCurrency;
         },
         sorter: (a, b) => a.sum - b.sum,
-      },
-      {
-        title: t('finance.comment'),
-        dataIndex: 'comment',
-        key: 'comment',
-        render: (text: string) => text || '—',
-        ellipsis: true,
       },
     ],
     [t, groups, poses, tagRender, dateRender]
