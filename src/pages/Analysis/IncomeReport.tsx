@@ -7,7 +7,7 @@ import { Skeleton, Input, Select, DatePicker, Button } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 
-import { getReportById, applyReport } from '@/services/api/reports';
+import { getReportById, applyReport, ReportParam } from '@/services/api/reports';
 import { getDevices, getPoses } from '@/services/api/equipment';
 import { getPlacement } from '@/services/api/device';
 import { getWarehouses } from '@/services/api/warehouse';
@@ -17,13 +17,6 @@ import { useUser } from '@/hooks/useUserStore';
 import { getNumericPrefix } from '@/utils/getNumericPrefix';
 
 type FormValue = string | number | null;
-
-type ReportParam = {
-  name: string;
-  type: string;
-  description: string;
-  required?: string | boolean;
-};
 
 const isRequired = (param: ReportParam): boolean => {
   if (param.required === undefined) return true;
