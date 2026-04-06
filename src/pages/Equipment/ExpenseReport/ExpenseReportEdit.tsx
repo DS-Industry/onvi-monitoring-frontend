@@ -245,31 +245,6 @@ const ExpenseReportEdit: React.FC = () => {
       key: 'quantityOnWarehouse',
     },
     {
-      title: t('equipment.quantityAtEnd'),
-      dataIndex: 'quantityAtEnd',
-      key: 'quantityAtEnd',
-      render: (_: any, record: any) => {
-        const edited = editedItems.get(record.id);
-        const value = edited?.quantityAtEnd !== undefined ? edited.quantityAtEnd : (record.quantityAtEnd ?? 0);
-        if (!isEditable) return value;
-        return (
-          <input
-            type="number"
-            className="w-24 border rounded px-2 py-1"
-            value={value}
-            min={0}
-            max={record.quantityOnWarehouse}
-            onChange={(e) => {
-              let val = parseFloat(e.target.value);
-              if (isNaN(val)) val = 0;
-              val = Math.min(record.quantityOnWarehouse, Math.max(0, val));
-              handleItemChange(record.id, 'quantityAtEnd', val, record);
-            }}
-          />
-        );
-      },
-    },
-    {
       title: t('equipment.quantityWriteOff'),
       dataIndex: 'quantityWriteOff',
       key: 'quantityWriteOff',
@@ -291,6 +266,31 @@ const ExpenseReportEdit: React.FC = () => {
               handleItemChange(record.id, 'quantityWriteOff', val, record);
             }}
           /> 
+        );
+      },
+    },
+    {
+      title: t('equipment.quantityAtEnd'),
+      dataIndex: 'quantityAtEnd',
+      key: 'quantityAtEnd',
+      render: (_: any, record: any) => {
+        const edited = editedItems.get(record.id);
+        const value = edited?.quantityAtEnd !== undefined ? edited.quantityAtEnd : (record.quantityAtEnd ?? 0);
+        if (!isEditable) return value;
+        return (
+          <input
+            type="number"
+            className="w-24 border rounded px-2 py-1"
+            value={value}
+            min={0}
+            max={record.quantityOnWarehouse}
+            onChange={(e) => {
+              let val = parseFloat(e.target.value);
+              if (isNaN(val)) val = 0;
+              val = Math.min(record.quantityOnWarehouse, Math.max(0, val));
+              handleItemChange(record.id, 'quantityAtEnd', val, record);
+            }}
+          />
         );
       },
     },

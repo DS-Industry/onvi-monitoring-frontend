@@ -531,6 +531,7 @@ type ManagerPeriodIdResponse = {
     eventDate: Date;
     sum: number;
     imageProductReceipt?: string;
+    comment?: string;
   }[];
 };
 

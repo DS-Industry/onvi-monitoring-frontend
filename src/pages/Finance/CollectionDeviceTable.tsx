@@ -30,6 +30,7 @@ type Props = {
   status: string;
   t: TFunction;
   loading: boolean;
+  hideVirtualSum?: boolean;
 };
 
 const CollectionDeviceTable: React.FC<Props> = ({
@@ -40,6 +41,7 @@ const CollectionDeviceTable: React.FC<Props> = ({
   status,
   t,
   loading,
+  hideVirtualSum = false,
 }) => {
   const [editingValue, setEditingValue] = useState<string>(''); // new tookMoneyTime
   const [editingOldValue, setEditingOldValue] = useState<string>(''); // oldTookMoneyTime
@@ -107,9 +109,7 @@ const CollectionDeviceTable: React.FC<Props> = ({
       key: 'oldTookMoneyTime',
       width: '15%',
       render: (_: unknown, record: CashCollectionDevice) => {
-        const isEditable =
-          editingRow === record.id && status !== t('tables.SENT');
-
+        const isEditable = editingRow === record.id && status !== t('tables.SENT');
         return isEditable ? (
           <DatePicker
             showTime={{ format: 'HH:mm:ss' }}
@@ -144,9 +144,7 @@ const CollectionDeviceTable: React.FC<Props> = ({
       key: 'tookMoneyTime',
       width: '15%',
       render: (_: unknown, record: CashCollectionDevice) => {
-        const isEditable =
-          editingRow === record.id && status !== t('tables.SENT');
-
+        const isEditable = editingRow === record.id && status !== t('tables.SENT');
         return isEditable ? (
           <DatePicker
             showTime={{ format: 'HH:mm:ss' }}
@@ -196,13 +194,17 @@ const CollectionDeviceTable: React.FC<Props> = ({
       width: '11%',
       render: getCurrencyRender(),
     },
-    {
-      title: t('table.headers.cashlessSum'),
-      dataIndex: 'virtualSumDevice',
-      key: 'virtualSumDevice',
-      width: '11%',
-      render: getCurrencyRender(),
-    },
+    ...(hideVirtualSum
+      ? []
+      : [
+          {
+            title: t('table.headers.cashlessSum'),
+            dataIndex: 'virtualSumDevice',
+            key: 'virtualSumDevice',
+            width: '11%',
+            render: getCurrencyRender(),
+          },
+        ]),
     {
       title: '',
       key: 'actions',

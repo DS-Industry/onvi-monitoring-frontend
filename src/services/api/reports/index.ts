@@ -45,10 +45,11 @@ type AllReportsResponse = {
 
 export type AllReportsParams = AllReportsResponse["reports"][0]
 
-type ReportParam = {
+export type ReportParam = {
   name: string;
   type: string;
   description: string;
+  required?: string | boolean;
 };
 
 type ReportResponse = {

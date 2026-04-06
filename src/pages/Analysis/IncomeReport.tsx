@@ -1,291 +1,292 @@
-import { getDevices, getPoses } from '@/services/api/equipment';
-import React, { useState } from 'react';
-import useSWR from 'swr';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { applyReport, getReportById } from '@/services/api/reports';
+import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
+import { Skeleton, Input, Select, DatePicker, Button } from 'antd';
+import { ArrowLeftOutlined } from '@ant-design/icons';
+import dayjs, { Dayjs } from 'dayjs';
+
+import { getReportById, applyReport, ReportParam } from '@/services/api/reports';
+import { getDevices, getPoses } from '@/services/api/equipment';
+import { getPlacement } from '@/services/api/device';
 import { getWarehouses } from '@/services/api/warehouse';
 import { getOrganization } from '@/services/api/organization';
-import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
-import { message, Skeleton, Input, Select, DatePicker, Button } from 'antd';
 import { useToast } from '@/components/context/useContext';
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { useUser } from '@/hooks/useUserStore';
+import { getNumericPrefix } from '@/utils/getNumericPrefix';
+
+type FormValue = string | number | null;
+
+const isRequired = (param: ReportParam): boolean => {
+  if (param.required === undefined) return true;
+  if (typeof param.required === 'boolean') return param.required;
+  return param.required.toLowerCase() === 'true';
+};
 
 const IncomeReport: React.FC = () => {
   const { t } = useTranslation();
-  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const city = Number(searchParams.get('city')) || undefined;
-  const posId = Number(searchParams.get('posId')) || undefined;
+  const [searchParams] = useSearchParams();
   const reportId = Number(searchParams.get('id'));
   const { showToast } = useToast();
+  const user = useUser();
+  const cityParam = Number(searchParams.get('city')) || undefined;
+  const posIdParam = Number(searchParams.get('posId')) || undefined;
 
   const { data: posData } = useSWR(
-    [`get-pos`, city],
-    () => getPoses({ placementId: city }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false,
-    }
+    [`get-pos`, cityParam, user.organizationId],
+    () => getPoses({ placementId: cityParam, organizationId: user.organizationId }),
+    { revalidateOnFocus: false, keepPreviousData: true }
   );
-
   const { data: deviceData } = useSWR(
-    posId ? [`get-device`] : null,
-    () => getDevices(posId),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false,
-    }
+    posIdParam ? [`get-device`, posIdParam] : null,
+    () => getDevices(posIdParam),
+    { revalidateOnFocus: false, keepPreviousData: true }
   );
-
   const { data: warehouseData } = useSWR(
     [`get-warehouse`],
-    () =>
-      getWarehouses({
-        posId: posId,
-        placementId: city,
-      }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false,
-    }
+    () => getWarehouses({ posId: posIdParam, placementId: cityParam }),
+    { revalidateOnFocus: false, keepPreviousData: true }
   );
-
   const { data: organizationData } = useSWR(
     [`get-organization`],
-    () => getOrganization({ placementId: city }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false,
+    () => getOrganization({ placementId: cityParam }),
+    { revalidateOnFocus: false, keepPreviousData: true }
+  );
+  const { data: cityData } = useSWR('get-city', getPlacement, { revalidateOnFocus: false });
+
+  const { data: reportData, isLoading: loadingReport } = useSWR(
+    reportId ? [`get-report-${reportId}`] : null,
+    () => getReportById(reportId)
+  );
+
+  const sortedPosOptions = useMemo(() => {
+    if (!posData) return [];
+    return [...posData]
+      .sort((a, b) => {
+        const numA = getNumericPrefix(a.name);
+        const numB = getNumericPrefix(b.name);
+        if (numA !== numB) return numA - numB;
+        return a.name.localeCompare(b.name);
+      })
+      .map(p => ({ label: p.name, value: p.id }));
+  }, [posData]);
+
+  const [formValues, setFormValues] = useState<Record<string, FormValue>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    if (reportData?.params?.params) {
+      const initial: Record<string, FormValue> = {};
+      reportData.params.params.forEach((param: ReportParam) => {
+        initial[param.name] = null;
+      });
+      setFormValues(initial);
     }
-  );
+  }, [reportData]);
 
-  const {
-    data: reportData,
-    isLoading: loadingReport,
-    isValidating: validatingReport,
-  } = useSWR([`get-report`], () => getReportById(reportId), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-    shouldRetryOnError: false,
-  });
-
-  const { trigger: createReport, isMutating } = useSWRMutation(
-    reportData?.id ? ['create-report'] : null,
-    async () =>
-      applyReport(
-        {
-          ...formData,
-        },
-        reportData?.id ? reportData.id : 0
-      )
-  );
-
-  const [formData, setFormData] = useState<{ [key: string]: string | number }>(
-    {}
-  );
-
-  const handleInputChange = (key: string, value: string | number) => {
-    setFormData(prev => ({ ...prev, [key]: value }));
+  const handleInputChange = (name: string, value: FormValue) => {
+    setFormValues(prev => ({ ...prev, [name]: value }));
+    setTouched(prev => ({ ...prev, [name]: true }));
   };
 
-  const onSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
+  const isFormValid = useMemo(() => {
+    if (!reportData?.params?.params) return false;
+    return reportData.params.params.every((param: ReportParam) => {
+      if (!isRequired(param)) return true;
+      const value = formValues[param.name];
+      return value !== null && value !== '' && value !== undefined;
+    });
+  }, [reportData, formValues]);
 
-    if (!reportData?.id) {
-      console.error('Report ID is missing');
-      return;
+  const { trigger: generateReport, isMutating } = useSWRMutation(
+    ['apply-report', reportId],
+    async () => {
+      const payload: Record<string, FormValue> = {};
+      reportData?.params?.params.forEach((param: ReportParam) => {
+        const val = formValues[param.name];
+        payload[param.name] = (val === undefined || val === '') ? null : val;
+      });
+      return applyReport(payload, reportId);
     }
+  );
 
-    const missingFields = reportData.params.params
-      .filter(
-        param =>
-          !formData[param.name] || formData[param.name].toString().trim() === ''
-      )
-      .map(param => param.description || param.name);
-
-    if (missingFields.length > 0) {
-      message.error(`${t('register.for')} : ${missingFields.join(', ')}`);
-      return;
-    }
-
+  const onSubmit = async () => {
     try {
-      await createReport();
+      await generateReport();
       navigate('/analysis/transactions');
     } catch (error) {
-      console.error('Error creating report:', error);
+      console.error(error);
       showToast(t('errors.other.errorCreatingReport'), 'error');
     }
   };
 
+  const getStatus = (hasError: boolean): "" | "error" | "warning" | undefined => {
+    return hasError ? "error" : undefined;
+  };
+
+  const renderField = (param: ReportParam) => {
+    const value = formValues[param.name];
+    const required = isRequired(param);
+    const hasError = touched[param.name] && required && !value;
+    const status = getStatus(hasError);
+
+    if (param.type === 'selectListPlacement') {
+      return (
+        <Select
+          placeholder={param.description}
+          options={cityData?.map(city => ({ label: city.region, value: city.id })) || []}
+          allowClear
+          showSearch
+          value={value ?? undefined}
+          onChange={(val) => handleInputChange(param.name, val)}
+          status={status}
+          className="w-64"
+        />
+      );
+    }
+    if (param.type === 'dateYearMonth') {
+      return (
+        <DatePicker
+          picker="month"
+          placeholder={param.description}
+          format="YYYY-MM"
+          value={value ? dayjs(value as string) : null}
+          onChange={(date: Dayjs | null) => handleInputChange(param.name, date ? date.format('YYYY-MM') : null)}
+          status={status}
+          className="w-64"
+        />
+      );
+    }
+    if (param.type === 'date') {
+      return (
+        <DatePicker
+          showTime
+          placeholder={param.description}
+          format="YYYY-MM-DD HH:mm:ss"
+          value={value ? dayjs(value as string) : null}
+          onChange={(date: Dayjs | null) => handleInputChange(param.name, date ? date.format('YYYY-MM-DD HH:mm:ss') : null)}
+          status={status}
+          className="w-64"
+        />
+      );
+    }
+
+    const nameLower = param.name.toLowerCase();
+    if (nameLower.includes('pos')) {
+      return (
+        <Select
+          placeholder={param.description}
+          options={sortedPosOptions}
+          allowClear
+          showSearch
+          value={value ?? undefined}
+          onChange={(val) => handleInputChange(param.name, val)}
+          status={status}
+          className="w-64"
+        />
+      );
+    }
+    if (nameLower.includes('device')) {
+      return (
+        <Select
+          placeholder={param.description}
+          options={deviceData?.map(d => ({ label: d.props.name, value: d.props.id })) || []}
+          allowClear
+          showSearch
+          value={value ?? undefined}
+          onChange={(val) => handleInputChange(param.name, val)}
+          status={status}
+          className="w-64"
+        />
+      );
+    }
+    if (nameLower.includes('warehouse')) {
+      return (
+        <Select
+          placeholder={param.description}
+          options={warehouseData?.map(w => ({ label: w.props.name, value: w.props.id })) || []}
+          allowClear
+          showSearch
+          value={value ?? undefined}
+          onChange={(val) => handleInputChange(param.name, val)}
+          status={status}
+          className="w-64"
+        />
+      );
+    }
+    if (nameLower.includes('org')) {
+      return (
+        <Select
+          placeholder={param.description}
+          options={organizationData?.map(o => ({ label: o.name, value: o.id })) || []}
+          allowClear
+          showSearch
+          value={value ?? undefined}
+          onChange={(val) => handleInputChange(param.name, val)}
+          status={status}
+          className="w-64"
+        />
+      );
+    }
+    if (param.type === 'number') {
+      return (
+        <Input
+          type="number"
+          placeholder={param.description}
+          value={value ?? undefined}
+          onChange={(e) => handleInputChange(param.name, e.target.value === '' ? null : Number(e.target.value))}
+          status={status}
+          className="w-64"
+        />
+      );
+    }
+    return (
+      <Input
+        placeholder={param.description}
+        value={value ?? undefined}
+        onChange={(e) => handleInputChange(param.name, e.target.value === '' ? null : e.target.value)}
+        status={status}
+        className="w-64"
+      />
+    );
+  };
+
+  if (loadingReport) return <Skeleton active />;
+  if (!reportData) return <div>{t('errors.other.reportNotFound')}</div>;
+
   return (
     <div>
-      <div
-        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0 "
-        onClick={() => {
-          navigate(-1);
-        }}
-      >
+      <div className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0" onClick={() => navigate(-1)}>
         <ArrowLeftOutlined />
         <p className="ms-2">{t('login.back')}</p>
       </div>
       <div className="ml-12 md:ml-0 mb-5 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <span className="text-xl sm:text-3xl font-normal text-text01">
-            {t('routes.income')}
-          </span>
-        </div>
+        <span className="text-xl sm:text-3xl font-normal text-text01">{reportData.name}</span>
       </div>
+
       <div className="p-4 rounded-lg bg-[#fafafa]">
-        <form onSubmit={onSubmit} className="space-y-4">
-          <h3 className="text-lg font-semibold mb-4">{t('analysis.repo')}</h3>
+        <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }}>
           <div className="flex flex-wrap gap-4">
-            {loadingReport || validatingReport ? (
-              <div className="flex flex-wrap gap-4">
-                <Skeleton.Input active style={{ width: 256, height: 32 }} />
-                <Skeleton.Input active style={{ width: 256, height: 32 }} />
-                <Skeleton.Input active style={{ width: 256, height: 32 }} />
-              </div>
-            ) : (
-              reportData &&
-              reportData.params.params.map(value => (
-                <div key={value.name}>
-                  {value.type === 'date' ? (
-                    <div>
-                      <div className="text-sm text-text02">
-                        {value.description}
-                      </div>
-                      <DatePicker
-                        value={
-                          formData[value.name]
-                            ? dayjs(formData[value.name])
-                            : null
-                        }
-                        onChange={date =>
-                          handleInputChange(
-                            value.name,
-                            date ? date.format('YYYY-MM-DDT:HH:mm:ss') : ''
-                          )
-                        }
-                        className="w-64"
-                        showTime={true}
-                      />
-                    </div>
-                  ) : value.name.toLowerCase().includes('pos') ? (
-                    <div>
-                      <div className="text-sm text-text02">
-                        {value.description}
-                      </div>
-                      <Select
-                        title={value.description}
-                        value={formData[value.name] || ''}
-                        options={posData?.map(item => ({
-                          label: item.name,
-                          value: item.id,
-                        }))}
-                        onChange={val => handleInputChange(value.name, val)}
-                        className="w-64"
-                      />
-                    </div>
-                  ) : value.name.toLowerCase().includes('device') ? (
-                    <div>
-                      <div className="text-sm text-text02">
-                        {value.description}
-                      </div>
-                      <Select
-                        title={value.description}
-                        value={formData[value.name] || ''}
-                        options={deviceData?.map(item => ({
-                          label: item.props.name,
-                          value: item.props.id,
-                        }))}
-                        onChange={val => handleInputChange(value.name, val)}
-                        className="w-64"
-                      />
-                    </div>
-                  ) : value.name.toLowerCase().includes('warehouse') ? (
-                    <div>
-                      <div className="text-sm text-text02">
-                        {value.description}
-                      </div>
-                      <Select
-                        title={value.description}
-                        value={formData[value.name] || ''}
-                        options={warehouseData?.map(item => ({
-                          label: item.props.name,
-                          value: item.props.id,
-                        }))}
-                        onChange={val => handleInputChange(value.name, val)}
-                        className="w-64"
-                      />
-                    </div>
-                  ) : value.name.toLowerCase().includes('org') ? (
-                    <div>
-                      <div className="text-sm text-text02">
-                        {value.description}
-                      </div>
-                      <Select
-                        title={value.description}
-                        value={formData[value.name] || ''}
-                        options={organizationData?.map(item => ({
-                          label: item.name,
-                          value: item.id,
-                        }))}
-                        onChange={val => handleInputChange(value.name, val)}
-                        className="w-64"
-                      />
-                    </div>
-                  ) : value.type === 'number' ? (
-                    <div>
-                      <div className="text-sm text-text02">
-                        {t(`analysis.${value.name}`)}
-                      </div>
-                      <Input
-                        type="number"
-                        value={formData[value.name] || ''}
-                        onChange={e =>
-                          handleInputChange(value.name, Number(e.target.value))
-                        }
-                        className="w-64"
-                      />
-                    </div>
-                  ) : (
-                    <div>
-                      <div className="text-sm text-text02">
-                        {t(`analysis.${value.name}`)}
-                      </div>
-                      <Input
-                        title={t(`analysis.${value.name}`)}
-                        type="text"
-                        value={formData[value.name] || ''}
-                        onChange={e =>
-                          handleInputChange(value.name, e.target.value)
-                        }
-                        className="w-64"
-                      />
-                    </div>
-                  )}
+            {reportData.params.params.map((param: ReportParam) => (
+              <div key={param.name}>
+                <div className="text-sm text-text02 mb-1">
+                  {param.description}
+                  {isRequired(param) && <span className="text-red-500 ml-1">*</span>}
                 </div>
-              ))
-            )}
+                {renderField(param)}
+                {touched[param.name] && isRequired(param) && !formValues[param.name] && (
+                  <div className="text-xs text-errorFill mt-1">{t('validation.required')}</div>
+                )}
+              </div>
+            ))}
           </div>
-          <Button
-            htmlType="submit"
-            loading={isMutating}
-            type='primary'
-          >
-            {t('analysis.add')}
-          </Button>
+          <div className="mt-6">
+            <Button type="primary" htmlType="submit" loading={isMutating} disabled={!isFormValid}>
+              {t('analysis.add')}
+            </Button>
+          </div>
         </form>
       </div>
     </div>

@@ -100,11 +100,14 @@ const CollectionCreation: React.FC = () => {
   const [isDeletingCollection, setIsDeletingCollection] = useState(false);
   const [selectedManagerId, setSelectedManagerId] = useState<number | undefined>(undefined);
   const user = useUser();
-  
+
   const id = searchParams.get('id');
   const status = searchParams.get('status');
   const city = Number(searchParams.get('city')) || undefined;
   const posIdFromParams = searchParams.get('posId') ? Number(searchParams.get('posId')) : undefined;
+
+  const isRole4or7 = user.userRoleId === 4 || user.userRoleId === 7;
+
 
   const { data: posData } = useSWR(
     [`get-pos`, city],
@@ -166,8 +169,8 @@ const CollectionCreation: React.FC = () => {
       ?.map((worker: AllWorkersResponse) => {
         if (!worker.props) return null;
         return {
-          name: worker.props.surname 
-            ? `${worker.props.name} ${worker.props.surname}` 
+          name: worker.props.surname
+            ? `${worker.props.name} ${worker.props.surname}`
             : worker.props.name,
           value: worker.props.id,
           key: worker.props.id
@@ -180,10 +183,10 @@ const CollectionCreation: React.FC = () => {
     if (collections?.managerId) {
       setSelectedManagerId(collections.managerId);
     } else if (user?.id) {
-      setSelectedManagerId(user.id);      
+      setSelectedManagerId(user.id);
     }
   }, [collections, id, user]);
-  
+
   const { trigger: postColl, isMutating: collectionLoading } = useSWRMutation(
     ['post-collection'],
     async () =>
@@ -206,7 +209,7 @@ const CollectionCreation: React.FC = () => {
     const updatedValue = numericFields.includes(field) ? Number(value) : value;
     setFormData(prev => ({ ...prev, [field]: updatedValue }));
     setValue(field, value);
-    
+
     if (field === 'posId') {
       setSelectedManagerId(undefined);
     }
@@ -427,7 +430,7 @@ const CollectionCreation: React.FC = () => {
       setCollectionData(result);
       setOldCashCollectionDate(result.oldCashCollectionDate);
       setCashCollectionDate(result.cashCollectionDate);
-      
+
       navigateToCollection();
     }
   };
@@ -586,10 +589,14 @@ const CollectionCreation: React.FC = () => {
             <Descriptions.Item label={t('finance.cars')}>
               {formatNumber(collectionData.countCar) || 0}
             </Descriptions.Item>
-            <Descriptions.Item label={t('finance.cash')}>{`${formatNumber(collectionData.virtualSum) || '00'
-              } ₽`}</Descriptions.Item>
-            <Descriptions.Item label={t('finance.amt')}>{`${formatNumber(collectionData.sumCard) || '00'
-              } ₽`}</Descriptions.Item>
+            {!isRole4or7 && (
+              <Descriptions.Item label={t('finance.cash')}>{`${formatNumber(collectionData.virtualSum) || '00'
+                } ₽`}</Descriptions.Item>
+            )}
+            <Descriptions.Item label={t('finance.amt')}>
+              {`${formatNumber(collectionData.sumCard) || '00'} ₽`}
+            </Descriptions.Item>
+
             <Descriptions.Item label={t('finance.short')}>{`${formatNumber(collectionData.shortage) || '00'
               } ₽`}</Descriptions.Item>
             <Descriptions.Item label={t('marketing.avg')}>{`${collectionData.averageCheck
@@ -687,6 +694,7 @@ const CollectionCreation: React.FC = () => {
                 t={t}
                 handleTableChange={handleTableChange}
                 loading={collectionLoading}
+                hideVirtualSum={isRole4or7}
               />
             )}
           </div>
@@ -717,6 +725,7 @@ const CollectionCreation: React.FC = () => {
                 status={String(status)}
                 t={t}
                 loading={collectionLoading}
+                hideVirtualSum={isRole4or7}
               />
             )}
           </div>

@@ -45,6 +45,7 @@ type ExpenseItem = {
   eventDate: Date;
   sum: number;
   imageProductReceipt?: string;
+  comment?: string;
   rowKey: string;
 };
 
@@ -143,6 +144,7 @@ const MonthlyExpanseEdit: React.FC = () => {
         eventDate: new Date(item.eventDate),
         sum: item.sum,
         imageProductReceipt: item.imageProductReceipt || undefined,
+        comment: item.comment,
         rowKey: `${item.paperTypeId}_${new Date(item.eventDate).getTime()}_${item.sum}_${idx}`,
       })) || [];
 
@@ -300,6 +302,12 @@ const MonthlyExpanseEdit: React.FC = () => {
         key: 'eventDate',
         render: dateRender,
         sorter: (a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime(),
+      },
+      {
+        title: t('marketing.comment'),
+        dataIndex: 'comment',
+        key: 'comment',
+        render: (text: string) => text || '—',
       },
       {
         title: t('marketing.amount'),
@@ -498,7 +506,8 @@ const MonthlyExpanseEdit: React.FC = () => {
                             <Table.Summary.Cell index={2} />
                             <Table.Summary.Cell index={3} />
                             <Table.Summary.Cell index={4} />
-                            <Table.Summary.Cell index={5}>
+                            <Table.Summary.Cell index={5} />
+                            <Table.Summary.Cell index={6}>
                               <strong>{`${totalSum} ₽`}</strong>
                             </Table.Summary.Cell>
                           </Table.Summary.Row>
