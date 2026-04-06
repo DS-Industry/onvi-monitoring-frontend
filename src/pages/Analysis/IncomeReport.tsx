@@ -14,8 +14,22 @@ import { getWarehouses } from '@/services/api/warehouse';
 import { getOrganization } from '@/services/api/organization';
 import { useToast } from '@/components/context/useContext';
 import { useUser } from '@/hooks/useUserStore';
+import { getNumericPrefix } from '@/utils/getNumericPrefix';
 
 type FormValue = string | number | null;
+
+type ReportParam = {
+  name: string;
+  type: string;
+  description: string;
+  required?: string | boolean;
+};
+
+const isRequired = (param: ReportParam): boolean => {
+  if (param.required === undefined) return true;
+  if (typeof param.required === 'boolean') return param.required;
+  return param.required.toLowerCase() === 'true';
+};
 
 const IncomeReport: React.FC = () => {
   const { t } = useTranslation();
@@ -54,13 +68,25 @@ const IncomeReport: React.FC = () => {
     () => getReportById(reportId)
   );
 
+  const sortedPosOptions = useMemo(() => {
+    if (!posData) return [];
+    return [...posData]
+      .sort((a, b) => {
+        const numA = getNumericPrefix(a.name);
+        const numB = getNumericPrefix(b.name);
+        if (numA !== numB) return numA - numB;
+        return a.name.localeCompare(b.name);
+      })
+      .map(p => ({ label: p.name, value: p.id }));
+  }, [posData]);
+
   const [formValues, setFormValues] = useState<Record<string, FormValue>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (reportData?.params?.params) {
       const initial: Record<string, FormValue> = {};
-      reportData.params.params.forEach(param => {
+      reportData.params.params.forEach((param: ReportParam) => {
         initial[param.name] = null;
       });
       setFormValues(initial);
@@ -74,8 +100,8 @@ const IncomeReport: React.FC = () => {
 
   const isFormValid = useMemo(() => {
     if (!reportData?.params?.params) return false;
-    return reportData.params.params.every(param => {
-      if (param.required === false) return true;
+    return reportData.params.params.every((param: ReportParam) => {
+      if (!isRequired(param)) return true;
       const value = formValues[param.name];
       return value !== null && value !== '' && value !== undefined;
     });
@@ -85,7 +111,7 @@ const IncomeReport: React.FC = () => {
     ['apply-report', reportId],
     async () => {
       const payload: Record<string, FormValue> = {};
-      reportData?.params?.params.forEach(param => {
+      reportData?.params?.params.forEach((param: ReportParam) => {
         const val = formValues[param.name];
         payload[param.name] = (val === undefined || val === '') ? null : val;
       });
@@ -107,10 +133,10 @@ const IncomeReport: React.FC = () => {
     return hasError ? "error" : undefined;
   };
 
-  const renderField = (param: any) => {
+  const renderField = (param: ReportParam) => {
     const value = formValues[param.name];
-    const isRequired = param.required !== false;
-    const hasError = touched[param.name] && isRequired && !value;
+    const required = isRequired(param);
+    const hasError = touched[param.name] && required && !value;
     const status = getStatus(hasError);
 
     if (param.type === 'selectListPlacement') {
@@ -159,7 +185,7 @@ const IncomeReport: React.FC = () => {
       return (
         <Select
           placeholder={param.description}
-          options={posData?.map(p => ({ label: p.name, value: p.id })) || []}
+          options={sortedPosOptions}
           allowClear
           showSearch
           value={value ?? undefined}
@@ -250,14 +276,14 @@ const IncomeReport: React.FC = () => {
       <div className="p-4 rounded-lg bg-[#fafafa]">
         <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }}>
           <div className="flex flex-wrap gap-4">
-            {reportData.params.params.map(param => (
+            {reportData.params.params.map((param: ReportParam) => (
               <div key={param.name}>
                 <div className="text-sm text-text02 mb-1">
                   {param.description}
-                  {param.required !== false && <span className="text-red-500 ml-1">*</span>}
+                  {isRequired(param) && <span className="text-red-500 ml-1">*</span>}
                 </div>
                 {renderField(param)}
-                {touched[param.name] && param.required !== false && !formValues[param.name] && (
+                {touched[param.name] && isRequired(param) && !formValues[param.name] && (
                   <div className="text-xs text-errorFill mt-1">{t('validation.required')}</div>
                 )}
               </div>
