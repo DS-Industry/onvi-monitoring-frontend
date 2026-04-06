@@ -1540,7 +1540,13 @@
     "sumStart": "Starting amount",
     "sumEnd": "Ending amount",
     "found": "Found",
-    "reset": "Reset"
+    "reset": "Reset",
+    "applyParams": {
+      "startDate": "Start date",
+      "endDate": "End date",
+      "organizationId": "Organization",
+      "carWashPosId": "Car wash (POS)"
+    }
   },
   "roles": {
     "access": "Access rights management",
@@ -1906,6 +1912,7 @@
       "amountBegin": "Amount at the beginning of the period",
       "amountEnd": "Amount at the end of the period",
       "report": "Report",
+      "applyParams": "Parameters",
       "creationStartDate": "Creation start date",
       "creationEndDate": "Creation end date",
       "sku": "SKU",
