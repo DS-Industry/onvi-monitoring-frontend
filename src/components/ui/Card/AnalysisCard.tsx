@@ -67,7 +67,7 @@ const AnalysisCard: React.FC<Props> = ({
               color: '#1F1F1F',
               fontWeight: 600,
               lineHeight: 1.1,
-              whiteSpace: "nowrap"
+              whiteSpace: "wrap"
             }}
           >
             {title}

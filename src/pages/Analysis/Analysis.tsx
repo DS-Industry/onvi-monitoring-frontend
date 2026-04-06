@@ -95,27 +95,28 @@ const Analysis: React.FC = () => {
 
       <hr className="my-4" />
 
-      <div className="space-y-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-          {loadingReports || validatingReports || tableLoading ? (
+      <div className="flex flex-wrap gap-4">
+        {loadingReports || validatingReports || tableLoading ? (
+          <>
             <Skeleton.Input style={{ width: 456, height: 200 }} />
-          ) : (
-            reportsData.map(report => (
-              <AnalysisCard
-                key={report.id}
-                iconText="file"
-                title={report.name}
-                description={report.description || ''}
-                onNavigate={() => {
-                  navigate(`/analysis/report?id=${report?.id}`);
-                }}
-              />
-            ))
-          )}
-        </div>
+            <Skeleton.Input style={{ width: 456, height: 200 }} />
+          </>
+        ) : (
+          reportsData.map(report => (
+            <AnalysisCard
+              key={report.id}
+              iconText="file"
+              title={report.name}
+              description={report.description || ''}
+              onNavigate={() => {
+                navigate(`/analysis/report?id=${report?.id}`);
+              }}
+            />
+          ))
+        )}
       </div>
 
-      <div className="mt-4">
+      <div className="mt-6 flex w-full justify-end">
         <Pagination
           current={currentPage}
           total={totalCount}
