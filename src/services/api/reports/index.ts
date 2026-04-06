@@ -48,6 +48,7 @@ type ReportParam = {
   name: string;
   type: string;
   description: string;
+  required: boolean;
 };
 
 type ReportResponse = {
