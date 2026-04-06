@@ -1540,7 +1540,13 @@
     "sumStart": "Сумма на начало",
     "sumEnd": "Сумма на конец",
     "found": "Найдено",
-    "reset": "Сбросить"
+    "reset": "Сбросить",
+    "applyParams": {
+      "startDate": "Дата начала",
+      "endDate": "Дата окончания",
+      "organizationId": "Организация",
+      "carWashPosId": "Автомойка (POS)"
+    }
   },
   "roles": {
     "access": "Управление правами доступа",
@@ -1906,6 +1912,7 @@
       "amountBegin": "Сумма на начало периода",
       "amountEnd": "Сумма на конец периода",
       "report": "Отчет",
+      "applyParams": "Параметры",
       "creationStartDate": "Дата начала создания",
       "creationEndDate": "Дата окончания создания",
       "sku": "Код",

@@ -38,6 +38,7 @@ type AllReportsResponse = {
     category: CategoryReportTemplate;
     description?: string;
     params: JSON;
+    applyParams: JSON;
   }[];
   count: number;
 };
@@ -60,21 +61,32 @@ type ReportResponse = {
   };
 };
 
+export type TransactionApplyParams = {
+  endDate?: string;
+  startDate?: string;
+  organizationId?: number;
+  carWashPosId?: number;
+};
+
 type TransactionParams = {
   page?: number;
   size?: number;
+  applyParams?: TransactionApplyParams;
+};
+
+type TransactionItem = {
+  id: number;
+  reportTemplateId: number;
+  userId: number;
+  startTemplateAt: Date;
+  endTemplateAt?: Date;
+  status: StatusReportTemplate;
+  reportKey?: string;
+  applyParams?: TransactionApplyParams | Record<string, unknown>;
 };
 
 type TransactionResponse = {
-  transactions: {
-    id: number;
-    reportTemplateId: number;
-    userId: number;
-    startTemplateAt: Date;
-    endTemplateAt?: Date;
-    status: StatusReportTemplate;
-    reportKey?: string;
-  }[];
+  transactions: TransactionItem[];
   count: number;
 };
 

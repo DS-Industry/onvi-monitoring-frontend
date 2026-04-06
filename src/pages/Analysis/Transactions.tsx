@@ -2,7 +2,7 @@ import { getAllReports, getTransactions } from '@/services/api/reports';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR, { mutate } from 'swr';
-import { Button, Input, Table } from 'antd';
+import { Button, Input, Table, Typography } from 'antd';
 import { UndoOutlined } from '@ant-design/icons';
 import { DownloadOutlined } from '@ant-design/icons';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
@@ -62,21 +62,17 @@ const Transactions: React.FC = () => {
     );
   }, [filter?.reports]);
 
-  const filterParams = {
-    page: currentPage,
-    size: pageSize,
-  };
-
-  const swrKey = useMemo(() => {
-    return ['get-transactions', filterParams.page, filterParams.size];
-  }, [filterParams]);
+  const swrKey = useMemo(
+    () => ['get-transactions', currentPage, pageSize],
+    [currentPage, pageSize]
+  );
 
   const { data: transactionData, isLoading: loadingTransactions } = useSWR(
     swrKey,
     () =>
       getTransactions({
-        page: filterParams.page,
-        size: filterParams.size,
+        page: currentPage,
+        size: pageSize,
       }),
     {
       revalidateOnFocus: false,
@@ -108,11 +104,47 @@ const Transactions: React.FC = () => {
   const statusRender = getStatusTagRender(t);
   const dateRender = getDateRender();
 
+  const formatApplyParams = (
+    value: Record<string, unknown> | undefined
+  ): string => {
+    if (value == null || Object.keys(value).length === 0) {
+      return '—';
+    }
+    const lines = Object.entries(value)
+      .filter(
+        ([, v]) =>
+          v != null && v !== '' && !(typeof v === 'number' && Number.isNaN(v))
+      )
+      .map(([k, v]) => {
+        const label = t(`analysis.applyParams.${k}`, { defaultValue: k });
+        const shown =
+          v !== null && typeof v === 'object'
+            ? JSON.stringify(v)
+            : String(v);
+        return `${label}: ${shown}`;
+      });
+    return lines.length === 0 ? '—' : lines.join('\n');
+  };
+
   const columnsTransactions = [
     {
       title: t('table.headers.report'),
       dataIndex: 'reportTemplateId',
       key: 'reportTemplateId',
+    },
+    {
+      title: t('table.headers.applyParams'),
+      dataIndex: 'applyParams',
+      key: 'applyParams',
+      width: 280,
+      render: (value: Record<string, unknown> | undefined) => (
+        <Typography.Paragraph
+          className="!mb-0 whitespace-pre-wrap font-mono text-xs text-text02 max-w-[320px]"
+          ellipsis={{ rows: 4, expandable: true, symbol: '…' }}
+        >
+          {formatApplyParams(value)}
+        </Typography.Paragraph>
+      ),
     },
     {
       title: t('table.columns.status'),
