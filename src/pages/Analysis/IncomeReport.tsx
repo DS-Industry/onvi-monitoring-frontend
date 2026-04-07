@@ -20,6 +20,9 @@ import { getNumericPrefix } from '@/utils/getNumericPrefix';
 type FormValue = string | number | null;
 
 const isRequired = (param: ReportParam): boolean => {
+  if (param.type === 'selectListManager' || param.name === 'managerId') {
+    return false;
+  }
   if (param.required === undefined) return true;
   if (typeof param.required === 'boolean') return param.required;
   return param.required.toLowerCase() === 'true';
