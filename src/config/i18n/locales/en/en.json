@@ -791,6 +791,7 @@
     "loyalty": "Loyalty Card",
     "card": "Card No.",
     "selectCard": "Select Card",
+    "searchCard": "Search by card number",
     "un": "UN cards",
     "comp": "Completion date",
     "cardType": "Card type*",

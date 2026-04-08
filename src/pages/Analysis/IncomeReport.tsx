@@ -12,6 +12,7 @@ import { getDevices, getPoses } from '@/services/api/equipment';
 import { getPlacement } from '@/services/api/device';
 import { getWarehouses } from '@/services/api/warehouse';
 import { getOrganization } from '@/services/api/organization';
+import { getWorkerManager } from '@/services/api/finance';
 import { useToast } from '@/components/context/useContext';
 import { useUser } from '@/hooks/useUserStore';
 import { getNumericPrefix } from '@/utils/getNumericPrefix';
@@ -19,6 +20,9 @@ import { getNumericPrefix } from '@/utils/getNumericPrefix';
 type FormValue = string | number | null;
 
 const isRequired = (param: ReportParam): boolean => {
+  if (param.type === 'selectListManager' || param.name === 'managerId') {
+    return false;
+  }
   if (param.required === undefined) return true;
   if (typeof param.required === 'boolean') return param.required;
   return param.required.toLowerCase() === 'true';
@@ -75,6 +79,11 @@ const IncomeReport: React.FC = () => {
 
   const [formValues, setFormValues] = useState<Record<string, FormValue>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const selectedOrganizationId = useMemo(() => {
+    const raw = formValues.organizationId;
+    if (raw === null || raw === undefined || raw === '') return undefined;
+    return Number(raw);
+  }, [formValues.organizationId]);
 
   useEffect(() => {
     if (reportData?.params?.params) {
@@ -125,6 +134,14 @@ const IncomeReport: React.FC = () => {
   const getStatus = (hasError: boolean): "" | "error" | "warning" | undefined => {
     return hasError ? "error" : undefined;
   };
+
+  const { data: managerData } = useSWR(
+    selectedOrganizationId
+      ? ['get-worker-manager', selectedOrganizationId]
+      : null,
+    () => getWorkerManager(selectedOrganizationId!),
+    { revalidateOnFocus: false, keepPreviousData: true }
+  );
 
   const renderField = (param: ReportParam) => {
     const value = formValues[param.name];
@@ -216,11 +233,25 @@ const IncomeReport: React.FC = () => {
         />
       );
     }
-    if (nameLower.includes('org')) {
+    if (param.type === 'selectListOrg' || nameLower.includes('org')) {
       return (
         <Select
           placeholder={param.description}
           options={organizationData?.map(o => ({ label: o.name, value: o.id })) || []}
+          allowClear
+          showSearch
+          value={value ?? undefined}
+          onChange={(val) => handleInputChange(param.name, val)}
+          status={status}
+          className="w-64"
+        />
+      );
+    }
+    if (param.type === 'selectListManager' || nameLower.includes('manager')) {
+      return (
+        <Select
+          placeholder={param.description}
+          options={managerData?.map(m => ({ label: `${m.name} ${m.surname}`, value: m.id })) || []}
           allowClear
           showSearch
           value={value ?? undefined}

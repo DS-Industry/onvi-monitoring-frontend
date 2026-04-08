@@ -7,6 +7,7 @@ import {
   createClient,
   getCards,
   GetCardsPayload,
+  GetCardsResponse,
   getClientById,
   updateClient,
 } from '@/services/api/marketing';
@@ -26,12 +27,13 @@ import {
   Spin,
 } from 'antd';
 import dayjs from 'dayjs';
-import React, { useEffect, useMemo } from 'react';
+import { debounce } from 'lodash';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 
 type ClientDrawerProps = {
   isOpen: boolean;
@@ -40,6 +42,23 @@ type ClientDrawerProps = {
 };
 
 const { Option } = Select;
+
+function toListCardShape(c: {
+  id: number;
+  balance: number;
+  mobileUserId: number;
+  devNumber: number | string;
+  number: number | string;
+  monthlyLimit?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}): GetCardsResponse[0] {
+  return {
+    ...c,
+    devNumber: String(c.devNumber),
+    number: String(c.number),
+  } as GetCardsResponse[0];
+}
 
 const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
   isOpen,
@@ -85,22 +104,42 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
     formState: { errors },
   } = useForm<ClientRequestBody>({ defaultValues });
 
+  const [debouncedCardQuery, setDebouncedCardQuery] = useState('');
+  const [lastPickedCard, setLastPickedCard] = useState<
+    GetCardsResponse[0] | null
+  >(null);
+
+  const debouncedSetCardQuery = useMemo(
+    () => debounce((value: string) => setDebouncedCardQuery(value), 400),
+    []
+  );
+
+  useEffect(() => {
+    return () => debouncedSetCardQuery.cancel();
+  }, [debouncedSetCardQuery]);
+
   useEffect(() => {
     if (!isOpen) {
       reset(defaultValues);
+      setDebouncedCardQuery('');
+      debouncedSetCardQuery.cancel();
+      setLastPickedCard(null);
     }
-  }, [isOpen]);
+  }, [isOpen, reset, defaultValues, debouncedSetCardQuery]);
+
+  const watchedCardId = useWatch({ control, name: 'cardId' });
 
   const cardParams: GetCardsPayload = useMemo(
     () => ({
       organizationId: user.organizationId,
       unnasigned: true,
+      number: debouncedCardQuery.trim() || undefined,
     }),
-    [user.organizationId]
+    [user.organizationId, debouncedCardQuery]
   );
 
-  const { data: cards } = useSWR(
-    ['get-cards', cardParams],
+  const { data: cards, isValidating: loadingCards } = useSWR(
+    isOpen && user.organizationId ? ['get-cards', cardParams] : null,
     ([, params]) => getCards(params),
     {
       shouldRetryOnError: false,
@@ -153,6 +192,15 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
     }
   }, [isOpen, clientId, clientDataById, reset, defaultValues]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    if (clientId && clientDataById?.card) {
+      setLastPickedCard(toListCardShape(clientDataById.card));
+    } else if (!clientId) {
+      setLastPickedCard(null);
+    }
+  }, [isOpen, clientId, clientDataById?.card]);
+
   const onSubmit = async (values: ClientRequestBody) => {
     try {
       const result = clientId
@@ -182,10 +230,24 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
   };
 
   const allCards = useMemo(() => {
-    if (!clientDataById?.card) return cards || [];
-    const exists = (cards || []).some(c => c.id === clientDataById.card?.id);
-    return exists ? cards || [] : [...(cards || []), clientDataById.card];
-  }, [cards, clientDataById]);
+    const list: GetCardsResponse[0][] = [...(cards || [])];
+    const pushIfMissing = (c: GetCardsResponse[0] | undefined) => {
+      if (c?.id != null && !list.some(x => x.id === c.id)) {
+        list.push(c);
+      }
+    };
+    if (clientDataById?.card) {
+      pushIfMissing(toListCardShape(clientDataById.card));
+    }
+    if (
+      lastPickedCard &&
+      watchedCardId != null &&
+      lastPickedCard.id === watchedCardId
+    ) {
+      pushIfMissing(lastPickedCard);
+    }
+    return list;
+  }, [cards, clientDataById?.card, lastPickedCard, watchedCardId]);
 
   const genderOptions = useMemo(
     () => [
@@ -375,9 +437,28 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
                   <Select
                     {...field}
                     className="w-full sm:w-96"
-                    placeholder={t('marketing.selectCard')}
+                    showSearch
+                    filterOption={false}
+                    onSearch={debouncedSetCardQuery}
+                    placeholder={t('marketing.searchCard')}
+                    loading={loadingCards}
+                    allowClear
                     value={field.value ? String(field.value) : undefined}
-                    onChange={val => field.onChange(Number(val))}
+                    onClear={() => {
+                      debouncedSetCardQuery.cancel();
+                      setDebouncedCardQuery('');
+                    }}
+                    onChange={val => {
+                      if (val == null || val === '') {
+                        field.onChange(undefined);
+                        setLastPickedCard(null);
+                        return;
+                      }
+                      const num = Number(val);
+                      field.onChange(num);
+                      const picked = allCards.find(c => c.id === num);
+                      if (picked) setLastPickedCard(picked);
+                    }}
                   >
                     {allCards.map(card => (
                       <Option key={String(card.id)} value={String(card.id)}>
