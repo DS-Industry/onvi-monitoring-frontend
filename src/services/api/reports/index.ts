@@ -128,3 +128,9 @@ export async function getTransactions(
   );
   return response.data;
 }
+
+export async function deleteTransaction(
+  transactionId: number
+): Promise<void> {
+  await api.delete(`${REPORTS.GET_REPORTS}/transaction/${transactionId}`);
+}
