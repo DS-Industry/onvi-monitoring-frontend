@@ -943,7 +943,7 @@ const routes: RouteItem[] = [
     icon: MonitoringIcon,
     component: Default,
     isSidebar: true,
-    requiredPlanCodes: SPACE_AND_UP,
+    requiredPlanCodes: BUSINESS_AND_UP,
     permissions: [],
     subNavHeading: '',
     subNav: [

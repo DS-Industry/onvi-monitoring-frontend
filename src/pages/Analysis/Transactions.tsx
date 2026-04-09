@@ -1,10 +1,15 @@
-import { getAllReports, getTransactions } from '@/services/api/reports';
+import {
+  deleteTransaction,
+  getAllReports,
+  getTransactions,
+} from '@/services/api/reports';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import useSWR, { mutate } from 'swr';
-import { Button, Input, Table, Typography } from 'antd';
+import { Button, Input, Popconfirm, Space, Table, Typography } from 'antd';
 import { UndoOutlined } from '@ant-design/icons';
 import { DownloadOutlined } from '@ant-design/icons';
+import { DeleteOutlined } from '@ant-design/icons';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import { useSearchParams } from 'react-router-dom';
 import {
@@ -19,6 +24,9 @@ const Transactions: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchValue, setSearchValue] = useState('');
+  const [deletingTransactionId, setDeletingTransactionId] = useState<
+    number | null
+  >(null);
   const name = searchParams.get('name') || undefined;
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
@@ -101,6 +109,16 @@ const Transactions: React.FC = () => {
     window.open(downloadUrl, '_blank');
   };
 
+  const handleDeleteTransaction = async (transactionId: number) => {
+    setDeletingTransactionId(transactionId);
+    try {
+      await deleteTransaction(transactionId);
+      await mutate(swrKey);
+    } finally {
+      setDeletingTransactionId(null);
+    }
+  };
+
   const statusRender = getStatusTagRender(t);
   const dateRender = getDateRender();
 
@@ -167,18 +185,40 @@ const Transactions: React.FC = () => {
     {
       title: '',
       key: 'Download',
-      render: (row: { status: string; reportKey: string; userId: number }) =>
-        row.status === t('analysis.DONE') && (
-          <div>
+      render: (row: {
+        id: number;
+        status: string;
+        reportKey?: string;
+        userId: number;
+      }) => (
+        <Space>
+          {row.status === t('analysis.DONE') && row.reportKey && (
             <button
-              onClick={() => handleDownload(row.reportKey, row.userId)}
+              onClick={() => handleDownload(row.reportKey!, row.userId)}
               className="flex space-x-2 items-center text-primary02"
             >
               <div>{t('tables.Download')}</div>
               <DownloadOutlined className="w-5 h-5" />
             </button>
-          </div>
-        ),
+          )}
+          <Popconfirm
+            title={t('techTasks.confirmDelete')}
+            onConfirm={() => handleDeleteTransaction(row.id)}
+            okText={t('common.delete')}
+            okType="danger"
+            cancelText={t('common.cancel')}
+          >
+            <Button
+              type="link"
+              danger
+              icon={<DeleteOutlined />}
+              loading={deletingTransactionId === row.id}
+            >
+              {t('common.delete')}
+            </Button>
+          </Popconfirm>
+        </Space>
+      ),
     },
   ];
 
