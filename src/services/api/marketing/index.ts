@@ -1131,6 +1131,53 @@ type CorporateCardsOperationsPaginatedResponse = {
   hasPrevious: boolean;
 };
 
+export type CardOperationOrderResponseDto = {
+  kind: 'order';
+  id: number;
+  occurredAt: Date;
+  transactionId: string | null;
+  sumFull: number;
+  sumReal: number;
+  sumBonus: number;
+  sumDiscount: number;
+  sumCashback: number;
+  platform: string;
+  contractType: string;
+  orderStatus: string;
+  orderHandlerStatus: string | null;
+  carWashDeviceId: number;
+  carWashDeviceName: string;
+  carWashPosName: string | null;
+};
+
+export type CardOperationEquaringResponseDto = {
+  kind: 'equaring';
+  id: number;
+  occurredAt: Date;
+  type: string;
+  source: string;
+  amount: number;
+  balanceSnapshot: number | null;
+  currency: string;
+  paymentProvider: string;
+  providerPaymentId: string | null;
+  paymentStatus: string | null;
+  reason: string | null;
+  initiatedByUserName: string | null;
+};
+
+export type CardOperationFeedItemResponseDto =
+  | CardOperationOrderResponseDto
+  | CardOperationEquaringResponseDto;
+
+export type CardOperationsFeedPaginatedResponseDto = {
+  items: CardOperationFeedItemResponseDto[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+};
+
 export type MarketingCampaignResponse = {
   id: number;
   name: string;
@@ -1273,6 +1320,18 @@ export async function getCorporateClientOperationsById(
 ): Promise<CorporateCardsOperationsPaginatedResponse> {
   const response: AxiosResponse<CorporateCardsOperationsPaginatedResponse> =
     await api.get(`user/loyalty/corporate-clients/${id}/cards/operations`, {
+      params,
+    });
+
+  return response.data;
+}
+
+export async function getCardOperationsById(
+  id: number,
+  params: { page: number; size: number }
+): Promise<CardOperationsFeedPaginatedResponseDto> {
+  const response: AxiosResponse<CardOperationsFeedPaginatedResponseDto> =
+    await api.get(`user/loyalty/card/${id}/operations`, {
       params,
     });
 

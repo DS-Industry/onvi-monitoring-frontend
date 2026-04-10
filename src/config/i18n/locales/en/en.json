@@ -770,6 +770,8 @@
     "qty": "Qty"
   },
   "marketing": {
+    "orderType": "Order type",
+    "equiringType": "Equiring type",
     "createOperation": "Create Operation",
     "noClient": "At the moment you have no clients in the system",
     "new": "New Client",
