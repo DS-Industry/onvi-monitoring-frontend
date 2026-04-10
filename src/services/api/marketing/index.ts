@@ -819,6 +819,56 @@ export async function updateCard(
   return response.data;
 }
 
+export type EquiringType = 'TOP_UP' | 'DECREASE';
+
+export type CreateEquiringRequest =
+  | {
+      cardId: number;
+      type: EquiringType;
+      money: number;
+      reason?: string;
+    }
+  | {
+      corporateClientId: number;
+      type: EquiringType;
+      money: number;
+      reason?: string;
+    };
+
+export type CreateEquiringResponse = {
+  props: {
+    id: number;
+    cardId: number;
+    type: EquiringType;
+    source: string;
+    amount: number;
+    balanceSnapshot: number;
+    currency: string;
+    paymentProvider: string;
+    providerPaymentId: string | null;
+    idempotencyKey: string | null;
+    paymentStatus: string;
+    initiatedByUserId: number;
+    reason: string | null;
+    metadata: unknown;
+    appliedAt: string;
+    failedAt: string | null;
+    canceledAt: string | null;
+    createdAt: string;
+    updatedAt: string;
+  };
+};
+
+export async function createEquiring(
+  body: CreateEquiringRequest
+): Promise<CreateEquiringResponse> {
+  const response: AxiosResponse<CreateEquiringResponse> = await api.post(
+    'user/loyalty/card/equiring',
+    body
+  );
+  return response.data;
+}
+
 export type AssignCardRequest = {
   cardId: number;
   clientId: number;
