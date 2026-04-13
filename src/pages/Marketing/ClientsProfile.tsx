@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 const BasicInformation = React.lazy(() => import('./BasicInformation'));
 const KeyTab = React.lazy(() => import('./KeyTab'));
 const Loyalty = React.lazy(() => import('./Loyalty'));
+const ClientOperations = React.lazy(() => import('./ClientOperations'));
 import GenericTabs from '@ui/Tabs/GenericTab';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import useSWR from 'swr';
@@ -91,8 +92,23 @@ const ClientsProfile: React.FC = () => {
           </Suspense>
         ),
       },
+      {
+        key: 'operations',
+        label: t('marketing.operations'),
+        content: (
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center w-full h-full min-h-[400px]">
+                <Spin size="large" />
+              </div>
+            }
+          >
+            <ClientOperations cardId={clientData?.card?.id} />
+          </Suspense>
+        ),
+      },
     ],
-    [t]
+    [t, clientData?.card?.id]
   );
 
   return (

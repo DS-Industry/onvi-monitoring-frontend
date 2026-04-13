@@ -7,8 +7,10 @@ import {
   updateCard,
   getTiers,
   UpdateCardRequest,
+  createEquiring,
+  EquiringType,
 } from '@/services/api/marketing';
-import { Spin, Card as AntCard, Typography, Select, Button, message, Skeleton } from 'antd';
+import { Spin, Card as AntCard, Typography, Select, Button, message, Skeleton, Modal, Form, InputNumber, Input } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { useToast } from '@/components/context/useContext';
 import { Can } from '@/permissions/Can';
@@ -31,6 +33,9 @@ const Card: React.FC = () => {
   const [selectedTierId, setSelectedTierId] = useState<number | undefined>(undefined);
   const [selectedStatus, setSelectedStatus] = useState<'ACTIVE' | 'INACTIVE'>('ACTIVE');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isEquiringModalOpen, setIsEquiringModalOpen] = useState(false);
+  const [isCreatingEquiring, setIsCreatingEquiring] = useState(false);
+  const [equiringForm] = Form.useForm<{ type: EquiringType; money: number; reason?: string }>();
 
   const { data: card, isLoading } = useSWR(
     cardId ? ['get-card-by-id', cardId] : null,
@@ -104,6 +109,57 @@ const Card: React.FC = () => {
     }
   };
 
+  const handleOpenEquiringModal = () => {
+    equiringForm.setFieldsValue({ type: 'TOP_UP', money: undefined, reason: undefined });
+    setIsEquiringModalOpen(true);
+  };
+
+  const handleCloseEquiringModal = () => {
+    equiringForm.resetFields();
+    setIsEquiringModalOpen(false);
+  };
+
+  const handleCreateEquiring = async () => {
+    if (!cardId || !card) {
+      message.error('Card ID not found');
+      return;
+    }
+
+    try {
+      const values = await equiringForm.validateFields();
+
+      if (values.type === 'DECREASE' && values.money > card.balance) {
+        showToast(
+          t('marketing.insufficientBalance'),
+          'error'
+        );
+        return;
+      }
+
+      setIsCreatingEquiring(true);
+      await createEquiring({
+        cardId,
+        type: values.type,
+        money: values.money,
+        reason: values.reason?.trim() ? values.reason.trim() : undefined,
+      });
+      showToast(t('routes.savedSuccessfully'), 'success');
+      await mutate(['get-card-by-id', cardId]);
+      handleCloseEquiringModal();
+    } catch (error: any) {
+      if (error?.errorFields) {
+        return;
+      }
+      const errorMessage =
+        error?.response?.data?.message ||
+        t('marketing.cardUpdateError');
+      showToast(errorMessage, 'error');
+      console.error('Failed to create equiring operation:', error);
+    } finally {
+      setIsCreatingEquiring(false);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center w-full h-full min-h-[400px]">
@@ -141,6 +197,7 @@ const Card: React.FC = () => {
             <Title level={4} className="mt-1 mb-0">
               {card.number}
             </Title>
+
           </div>
 
           {card.unqNumber && (
@@ -244,22 +301,101 @@ const Card: React.FC = () => {
             </div>
           )}
 
-          <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
-            {allowed => allowed && (
-              <div className="pt-4 border-t">
-                <Button
-                  type="primary"
-                  onClick={handleUpdateCard}
-                  loading={isUpdating}
-                  disabled={isUpdating}
-                >
-                  {t('organizations.save') || 'Save Changes'}
-                </Button>
-              </div>
-            )}
-          </Can>
+          <div className="pt-4 border-t">
+            <div className="flex flex-wrap gap-3">
+              <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
+                {allowed => allowed && (
+                  <Button
+                    type="primary"
+                    onClick={handleUpdateCard}
+                    loading={isUpdating}
+                    disabled={isUpdating || isCreatingEquiring}
+                  >
+                    {t('organizations.save')}
+                  </Button>
+                )}
+              </Can>
+              <Can requiredPermissions={[{ action: 'delete', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
+                {allowed => allowed && (
+                  <Button
+                    onClick={handleOpenEquiringModal}
+                    disabled={isUpdating || isCreatingEquiring}
+                  >
+                    {t('marketing.addEquiring')}
+                  </Button>
+                )}
+              </Can>
+            </div>
+          </div>
         </div>
       </AntCard>
+
+      <Modal
+        title={t('marketing.addEquiring')}
+        open={isEquiringModalOpen}
+        onCancel={handleCloseEquiringModal}
+        onOk={handleCreateEquiring}
+        okText={t('common.create')}
+        cancelText={t('constants.cancel')}
+        okButtonProps={{ loading: isCreatingEquiring, disabled: isUpdating }}
+        cancelButtonProps={{ disabled: isCreatingEquiring }}
+        destroyOnClose
+      >
+        <Form form={equiringForm} layout="vertical">
+          <Form.Item
+            name="type"
+            label={t('marketing.operationType')}
+            rules={[
+              {
+                required: true,
+                message: t('validation.required'),
+              },
+            ]}
+          >
+            <Select
+              options={[
+                { value: 'TOP_UP', label: t('marketing.topUp') },
+                { value: 'DECREASE', label: t('marketing.decrease') },
+              ]}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name="money"
+            label={t('marketing.amount')}
+            rules={[
+              {
+                required: true,
+                message: t('validation.required'),
+              },
+              {
+                validator: (_, value) => {
+                  if (typeof value !== 'number' || Number.isNaN(value) || value <= 0) {
+                    return Promise.reject(
+                      new Error(t('validation.positiveNumber'))
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
+          >
+            <InputNumber className="w-full" min={0.01} precision={2} controls={false} />
+          </Form.Item>
+
+          <Form.Item
+            name="reason"
+            label={t('marketing.reason')}
+          >
+            <Input.TextArea
+              rows={3}
+              placeholder={t('marketing.reasonPlaceholder')}
+              maxLength={500}
+              showCount
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };
