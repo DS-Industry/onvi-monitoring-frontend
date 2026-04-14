@@ -819,6 +819,56 @@ export async function updateCard(
   return response.data;
 }
 
+export type EquiringType = 'TOP_UP' | 'DECREASE';
+
+export type CreateEquiringRequest =
+  | {
+      cardId: number;
+      type: EquiringType;
+      money: number;
+      reason?: string;
+    }
+  | {
+      corporateClientId: number;
+      type: EquiringType;
+      money: number;
+      reason?: string;
+    };
+
+export type CreateEquiringResponse = {
+  props: {
+    id: number;
+    cardId: number;
+    type: EquiringType;
+    source: string;
+    amount: number;
+    balanceSnapshot: number;
+    currency: string;
+    paymentProvider: string;
+    providerPaymentId: string | null;
+    idempotencyKey: string | null;
+    paymentStatus: string;
+    initiatedByUserId: number;
+    reason: string | null;
+    metadata: unknown;
+    appliedAt: string;
+    failedAt: string | null;
+    canceledAt: string | null;
+    createdAt: string;
+    updatedAt: string;
+  };
+};
+
+export async function createEquiring(
+  body: CreateEquiringRequest
+): Promise<CreateEquiringResponse> {
+  const response: AxiosResponse<CreateEquiringResponse> = await api.post(
+    'user/loyalty/card/equiring',
+    body
+  );
+  return response.data;
+}
+
 export type AssignCardRequest = {
   cardId: number;
   clientId: number;
@@ -1081,6 +1131,53 @@ type CorporateCardsOperationsPaginatedResponse = {
   hasPrevious: boolean;
 };
 
+export type CardOperationOrderResponseDto = {
+  kind: 'order';
+  id: number;
+  occurredAt: Date;
+  transactionId: string | null;
+  sumFull: number;
+  sumReal: number;
+  sumBonus: number;
+  sumDiscount: number;
+  sumCashback: number;
+  platform: string;
+  contractType: string;
+  orderStatus: string;
+  orderHandlerStatus: string | null;
+  carWashDeviceId: number;
+  carWashDeviceName: string;
+  carWashPosName: string | null;
+};
+
+export type CardOperationEquaringResponseDto = {
+  kind: 'equaring';
+  id: number;
+  occurredAt: Date;
+  type: string;
+  source: string;
+  amount: number;
+  balanceSnapshot: number | null;
+  currency: string;
+  paymentProvider: string;
+  providerPaymentId: string | null;
+  paymentStatus: string | null;
+  reason: string | null;
+  initiatedByUserName: string | null;
+};
+
+export type CardOperationFeedItemResponseDto =
+  | CardOperationOrderResponseDto
+  | CardOperationEquaringResponseDto;
+
+export type CardOperationsFeedPaginatedResponseDto = {
+  items: CardOperationFeedItemResponseDto[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+};
+
 export type MarketingCampaignResponse = {
   id: number;
   name: string;
@@ -1223,6 +1320,18 @@ export async function getCorporateClientOperationsById(
 ): Promise<CorporateCardsOperationsPaginatedResponse> {
   const response: AxiosResponse<CorporateCardsOperationsPaginatedResponse> =
     await api.get(`user/loyalty/corporate-clients/${id}/cards/operations`, {
+      params,
+    });
+
+  return response.data;
+}
+
+export async function getCardOperationsById(
+  id: number,
+  params: { page: number; size: number }
+): Promise<CardOperationsFeedPaginatedResponseDto> {
+  const response: AxiosResponse<CardOperationsFeedPaginatedResponseDto> =
+    await api.get(`user/loyalty/card/${id}/operations`, {
       params,
     });
 
