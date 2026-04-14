@@ -18,6 +18,35 @@ import useAuthStore from '@/config/store/authSlice';
 
 const { Text } = Typography;
 
+type OperationType = 'ORDER' | 'DEDUCTION' | 'REPLENISHMENT';
+
+type OperationRow = {
+  key: string;
+  id: string | number;
+  branch: string;
+  cardNo: string;
+  date: string;
+  time: string;
+  amount: string;
+  amountNumber: number;
+  sumBonus: string;
+  sumCashback: string;
+  operationType: OperationType;
+  bonusNumber: number;
+  cashbackNumber: number;
+};
+
+const formatCurrency = (value: number): string =>
+  `${Math.abs(value).toLocaleString('ru-RU', { minimumFractionDigits: 2 })} ₽`;
+
+const formatSignedCurrency = (
+  value: number,
+  withPositiveSign = false
+): string => {
+  const sign = value < 0 ? '-' : value > 0 && withPositiveSign ? '+' : '';
+  return `${sign}${formatCurrency(value)}`;
+};
+
 const Operations: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -55,47 +84,57 @@ const Operations: React.FC = () => {
     }
   };
 
-  const dataSource =
+  const dataSource: OperationRow[] =
     operations?.data.map(operation => {
-      const dateObj = new Date(operation.orderData);
+      const occurredAtRaw =
+        'occurredAt' in operation ? operation.occurredAt : operation.orderData;
+      const isEquaring =
+        'kind' in operation ? operation.kind === 'equaring' : false;
+      const equaringType = 'type' in operation ? operation.type : null;
+      const transactionId =
+        'transactionId' in operation ? operation.transactionId : null;
+      const branchName =
+        'carWashDeviceName' in operation ? operation.carWashDeviceName : null;
+      const amountRaw =
+        'amount' in operation ? operation.amount : operation.sumReal;
+      const bonus = 'sumBonus' in operation ? operation.sumBonus : 0;
+      const cashback = 'sumCashback' in operation ? operation.sumCashback : 0;
+
+      const occurredAt =
+        occurredAtRaw instanceof Date ||
+        typeof occurredAtRaw === 'string' ||
+        typeof occurredAtRaw === 'number'
+          ? occurredAtRaw
+          : new Date().toISOString();
+      const dateObj = new Date(occurredAt);
       const date = dateObj.toLocaleDateString('ru-RU');
       const time = dateObj.toLocaleTimeString('ru-RU', {
         hour: '2-digit',
         minute: '2-digit',
       });
 
-      // Determine amount display with + or -
-      const amountNumber = operation.sumReal;
-      const amountStr =
-        (amountNumber < 0 ? '-' : '') +
-        amountNumber.toLocaleString('ru-RU', { minimumFractionDigits: 2 }) +
-        ' ₽';
+      const amountNumber =
+        typeof amountRaw === 'number' ? amountRaw : Number(amountRaw ?? 0);
+      const bonusNumber = isEquaring ? 0 : (bonus ?? 0);
+      const cashbackNumber = isEquaring ? 0 : (cashback ?? 0);
 
-      const bonusNumber = operation.sumBonus || 0;
-      const bonusStr =
-        (bonusNumber < 0 ? '-' : bonusNumber > 0 ? '+' : '') +
-        Math.abs(bonusNumber).toLocaleString('ru-RU', { minimumFractionDigits: 2 }) +
-        ' ₽';
-
-      const cashbackNumber = operation.sumCashback || 0;
-      const cashbackStr =
-        (cashbackNumber < 0 ? '-' : cashbackNumber > 0 ? '+' : '') +
-        Math.abs(cashbackNumber).toLocaleString('ru-RU', { minimumFractionDigits: 2 }) +
-        ' ₽';
-
-      const operationType = bonusNumber < 0 ? 'DEDUCTION' : 'REPLENISHMENT';
+      const operationType: OperationType = isEquaring
+        ? equaringType === 'TOP_UP'
+          ? 'REPLENISHMENT'
+          : 'DEDUCTION'
+        : 'ORDER';
 
       return {
-        key: operation.id.toString(),
-        id: operation.transactionId,
-        branch: operation.carWashDeviceName || '-',
-        branchUrl: '#',
+        key: `${isEquaring ? 'equaring' : 'order'}-${operation.id}`,
+        id: isEquaring ? operation.id : transactionId || operation.id,
+        branch: isEquaring ? '-' : branchName || '-',
         cardNo: operation.cardUnqNumber,
         date,
         time,
-        amount: amountStr,
-        sumBonus: bonusStr,
-        sumCashback: cashbackStr,
+        amount: formatSignedCurrency(amountNumber),
+        amountNumber,
+        sumBonus: formatSignedCurrency(bonusNumber, true),
+        sumCashback: formatSignedCurrency(cashbackNumber, true),
         operationType,
         bonusNumber,
         cashbackNumber,
@@ -130,7 +169,7 @@ const Operations: React.FC = () => {
     {
       title: t('marketing.operationDate'),
       key: 'date',
-      render: (record: (typeof dataSource)[0]) => (
+      render: (record: OperationRow) => (
         <span>
           {record.date} <span className="ml-2">{record.time}</span>
         </span>
@@ -141,9 +180,9 @@ const Operations: React.FC = () => {
       dataIndex: 'amount',
       key: 'amount',
       align: 'right' as const,
-      render: (text: string) => (
+      render: (text: string, record: OperationRow) => (
         <Text
-          className={text.includes('-') ? 'text-errorFill font-medium' : ''}
+          className={record.amountNumber < 0 ? 'text-errorFill font-medium' : ''}
         >
           {text}
         </Text>
@@ -154,7 +193,7 @@ const Operations: React.FC = () => {
       dataIndex: 'sumBonus',
       key: 'sumBonus',
       align: 'right' as const,
-      render: (text: string, record: (typeof dataSource)[0]) => (
+      render: (text: string, record: OperationRow) => (
         <Text
           className={
             record.bonusNumber < 0
@@ -173,7 +212,7 @@ const Operations: React.FC = () => {
       dataIndex: 'sumCashback',
       key: 'sumCashback',
       align: 'right' as const,
-      render: (text: string, record: (typeof dataSource)[0]) => (
+      render: (text: string, record: OperationRow) => (
         <Text
           className={
             record.cashbackNumber < 0
@@ -192,6 +231,10 @@ const Operations: React.FC = () => {
       dataIndex: 'operationType',
       key: 'operationType',
       render: (type: string) => {
+        if (type === 'ORDER') {
+          return <Text>{t('marketingTransactions.order') || 'Order'}</Text>;
+        }
+
         const translationKey =
           type === 'DEDUCTION'
             ? 'marketingTransactions.signOper.deduction'
