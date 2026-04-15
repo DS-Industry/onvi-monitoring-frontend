@@ -1455,7 +1455,11 @@
     "partnerCount": "Partner count",
     "includeInReport": "Include in report",
     "cost": "Cost",
-    "percent": "Percent"
+    "percent": "Percent",
+    "partnersPercentSumMustBe100": "The sum of all partners' percentages must equal 100%",
+    "addPartner": "Add partner",
+    "partnersOnCreate": "Partners",
+    "selectPartner": "Partner"
   },
 
   "shift-management": {

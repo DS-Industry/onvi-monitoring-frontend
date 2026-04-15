@@ -1455,7 +1455,11 @@
     "partnerCount": "Кол-во партнеров",
     "includeInReport": "Учитывать в отчете",
     "cost": "Стоимость",
-    "percent": "Сумма процентов"
+    "percent": "Сумма процентов",
+    "partnersPercentSumMustBe100": "Сумма процентов всех участников должна быть равна 100%",
+    "addPartner": "Добавить партнёра",
+    "partnersOnCreate": "Партнёры",
+    "selectPartner": "Партнёр"
   },
   "shift-management": {
     "shift-create-modal": {
