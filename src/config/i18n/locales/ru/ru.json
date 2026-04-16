@@ -131,7 +131,12 @@
     "marketingTransactions": "Заказы",
     "balanceTransferRequests": "Запросы на перенос баланса",
     "objectConsumables": "Расходники объекта",
-    "expenseReport": "Отчет по расходу"
+    "expenseReport": "Отчет по расходу",
+    "settlementsWithPartners": "Расчет с партнерами",
+    "partners": "Партнеры",
+    "profitCalculation": "Расчет прибыли",
+    "myReports": "Мои Отчеты",
+    "percentageOfObjects": "Процент объектов"
   },
   "marketingTransactions": {
     "columns": {
@@ -1218,6 +1223,7 @@
     }
   },
   "success": {
+    "fileUploaded": "Файл успешно загружен",
     "recordUpdated": "Запись успешно обновлена",
     "recordDeleted": "Запись успешно удалена",
     "recordCreated": "Запись успешно создана"
@@ -1441,7 +1447,35 @@
     "oldCashDate": "Старая дата сбора наличных",
     "cashDate": "Дата получения наличных",
     "responsible": "Ответственный",
-    "shiftInfo": "Информация о смене"
+    "shiftInfo": "Информация о смене",
+    "id": "ID",
+    "month": "Месяц",
+    "city": "Город",
+    "revenue": "Выручка",
+    "profit": "Прибыль",
+    "profitPercent": "% доходности",
+    "profitabilityPercent": "% рентабельности",
+    "partnerName": "Партнёр",
+    "partnerShare": "Доля партнёра",
+    "dividendSum": "Сумма дивидендов",
+    "dividendMonth": "Месяц",
+    "noPartners": "Нет данных о партнёрах",
+    "records": "записей",
+    "sends": "Отправка",
+    "calculate": "Расчет",
+    "file": "Файл",
+    "action": "Действие",
+    "addFile": "Добавить файл",
+    "download": "Скачать",
+    "replaceFile": "Заменить файл",
+    "partnerCount": "Кол-во партнеров",
+    "includeInReport": "Учитывать в отчете",
+    "cost": "Стоимость",
+    "percent": "Сумма процентов",
+    "partnersPercentSumMustBe100": "Сумма процентов всех участников должна быть равна 100%",
+    "addPartner": "Добавить партнёра",
+    "partnersOnCreate": "Партнёры",
+    "selectPartner": "Партнёр"
   },
   "shift-management": {
     "shift-create-modal": {
@@ -1488,6 +1522,7 @@
     "shift": "Смена"
   },
   "common": {
+    "edit": "Изменить",
     "yes": "Да",
     "no": "Нет",
     "previous": "Назад",
@@ -1863,7 +1898,9 @@
     "enterCorrectPassword": "Введите правильный пароль",
     "descriptionRequired": "Описание обязательно",
     "required": "Это поле обязательно",
-    "positiveNumber": "Должно быть положительным числом"
+    "positiveNumber": "Должно быть положительным числом",
+    "fillExpense": "Заполните расход",
+    "fillRevenue": "Заполните выручку"
   },
   "table": {
     "noData": "Ничего не найдено",
