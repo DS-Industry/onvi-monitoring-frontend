@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { DatePicker, TimePicker, Space } from 'antd';
 import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants.ts';
 
@@ -10,17 +10,30 @@ const DateTimeFilter: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [startDate, setStartDate] = useState(
-    dayjs(getParam(searchParams, 'dateStart') || dayjs().format('YYYY-MM-DDTHH:mm'))
+  const getDateFromSearchParams = (paramName: 'dateStart' | 'dateEnd'): Dayjs | null => {
+    const value = getParam(searchParams, paramName);
+    if (!value) return null;
+
+    const parsed = dayjs(value);
+    return parsed.isValid() ? parsed : null;
+  };
+
+  const [startDate, setStartDate] = useState<Dayjs | null>(() =>
+    getDateFromSearchParams('dateStart')
+  );
+  const [endDate, setEndDate] = useState<Dayjs | null>(() =>
+    getDateFromSearchParams('dateEnd')
   );
 
-  const [endDate, setEndDate] = useState(
-    dayjs(getParam(searchParams, 'dateEnd') || dayjs().format('YYYY-MM-DDTHH:mm'))
-  );
+  useEffect(() => {
+    setStartDate(getDateFromSearchParams('dateStart'));
+    setEndDate(getDateFromSearchParams('dateEnd'));
+  }, [searchParams]);
 
   const handleStartDateChange = (date: any) => {
     if (date) {
-      const newDateTime = startDate
+      const baseDate = startDate ?? dayjs();
+      const newDateTime = baseDate
         .set('year', date.year())
         .set('month', date.month())
         .set('date', date.date());
@@ -34,7 +47,8 @@ const DateTimeFilter: React.FC = () => {
 
   const handleStartTimeChange = (time: any) => {
     if (time) {
-      const newDateTime = startDate
+      const baseDate = startDate ?? dayjs();
+      const newDateTime = baseDate
         .set('hour', time.hour())
         .set('minute', time.minute());
       setStartDate(newDateTime);
@@ -47,7 +61,8 @@ const DateTimeFilter: React.FC = () => {
 
   const handleEndDateChange = (date: any) => {
     if (date) {
-      const newDateTime = endDate
+      const baseDate = endDate ?? dayjs();
+      const newDateTime = baseDate
         .set('year', date.year())
         .set('month', date.month())
         .set('date', date.date());
@@ -61,7 +76,8 @@ const DateTimeFilter: React.FC = () => {
 
   const handleEndTimeChange = (time: any) => {
     if (time) {
-      const newDateTime = endDate
+      const baseDate = endDate ?? dayjs();
+      const newDateTime = baseDate
         .set('hour', time.hour())
         .set('minute', time.minute());
       setEndDate(newDateTime);
