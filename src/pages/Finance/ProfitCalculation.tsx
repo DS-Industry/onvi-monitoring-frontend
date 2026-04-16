@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Table,
@@ -7,16 +7,16 @@ import {
   InputNumber,
   Dropdown,
   Space,
+  Select,
 } from 'antd';
 import {
   PlusOutlined,
-  ArrowLeftOutlined,
   DownloadOutlined,
   UploadOutlined,
   MoreOutlined,
 } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, ALL_PAGE_SIZES } from '@/utils/constants';
@@ -26,12 +26,17 @@ import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import { useToast } from '@/components/context/useContext';
 import useSWR from 'swr';
+import { useUser } from '@/hooks/useUserStore';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission.tsx';
 import {
   createPosPartnerReport,
   getPosCalculations,
   getPosPartnerReports,
+  getWorkerPartners,
   PosCalculationResponse,
   PosPartnerReportResponse,
+  WorkerPartnerResponse,
   updatePosPartnerReport,
 } from '@/services/api/finance';
 import { getPresignedDownloadUrl, uploadFileWithPresignedUrl } from '@/services/api/s3';
@@ -69,8 +74,21 @@ interface ProfitItem {
 const ProfitCalculation: React.FC = () => {
   const { t } = useTranslation();
   const { showToast } = useToast();
-  const navigate = useNavigate();
+  const user = useUser();
+  const userPermissions = usePermissions();
   const [searchParams, setSearchParams] = useSearchParams();
+  const canViewReportsTable = hasPermission(
+    [{ action: 'create', subject: 'PartnerReport' }],
+    userPermissions
+  );
+  const canCreateReports = hasPermission(
+    [{ action: 'create', subject: 'PartnerReport' }],
+    userPermissions
+  );
+  const canEditReports = hasPermission(
+    [{ action: 'create', subject: 'PartnerReport' }],
+    userPermissions
+  );
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
@@ -78,6 +96,7 @@ const ProfitCalculation: React.FC = () => {
   const posId = Number(searchParams.get('posId')) || undefined;
   const dateStart = searchParams.get('dateStart');
   const dateEnd = searchParams.get('dateEnd');
+  const partnerId = Number(searchParams.get('partnerId')) || undefined;
   const parsedDateStart = dateStart ? dayjs(dateStart) : null;
   const parsedDateEnd = dateEnd ? dayjs(dateEnd) : null;
   const requestDateStart =
@@ -97,7 +116,22 @@ const ProfitCalculation: React.FC = () => {
   const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [uploadingRowId, setUploadingRowId] = useState<number | null>(null);
   const [isCreatingReport, setIsCreatingReport] = useState(false);
+  const [workerPartners, setWorkerPartners] = useState<WorkerPartnerResponse[]>([]);
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    const loadWorkerPartners = async () => {
+      if (!user.organizationId) return;
+      try {
+        const workers = await getWorkerPartners(user.organizationId);
+        setWorkerPartners(workers);
+      } catch (error) {
+        console.error('Error loading worker partners:', error);
+      }
+    };
+
+    void loadWorkerPartners();
+  }, [user.organizationId]);
 
   const { data: posCalculations = [] } = useSWR(
     ['get-pos-calculations-all'],
@@ -120,8 +154,9 @@ const ProfitCalculation: React.FC = () => {
       dateEnd,
       placementId,
       selectedPosCalculationId,
+      partnerId,
     }),
-    [dateStart, dateEnd, placementId, selectedPosCalculationId]
+    [dateStart, dateEnd, placementId, selectedPosCalculationId, partnerId]
   );
 
   const { data: allProfitReports = [], isLoading, mutate: mutateReports } = useSWR(
@@ -132,6 +167,7 @@ const ProfitCalculation: React.FC = () => {
         dateEnd: requestDateEnd,
         placementId,
         posCalculationId: selectedPosCalculationId,
+        partnerId,
       }),
     {
       revalidateOnFocus: false,
@@ -144,6 +180,15 @@ const ProfitCalculation: React.FC = () => {
     label: `${item.region} - ${item.pos.name}`,
     value: item.posCalculationId,
   }));
+
+  const partnerSelectOptions = useMemo(
+    () =>
+      workerPartners.map(w => ({
+        value: w.id,
+        label: [w.surname, w.name, w.middlename].filter(Boolean).join(' '),
+      })),
+    [workerPartners]
+  );
 
   const normalizedData = useMemo<ProfitItem[]>(() => {
     return allProfitReports.map((report: PosPartnerReportResponse) => ({
@@ -297,15 +342,15 @@ const ProfitCalculation: React.FC = () => {
     },
     { title: t('finance.profit'), dataIndex: 'profit', key: 'profit', render: currencyRender },
     {
-      title: t('finance.profitPercent'),
-      dataIndex: 'profitPercent',
-      key: 'profitPercent',
-      render: (val: number) => `${val.toFixed(2)}%`,
-    },
-    {
       title: t('finance.profitabilityPercent'),
       dataIndex: 'profitabilityPercent',
       key: 'profitabilityPercent',
+      render: (val: number) => `${val.toFixed(2)}%`,
+    },
+    {
+      title: t('finance.profitPercent'),
+      dataIndex: 'profitPercent',
+      key: 'profitPercent',
       render: (val: number) => `${val.toFixed(2)}%`,
     },
     {
@@ -328,108 +373,109 @@ const ProfitCalculation: React.FC = () => {
           '-'
         ),
     },
-    {
-      title: t('finance.action'),
-      key: 'action',
-      render: (_: unknown, record: ProfitItem) => {
-        const hasFile = !!record.file;
-        const menuItems = [];
+    ...(canEditReports
+      ? [{
+        title: t('finance.action'),
+        key: 'action',
+        render: (_: unknown, record: ProfitItem) => {
+          const hasFile = !!record.file;
+          const menuItems = [];
 
-        if (hasFile) {
+          if (hasFile) {
+            menuItems.push({
+              key: 'download',
+              label: (
+                <Space>
+                  <DownloadOutlined />
+                  {t('finance.download')}
+                </Space>
+              ),
+              onClick: () => handleFileDownload(record.file!),
+            });
+          }
+
           menuItems.push({
-            key: 'download',
+            key: 'upload',
             label: (
               <Space>
-                <DownloadOutlined />
-                {t('finance.download')}
+                <UploadOutlined />
+                {hasFile ? t('finance.replaceFile') : t('finance.addFile')}
               </Space>
             ),
-            onClick: () => handleFileDownload(record.file!),
-          });
-        }
-
-        menuItems.push({
-          key: 'upload',
-          label: (
-            <Space>
-              <UploadOutlined />
-              {hasFile ? t('finance.replaceFile') : t('finance.addFile')}
-            </Space>
-          ),
-          onClick: () => {
-            const inputEl = fileInputRefs.current.get(record.id);
-            if (inputEl) inputEl.click();
-          },
-        });
-
-        if (editingRowId === record.id) {
-          menuItems.push({
-            key: 'save',
-            label: t('common.save'),
             onClick: () => {
-              if (!isSavingEdit) {
-                void handleSaveEdit(record.id);
-              }
+              const inputEl = fileInputRefs.current.get(record.id);
+              if (inputEl) inputEl.click();
             },
           });
-          menuItems.push({
-            key: 'cancel',
-            label: t('common.cancel'),
-            onClick: handleCancelEdit,
-          });
-        } else {
-          menuItems.push({
-            key: 'edit',
-            label: t('common.edit'),
-            onClick: () => handleStartEdit(record),
-          });
-        }
 
-        return (
-          <div onClick={e => e.stopPropagation()}>
-            <input
-              type="file"
-              accept=".csv,.png,text/csv,image/png,.xlsx,.xls"
-              style={{ display: 'none' }}
-              ref={ref => {
-                if (ref) fileInputRefs.current.set(record.id, ref);
-                else fileInputRefs.current.delete(record.id);
-              }}
-              onChange={e => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  void handleFileUpload(record, file);
+          if (editingRowId === record.id) {
+            menuItems.push({
+              key: 'save',
+              label: t('common.save'),
+              onClick: () => {
+                if (!isSavingEdit) {
+                  void handleSaveEdit(record.id);
                 }
-                e.target.value = '';
-              }}
-            />
-            {editingRowId === record.id ? (
-              <div className="flex items-center gap-2">
-                <Button
-                  size="small"
-                  type="primary"
-                  loading={isSavingEdit}
-                  onClick={() => void handleSaveEdit(record.id)}
-                >
-                  {t('common.save')}
+              },
+            });
+            menuItems.push({
+              key: 'cancel',
+              label: t('common.cancel'),
+              onClick: handleCancelEdit,
+            });
+          } else {
+            menuItems.push({
+              key: 'edit',
+              label: t('common.edit'),
+              onClick: () => handleStartEdit(record),
+            });
+          }
+
+          return (
+            <div onClick={e => e.stopPropagation()}>
+              <input
+                type="file"
+                accept=".csv,.png,text/csv,image/png,.xlsx,.xls"
+                style={{ display: 'none' }}
+                ref={ref => {
+                  if (ref) fileInputRefs.current.set(record.id, ref);
+                  else fileInputRefs.current.delete(record.id);
+                }}
+                onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    void handleFileUpload(record, file);
+                  }
+                  e.target.value = '';
+                }}
+              />
+              {editingRowId === record.id ? (
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="small"
+                    type="primary"
+                    loading={isSavingEdit}
+                    onClick={() => void handleSaveEdit(record.id)}
+                  >
+                    {t('common.save')}
+                  </Button>
+                  <Button size="small" onClick={handleCancelEdit}>
+                    {t('common.cancel')}
+                  </Button>
+                </div>
+              ) : uploadingRowId === record.id ? (
+                <Button size="small" loading>
+                  {record.file ? t('finance.replaceFile') : t('finance.addFile')}
                 </Button>
-                <Button size="small" onClick={handleCancelEdit}>
-                  {t('common.cancel')}
-                </Button>
-              </div>
-            ) : uploadingRowId === record.id ? (
-              <Button size="small" loading>
-                {record.file ? t('finance.replaceFile') : t('finance.addFile')}
-              </Button>
-            ) : (
-              <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-                <MoreOutlined className="cursor-pointer text-primary02 text-lg" />
-              </Dropdown>
-            )}
-          </div>
-        );
-      },
-    },
+              ) : (
+                <Dropdown menu={{ items: menuItems }} trigger={['click']}>
+                  <MoreOutlined className="cursor-pointer text-primary02 text-lg" />
+                </Dropdown>
+              )}
+            </div>
+          );
+        },
+      }] : []),
   ];
 
   const { checkedList, setCheckedList, options, visibleColumns } =
@@ -516,30 +562,58 @@ const ProfitCalculation: React.FC = () => {
 
   return (
     <>
-      <div
-        className="flex text-primary02 mb-5 cursor-pointer ml-12 md:ml-0"
-        onClick={() => navigate(-1)}
-      >
-        <ArrowLeftOutlined />
-        <p className="ms-2">{t('login.back')}</p>
-      </div>
-
       <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.profitCalculation')}
           </span>
         </div>
-        <Button
-          icon={<PlusOutlined />}
-          className="btn-primary"
-          onClick={() => setDrawerOpen(true)}
-        >
-          {t('routes.add')}
-        </Button>
+        {canCreateReports && (
+          <Button
+            icon={<PlusOutlined />}
+            className="btn-primary"
+            onClick={() => setDrawerOpen(true)}
+          >
+            {t('routes.add')}
+          </Button>
+        )}
       </div>
 
-      <GeneralFilters count={totalCount} display={['dateTime', 'city', 'pos']} />
+      <GeneralFilters
+        count={totalCount}
+        display={['dateTime', 'city', 'pos']}
+        autoSetDefaultDateRange={false}
+      >
+        <div className="w-full">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
+            {t('finance.partnerName')}
+          </label>
+          <Select
+            showSearch
+            allowClear
+            placeholder={t('finance.selectPartner')}
+            value={searchParams.get('partnerId') ?? undefined}
+            options={partnerSelectOptions.map(option => ({
+              value: String(option.value),
+              label: option.label,
+            }))}
+            style={{ minWidth: '200px' }}
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              (option?.label ?? '')
+                .toString()
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
+            onChange={value =>
+              updateSearchParams(searchParams, setSearchParams, {
+                partnerId: value,
+                page: DEFAULT_PAGE,
+              })
+            }
+          />
+        </div>
+      </GeneralFilters>
 
       <div className="mt-8">
         <ColumnSelector
@@ -547,39 +621,41 @@ const ProfitCalculation: React.FC = () => {
           options={options}
           onChange={setCheckedList}
         />
-        <Table
-          rowKey="id"
-          loading={isLoading}
-          dataSource={paginatedData}
-          columns={visibleColumns}
-          expandable={{
-            expandedRowRender,
-            expandedRowKeys,
-            rowExpandable: record => !!record.partners?.length,
-            onExpand: (expanded, record) => {
-              if (expanded) setExpandedRowKeys([...expandedRowKeys, record.id]);
-              else setExpandedRowKeys(expandedRowKeys.filter(k => k !== record.id));
-            },
-          }}
-          onRow={record => ({
-            onClick: () => handleRowClick(record),
-            style: { cursor: 'pointer' },
-          })}
-          pagination={{
-            current: currentPage,
-            pageSize,
-            total: totalCount,
-            pageSizeOptions: ALL_PAGE_SIZES,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} из ${total} ${t('finance.records')}`,
-            onChange: (page, size) =>
-              updateSearchParams(searchParams, setSearchParams, {
-                page: String(page),
-                size: String(size),
-              }),
-          }}
-          scroll={{ x: 'max-content' }}
-        />
+        {canViewReportsTable && (
+          <Table
+            rowKey="id"
+            loading={isLoading}
+            dataSource={paginatedData}
+            columns={visibleColumns}
+            expandable={{
+              expandedRowRender,
+              expandedRowKeys,
+              rowExpandable: record => !!record.partners?.length,
+              onExpand: (expanded, record) => {
+                if (expanded) setExpandedRowKeys([...expandedRowKeys, record.id]);
+                else setExpandedRowKeys(expandedRowKeys.filter(k => k !== record.id));
+              },
+            }}
+            onRow={record => ({
+              onClick: () => handleRowClick(record),
+              style: { cursor: 'pointer' },
+            })}
+            pagination={{
+              current: currentPage,
+              pageSize,
+              total: totalCount,
+              pageSizeOptions: ALL_PAGE_SIZES,
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} из ${total} ${t('finance.records')}`,
+              onChange: (page, size) =>
+                updateSearchParams(searchParams, setSearchParams, {
+                  page: String(page),
+                  size: String(size),
+                }),
+            }}
+            scroll={{ x: 'max-content' }}
+          />
+        )}
       </div>
 
       <CreateProfitReportDrawer

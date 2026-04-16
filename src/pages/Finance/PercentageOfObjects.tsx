@@ -23,6 +23,8 @@ import dayjs, { Dayjs } from 'dayjs';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useUser } from '@/hooks/useUserStore';
 import { useToast } from '@/hooks/useToast';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission.tsx';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
@@ -102,7 +104,16 @@ const PercentageOfObjects: React.FC = () => {
   const { showToast } = useToast();
   const navigate = useNavigate();
   const user = useUser();
+  const userPermissions = usePermissions();
   const [searchParams, setSearchParams] = useSearchParams();
+  const canViewPartnerReportTable = hasPermission(
+    [{ action: 'create', subject: 'PartnerReport' }],
+    userPermissions
+  );
+  const canUpdatePartnerReport = hasPermission(
+    [{ action: 'update', subject: 'PartnerReport' }],
+    userPermissions
+  );
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
@@ -611,6 +622,7 @@ const PercentageOfObjects: React.FC = () => {
             openAddPartnerModal(record);
           }}
           disabled={
+            !canUpdatePartnerReport ||
             !user.organizationId ||
             partnerSelectOptions.filter(
               o => !record.partners.some(p => p.partnerId === o.value)
@@ -686,6 +698,7 @@ const PercentageOfObjects: React.FC = () => {
       title: t('marketing.actions'),
       key: 'actions',
       render: (_: unknown, record) => {
+        if (!canUpdatePartnerReport) return null;
         const editing = isEditingParent(record);
         if (editing) {
           return (
@@ -720,6 +733,13 @@ const PercentageOfObjects: React.FC = () => {
 
   const { checkedList, setCheckedList, options, visibleColumns } =
     useColumnSelector(mainColumns, 'percentage-of-objects-table-columns');
+  const visibleMainColumns = useMemo(
+    () =>
+      canUpdatePartnerReport
+        ? visibleColumns
+        : visibleColumns.filter(column => column.key !== 'actions'),
+    [canUpdatePartnerReport, visibleColumns]
+  );
 
   return (
     <>
@@ -734,9 +754,11 @@ const PercentageOfObjects: React.FC = () => {
             {t('routes.percentageOfObjects')}
           </span>
         </div>
-        <Button icon={<PlusOutlined />} className="btn-primary" onClick={handleAdd}>
-          {t('routes.add')}
-        </Button>
+        {canUpdatePartnerReport && (
+          <Button icon={<PlusOutlined />} className="btn-primary" onClick={handleAdd}>
+            {t('routes.add')}
+          </Button>
+        )}
       </div>
 
       <PercentageFilters
@@ -748,57 +770,59 @@ const PercentageOfObjects: React.FC = () => {
         partnerSelectOptions={partnerSelectOptions}
       />
 
-      <div className="mt-8">
-        <div className="mb-4 flex justify-between">
-          <div className="w-full">
-            <ColumnSelector
-              checkedList={checkedList}
-              options={options}
-              onChange={setCheckedList}
-            />
+      {canViewPartnerReportTable && (
+        <div className="mt-8">
+          <div className="mb-4 flex justify-between">
+            <div className="w-full">
+              <ColumnSelector
+                checkedList={checkedList}
+                options={options}
+                onChange={setCheckedList}
+              />
+            </div>
           </div>
-        </div>
 
-        <Form form={form} component={false}>
-          <Table
-            rowKey="id"
-            dataSource={paginatedData}
-            loading={isLoading}
-            columns={visibleColumns}
-            expandable={{
-              expandedRowRender,
-              expandedRowKeys,
-              rowExpandable: () => true,
-              onExpand: (expanded, record) => {
-                if (expanded) {
-                  setExpandedRowKeys([...expandedRowKeys, record.id]);
-                } else {
-                  setExpandedRowKeys(expandedRowKeys.filter(k => k !== record.id));
-                }
-              },
-            }}
-            components={{
-              body: {
-                cell: EditableCell,
-              },
-            }}
-            pagination={{
-              current: currentPage,
-              pageSize: pageSize,
-              total: totalCount,
-              pageSizeOptions: ALL_PAGE_SIZES,
-              showTotal: (total, range) =>
-                `${range[0]}-${range[1]} из ${total} ${t('finance.records')}`,
-              onChange: (page, size) =>
-                updateSearchParams(searchParams, setSearchParams, {
-                  page: String(page),
-                  size: String(size),
-                }),
-            }}
-            scroll={{ x: 'max-content' }}
-          />
-        </Form>
-      </div>
+          <Form form={form} component={false}>
+            <Table
+              rowKey="id"
+              dataSource={paginatedData}
+              loading={isLoading}
+              columns={visibleMainColumns}
+              expandable={{
+                expandedRowRender,
+                expandedRowKeys,
+                rowExpandable: () => true,
+                onExpand: (expanded, record) => {
+                  if (expanded) {
+                    setExpandedRowKeys([...expandedRowKeys, record.id]);
+                  } else {
+                    setExpandedRowKeys(expandedRowKeys.filter(k => k !== record.id));
+                  }
+                },
+              }}
+              components={{
+                body: {
+                  cell: EditableCell,
+                },
+              }}
+              pagination={{
+                current: currentPage,
+                pageSize: pageSize,
+                total: totalCount,
+                pageSizeOptions: ALL_PAGE_SIZES,
+                showTotal: (total, range) =>
+                  `${range[0]}-${range[1]} из ${total} ${t('finance.records')}`,
+                onChange: (page, size) =>
+                  updateSearchParams(searchParams, setSearchParams, {
+                    page: String(page),
+                    size: String(size),
+                  }),
+              }}
+              scroll={{ x: 'max-content' }}
+            />
+          </Form>
+        </div>
+      )}
 
       <CreatePosCalculationModal
         open={isCreateModalOpen}

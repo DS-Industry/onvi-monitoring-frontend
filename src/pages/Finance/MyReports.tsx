@@ -10,6 +10,8 @@ import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import { useToast } from '@/hooks/useToast';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission.tsx';
 import {
   getPosCalculations,
   getPosPartnerReportsMe,
@@ -42,8 +44,13 @@ interface MyReportItem {
 const MyReports: React.FC = () => {
   const { t } = useTranslation();
   const { showToast } = useToast();
+  const userPermissions = usePermissions();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const canViewPartnerReportTable = hasPermission(
+    [{ action: 'read', subject: 'PartnerReport' }],
+    userPermissions
+  );
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
@@ -228,9 +235,14 @@ const MyReports: React.FC = () => {
         </div>
       </div>
 
-      <GeneralFilters count={totalCount} display={['dateTime', 'city', 'pos']} />
+      <GeneralFilters
+        count={totalCount}
+        display={['dateTime', 'city', 'pos']}
+        autoSetDefaultDateRange={false}
+      />
 
-      <div className="mt-8">
+      {canViewPartnerReportTable && (
+        <div className="mt-8">
         <ColumnSelector
           checkedList={checkedList}
           options={options}
@@ -299,6 +311,7 @@ const MyReports: React.FC = () => {
           scroll={{ x: 'max-content' }}
         />
       </div>
+      )}
     </>
   );
 };

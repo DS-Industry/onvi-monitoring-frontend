@@ -943,9 +943,9 @@ const routes: RouteItem[] = [
         path: '/finance/debugging',
         component: Default,
         permissions: [
-          { action: 'manage', subject: 'Pos' },
-          { action: 'read', subject: 'Pos' },
-          { action: 'delete', subject: 'Pos' },
+          { action: 'read', subject: 'PartnerReport' },
+          { action: 'create', subject: 'PartnerReport' },
+          { action: 'update', subject: 'PartnerReport' },
         ],
         isSidebar: true,
         isHr: true,
@@ -957,8 +957,7 @@ const routes: RouteItem[] = [
             path: '/finance/settlements-partners/profit-calculation',
             component: ProfitCalculation,
             permissions: [
-              { action: 'manage', subject: 'Pos' },
-              { action: 'read', subject: 'Pos' },
+              { action: 'create', subject: 'PartnerReport' },
             ],
             isSidebar: true,
             isHr: false,
@@ -972,8 +971,7 @@ const routes: RouteItem[] = [
             path: '/finance/settlements-partners/my-reports',
             component: MyReports,
             permissions: [
-              { action: 'manage', subject: 'Pos' },
-              { action: 'read', subject: 'Pos' },
+              { action: 'read', subject: 'PartnerReport' },
             ],
             isSidebar: true,
             isHr: false,
@@ -987,8 +985,7 @@ const routes: RouteItem[] = [
             path: '/finance/settlements-partners/percentage-objects',
             component: PercentageOfObjects,
             permissions: [
-              { action: 'manage', subject: 'Pos' },
-              { action: 'read', subject: 'Pos' },
+              { action: 'create', subject: 'PartnerReport' },
             ],
             isSidebar: true,
             isHr: false,

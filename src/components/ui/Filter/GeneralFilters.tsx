@@ -44,6 +44,7 @@ type GeneralFiltersProps = {
   display?: FilterType[];
   children?: React.ReactNode;
   onReset?: () => void;
+  autoSetDefaultDateRange?: boolean;
 };
 
 const GeneralFilters: React.FC<GeneralFiltersProps> = ({
@@ -68,6 +69,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
   ],
   children,
   onReset,
+  autoSetDefaultDateRange = true,
 }) => {
   const { t } = useTranslation();
   const contentRef = useRef<HTMLDivElement>(null);
@@ -78,7 +80,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
   const [searchParams, setSearchParams] = useSearchParams();
 
   useEffect(() => {
-    if (shouldShow('dateTime')) {
+    if (autoSetDefaultDateRange && shouldShow('dateTime')) {
       const currentStart = searchParams.get('dateStart');
       const currentEnd = searchParams.get('dateEnd');
   
@@ -93,7 +95,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
         });
       }
     }
-  }, [shouldShow, display]);
+  }, [shouldShow, display, autoSetDefaultDateRange]);
 
   return (
     <Collapse
