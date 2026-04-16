@@ -31,6 +31,7 @@ import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission.tsx';
 import {
   createPosPartnerReport,
+  getPosByCalculation,
   getPosCalculations,
   getPosPartnerReports,
   getWorkerPartners,
@@ -117,6 +118,10 @@ const ProfitCalculation: React.FC = () => {
   const [uploadingRowId, setUploadingRowId] = useState<number | null>(null);
   const [isCreatingReport, setIsCreatingReport] = useState(false);
   const [workerPartners, setWorkerPartners] = useState<WorkerPartnerResponse[]>([]);
+  const [isPosFilterLoading, setIsPosFilterLoading] = useState(false);
+  const [posFilterOptions, setPosFilterOptions] = useState<
+    Array<{ value: string; label: string }>
+  >([]);
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -131,6 +136,31 @@ const ProfitCalculation: React.FC = () => {
     };
 
     void loadWorkerPartners();
+  }, [user.organizationId]);
+
+  useEffect(() => {
+    const loadPosOptions = async () => {
+      if (!user.organizationId) return;
+      setIsPosFilterLoading(true);
+      try {
+        const calculatedPoses = await getPosByCalculation({
+          organizationId: user.organizationId,
+          isPosCalculation: true,
+        });
+        setPosFilterOptions(
+          calculatedPoses.map(pos => ({
+            value: String(pos.id),
+            label: pos.name,
+          }))
+        );
+      } catch (error) {
+        console.error('Error loading pos filter options:', error);
+      } finally {
+        setIsPosFilterLoading(false);
+      }
+    };
+
+    void loadPosOptions();
   }, [user.organizationId]);
 
   const { data: posCalculations = [] } = useSWR(
@@ -201,8 +231,8 @@ const ProfitCalculation: React.FC = () => {
       revenue: report.revenue,
       expense: report.expenditure,
       profit: report.profit,
-      profitPercent: report.percentReturnAssets,
-      profitabilityPercent: report.percentProfitability,
+      profitPercent: report.percentProfitability,
+      profitabilityPercent: report.percentReturnAssets,
       file: report.reportFileKey
         ? {
           key: report.reportFileKey,
@@ -225,6 +255,18 @@ const ProfitCalculation: React.FC = () => {
   }, [normalizedData, currentPage, pageSize]);
 
   const totalCount = normalizedData.length;
+  const totalDividends = useMemo(
+    () =>
+      normalizedData.reduce((sum, item) => {
+        const itemDividends =
+          item.partners?.reduce((partnerSum, partner) => {
+            if (partnerId && partner.partnerId !== partnerId) return partnerSum;
+            return partnerSum + partner.dividendSum;
+          }, 0) ?? 0;
+        return sum + itemDividends;
+      }, 0),
+    [normalizedData, partnerId]
+  );
   const currencyRender = getCurrencyRender();
   const fileInputRefs = useRef<Map<number, HTMLInputElement>>(new Map());
 
@@ -581,9 +623,35 @@ const ProfitCalculation: React.FC = () => {
 
       <GeneralFilters
         count={totalCount}
-        display={['dateTime', 'city', 'pos']}
+        display={['dateTime', 'city']}
         autoSetDefaultDateRange={false}
       >
+        <div className="w-full sm:w-80">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
+            {t('analysis.posId')}
+          </label>
+          <Select
+            showSearch
+            allowClear
+            placeholder={t('filters.pos.placeholder')}
+            value={searchParams.get('posId') ?? undefined}
+            loading={isPosFilterLoading}
+            options={posFilterOptions}
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              (option?.label ?? '')
+                .toString()
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
+            onChange={value =>
+              updateSearchParams(searchParams, setSearchParams, {
+                posId: value,
+                page: DEFAULT_PAGE,
+              })
+            }
+          />
+        </div>
         <div className="w-full">
           <label className="block mb-1 text-sm font-medium text-gray-700">
             {t('finance.partnerName')}
@@ -627,6 +695,17 @@ const ProfitCalculation: React.FC = () => {
             loading={isLoading}
             dataSource={paginatedData}
             columns={visibleColumns}
+            summary={() =>
+              partnerId ? (
+                <Table.Summary.Row>
+                  <Table.Summary.Cell index={0} colSpan={visibleColumns.length}>
+                    <span className="font-semibold">
+                      Итого Дивидендов: {currencyRender(totalDividends)}
+                    </span>
+                  </Table.Summary.Cell>
+                </Table.Summary.Row>
+              ) : null
+            }
             expandable={{
               expandedRowRender,
               expandedRowKeys,

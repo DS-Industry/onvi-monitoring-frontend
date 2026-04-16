@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
-import { Table } from 'antd';
+import { Select, Table } from 'antd';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import useSWR from 'swr';
@@ -11,8 +11,10 @@ import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import { useToast } from '@/hooks/useToast';
 import { usePermissions } from '@/hooks/useAuthStore';
+import { useUser } from '@/hooks/useUserStore';
 import hasPermission from '@/permissions/hasPermission.tsx';
 import {
+  getPosByCalculation,
   getPosCalculations,
   getPosPartnerReportsMe,
   PosCalculationResponse,
@@ -44,6 +46,7 @@ interface MyReportItem {
 const MyReports: React.FC = () => {
   const { t } = useTranslation();
   const { showToast } = useToast();
+  const user = useUser();
   const userPermissions = usePermissions();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -58,6 +61,10 @@ const MyReports: React.FC = () => {
   const posId = Number(searchParams.get('posId')) || undefined;
   const dateStart = searchParams.get('dateStart');
   const dateEnd = searchParams.get('dateEnd');
+  const [isPosFilterLoading, setIsPosFilterLoading] = useState(false);
+  const [posFilterOptions, setPosFilterOptions] = useState<
+    Array<{ value: string; label: string }>
+  >([]);
 
   const parsedDateStart = dateStart ? dayjs(dateStart) : null;
   const parsedDateEnd = dateEnd ? dayjs(dateEnd) : null;
@@ -68,6 +75,31 @@ const MyReports: React.FC = () => {
       : undefined;
   const requestDateEnd =
     parsedDateEnd && parsedDateEnd.isValid() ? parsedDateEnd.format('YYYY-MM-DD') : undefined;
+
+  useEffect(() => {
+    const loadPosOptions = async () => {
+      if (!user.organizationId) return;
+      setIsPosFilterLoading(true);
+      try {
+        const calculatedPoses = await getPosByCalculation({
+          organizationId: user.organizationId,
+          isPosCalculation: true,
+        });
+        setPosFilterOptions(
+          calculatedPoses.map(pos => ({
+            value: String(pos.id),
+            label: pos.name,
+          }))
+        );
+      } catch (error) {
+        console.error('Error loading pos filter options:', error);
+      } finally {
+        setIsPosFilterLoading(false);
+      }
+    };
+
+    void loadPosOptions();
+  }, [user.organizationId]);
 
   const { data: posCalculations = [] } = useSWR(['get-pos-calculations-all'], () => getPosCalculations(), {
     revalidateOnFocus: false,
@@ -118,8 +150,8 @@ const MyReports: React.FC = () => {
       expenditure: report.expenditure,
       posCalculationCost: report.posCalculationCost,
       profit: report.profit,
-      percentProfitability: report.percentProfitability,
-      percentReturnAssets: report.percentReturnAssets,
+      percentProfitability: report.percentReturnAssets,
+      percentReturnAssets: report.percentProfitability,
       percentPartner: report.percentPartner,
       sumPartner: report.sumPartner,
       reportFileKey: report.reportFileKey,
@@ -237,80 +269,107 @@ const MyReports: React.FC = () => {
 
       <GeneralFilters
         count={totalCount}
-        display={['dateTime', 'city', 'pos']}
+        display={['dateTime', 'city']}
         autoSetDefaultDateRange={false}
-      />
+      >
+        <div className="w-full sm:w-80">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
+            {t('analysis.posId')}
+          </label>
+          <Select
+            showSearch
+            allowClear
+            placeholder={t('filters.pos.placeholder')}
+            value={searchParams.get('posId') ?? undefined}
+            loading={isPosFilterLoading}
+            options={posFilterOptions}
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              (option?.label ?? '')
+                .toString()
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
+            onChange={value =>
+              updateSearchParams(searchParams, setSearchParams, {
+                posId: value,
+                page: DEFAULT_PAGE,
+              })
+            }
+          />
+        </div>
+      </GeneralFilters>
 
       {canViewPartnerReportTable && (
         <div className="mt-8">
-        <ColumnSelector
-          checkedList={checkedList}
-          options={options}
-          onChange={setCheckedList}
-        />
-        <Table
-          rowKey="id"
-          loading={isLoading}
-          dataSource={paginatedData}
-          columns={visibleColumns}
-          summary={() => {
-            if (sumPartnerColumnIndex === -1) {
-              return (
-                <Table.Summary.Row>
-                  <Table.Summary.Cell index={0} colSpan={visibleColumns.length}>
-                    <span className="font-semibold">
-                      {t('finance.total')}: {currencyRender(totalDividends)}
-                    </span>
+          <ColumnSelector
+            checkedList={checkedList}
+            options={options}
+            onChange={setCheckedList}
+          />
+          <Table
+            rowKey="id"
+            loading={isLoading}
+            dataSource={paginatedData}
+            columns={visibleColumns}
+            summary={() => {
+              if (sumPartnerColumnIndex === -1) {
+                return (
+                  <Table.Summary.Row>
+                    <Table.Summary.Cell index={0} colSpan={visibleColumns.length}>
+                      <span className="font-semibold">
+                        {t('finance.total')}: {currencyRender(totalDividends)}
+                      </span>
+                    </Table.Summary.Cell>
+                  </Table.Summary.Row>
+                );
+              }
+
+              const cells: React.ReactNode[] = [];
+
+              if (sumPartnerColumnIndex > 0) {
+                cells.push(
+                  <Table.Summary.Cell key="label" index={0} colSpan={sumPartnerColumnIndex}>
+                    <span className="font-semibold">{t('finance.total')}</span>
                   </Table.Summary.Cell>
-                </Table.Summary.Row>
-              );
-            }
+                );
+              }
 
-            const cells: React.ReactNode[] = [];
-
-            if (sumPartnerColumnIndex > 0) {
               cells.push(
-                <Table.Summary.Cell key="label" index={0} colSpan={sumPartnerColumnIndex}>
-                  <span className="font-semibold">{t('finance.total')}</span>
+                <Table.Summary.Cell key="sum" index={sumPartnerColumnIndex}>
+                  <span className="font-semibold">{currencyRender(totalDividends)}</span>
                 </Table.Summary.Cell>
               );
-            }
 
-            cells.push(
-              <Table.Summary.Cell key="sum" index={sumPartnerColumnIndex}>
-                <span className="font-semibold">{currencyRender(totalDividends)}</span>
-              </Table.Summary.Cell>
-            );
+              const tailColumnsCount = visibleColumns.length - sumPartnerColumnIndex - 1;
+              if (tailColumnsCount > 0) {
+                cells.push(
+                  <Table.Summary.Cell
+                    key="tail"
+                    index={sumPartnerColumnIndex + 1}
+                    colSpan={tailColumnsCount}
+                  />
+                );
+              }
 
-            const tailColumnsCount = visibleColumns.length - sumPartnerColumnIndex - 1;
-            if (tailColumnsCount > 0) {
-              cells.push(
-                <Table.Summary.Cell
-                  key="tail"
-                  index={sumPartnerColumnIndex + 1}
-                  colSpan={tailColumnsCount}
-                />
-              );
-            }
-
-            return <Table.Summary.Row>{cells}</Table.Summary.Row>;
-          }}
-          pagination={{
-            current: currentPage,
-            pageSize,
-            total: totalCount,
-            pageSizeOptions: ALL_PAGE_SIZES,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} из ${total} ${t('finance.records')}`,
-            onChange: (page, size) =>
-              updateSearchParams(searchParams, setSearchParams, {
-                page: String(page),
-                size: String(size),
-              }),
-          }}
-          scroll={{ x: 'max-content' }}
-        />
-      </div>
+              return <Table.Summary.Row>{cells}</Table.Summary.Row>;
+            }}
+            pagination={{
+              current: currentPage,
+              pageSize,
+              total: totalCount,
+              pageSizeOptions: ALL_PAGE_SIZES,
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} из ${total} ${t('finance.records')}`,
+              onChange: (page, size) =>
+                updateSearchParams(searchParams, setSearchParams, {
+                  page: String(page),
+                  size: String(size),
+                }),
+            }}
+            scroll={{ x: 'max-content' }}
+          />
+        </div>
       )}
     </>
   );
