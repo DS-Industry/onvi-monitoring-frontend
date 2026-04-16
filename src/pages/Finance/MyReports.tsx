@@ -15,9 +15,7 @@ import { useUser } from '@/hooks/useUserStore';
 import hasPermission from '@/permissions/hasPermission.tsx';
 import {
   getPosByCalculation,
-  getPosCalculations,
   getPosPartnerReportsMe,
-  PosCalculationResponse,
   PosPartnerReportMeResponse,
 } from '@/services/api/finance';
 import { getPresignedDownloadUrl } from '@/services/api/s3';
@@ -101,25 +99,14 @@ const MyReports: React.FC = () => {
     void loadPosOptions();
   }, [user.organizationId]);
 
-  const { data: posCalculations = [] } = useSWR(['get-pos-calculations-all'], () => getPosCalculations(), {
-    revalidateOnFocus: false,
-    shouldRetryOnError: false,
-  });
-
-  const selectedPosCalculationId = useMemo(() => {
-    if (!posId) return undefined;
-    const matchedPosCalculation = posCalculations.find((item: PosCalculationResponse) => item.pos.id === posId);
-    return matchedPosCalculation?.posCalculationId;
-  }, [posCalculations, posId]);
-
   const reportFilters = useMemo(
     () => ({
       dateStart,
       dateEnd,
       placementId,
-      selectedPosCalculationId,
+      posId,
     }),
-    [dateStart, dateEnd, placementId, selectedPosCalculationId]
+    [dateStart, dateEnd, placementId, posId]
   );
 
   const { data: allReports = [], isLoading } = useSWR(
@@ -129,7 +116,7 @@ const MyReports: React.FC = () => {
         dateStart: requestDateStart,
         dateEnd: requestDateEnd,
         placementId,
-        posCalculationId: selectedPosCalculationId,
+        posCalculationId: posId,
       }),
     {
       revalidateOnFocus: false,
