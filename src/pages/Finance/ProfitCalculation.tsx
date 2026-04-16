@@ -163,6 +163,17 @@ const ProfitCalculation: React.FC = () => {
     void loadPosOptions();
   }, [user.organizationId]);
 
+  const reportFilters = useMemo(
+    () => ({
+      dateStart,
+      dateEnd,
+      placementId,
+      posId,
+      partnerId,
+    }),
+    [dateStart, dateEnd, placementId, posId, partnerId]
+  );
+
   const { data: posCalculations = [] } = useSWR(
     ['get-pos-calculations-all'],
     () => getPosCalculations(),
@@ -172,23 +183,6 @@ const ProfitCalculation: React.FC = () => {
     }
   );
 
-  const selectedPosCalculationId = useMemo(() => {
-    if (!posId) return undefined;
-    const matchedPosCalculation = posCalculations.find(item => item.pos.id === posId);
-    return matchedPosCalculation?.posCalculationId;
-  }, [posCalculations, posId]);
-
-  const reportFilters = useMemo(
-    () => ({
-      dateStart,
-      dateEnd,
-      placementId,
-      selectedPosCalculationId,
-      partnerId,
-    }),
-    [dateStart, dateEnd, placementId, selectedPosCalculationId, partnerId]
-  );
-
   const { data: allProfitReports = [], isLoading, mutate: mutateReports } = useSWR(
     ['get-pos-partner-reports', reportFilters],
     async () =>
@@ -196,7 +190,7 @@ const ProfitCalculation: React.FC = () => {
         dateStart: requestDateStart,
         dateEnd: requestDateEnd,
         placementId,
-        posCalculationId: selectedPosCalculationId,
+        posCalculationId: posId,
         partnerId,
       }),
     {
