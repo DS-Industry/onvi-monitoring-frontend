@@ -24,6 +24,9 @@ const CreateOrganization = React.lazy(
 );
 const MarketingCampaignCreate = React.lazy(() => import('@/pages/Marketing/MarketingCampaignCreate'));
 const FalseDeposits = React.lazy(() => import('@/pages/Finance/FalseDeposits'));
+const ProfitCalculation = React.lazy(() => import('@/pages/Finance/ProfitCalculation'));
+const MyReports = React.lazy(() => import('@/pages/Finance/MyReports'));
+const PercentageOfObjects = React.lazy(() => import('@/pages/Finance/PercentageOfObjects'));
 const FalseDeposit = React.lazy(() => import('@/pages/Finance/FalseDeposit'));
 const DepositDevice = React.lazy(() => import('@/pages/Pos/DepositDevice'));
 const ProgramDevices = React.lazy(() => import('@/pages/Pos/ProgramDevices'));
@@ -926,6 +929,65 @@ const routes: RouteItem[] = [
               { action: 'delete', subject: 'Pos' },
             ],
             isSidebar: false,
+            isHr: false,
+            titleName: '',
+            subNav: [],
+            subMenu: false,
+          },
+        ],
+        subMenu: true,
+      },
+      {
+        name: 'settlementsWithPartners',
+        isVisible: true,
+        path: '/finance/debugging',
+        component: Default,
+        permissions: [
+          { action: 'read', subject: 'PartnerReport' },
+          { action: 'create', subject: 'PartnerReport' },
+          { action: 'update', subject: 'PartnerReport' },
+        ],
+        isSidebar: true,
+        isHr: true,
+        titleName: '',
+        subNav: [
+          {
+            name: 'profitCalculation',
+            isVisible: true,
+            path: '/finance/settlements-partners/profit-calculation',
+            component: ProfitCalculation,
+            permissions: [
+              { action: 'create', subject: 'PartnerReport' },
+            ],
+            isSidebar: true,
+            isHr: false,
+            titleName: '',
+            subNav: [],
+            subMenu: false,
+          },
+          {
+            name: 'myReports',
+            isVisible: true,
+            path: '/finance/settlements-partners/my-reports',
+            component: MyReports,
+            permissions: [
+              { action: 'read', subject: 'PartnerReport' },
+            ],
+            isSidebar: true,
+            isHr: false,
+            titleName: '',
+            subNav: [],
+            subMenu: false,
+          },
+          {
+            name: 'percentageOfObjects',
+            isVisible: true,
+            path: '/finance/settlements-partners/percentage-objects',
+            component: PercentageOfObjects,
+            permissions: [
+              { action: 'create', subject: 'PartnerReport' },
+            ],
+            isSidebar: true,
             isHr: false,
             titleName: '',
             subNav: [],
