@@ -135,6 +135,7 @@
     "settlementsWithPartners": "Settlements with partners",
     "partners": "Partners",
     "profitCalculation": "Profit calculation",
+    "myReports": "My reports",
     "percentageOfObjects": "Percentage of objects"
   },
   "marketingTransactions": {
@@ -1208,6 +1209,7 @@
     }
   },
   "success": {
+    "fileUploaded": "File uploaded successfully",
     "recordUpdated": "Record updated successfully",
     "recordDeleted": "Record deleted successfully",
     "recordCreated": "Record created successfully"
@@ -1507,6 +1509,7 @@
     "shift": "Shift"
   },
   "common": {
+    "edit": "Edit",
     "yes": "Yes",
     "no": "No",
     "previous": "Previous",

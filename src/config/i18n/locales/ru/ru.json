@@ -135,6 +135,7 @@
     "settlementsWithPartners": "Расчет с партнерами",
     "partners": "Партнеры",
     "profitCalculation": "Расчет прибыли",
+    "myReports": "Мои Отчеты",
     "percentageOfObjects": "Процент объектов"
   },
   "marketingTransactions": {
@@ -1208,6 +1209,7 @@
     }
   },
   "success": {
+    "fileUploaded": "Файл успешно загружен",
     "recordUpdated": "Запись успешно обновлена",
     "recordDeleted": "Запись успешно удалена",
     "recordCreated": "Запись успешно создана"
@@ -1506,6 +1508,7 @@
     "shift": "Смена"
   },
   "common": {
+    "edit": "Изменить",
     "yes": "Да",
     "no": "Нет",
     "previous": "Назад",

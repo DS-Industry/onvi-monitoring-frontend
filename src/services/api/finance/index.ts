@@ -16,6 +16,9 @@ enum FINANCE {
   POS_PARTNER_PERCENT_DELETE = 'user/finance-partner/pos-partner-percent/delete',
   WORKER_PARTNER = 'user/permission/worker-partner',
   POS_BY_CALCULATION = 'user/finance-partner/pos-by-calculation',
+  POS_PARTNER_REPORT = 'user/finance-partner/pos-partner-report',
+  POS_PARTNER_REPORTS = 'user/finance-partner/pos-partner-reports',
+  POS_PARTNER_REPORTS_ME = 'user/finance-partner/pos-partner-reports/me',
 }
 
 export enum ManagerReportPeriodStatus {
@@ -681,6 +684,70 @@ export type GetPosCalculationsParams = {
   partnerId?: number;
 };
 
+export type PosPartnerReportMeta = {
+  partnerId: number;
+  fioPartner: string;
+  percentPartner: number;
+  sumPartner: number;
+};
+
+export type PosPartnerReportResponse = {
+  id: number;
+  posCalculationId: number;
+  billingMonth: Date;
+  revenue: number;
+  expenditure: number;
+  reportFileKey: string;
+  region: string;
+  pos: {
+    id: number;
+    name: string;
+  };
+  profit: number;
+  percentProfitability: number;
+  percentReturnAssets: number;
+  meta: PosPartnerReportMeta[];
+};
+
+export type CreatePosPartnerReportBody = {
+  posCalculationId: number;
+  revenue: number;
+  expenditure: number;
+  billingMonth: Date;
+};
+
+export type GetPosPartnerReportsParams = {
+  dateStart?: string;
+  dateEnd?: string;
+  posCalculationId?: number;
+  placementId?: number;
+  partnerId?: number;
+};
+
+export type UpdatePosPartnerReportBody = {
+  id: number;
+  revenue?: number;
+  expenditure?: number;
+  reportFileKey?: string;
+};
+
+export type PosPartnerReportMeResponse = {
+  id: number;
+  posCalculationId: number;
+  billingMonth: Date;
+  region: string;
+  posName: string;
+  revenue: number;
+  expenditure: number;
+  posCalculationCost: number;
+  profit: number;
+  percentProfitability: number;
+  percentReturnAssets: number;
+  percentPartner: number;
+  sumPartner: number;
+  reportFileKey: string;
+};
+
 export async function postCollection(
   body: CollectionBody
 ): Promise<CollectionResponse> {
@@ -1164,6 +1231,46 @@ export async function getPosByCalculation(
   const response: AxiosResponse<PosByCalculationResponse[]> = await api.get(
     FINANCE.POS_BY_CALCULATION,
     { params }
+  );
+  return response.data;
+}
+
+export async function createPosPartnerReport(
+  body: CreatePosPartnerReportBody
+): Promise<PosPartnerReportResponse> {
+  const response: AxiosResponse<PosPartnerReportResponse> = await api.post(
+    FINANCE.POS_PARTNER_REPORT,
+    body
+  );
+  return response.data;
+}
+
+export async function getPosPartnerReports(
+  params?: GetPosPartnerReportsParams
+): Promise<PosPartnerReportResponse[]> {
+  const response: AxiosResponse<PosPartnerReportResponse[]> = await api.get(
+    FINANCE.POS_PARTNER_REPORTS,
+    { params }
+  );
+  return response.data;
+}
+
+export async function getPosPartnerReportsMe(
+  params?: GetPosPartnerReportsParams
+): Promise<PosPartnerReportMeResponse[]> {
+  const response: AxiosResponse<PosPartnerReportMeResponse[]> = await api.get(
+    FINANCE.POS_PARTNER_REPORTS_ME,
+    { params }
+  );
+  return response.data;
+}
+
+export async function updatePosPartnerReport(
+  body: UpdatePosPartnerReportBody
+): Promise<PosPartnerReportResponse> {
+  const response: AxiosResponse<PosPartnerReportResponse> = await api.patch(
+    FINANCE.POS_PARTNER_REPORT,
+    body
   );
   return response.data;
 }

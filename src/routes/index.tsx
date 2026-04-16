@@ -25,6 +25,7 @@ const CreateOrganization = React.lazy(
 const MarketingCampaignCreate = React.lazy(() => import('@/pages/Marketing/MarketingCampaignCreate'));
 const FalseDeposits = React.lazy(() => import('@/pages/Finance/FalseDeposits'));
 const ProfitCalculation = React.lazy(() => import('@/pages/Finance/ProfitCalculation'));
+const MyReports = React.lazy(() => import('@/pages/Finance/MyReports'));
 const PercentageOfObjects = React.lazy(() => import('@/pages/Finance/PercentageOfObjects'));
 const FalseDeposit = React.lazy(() => import('@/pages/Finance/FalseDeposit'));
 const DepositDevice = React.lazy(() => import('@/pages/Pos/DepositDevice'));
@@ -955,6 +956,21 @@ const routes: RouteItem[] = [
             isVisible: true,
             path: '/finance/settlements-partners/profit-calculation',
             component: ProfitCalculation,
+            permissions: [
+              { action: 'manage', subject: 'Pos' },
+              { action: 'read', subject: 'Pos' },
+            ],
+            isSidebar: true,
+            isHr: false,
+            titleName: '',
+            subNav: [],
+            subMenu: false,
+          },
+          {
+            name: 'myReports',
+            isVisible: true,
+            path: '/finance/settlements-partners/my-reports',
+            component: MyReports,
             permissions: [
               { action: 'manage', subject: 'Pos' },
               { action: 'read', subject: 'Pos' },
