@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Button, Space, message, Modal, Descriptions } from 'antd';
+import { Table, Button, Space, message, Modal, Descriptions, Select } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { EyeOutlined } from '@ant-design/icons';
 import {
@@ -8,6 +8,7 @@ import {
   approveOrganizationVerification,
   declineOrganizationVerification,
   type OrganizationVerificationItem,
+  type OrganizationVerificationStatus,
 } from '@/services/api/organization';
 import {
   ALL_PAGE_SIZES,
@@ -17,23 +18,36 @@ import {
 
 const OrganizationRequests: React.FC = () => {
   const { t } = useTranslation();
+  const STATUS_OPTIONS: OrganizationVerificationStatus[] = [
+    'VERIFICATE',
+    'ACTIVE',
+    'BLOCKED',
+  ];
+
   const [data, setData] = useState<OrganizationVerificationItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(DEFAULT_PAGE);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
   const [total, setTotal] = useState(0);
+  const [status, setStatus] =
+    useState<OrganizationVerificationStatus>('VERIFICATE');
   const [updatingId, setUpdatingId] = useState<number | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedOrg, setSelectedOrg] =
     useState<OrganizationVerificationItem | null>(null);
 
   const fetchData = useCallback(
-    async (pageValue: number, sizeValue: number) => {
+    async (
+      pageValue: number,
+      sizeValue: number,
+      statusValue: OrganizationVerificationStatus
+    ) => {
       setLoading(true);
       try {
         const response = await getOrganizationVerificationRequests({
           page: pageValue,
           size: sizeValue,
+          status: statusValue,
         });
         setData(response.data);
         setTotal(response.total);
@@ -45,8 +59,8 @@ const OrganizationRequests: React.FC = () => {
   );
 
   useEffect(() => {
-    fetchData(page, pageSize);
-  }, [fetchData, page, pageSize]);
+    fetchData(page, pageSize, status);
+  }, [fetchData, page, pageSize, status]);
 
   const handleApprove = async (id: number) => {
     setUpdatingId(id);
@@ -55,7 +69,7 @@ const OrganizationRequests: React.FC = () => {
       message.success(
         t('organizations.approveSuccess') || 'Organization approved'
       );
-      await fetchData(page, pageSize);
+      await fetchData(page, pageSize, status);
     } catch (error) {
       console.error('Failed to approve organization:', error);
       message.error(
@@ -73,7 +87,7 @@ const OrganizationRequests: React.FC = () => {
       message.success(
         t('organizations.declineSuccess') || 'Organization declined'
       );
-      await fetchData(page, pageSize);
+      await fetchData(page, pageSize, status);
     } catch (error) {
       console.error('Failed to decline organization:', error);
       message.error(
@@ -89,6 +103,11 @@ const OrganizationRequests: React.FC = () => {
     const size = pagination.pageSize ?? DEFAULT_PAGE_SIZE;
     setPage(current);
     setPageSize(size);
+  };
+
+  const handleStatusChange = (value: OrganizationVerificationStatus) => {
+    setStatus(value);
+    setPage(DEFAULT_PAGE);
   };
 
   const openDetails = (record: OrganizationVerificationItem) => {
@@ -163,7 +182,10 @@ const OrganizationRequests: React.FC = () => {
         />
       ),
     },
-    {
+  ];
+
+  if (status === 'VERIFICATE') {
+    columns.push({
       title: t('subscriptions.actions') || 'Actions',
       key: 'actions',
       width: 200,
@@ -190,8 +212,8 @@ const OrganizationRequests: React.FC = () => {
           </Space>
         );
       },
-    },
-  ];
+    });
+  }
 
   return (
     <div className="space-y-4">
@@ -199,6 +221,17 @@ const OrganizationRequests: React.FC = () => {
         <span className="text-xl sm:text-3xl font-normal text-text01">
           {t('routes.organizationRequests')}
         </span>
+      </div>
+      <div className="flex justify-end">
+        <Select<OrganizationVerificationStatus>
+          value={status}
+          onChange={handleStatusChange}
+          style={{ minWidth: 220 }}
+          options={STATUS_OPTIONS.map((item) => ({
+            value: item,
+            label: t(`tables.${item}`) || item,
+          }))}
+        />
       </div>
       <Table
         rowKey="id"

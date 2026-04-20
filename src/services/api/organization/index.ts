@@ -389,18 +389,24 @@ export type OrganizationVerificationListResponse = {
   total: number;
 };
 
+export type OrganizationVerificationStatus =
+  | 'VERIFICATE'
+  | 'ACTIVE'
+  | 'BLOCKED';
+
 export interface GetOrganizationVerificationParams {
   page?: number;
   size?: number;
+  status?: OrganizationVerificationStatus;
 }
 
 export async function getOrganizationVerificationRequests(
   params: GetOrganizationVerificationParams = {}
 ): Promise<OrganizationVerificationListResponse> {
-  const { page = 1, size = 20 } = params;
+  const { page = 1, size = 20, status } = params;
   const response: AxiosResponse<OrganizationVerificationListResponse> =
     await api.get(ORGANIZATION.GET_VERIFICATION_REQUESTS, {
-      params: { page, size },
+      params: { page, size, status },
     });
   return response.data;
 }
