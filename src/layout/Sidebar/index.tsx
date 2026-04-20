@@ -48,19 +48,6 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
   const sidebarRef = useRef<HTMLDivElement | null>(null);
   const { resetSubmenu, openSubmenuPath } = useSidebarNavigation();
 
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        sidebarRef.current &&
-        !sidebarRef.current.contains(e.target as Node)
-      ) {
-        resetSubmenu();
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [resetSubmenu]);
-
   const handleSidebarNavigation = (path: string) => {
     setIsOpen(false);
     resetSubmenu();
@@ -93,12 +80,52 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
     [resetSubmenu, setIsOpen]
   );
 
+  useEffect(() => {
+    if (openSubmenuPath.length > 0) {
+      debouncedCloseSidebar.cancel();
+    }
+  }, [openSubmenuPath, debouncedCloseSidebar]);
+
+  useEffect(() => {
+    return () => {
+      debouncedOpenSidebar.cancel();
+      debouncedCloseSidebar.cancel();
+    };
+  }, [debouncedOpenSidebar, debouncedCloseSidebar]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      if (!sidebarRef.current || sidebarRef.current.contains(target)) {
+        return;
+      }
+      if (
+        target instanceof Element &&
+        target.closest('[data-sidebar-mobile-trigger]')
+      ) {
+        return;
+      }
+      debouncedOpenSidebar.cancel();
+      debouncedCloseSidebar.cancel();
+      resetSubmenu();
+      setIsOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [
+    resetSubmenu,
+    setIsOpen,
+    debouncedOpenSidebar,
+    debouncedCloseSidebar,
+  ]);
+
   return (
     <>
       {isMobile && !isOpen && (
         <button
           type="button"
           aria-label="Open sidebar"
+          data-sidebar-mobile-trigger
           onClick={() => setIsOpen(true)}
           className="fixed top-7 left-4 z-[9999] flex items-center justify-center w-10 h-10 rounded-md bg-[#d3d4d8] text-white shadow-lg hover:bg-background03 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary01"
         >
@@ -127,7 +154,12 @@ const SidebarContent = ({ isOpen, setIsOpen }: SidebarProps) => {
           if (!isMobile) debouncedOpenSidebar();
         }}
         onMouseLeave={() => {
-          if (!isMobile) debouncedCloseSidebar();
+          if (isMobile) return;
+          if (openSubmenuPath.length > 0) {
+            debouncedCloseSidebar.cancel();
+            return;
+          }
+          debouncedCloseSidebar();
         }}
       >
         <div className="h-full flex flex-col justify-between relative overflow-hidden">
