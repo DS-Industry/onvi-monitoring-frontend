@@ -232,6 +232,10 @@ type StatGraphResponse = {
   sum: number;
 };
 
+export interface getPosPermissionParams {
+  organizationId?: number;
+}
+
 export async function getOrganization(
   params: AddressParams
 ): Promise<Organization[]> {
@@ -301,9 +305,10 @@ export async function getPosPermissionUser(
   return response.data;
 }
 
-export async function getPosPermission(): Promise<PosPermissionsResponse[]> {
+export async function getPosPermission(params: getPosPermissionParams): Promise<PosPermissionsResponse[]> {
   const response: AxiosResponse<PosPermissionsResponse[]> = await api.get(
-    ORGANIZATION.POS_PERMISSION
+    ORGANIZATION.POS_PERMISSION,
+    { params }
   );
   return response.data;
 }

@@ -22,8 +22,8 @@ const PosConnection: React.FC = () => {
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
 
   const { data: posPermissionData = [] } = useSWR(
-    ['get-pos-permission'],
-    getPosPermission,
+    ['get-pos-permission', user.organizationId],
+    () => getPosPermission({organizationId: user.organizationId}),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
