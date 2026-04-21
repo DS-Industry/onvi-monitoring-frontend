@@ -1980,7 +1980,9 @@
       "sumOper": "Сумма операции",
       "uploadDate": "Дата загрузки",
       "localId": "Локальный ID",
-      "currency": "Валюта"
+      "currency": "Валюта",
+      "carCount": "Кол-во машин",
+      "receiptAverage": "Средний чек"
     }
   },
   "general": {

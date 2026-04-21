@@ -210,6 +210,20 @@ const DepositDevices: React.FC = () => {
       key: 'discountSum',
       render: currencyRender,
     },
+    {
+      title: t('deposit.columns.carCount'),
+      dataIndex: 'carCount',
+      key: 'carCount',
+      sorter: (a, b) => (a.carCount || 0) - (b.carCount || 0),
+      render: (value) => formatNumber(value),
+    },
+    {
+      title: t('deposit.columns.receiptAverage'),
+      dataIndex: 'receiptAverage',
+      key: 'receiptAverage',
+      sorter: (a, b) => (a.receiptAverage || 0) - (b.receiptAverage || 0),
+      render: currencyRender,
+    },
   ];
 
   const { checkedList, setCheckedList, options, visibleColumns } =
@@ -232,6 +246,8 @@ const DepositDevices: React.FC = () => {
       cardSum: 0,
       cashbackSumMub: 0,
       discountSum: 0,
+      carCount: 0,
+      receiptAverage: 0,
     };
 
     devices.forEach(item => {
@@ -244,6 +260,7 @@ const DepositDevices: React.FC = () => {
       totals.cardSum += item.cardSum || 0;
       totals.cashbackSumMub += item.cashbackSumMub || 0;
       totals.discountSum += item.discountSum || 0;
+      totals.carCount += item.carCount || 0;
     });
 
     return totals;
@@ -309,9 +326,15 @@ const DepositDevices: React.FC = () => {
                     }
 
                     if (dataIndex && totalsRow[dataIndex] !== undefined) {
-                      if (['cashSum', 'virtualSum', 'onviSum', 'yandexSum', 'mobileSum', 'cardSum', 'cashbackSumMub', 'discountSum'].includes(dataIndex)) {
+                      if (dataIndex === 'receiptAverage') {
+                        value = '';
+                      } else if (
+                        ['cashSum', 'virtualSum', 'onviSum', 'yandexSum', 'mobileSum', 'cardSum', 'cashbackSumMub', 'discountSum'].includes(dataIndex)
+                      ) {
                         value = currencyRender(totalsRow[dataIndex]);
                       } else if (dataIndex === 'counter') {
+                        value = formatNumber(totalsRow[dataIndex]);
+                      } else if (dataIndex === 'carCount') {
                         value = formatNumber(totalsRow[dataIndex]);
                       } else {
                         value = '';
