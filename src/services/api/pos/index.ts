@@ -195,6 +195,8 @@ export type DepositResponse = {
   discountSum: number;
   cashbackSumCard: number;
   cashbackSumMub: number;
+  carCount: number;           
+  receiptAverage: number;   
 };
 
 type DepositPosResponse = {
@@ -213,6 +215,8 @@ type DepositPosResponse = {
     discountSum: number;
     cashbackSumCard: number;
     cashbackSumMub: number;
+    carCount: number;           
+    receiptAverage: number;     
   }[];
   totalCount: number;
 };
