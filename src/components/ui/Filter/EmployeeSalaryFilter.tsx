@@ -1,7 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Select, Collapse, DatePicker, TimePicker, Typography } from 'antd';
+import { Select, Collapse, DatePicker, Typography } from 'antd';
 import Button from '@ui/Button/Button.tsx';
 import dayjs, { Dayjs } from 'dayjs';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
@@ -31,15 +31,37 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const rawStart = getParam(searchParams, 'startPaymentDate');
-  const [startDate, setStartDate] = useState<Dayjs | null>(
-    rawStart ? dayjs(rawStart) : null
-  );
+  const getInitialMonth = (): Dayjs | null => {
+    const startParam = getParam(searchParams, 'startPaymentDate');
+    if (startParam) {
+      const parsed = dayjs(startParam);
+      if (parsed.isValid()) {
+        return parsed.startOf('month');
+      }
+    }
+    return dayjs().startOf('month');
+  };
 
-  const rawEnd = getParam(searchParams, 'endPaymentDate');
-  const [endDate, setEndDate] = useState<Dayjs | null>(
-    rawEnd ? dayjs(rawEnd) : null
-  );
+  const [selectedMonth, setSelectedMonth] = useState<Dayjs | null>(getInitialMonth);
+
+  const handleMonthChange = (date: Dayjs | null) => {
+    setSelectedMonth(date);
+    if (date) {
+      const start = date.startOf('month').startOf('day');
+      const end = date.endOf('month').endOf('day');
+      updateSearchParams(searchParams, setSearchParams, {
+        startPaymentDate: start.format('YYYY-MM-DDTHH:mm'),
+        endPaymentDate: end.format('YYYY-MM-DDTHH:mm'),
+        page: DEFAULT_PAGE,
+      });
+    } else {
+      updateSearchParams(searchParams, setSearchParams, {
+        startPaymentDate: undefined,
+        endPaymentDate: undefined,
+        page: DEFAULT_PAGE,
+      });
+    }
+  };
 
   const resetFilters = () => {
     updateSearchParams(searchParams, setSearchParams, {
@@ -50,94 +72,37 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
       page: DEFAULT_PAGE,
       size: DEFAULT_PAGE_SIZE,
     });
-
-    setStartDate(null);
-    setEndDate(null);
+    const defaultMonth = dayjs().startOf('month');
+    setSelectedMonth(defaultMonth);
+    const start = defaultMonth.startOf('month').startOf('day');
+    const end = defaultMonth.endOf('month').endOf('day');
+    updateSearchParams(searchParams, setSearchParams, {
+      startPaymentDate: start.format('YYYY-MM-DDTHH:mm'),
+      endPaymentDate: end.format('YYYY-MM-DDTHH:mm'),
+      page: DEFAULT_PAGE,
+    });
   };
 
-  const handleStartDateChange = (date: Dayjs | null) => {
-    if (date) {
-      const newDateTime = (startDate || dayjs())
-        .set('year', date.year())
-        .set('month', date.month())
-        .set('date', date.date());
-      setStartDate(newDateTime);
-      updateSearchParams(searchParams, setSearchParams, {
-        startPaymentDate: newDateTime.format('YYYY-MM-DDTHH:mm'),
-        page: DEFAULT_PAGE,
-      });
+  useEffect(() => {
+    const startParam = getParam(searchParams, 'startPaymentDate');
+    if (startParam) {
+      const parsed = dayjs(startParam);
+      if (parsed.isValid() && !selectedMonth?.isSame(parsed, 'month')) {
+        setSelectedMonth(parsed.startOf('month'));
+      }
     } else {
-      setStartDate(null);
-      updateSearchParams(searchParams, setSearchParams, {
-        startPaymentDate: undefined,
-        page: DEFAULT_PAGE,
-      });
-    }
-  };
-
-  const handleStartTimeChange = (time: Dayjs | null) => {
-    if (time) {
-      const newDateTime = (startDate || dayjs())
-        .set('hour', time.hour())
-        .set('minute', time.minute());
-      setStartDate(newDateTime);
-      updateSearchParams(searchParams, setSearchParams, {
-        startPaymentDate: newDateTime.format('YYYY-MM-DDTHH:mm'),
-        page: DEFAULT_PAGE,
-      });
-    } else {
-      if (startDate) {
-        const newDateTime = startDate.startOf('day');
-        setStartDate(newDateTime);
+      if (selectedMonth !== null) {
+        const defaultMonth = dayjs().startOf('month');
+        setSelectedMonth(defaultMonth);
+        const start = defaultMonth.startOf('month').startOf('day');
+        const end = defaultMonth.endOf('month').endOf('day');
         updateSearchParams(searchParams, setSearchParams, {
-          startPaymentDate: newDateTime.format('YYYY-MM-DDTHH:mm'),
-          page: DEFAULT_PAGE,
+          startPaymentDate: start.format('YYYY-MM-DDTHH:mm'),
+          endPaymentDate: end.format('YYYY-MM-DDTHH:mm'),
         });
       }
     }
-  };
-
-  const handleEndDateChange = (date: Dayjs | null) => {
-    if (date) {
-      const newDateTime = (endDate || dayjs())
-        .set('year', date.year())
-        .set('month', date.month())
-        .set('date', date.date());
-      setEndDate(newDateTime);
-      updateSearchParams(searchParams, setSearchParams, {
-        endPaymentDate: newDateTime.format('YYYY-MM-DDTHH:mm'),
-        page: DEFAULT_PAGE,
-      });
-    } else {
-      setEndDate(null);
-      updateSearchParams(searchParams, setSearchParams, {
-        endPaymentDate: undefined,
-        page: DEFAULT_PAGE,
-      });
-    }
-  };
-
-  const handleEndTimeChange = (time: Dayjs | null) => {
-    if (time) {
-      const newDateTime = (endDate || dayjs())
-        .set('hour', time.hour())
-        .set('minute', time.minute());
-      setEndDate(newDateTime);
-      updateSearchParams(searchParams, setSearchParams, {
-        endPaymentDate: newDateTime.format('YYYY-MM-DDTHH:mm'),
-        page: DEFAULT_PAGE,
-      });
-    } else {
-      if (endDate) {
-        const newDateTime = endDate.startOf('day');
-        setEndDate(newDateTime);
-        updateSearchParams(searchParams, setSearchParams, {
-          endPaymentDate: newDateTime.format('YYYY-MM-DDTHH:mm'),
-          page: DEFAULT_PAGE,
-        });
-      }
-    }
-  };
+  }, [searchParams]);
 
   return (
     <Collapse
@@ -166,45 +131,15 @@ const SalaryCalculationFilter: React.FC<SalaryCalculationFilterProps> = ({
               <div className="mt-4">
                 <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4 w-full">
                   <div className="flex flex-col w-full sm:w-80">
-                    <Text>{t('hr.startPaymentDate')}</Text>
-                    <div className="flex flex-row gap-1 w-full">
-                      <DatePicker
-                        value={startDate}
-                        format="YYYY-MM-DD"
-                        onChange={handleStartDateChange}
-                        placeholder={t('finance.sel')}
-                        className="w-1/2 sm:w-full"
-                      />
-                      <TimePicker
-                        value={startDate}
-                        format="HH:mm"
-                        onChange={handleStartTimeChange}
-                        placeholder={t('finance.selTime')}
-                        disabled={!startDate}
-                        className="w-1/2 sm:w-full"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col w-full sm:w-80">
-                    <Text>{t('hr.endPaymentDate')}</Text>
-                    <div className="flex flex-row gap-1 w-full">
-                      <DatePicker
-                        value={endDate}
-                        format="YYYY-MM-DD"
-                        onChange={handleEndDateChange}
-                        placeholder={t('finance.sel')}
-                        className="w-1/2 sm:w-full"
-                      />
-                      <TimePicker
-                        value={endDate}
-                        format="HH:mm"
-                        onChange={handleEndTimeChange}
-                        placeholder={t('finance.selTime')}
-                        disabled={!endDate}
-                        className="w-1/2 sm:w-full"
-                      />
-                    </div>
+                    <Text>{t('hr.billing')}</Text>
+                    <DatePicker
+                      picker="month"
+                      value={selectedMonth}
+                      onChange={handleMonthChange}
+                      placeholder={t('finance.selMon')}
+                      className="w-full"
+                      allowClear={false}
+                    />
                   </div>
 
                   <div className="flex flex-col w-full sm:w-80">
