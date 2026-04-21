@@ -1980,7 +1980,9 @@
       "sumOper": "Transaction amount",
       "uploadDate": "Upload date",
       "localId": "Local ID",
-      "currency": "Currency"
+      "currency": "Currency",
+      "carCount": "Car count",
+      "receiptAverage": "Average receipt"
     }
   },
   "general": {
