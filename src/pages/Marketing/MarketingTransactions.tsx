@@ -53,6 +53,7 @@ const MarketingTransactions: React.FC = () => {
     { label: t('marketingTransactions.statuses.posProcessed'), value: OrderStatus.POS_PROCESSED },
     { label: t('marketingTransactions.statuses.paymentProcessing'), value: OrderStatus.PAYMENT_PROCESSING },
     { label: t('marketingTransactions.statuses.waitingPayment'), value: OrderStatus.WAITING_PAYMENT },
+    { label: t('marketingTransactions.statuses.refunded'), value: OrderStatus.REFUNDED },
   ];
 
   const debouncedSearch = useCallback(
@@ -205,6 +206,8 @@ const MarketingTransactions: React.FC = () => {
         return t('marketingTransactions.statuses.paymentProcessing');
       case OrderStatus.WAITING_PAYMENT:
         return t('marketingTransactions.statuses.waitingPayment');
+      case OrderStatus.REFUNDED:
+        return t('marketingTransactions.statuses.refunded');
       default:
         return status;
     }

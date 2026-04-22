@@ -192,7 +192,8 @@
       "failed": "Failed",
       "posProcessed": "POS processed",
       "paymentProcessing": "Payment processing",
-      "waitingPayment": "Waiting payment"
+      "waitingPayment": "Waiting payment",
+      "refunded": "Refunded"
     }
   },
   "dashboard": {
