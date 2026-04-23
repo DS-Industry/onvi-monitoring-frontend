@@ -2391,7 +2391,9 @@
     "noData": "No data",
     "chartTitle": "Consumption graph",
     "noDataToDisplay": "No data to display",
-    "numberOfPeriods": "Number of periods"
+    "numberOfPeriods": "Number of periods",
+    "chartLevelTitle": "Chemistry level",
+    "level": "Level"
   },
   "marketingCampaigns": {
     "terms": "Terms and conditions and prizes",

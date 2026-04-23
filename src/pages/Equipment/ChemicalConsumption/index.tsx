@@ -19,6 +19,8 @@ import {
 
 import MiniChart from './MiniChart';
 import ChartModal from './ChartModal';
+import MiniChartLevel from './MiniChartLevel';
+import ChartModalLevel from './ChartModalLevel';
 
 interface TableRow {
   period: string;
@@ -32,6 +34,7 @@ interface ExpandedData {
   recalculated: string | number;
   chartDataFact?: { period: string; value: number }[];
   chartDataRecalculated?: { period: string; value: number }[];
+  levelChartData?: { date: string; value: number }[];
 }
 
 const transformDataToTableRows = (
@@ -105,6 +108,7 @@ const ChemicalConsumption: React.FC = () => {
   );
 
   const productions = reportData?.posChemistryProductions ?? [];
+  const chemistryAddLevels = reportData?.chemistryAddLevels ?? [];
   const tableRows = transformDataToTableRows(productions);
 
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
@@ -113,6 +117,12 @@ const ChemicalConsumption: React.FC = () => {
     category: string;
     dataFact: { period: string; value: number }[];
     dataRecalculated: { period: string; value: number }[];
+  } | null>(null);
+
+  const [levelModalVisible, setLevelModalVisible] = useState(false);
+  const [selectedLevelData, setSelectedLevelData] = useState<{
+    category: string;
+    data: { date: string; value: number }[];
   } | null>(null);
 
   useEffect(() => {
@@ -127,9 +137,20 @@ const ChemicalConsumption: React.FC = () => {
       .filter(row => row.period)
       .map(row => ({
         period: row.period,
-        value: parseValueToNumber(row[`${categoryKey}, ${dataKey}`])
+        value: parseValueToNumber(row[`${categoryKey}, ${dataKey}`]),
       }))
       .filter(item => !isNaN(item.value) && item.value !== null);
+  };
+
+  const getLevelChartData = (code: string): { date: string; value: number }[] => {
+    const filtered = chemistryAddLevels
+      .filter(item => item.code === code && item.level !== null)
+      .map(item => ({
+        date: dayjs(item.techTaskDate).format('DD.MM.YYYY HH:mm'),
+        value: item.level as number,
+      }))
+      .sort((a, b) => dayjs(a.date, 'DD.MM.YYYY HH:mm').valueOf() - dayjs(b.date, 'DD.MM.YYYY HH:mm').valueOf());
+    return filtered;
   };
 
   const getExpandedDataForRow = (row: TableRow): ExpandedData[] => {
@@ -207,36 +228,17 @@ const ChemicalConsumption: React.FC = () => {
 
   const getTotalExpandedData = (): ExpandedData[] => {
     const categories = [
-      {
-        translationKey: 'chemicalConsumption.waterShampoo',
-        dataKey: 'Вода + шампунь'
-      },
-      {
-        translationKey: 'chemicalConsumption.activeChemistry',
-        dataKey: 'Активная химия'
-      },
-      {
-        translationKey: 'chemicalConsumption.diskWash',
-        dataKey: 'Мойка дисков'
-      },
-      {
-        translationKey: 'chemicalConsumption.brushFoam',
-        dataKey: 'Щетка + пена'
-      },
-      {
-        translationKey: 'chemicalConsumption.waxProtection',
-        dataKey: 'Воск + защита'
-      },
-      {
-        translationKey: 'chemicalConsumption.tPower',
-        dataKey: 'T-POWER'
-      },
+      { translationKey: 'chemicalConsumption.waterShampoo', dataKey: 'Вода + шампунь', code: 'SOAP' },
+      { translationKey: 'chemicalConsumption.activeChemistry', dataKey: 'Активная химия', code: 'PRESOAK' },
+      { translationKey: 'chemicalConsumption.diskWash', dataKey: 'Мойка дисков', code: 'TIRE' },
+      { translationKey: 'chemicalConsumption.brushFoam', dataKey: 'Щетка + пена', code: 'BRUSH' },
+      { translationKey: 'chemicalConsumption.waxProtection', dataKey: 'Воск + защита', code: 'WAX' },
+      { translationKey: 'chemicalConsumption.tPower', dataKey: 'T-POWER', code: 'TPOWER' },
     ];
-
-    return categories.map(({ translationKey, dataKey }) => {
+    return categories.map(({ translationKey, dataKey, code }) => {
       const chartDataFact = getChartDataForCategory(dataKey, 'fact');
       const chartDataRecalculated = getChartDataForCategory(dataKey, 'recalculated');
-
+      const levelChartData = getLevelChartData(code);
       return {
         category: t(translationKey),
         fact: totals[dataKey].fact,
@@ -244,6 +246,7 @@ const ChemicalConsumption: React.FC = () => {
         recalculated: totals[dataKey].recalculated,
         chartDataFact: chartDataFact.length > 0 ? chartDataFact : undefined,
         chartDataRecalculated: chartDataRecalculated.length > 0 ? chartDataRecalculated : undefined,
+        levelChartData: levelChartData.length > 0 ? levelChartData : undefined,
       };
     });
   };
@@ -392,6 +395,52 @@ const ChemicalConsumption: React.FC = () => {
         );
       },
     },
+    {
+      title: t('chemicalConsumption.chartLevelTitle'),
+      key: 'levelChart',
+      align: 'center',
+      width: 130,
+      render: (_, record) => {
+        if (record.levelChartData && record.levelChartData.length > 0) {
+          return (
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                padding: '4px',
+              }}
+              onClick={() => {
+                setSelectedLevelData({
+                  category: record.category,
+                  data: record.levelChartData!,
+                });
+                setLevelModalVisible(true);
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#f5f5f5';
+                e.currentTarget.style.borderRadius = '4px';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
+            >
+              <MiniChartLevel
+                data={record.levelChartData}
+                width={110}
+                height={32}
+                isLarge={false}
+              />
+            </div>
+          );
+        }
+        return (
+          <div style={{ color: '#999', fontSize: '12px', textAlign: 'center' }}>
+            {t('chemicalConsumption.noData')}
+          </div>
+        );
+      },
+    },
   ];
 
   const expandedRowRender = (row: TableRow) => {
@@ -429,11 +478,11 @@ const ChemicalConsumption: React.FC = () => {
   };
 
   const allData = tableRows.length > 0
-    ? [
-        ...tableRows.map((row, index) => ({ ...row, key: `${row.period}-${index}` })),
+      ? [
+          ...tableRows.map((row, index) => ({ ...row, key: `${row.period}-${index}` })),
         { period: t('finance.total'), key: 'total' }
-      ]
-    : tableRows.map((row, index) => ({ ...row, key: `${row.period}-${index}` }));
+        ]
+      : tableRows.map((row, index) => ({ ...row, key: `${row.period}-${index}` }));
 
   const handleRowClick = (record: any) => {
     const key = record.key;
@@ -496,6 +545,15 @@ const ChemicalConsumption: React.FC = () => {
           category={selectedChartData.category}
           dataFact={selectedChartData.dataFact}
           dataRecalculated={selectedChartData.dataRecalculated}
+        />
+      )}
+
+      {selectedLevelData && (
+        <ChartModalLevel
+          visible={levelModalVisible}
+          onClose={() => setLevelModalVisible(false)}
+          category={selectedLevelData.category}
+          data={selectedLevelData.data}
         />
       )}
     </>
