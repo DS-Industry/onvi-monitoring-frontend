@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import {
-  ChemicalConsumptionResponse,
+  PosChemistryProduction,
   getChemicalReport,
 } from '@/services/api/equipment';
 import { useSearchParams } from 'react-router-dom';
@@ -35,7 +35,7 @@ interface ExpandedData {
 }
 
 const transformDataToTableRows = (
-  data: ChemicalConsumptionResponse[]
+  data: PosChemistryProduction[]
 ): TableRow[] => {
   return data.map(task => {
     const row: TableRow = { period: task.period };
@@ -94,7 +94,7 @@ const ChemicalConsumption: React.FC = () => {
       ? `chemical-report-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.posId}-${filterParams.placementId}`
       : null;
 
-  const { data: chemicalReports, isLoading: chemicalLoading } = useSWR(
+  const { data: reportData, isLoading: chemicalLoading } = useSWR(
     swrKey,
     () => getChemicalReport(filterParams),
     {
@@ -104,8 +104,8 @@ const ChemicalConsumption: React.FC = () => {
     }
   );
 
-  const data = chemicalReports || [];
-  const tableRows = transformDataToTableRows(data);
+  const productions = reportData?.posChemistryProductions ?? [];
+  const tableRows = transformDataToTableRows(productions);
 
   const [expandedRowKeys, setExpandedRowKeys] = useState<string[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -117,7 +117,7 @@ const ChemicalConsumption: React.FC = () => {
 
   useEffect(() => {
     setExpandedRowKeys([]);
-  }, [data]);
+  }, [productions]);
 
   const getChartDataForCategory = (categoryKey: string, type: 'fact' | 'recalculated') => {
     if (!tableRows || tableRows.length === 0) return [];
