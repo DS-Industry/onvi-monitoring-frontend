@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import {
+  ConsumablesType,
   PosChemistryProduction,
   getChemicalReport,
 } from '@/services/api/equipment';
@@ -37,26 +38,42 @@ interface ExpandedData {
   levelChartData?: { date: string; value: number }[];
 }
 
-const transformDataToTableRows = (
-  data: PosChemistryProduction[]
-): TableRow[] => {
+const chemicalNameMap: Record<ConsumablesType, string> = {
+  [ConsumablesType.SOAP]: 'Вода + шампунь',
+  [ConsumablesType.PRESOAK]: 'Активная химия',
+  [ConsumablesType.TIRE]: 'Мойка дисков',
+  [ConsumablesType.BRUSH]: 'Щетка + пена',
+  [ConsumablesType.WAX]: 'Воск + защита',
+  [ConsumablesType.TPOWER]: 'T-POWER',
+  [ConsumablesType.SPARE_EQUIPMENT]: 'Запчасти',
+  [ConsumablesType.SALT]: 'Соль',
+};
+
+const suffixMap = {
+  fact: 'факт',
+  time: 'время',
+  recalc: 'пересчет',
+};
+
+const usedChemicalTypes: ConsumablesType[] = [
+  ConsumablesType.SOAP,
+  ConsumablesType.PRESOAK,
+  ConsumablesType.TIRE,
+  ConsumablesType.BRUSH,
+  ConsumablesType.WAX,
+  ConsumablesType.TPOWER,
+];
+
+const transformDataToTableRows = (data: PosChemistryProduction[]): TableRow[] => {
   return data.map(task => {
     const row: TableRow = { period: task.period };
     task.techRateInfos.forEach(info => {
-      const prefixMap: { [key: string]: string } = {
-        SOAP: 'Вода + шампунь',
-        PRESOAK: 'Активная химия',
-        TIRE: 'Мойка дисков',
-        BRUSH: 'Щетка + пена',
-        WAX: 'Воск + защита',
-        TPOWER: 'T-POWER',
-      };
-
-      const prefix = prefixMap[info.code];
-      if (prefix) {
-        row[`${prefix}, факт`] = info.spent;
-        row[`${prefix}, время`] = info.time;
-        row[`${prefix}, пересчет`] = info.recalculation;
+      const code = info.code as ConsumablesType;
+      const name = chemicalNameMap[code];
+      if (name) {
+        row[`${name}, ${suffixMap.fact}`] = info.spent;
+        row[`${name}, ${suffixMap.time}`] = info.time;
+        row[`${name}, ${suffixMap.recalc}`] = info.recalculation;
       }
     });
 
@@ -131,8 +148,7 @@ const ChemicalConsumption: React.FC = () => {
 
   const getChartDataForCategory = (categoryKey: string, type: 'fact' | 'recalculated') => {
     if (!tableRows || tableRows.length === 0) return [];
-
-    const dataKey = type === 'fact' ? 'факт' : 'пересчет';
+    const dataKey = type === 'fact' ? suffixMap.fact : suffixMap.recalc;
     return tableRows
       .filter(row => row.period)
       .map(row => ({
@@ -142,7 +158,7 @@ const ChemicalConsumption: React.FC = () => {
       .filter(item => !isNaN(item.value) && item.value !== null);
   };
 
-  const getLevelChartData = (code: string): { date: string; value: number }[] => {
+  const getLevelChartData = (code: ConsumablesType): { date: string; value: number }[] => {
     const filtered = chemistryAddLevels
       .filter(item => item.code === code && item.level !== null)
       .map(item => ({
@@ -154,96 +170,49 @@ const ChemicalConsumption: React.FC = () => {
   };
 
   const getExpandedDataForRow = (row: TableRow): ExpandedData[] => {
-    const categories = [
-      {
-        translationKey: 'chemicalConsumption.waterShampoo',
-        dataKey: 'Вода + шампунь'
-      },
-      {
-        translationKey: 'chemicalConsumption.activeChemistry',
-        dataKey: 'Активная химия'
-      },
-      {
-        translationKey: 'chemicalConsumption.diskWash',
-        dataKey: 'Мойка дисков'
-      },
-      {
-        translationKey: 'chemicalConsumption.brushFoam',
-        dataKey: 'Щетка + пена'
-      },
-      {
-        translationKey: 'chemicalConsumption.waxProtection',
-        dataKey: 'Воск + защита'
-      },
-      {
-        translationKey: 'chemicalConsumption.tPower',
-        dataKey: 'T-POWER'
-      },
-    ];
-
-    return categories.map(({ translationKey, dataKey }) => ({
-      category: t(translationKey),
-      fact: row[`${dataKey}, факт`] || 0,
-      time: row[`${dataKey}, время`] || '-',
-      recalculated: row[`${dataKey}, пересчет`] || 0,
-    }));
+    return usedChemicalTypes.map(code => {
+      const name = chemicalNameMap[code];
+      return {
+        category: t(`chemicalNames.${code}`, name),
+        fact: row[`${name}, ${suffixMap.fact}`] || 0,
+        time: row[`${name}, ${suffixMap.time}`] || '-',
+        recalculated: row[`${name}, ${suffixMap.recalc}`] || 0,
+      };
+    });
   };
 
   const calculateTotals = () => {
-    const categories = [
-      'Вода + шампунь',
-      'Активная химия',
-      'Мойка дисков',
-      'Щетка + пена',
-      'Воск + защита',
-      'T-POWER',
-    ];
-
-    const totals: { [key: string]: { fact: number, recalculated: number, timeSeconds: number } } = {};
-
-    categories.forEach(category => {
-      totals[category] = {
-        fact: 0,
-        recalculated: 0,
-        timeSeconds: 0
-      };
+    const totals: { [key in ConsumablesType]?: { fact: number; recalculated: number; timeSeconds: number } } = {};
+    usedChemicalTypes.forEach(code => {
+      totals[code] = { fact: 0, recalculated: 0, timeSeconds: 0 };
     });
-
     tableRows.forEach(row => {
-      categories.forEach(category => {
-        totals[category].fact += parseValueToNumber(row[`${category}, факт`]);
-        totals[category].recalculated += parseValueToNumber(row[`${category}, пересчет`]);
-
-        const timeValue = row[`${category}, время`];
+      usedChemicalTypes.forEach(code => {
+        const name = chemicalNameMap[code];
+        totals[code]!.fact += parseValueToNumber(row[`${name}, ${suffixMap.fact}`]);
+        totals[code]!.recalculated += parseValueToNumber(row[`${name}, ${suffixMap.recalc}`]);
+        const timeValue = row[`${name}, ${suffixMap.time}`];
         if (timeValue && timeValue !== '-' && timeValue !== '') {
-          totals[category].timeSeconds += parseTimeToSeconds(timeValue);
+          totals[code]!.timeSeconds += parseTimeToSeconds(timeValue);
         }
       });
     });
-
     return totals;
   };
 
   const totals = calculateTotals();
 
   const getTotalExpandedData = (): ExpandedData[] => {
-    const categories = [
-      { translationKey: 'chemicalConsumption.waterShampoo', dataKey: 'Вода + шампунь', code: 'SOAP' },
-      { translationKey: 'chemicalConsumption.activeChemistry', dataKey: 'Активная химия', code: 'PRESOAK' },
-      { translationKey: 'chemicalConsumption.diskWash', dataKey: 'Мойка дисков', code: 'TIRE' },
-      { translationKey: 'chemicalConsumption.brushFoam', dataKey: 'Щетка + пена', code: 'BRUSH' },
-      { translationKey: 'chemicalConsumption.waxProtection', dataKey: 'Воск + защита', code: 'WAX' },
-      { translationKey: 'chemicalConsumption.tPower', dataKey: 'T-POWER', code: 'TPOWER' },
-    ];
-    return categories.map(({ translationKey, dataKey, code }) => {
-      const chartDataFact = getChartDataForCategory(dataKey, 'fact');
-      const chartDataRecalculated = getChartDataForCategory(dataKey, 'recalculated');
+    return usedChemicalTypes.map(code => {
+      const name = chemicalNameMap[code];
+      const chartDataFact = getChartDataForCategory(name, 'fact');
+      const chartDataRecalculated = getChartDataForCategory(name, 'recalculated');
       const levelChartData = getLevelChartData(code);
       return {
-        category: t(translationKey),
-        fact: totals[dataKey].fact,
-        time: formatSecondsToTime(totals[dataKey].timeSeconds),
-        recalculated: totals[dataKey].recalculated,
+        category: t(`chemicalNames.${code}`, name),
+        fact: totals[code]!.fact,
+        time: formatSecondsToTime(totals[code]!.timeSeconds),
+        recalculated: totals[code]!.recalculated,
         chartDataFact: chartDataFact.length > 0 ? chartDataFact : undefined,
         chartDataRecalculated: chartDataRecalculated.length > 0 ? chartDataRecalculated : undefined,
         levelChartData: levelChartData.length > 0 ? levelChartData : undefined,
@@ -478,11 +447,11 @@ const ChemicalConsumption: React.FC = () => {
   };
 
   const allData = tableRows.length > 0
-      ? [
-          ...tableRows.map((row, index) => ({ ...row, key: `${row.period}-${index}` })),
+    ? [
+        ...tableRows.map((row, index) => ({ ...row, key: `${row.period}-${index}` })),
         { period: t('finance.total'), key: 'total' }
-        ]
-      : tableRows.map((row, index) => ({ ...row, key: `${row.period}-${index}` }));
+      ]
+    : tableRows.map((row, index) => ({ ...row, key: `${row.period}-${index}` }));
 
   const handleRowClick = (record: any) => {
     const key = record.key;
