@@ -304,6 +304,7 @@ type PlanFactResponse = {
     cashFact: number;
     virtualSumFact: number;
     yandexSumFact: number;
+    onviSumFact: number;
     sumFact: number;
     completedPercent: number;
     notCompletedPercent: number;
