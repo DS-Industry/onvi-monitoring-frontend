@@ -344,17 +344,30 @@ type ChemicalParams = {
   placementId: number | string;
 };
 
-export type ChemicalConsumptionResponse = {
+export interface TechTaskChemistryReportResponse {
+  posChemistryProductions: PosChemistryProduction[];
+  chemistryAddLevels: PosChemistryAddLevel[];
+}
+
+export interface PosChemistryProduction {
   techTaskId: number;
   period: string;
-  techRateInfos: {
-    code: string;
-    spent: string;
-    time: string;
-    recalculation: string;
-    service: string;
-  }[];
-};
+  techRateInfos: TechRateInfo[];
+}
+
+export interface TechRateInfo {
+  code: string;
+  spent: string;
+  time: string;
+  recalculation: string;
+  service: string;
+}
+
+export interface PosChemistryAddLevel {
+  code: string;
+  level: number | null;
+  techTaskDate: string;
+}
 
 export type ConsumptionRateResponse = {
   id: number;
@@ -750,8 +763,8 @@ export async function createTechTaskShapeWithUrls(
 
 export async function getChemicalReport(
   params: ChemicalParams
-): Promise<ChemicalConsumptionResponse[]> {
-  const response: AxiosResponse<ChemicalConsumptionResponse[]> = await api.get(
+): Promise<TechTaskChemistryReportResponse> {
+  const response: AxiosResponse<TechTaskChemistryReportResponse> = await api.get(
     TECHTASKS.GET_CHEMICAL_CONSUMPTION,
     { params }
   );

@@ -2390,7 +2390,9 @@
     "noData": "Нет данных",
     "chartTitle": "График потребления",
     "noDataToDisplay": "Нет данных для отображения",
-    "numberOfPeriods": "Количество периодов"
+    "numberOfPeriods": "Количество периодов",
+    "chartLevelTitle": "Уровень химии",
+    "level": "Уровень"
   },
   "marketingCampaigns": {
     "terms": "Условия и призы",
