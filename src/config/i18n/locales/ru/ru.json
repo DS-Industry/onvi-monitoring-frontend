@@ -2392,7 +2392,8 @@
     "noDataToDisplay": "Нет данных для отображения",
     "numberOfPeriods": "Количество периодов",
     "chartLevelTitle": "Уровень химии",
-    "level": "Уровень"
+    "level": "Уровень",
+    "filling": "Залив"
   },
   "marketingCampaigns": {
     "terms": "Условия и призы",

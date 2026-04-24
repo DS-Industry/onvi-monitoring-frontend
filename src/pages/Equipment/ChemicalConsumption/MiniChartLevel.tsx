@@ -4,14 +4,16 @@ import dayjs from 'dayjs';
 
 export interface MiniChartLevelProps {
   data: { date: string; value: number }[];
+  dataAdd?: { date: string; value: number }[];
   width?: number;
   height?: number;
   isLarge?: boolean;
-  onPointHover?: (date: string, value: number) => void;
+  onPointHover?: (date: string, levelValue: number, addValue: number | null) => void;
 }
 
 const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
   data,
+  dataAdd = [],
   width = 110,
   height = 32,
   isLarge = false,
@@ -19,10 +21,13 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
 }) => {
   const { t } = useTranslation();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const lineColor = '#52c41a';
+  const lineColor = '#666';
+  const pointColor = '#52c41a';
+  const addColor = '#f44336';
   const axisColor = '#999';
   const labelColor = '#666';
 
+  const allValues = [...data.map(d => d.value), ...dataAdd.map(d => d.value)];
   if (!data || data.length < 2) {
     return (
       <div
@@ -41,9 +46,8 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
     );
   }
 
-  const values = data.map(d => d.value);
-  const max = Math.max(...values);
-  const min = Math.min(...values);
+  const max = Math.max(...allValues);
+  const min = Math.min(...allValues);
   const range = max - min || 1;
 
   const paddingLeft = isLarge ? 40 : 5;
@@ -54,33 +58,54 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
   const innerWidth = width - paddingLeft - paddingRight;
   const innerHeight = height - paddingTop - paddingBottom;
 
-  const calculatePoints = () => {
-    return data
+  const calculatePoints = (series: { date: string; value: number }[]) => {
+    if (series.length < 2) return '';
+    return series
       .map((item, index) => {
-        const x = paddingLeft + (index / (data.length - 1)) * innerWidth;
+        const x = paddingLeft + (index / (series.length - 1)) * innerWidth;
         const y = paddingTop + innerHeight - ((item.value - min) / range) * innerHeight;
         return `${x},${y}`;
       })
       .join(' ');
   };
 
-  const points = calculatePoints();
+  const points = calculatePoints(data);
 
-  const handlePointMouseEnter = (index: number) => {
+  const xCoords = data.map((_, index) => paddingLeft + (index / (data.length - 1)) * innerWidth);
+
+  const zones = xCoords.map((x, i) => {
+    let left: number;
+    let right: number;
+    if (i === 0) {
+      left = paddingLeft;
+      right = xCoords.length > 1 ? (xCoords[0] + xCoords[1]) / 2 : x;
+    } else if (i === xCoords.length - 1) {
+      left = xCoords.length > 1 ? (xCoords[i - 1] + xCoords[i]) / 2 : x;
+      right = paddingLeft + innerWidth;
+    } else {
+      left = (xCoords[i - 1] + xCoords[i]) / 2;
+      right = (xCoords[i] + xCoords[i + 1]) / 2;
+    }
+    return { left, right };
+  });
+
+  const handleZoneMouseEnter = (index: number) => {
     setHoveredIndex(index);
     if (onPointHover && data[index]) {
-      onPointHover(data[index].date, data[index].value);
+      const addValue = dataAdd[index] ? dataAdd[index].value : null;
+      onPointHover(data[index].date, data[index].value, addValue);
     }
   };
 
-  const handlePointMouseLeave = () => {
+  const handleZoneMouseLeave = () => {
     setHoveredIndex(null);
   };
 
   const strokeWidth = isLarge ? 2 : 1.5;
   const pointRadius = isLarge ? 4 : 2;
-  const hoverAreaRadius = isLarge ? 10 : 6;
   const hoverPointRadius = isLarge ? 6 : 4;
+  const squareSize = pointRadius * 2;
+  const hoverSquareSize = hoverPointRadius * 2;
 
   const firstDate = data[0]?.date ? dayjs(data[0].date, 'DD.MM.YYYY HH:mm').format('DD.MM') : '';
   const lastDate = data[data.length - 1]?.date ? dayjs(data[data.length - 1].date, 'DD.MM.YYYY HH:mm').format('DD.MM') : '';
@@ -96,7 +121,6 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
         height,
         cursor: 'pointer',
       }}
-      onMouseLeave={handlePointMouseLeave}
     >
       <svg width={width} height={height} style={{ overflow: 'visible' }}>
         {isLarge && (
@@ -215,7 +239,7 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
         />
 
         {data.map((item, index) => {
-          const x = paddingLeft + (index / (data.length - 1)) * innerWidth;
+          const x = xCoords[index];
           const y = paddingTop + innerHeight - ((item.value - min) / range) * innerHeight;
           const isHovered = hoveredIndex === index;
           return (
@@ -223,19 +247,47 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
               <circle
                 cx={x}
                 cy={y}
-                r={hoverAreaRadius}
-                fill="transparent"
-                onMouseEnter={() => handlePointMouseEnter(index)}
-              />
-              <circle
-                cx={x}
-                cy={y}
                 r={isHovered ? hoverPointRadius : pointRadius}
-                fill={lineColor}
+                fill={pointColor}
               />
             </g>
           );
         })}
+
+        {hoveredIndex !== null && dataAdd[hoveredIndex] !== undefined && dataAdd[hoveredIndex].value !== null && (
+          (() => {
+            const index = hoveredIndex;
+            const x = xCoords[index];
+            const y = paddingTop + innerHeight - ((dataAdd[index].value - min) / range) * innerHeight;
+            const currentSize = hoveredIndex === index ? hoverSquareSize : squareSize;
+            const offset = currentSize / 2;
+            return (
+              <rect
+                x={x - offset}
+                y={y - offset}
+                width={currentSize}
+                height={currentSize}
+                fill="none"
+                stroke={addColor}
+                strokeWidth={strokeWidth}
+              />
+            );
+          })()
+        )}
+
+        {zones.map((zone, idx) => (
+          <rect
+            key={`zone-${idx}`}
+            x={zone.left}
+            y={paddingTop}
+            width={zone.right - zone.left}
+            height={innerHeight}
+            fill="transparent"
+            onMouseEnter={() => handleZoneMouseEnter(idx)}
+            onMouseLeave={handleZoneMouseLeave}
+            style={{ pointerEvents: 'all' }}
+          />
+        ))}
       </svg>
     </div>
   );
