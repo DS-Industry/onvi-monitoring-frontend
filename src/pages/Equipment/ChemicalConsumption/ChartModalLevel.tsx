@@ -89,12 +89,20 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
                 </span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div
+                  style={{
+                    width: '12px',
+                    height: '12px',
+                    border: '1px solid #f44336',
+                    backgroundColor: 'transparent',
+                  }}
+                />
                 <span style={{ fontSize: '13px' }}>{t('chemicalConsumption.filling')}:</span>
                 <span
                   style={{
                     fontWeight: 'bold',
                     fontSize: '14px',
-                    color: '#000',
+                    color: '#f44336',
                   }}
                 >
                   {tooltipData.addValue !== null ? formatNumber(tooltipData.addValue) : '—'}

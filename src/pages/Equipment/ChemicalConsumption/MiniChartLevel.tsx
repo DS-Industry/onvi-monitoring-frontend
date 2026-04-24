@@ -23,6 +23,7 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const lineColor = '#666';
   const pointColor = '#52c41a';
+  const addColor = '#f44336';
   const axisColor = '#999';
   const labelColor = '#666';
 
@@ -103,6 +104,8 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
   const strokeWidth = isLarge ? 2 : 1.5;
   const pointRadius = isLarge ? 4 : 2;
   const hoverPointRadius = isLarge ? 6 : 4;
+  const squareSize = pointRadius * 2;
+  const hoverSquareSize = hoverPointRadius * 2;
 
   const firstDate = data[0]?.date ? dayjs(data[0].date, 'DD.MM.YYYY HH:mm').format('DD.MM') : '';
   const lastDate = data[data.length - 1]?.date ? dayjs(data[data.length - 1].date, 'DD.MM.YYYY HH:mm').format('DD.MM') : '';
@@ -250,6 +253,27 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
             </g>
           );
         })}
+
+        {hoveredIndex !== null && dataAdd[hoveredIndex] !== undefined && dataAdd[hoveredIndex].value !== null && (
+          (() => {
+            const index = hoveredIndex;
+            const x = xCoords[index];
+            const y = paddingTop + innerHeight - ((dataAdd[index].value - min) / range) * innerHeight;
+            const currentSize = hoveredIndex === index ? hoverSquareSize : squareSize;
+            const offset = currentSize / 2;
+            return (
+              <rect
+                x={x - offset}
+                y={y - offset}
+                width={currentSize}
+                height={currentSize}
+                fill="none"
+                stroke={addColor}
+                strokeWidth={strokeWidth}
+              />
+            );
+          })()
+        )}
 
         {zones.map((zone, idx) => (
           <rect
