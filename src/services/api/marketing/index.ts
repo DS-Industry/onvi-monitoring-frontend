@@ -1065,11 +1065,17 @@ export type CreateCorporateClientRequest = {
   ltyProgramId: number;
 };
 
+export enum CorporateClientStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+}
+
 export type UpdateCorporateClientRequest = {
   name?: string;
   inn?: string;
   address?: string;
   organizationId: number;
+  status?: CorporateClientStatus;
 };
 
 type CorporateClientStatsResponse = {
