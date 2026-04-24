@@ -36,6 +36,7 @@ interface ExpandedData {
   chartDataFact?: { period: string; value: number }[];
   chartDataRecalculated?: { period: string; value: number }[];
   levelChartData?: { date: string; value: number }[];
+  addChartData?: { date: string; value: number }[];
 }
 
 const chemicalNameMap: Record<ConsumablesType, string> = {
@@ -140,6 +141,7 @@ const ChemicalConsumption: React.FC = () => {
   const [selectedLevelData, setSelectedLevelData] = useState<{
     category: string;
     data: { date: string; value: number }[];
+    dataAdd: { date: string; value: number }[];
   } | null>(null);
 
   useEffect(() => {
@@ -158,15 +160,29 @@ const ChemicalConsumption: React.FC = () => {
       .filter(item => !isNaN(item.value) && item.value !== null);
   };
 
-  const getLevelChartData = (code: ConsumablesType): { date: string; value: number }[] => {
-    const filtered = chemistryAddLevels
-      .filter(item => item.code === code && item.level !== null)
-      .map(item => ({
-        date: dayjs(item.techTaskDate).format('DD.MM.YYYY HH:mm'),
-        value: item.level as number,
-      }))
-      .sort((a, b) => dayjs(a.date, 'DD.MM.YYYY HH:mm').valueOf() - dayjs(b.date, 'DD.MM.YYYY HH:mm').valueOf());
-    return filtered;
+  const getLevelChartData = (code: ConsumablesType): {
+    levelData: { date: string; value: number }[];
+    addData: { date: string; value: number }[];
+  } => {
+    const levelData: { date: string; value: number }[] = [];
+    const addData: { date: string; value: number }[] = [];
+    chemistryAddLevels.forEach(item => {
+      if (item.code === code) {
+        const formattedDate = dayjs(item.techTaskDate).format('DD.MM.YYYY HH:mm');
+        if (item.level !== null) {
+          levelData.push({ date: formattedDate, value: item.level });
+        }
+        if (item.add !== null) {
+          addData.push({ date: formattedDate, value: item.add });
+        }
+      }
+    });
+    const sortFn = (a: { date: string }, b: { date: string }) =>
+      dayjs(a.date, 'DD.MM.YYYY HH:mm').valueOf() - dayjs(b.date, 'DD.MM.YYYY HH:mm').valueOf();
+    return {
+      levelData: levelData.sort(sortFn),
+      addData: addData.sort(sortFn),
+    };
   };
 
   const getExpandedDataForRow = (row: TableRow): ExpandedData[] => {
@@ -207,7 +223,7 @@ const ChemicalConsumption: React.FC = () => {
       const name = chemicalNameMap[code];
       const chartDataFact = getChartDataForCategory(name, 'fact');
       const chartDataRecalculated = getChartDataForCategory(name, 'recalculated');
-      const levelChartData = getLevelChartData(code);
+      const { levelData, addData } = getLevelChartData(code);
       return {
         category: t(`chemicalNames.${code}`, name),
         fact: totals[code]!.fact,
@@ -215,7 +231,8 @@ const ChemicalConsumption: React.FC = () => {
         recalculated: totals[code]!.recalculated,
         chartDataFact: chartDataFact.length > 0 ? chartDataFact : undefined,
         chartDataRecalculated: chartDataRecalculated.length > 0 ? chartDataRecalculated : undefined,
-        levelChartData: levelChartData.length > 0 ? levelChartData : undefined,
+        levelChartData: levelData.length > 0 ? levelData : undefined,
+        addChartData: addData.length > 0 ? addData : undefined,
       };
     });
   };
@@ -383,6 +400,7 @@ const ChemicalConsumption: React.FC = () => {
                 setSelectedLevelData({
                   category: record.category,
                   data: record.levelChartData!,
+                  dataAdd: record.addChartData || [],
                 });
                 setLevelModalVisible(true);
               }}
@@ -396,6 +414,7 @@ const ChemicalConsumption: React.FC = () => {
             >
               <MiniChartLevel
                 data={record.levelChartData}
+                dataAdd={record.addChartData}
                 width={110}
                 height={32}
                 isLarge={false}
@@ -523,6 +542,7 @@ const ChemicalConsumption: React.FC = () => {
           onClose={() => setLevelModalVisible(false)}
           category={selectedLevelData.category}
           data={selectedLevelData.data}
+          dataAdd={selectedLevelData.dataAdd}
         />
       )}
     </>

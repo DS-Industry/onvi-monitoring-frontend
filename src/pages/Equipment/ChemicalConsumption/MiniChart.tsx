@@ -51,11 +51,51 @@ const MiniChart: React.FC<MiniChartProps> = ({
   const min = Math.min(...allValues);
   const range = max - min || 1;
 
+  const paddingLeft = isLarge ? 20 : 5;
+  const paddingRight = isLarge ? 20 : 5;
+  const paddingTop = isLarge ? 20 : 5;
+  const paddingBottom = isLarge ? 10 : 5;
+  const innerWidth = width - paddingLeft - paddingRight;
+  const innerHeight = height - paddingTop - paddingBottom;
+
+  const xCoords = dataFact.map((_, index) => paddingLeft + (index / (dataFact.length - 1)) * innerWidth);
+
+  const zones = xCoords.map((x, i) => {
+    let left: number;
+    let right: number;
+    if (i === 0) {
+      left = paddingLeft;
+      right = xCoords.length > 1 ? (xCoords[0] + xCoords[1]) / 2 : x;
+    } else if (i === xCoords.length - 1) {
+      left = xCoords.length > 1 ? (xCoords[i - 1] + xCoords[i]) / 2 : x;
+      right = paddingLeft + innerWidth;
+    } else {
+      left = (xCoords[i - 1] + xCoords[i]) / 2;
+      right = (xCoords[i] + xCoords[i + 1]) / 2;
+    }
+    return { left, right };
+  });
+
+  const handleZoneMouseEnter = (index: number) => {
+    setHoveredIndex(index);
+    if (onPointHover && dataFact[index] && dataRecalculated[index]) {
+      onPointHover(dataFact[index].period, dataFact[index].value, dataRecalculated[index].value);
+    }
+  };
+
+  const handleZoneMouseLeave = () => {
+    setHoveredIndex(null);
+  };
+
+  const strokeWidth = isLarge ? 3 : 2;
+  const pointRadius = isLarge ? 3 : 1;
+  const hoverPointRadius = isLarge ? 5 : 3;
+
   const calculatePoints = (data: { period: string; value: number }[]) => {
     return data
       .map((item, index) => {
-        const x = (index / (data.length - 1)) * (width - (isLarge ? 40 : 10)) + (isLarge ? 20 : 5);
-        const y = height - (isLarge ? 10 : 5) - ((item.value - min) / range) * (height - (isLarge ? 20 : 10));
+        const x = xCoords[index];
+        const y = paddingTop + innerHeight - ((item.value - min) / range) * innerHeight;
         return `${x},${y}`;
       })
       .join(' ');
@@ -63,22 +103,6 @@ const MiniChart: React.FC<MiniChartProps> = ({
 
   const factPoints = calculatePoints(dataFact);
   const recalculatedPoints = calculatePoints(dataRecalculated);
-
-  const handlePointMouseEnter = (index: number) => {
-    setHoveredIndex(index);
-    if (onPointHover && dataFact[index] && dataRecalculated[index]) {
-      onPointHover(dataFact[index].period, dataFact[index].value, dataRecalculated[index].value);
-    }
-  };
-
-  const handlePointMouseLeave = () => {
-    setHoveredIndex(null);
-  };
-
-  const strokeWidth = isLarge ? 3 : 2;
-  const pointRadius = isLarge ? 3 : 1;
-  const hoverAreaRadius = isLarge ? 8 : 4;
-  const hoverPointRadius = isLarge ? 5 : 3;
 
   return (
     <div
@@ -88,7 +112,7 @@ const MiniChart: React.FC<MiniChartProps> = ({
         height,
         cursor: 'pointer'
       }}
-      onMouseLeave={handlePointMouseLeave}
+      onMouseLeave={handleZoneMouseLeave}
     >
       <svg
         width={width}
@@ -96,10 +120,10 @@ const MiniChart: React.FC<MiniChartProps> = ({
         style={{ overflow: 'visible' }}
       >
         <rect
-          x={isLarge ? 17 : 2}
-          y={isLarge ? 17 : 2}
-          width={width - (isLarge ? 34 : 4)}
-          height={height - (isLarge ? 34 : 4)}
+          x={paddingLeft - (isLarge ? 3 : 2)}
+          y={paddingTop - (isLarge ? 3 : 2)}
+          width={innerWidth + (isLarge ? 6 : 4)}
+          height={innerHeight + (isLarge ? 6 : 4)}
           fill="#fafafa"
           stroke="#f0f0f0"
           strokeWidth="0.5"
@@ -107,10 +131,10 @@ const MiniChart: React.FC<MiniChartProps> = ({
         />
 
         <line
-          x1={isLarge ? 20 : 5}
-          y1={height - (isLarge ? 10 : 5)}
-          x2={width - (isLarge ? 20 : 5)}
-          y2={height - (isLarge ? 10 : 5)}
+          x1={paddingLeft}
+          y1={height - paddingBottom}
+          x2={width - paddingRight}
+          y2={height - paddingBottom}
           stroke="#d9d9d9"
           strokeWidth="0.5"
         />
@@ -135,54 +159,48 @@ const MiniChart: React.FC<MiniChartProps> = ({
         />
 
         {dataFact.map((item, index) => {
-          const x = (index / (dataFact.length - 1)) * (width - (isLarge ? 40 : 10)) + (isLarge ? 20 : 5);
-          const y = height - (isLarge ? 10 : 5) - ((item.value - min) / range) * (height - (isLarge ? 20 : 10));
-
+          const x = xCoords[index];
+          const y = paddingTop + innerHeight - ((item.value - min) / range) * innerHeight;
           const isHovered = hoveredIndex === index;
-
           return (
-            <g key={`fact-${index}`}>
-              <circle
-                cx={x}
-                cy={y}
-                r={hoverAreaRadius}
-                fill="transparent"
-                onMouseEnter={() => handlePointMouseEnter(index)}
-              />
-              <circle
-                cx={x}
-                cy={y}
-                r={isHovered ? hoverPointRadius : pointRadius}
-                fill={factColor}
-              />
-            </g>
+            <circle
+              key={`fact-${index}`}
+              cx={x}
+              cy={y}
+              r={isHovered ? hoverPointRadius : pointRadius}
+              fill={factColor}
+            />
           );
         })}
 
         {dataRecalculated.map((item, index) => {
-          const x = (index / (dataRecalculated.length - 1)) * (width - (isLarge ? 40 : 10)) + (isLarge ? 20 : 5);
-          const y = height - (isLarge ? 10 : 5) - ((item.value - min) / range) * (height - (isLarge ? 20 : 10));
-
+          const x = xCoords[index];
+          const y = paddingTop + innerHeight - ((item.value - min) / range) * innerHeight;
           const isHovered = hoveredIndex === index;
-
           return (
-            <g key={`recalc-${index}`}>
-              <circle
-                cx={x}
-                cy={y}
-                r={hoverAreaRadius}
-                fill="transparent"
-                onMouseEnter={() => handlePointMouseEnter(index)}
-              />
-              <circle
-                cx={x}
-                cy={y}
-                r={isHovered ? hoverPointRadius : pointRadius}
-                fill={recalculatedColor}
-              />
-            </g>
+            <circle
+              key={`recalc-${index}`}
+              cx={x}
+              cy={y}
+              r={isHovered ? hoverPointRadius : pointRadius}
+              fill={recalculatedColor}
+            />
           );
         })}
+
+        {zones.map((zone, idx) => (
+          <rect
+            key={`zone-${idx}`}
+            x={zone.left}
+            y={paddingTop}
+            width={zone.right - zone.left}
+            height={innerHeight}
+            fill="transparent"
+            onMouseEnter={() => handleZoneMouseEnter(idx)}
+            onMouseLeave={handleZoneMouseLeave}
+            style={{ pointerEvents: 'all' }}
+          />
+        ))}
       </svg>
     </div>
   );

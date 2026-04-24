@@ -366,6 +366,7 @@ export interface TechRateInfo {
 export interface PosChemistryAddLevel {
   code: string;
   level: number | null;
+  add: number | null;
   techTaskDate: string;
 }
 

@@ -9,6 +9,7 @@ export interface ChartModalLevelProps {
   onClose: () => void;
   category: string;
   data: { date: string; value: number }[];
+  dataAdd: { date: string; value: number }[];
 }
 
 const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
@@ -16,23 +17,31 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
   onClose,
   category,
   data,
+  dataAdd,
 }) => {
   const { t } = useTranslation();
-  const [tooltipData, setTooltipData] = useState<{ date: string; value: number } | null>(
-    data.length > 0 ? { date: data[data.length - 1].date, value: data[data.length - 1].value } : null
+  const [tooltipData, setTooltipData] = useState<{ date: string; levelValue: number; addValue: number | null } | null>(
+    data.length > 0
+      ? {
+          date: data[data.length - 1].date,
+          levelValue: data[data.length - 1].value,
+          addValue: dataAdd[dataAdd.length - 1]?.value ?? null,
+        }
+      : null
   );
 
   useEffect(() => {
     if (visible && data.length > 0 && !tooltipData) {
       setTooltipData({
         date: data[data.length - 1].date,
-        value: data[data.length - 1].value,
+        levelValue: data[data.length - 1].value,
+        addValue: dataAdd[dataAdd.length - 1]?.value ?? null,
       });
     }
-  }, [visible, data]);
+  }, [visible, data, dataAdd]);
 
-  const handlePointHover = (date: string, value: number) => {
-    setTooltipData({ date, value });
+  const handlePointHover = (date: string, levelValue: number, addValue: number | null) => {
+    setTooltipData({ date, levelValue, addValue });
   };
 
   return (
@@ -58,7 +67,7 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
             <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#333' }}>
               {t('chemicalConsumption.period')}: {tooltipData.date}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div
                   style={{
@@ -76,7 +85,27 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
                     color: '#52c41a',
                   }}
                 >
-                  {formatNumber(tooltipData.value)}
+                  {formatNumber(tooltipData.levelValue)}
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div
+                  style={{
+                    width: '12px',
+                    height: '12px',
+                    border: '1px solid #f44336',
+                    backgroundColor: 'transparent',
+                  }}
+                />
+                <span style={{ fontSize: '13px' }}>{t('chemicalConsumption.filling')}:</span>
+                <span
+                  style={{
+                    fontWeight: 'bold',
+                    fontSize: '14px',
+                    color: '#f44336',
+                  }}
+                >
+                  {tooltipData.addValue !== null ? formatNumber(tooltipData.addValue) : '—'}
                 </span>
               </div>
             </div>
@@ -99,6 +128,7 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
       >
         <MiniChartLevel
           data={data}
+          dataAdd={dataAdd}
           width={600}
           height={250}
           isLarge={true}
