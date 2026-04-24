@@ -6,6 +6,7 @@ import {
   CorporateClientResponse,
   CreateCorporateClientRequest,
   UpdateCorporateClientRequest,
+  CorporateClientStatus,
   createCorporateClient,
   updateCorporateClient,
   getLoyaltyProgramsPaginated,
@@ -37,6 +38,7 @@ export default function CorporateClientDrawer({
     inn: '',
     address: '',
     ltyProgramId: undefined as number | undefined,
+    status: undefined as CorporateClientStatus | undefined,
   });
 
   const user = useUser();
@@ -67,10 +69,10 @@ export default function CorporateClientDrawer({
     useSWR<LoyaltyParticipantProgramsPaginatedResponse>(
       open && user.organizationId
         ? [
-          'corporate-drawer-loyalty-programs',
-          user.organizationId,
-          loyaltyProgramSearch,
-        ]
+            'corporate-drawer-loyalty-programs',
+            user.organizationId,
+            loyaltyProgramSearch,
+          ]
         : null,
       () =>
         getLoyaltyProgramsPaginated({
@@ -93,12 +95,12 @@ export default function CorporateClientDrawer({
     selectedLtyId != null &&
       !loyaltyProgramOptionsRaw.some((o) => o.value === selectedLtyId)
       ? [
-        {
-          value: selectedLtyId,
-          label: selectedLoyaltyOptionLabel ?? String(selectedLtyId),
-        },
-        ...loyaltyProgramOptionsRaw,
-      ]
+          {
+            value: selectedLtyId,
+            label: selectedLoyaltyOptionLabel ?? String(selectedLtyId),
+          },
+          ...loyaltyProgramOptionsRaw,
+        ]
       : loyaltyProgramOptionsRaw;
 
   useEffect(() => {
@@ -108,10 +110,11 @@ export default function CorporateClientDrawer({
         inn: '',
         address: '',
         ltyProgramId: undefined,
+        status: undefined,
       });
       form.resetFields();
     }
-  }, [open, client]);
+  }, [open, client, form]);
 
   useEffect(() => {
     if (client) {
@@ -120,12 +123,14 @@ export default function CorporateClientDrawer({
         inn: client.inn || '',
         address: client.address || '',
         ltyProgramId: undefined,
+        status: client.status as CorporateClientStatus,
       });
       form.setFieldsValue({
         name: client.name || '',
         inn: client.inn || '',
         address: client.address || '',
         ltyProgramId: undefined,
+        status: client.status as CorporateClientStatus,
       });
     } else {
       setInitialValues({
@@ -133,6 +138,7 @@ export default function CorporateClientDrawer({
         inn: '',
         address: '',
         ltyProgramId: undefined,
+        status: undefined,
       });
       form.resetFields();
     }
@@ -143,6 +149,7 @@ export default function CorporateClientDrawer({
     inn: string;
     address: string;
     ltyProgramId?: number;
+    status?: CorporateClientStatus;
   }) => {
     try {
       setLoading(true);
@@ -153,6 +160,7 @@ export default function CorporateClientDrawer({
           inn: values.inn,
           address: values.address,
           organizationId: Number(user.organizationId),
+          status: values.status,
         };
 
         await updateCorporateClient(client.id, updateRequest);
@@ -300,6 +308,26 @@ export default function CorporateClientDrawer({
             />
           </Form.Item>
         </div>
+
+        {isEditMode && (
+          <div>
+            <div className="flex">
+              <div className="text-text02 text-sm">{t('constants.status')}</div>
+            </div>
+            <Form.Item name="status">
+              <Select
+                placeholder={t('marketing.selectStatus')}
+                className="w-80"
+                options={[
+                  { label: t('tables.ACTIVE'), value: CorporateClientStatus.ACTIVE },
+                  { label: t('tables.INACTIVE'), value: CorporateClientStatus.INACTIVE },
+                ]}
+                allowClear={false}
+              />
+            </Form.Item>
+          </div>
+        )}
+
         <div className="flex space-x-4">
           <Button onClick={handleClose}>
             {t('marketing.cancel')}
