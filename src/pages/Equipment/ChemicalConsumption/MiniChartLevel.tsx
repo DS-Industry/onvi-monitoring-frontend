@@ -4,14 +4,16 @@ import dayjs from 'dayjs';
 
 export interface MiniChartLevelProps {
   data: { date: string; value: number }[];
+  dataAdd?: { date: string; value: number }[];
   width?: number;
   height?: number;
   isLarge?: boolean;
-  onPointHover?: (date: string, value: number) => void;
+  onPointHover?: (date: string, levelValue: number, addValue: number | null) => void;
 }
 
 const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
   data,
+  dataAdd = [],
   width = 110,
   height = 32,
   isLarge = false,
@@ -20,9 +22,11 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
   const { t } = useTranslation();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const lineColor = '#52c41a';
+  const addColor = '#f44336';
   const axisColor = '#999';
   const labelColor = '#666';
 
+  const allValues = [...data.map(d => d.value), ...dataAdd.map(d => d.value)];
   if (!data || data.length < 2) {
     return (
       <div
@@ -41,9 +45,8 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
     );
   }
 
-  const values = data.map(d => d.value);
-  const max = Math.max(...values);
-  const min = Math.min(...values);
+  const max = Math.max(...allValues);
+  const min = Math.min(...allValues);
   const range = max - min || 1;
 
   const paddingLeft = isLarge ? 40 : 5;
@@ -54,22 +57,25 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
   const innerWidth = width - paddingLeft - paddingRight;
   const innerHeight = height - paddingTop - paddingBottom;
 
-  const calculatePoints = () => {
-    return data
+  const calculatePoints = (series: { date: string; value: number }[]) => {
+    if (series.length < 2) return '';
+    return series
       .map((item, index) => {
-        const x = paddingLeft + (index / (data.length - 1)) * innerWidth;
+        const x = paddingLeft + (index / (series.length - 1)) * innerWidth;
         const y = paddingTop + innerHeight - ((item.value - min) / range) * innerHeight;
         return `${x},${y}`;
       })
       .join(' ');
   };
 
-  const points = calculatePoints();
+  const points = calculatePoints(data);
+  const addPoints = calculatePoints(dataAdd);
 
   const handlePointMouseEnter = (index: number) => {
     setHoveredIndex(index);
     if (onPointHover && data[index]) {
-      onPointHover(data[index].date, data[index].value);
+      const addValue = dataAdd[index] ? dataAdd[index].value : null;
+      onPointHover(data[index].date, data[index].value, addValue);
     }
   };
 
@@ -205,6 +211,18 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
           />
         )}
 
+        {addPoints && (
+          <polyline
+            points={addPoints}
+            fill="none"
+            stroke={addColor}
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeDasharray={isLarge ? "4" : "2"}
+          />
+        )}
+
         <polyline
           points={points}
           fill="none"
@@ -232,6 +250,29 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
                 cy={y}
                 r={isHovered ? hoverPointRadius : pointRadius}
                 fill={lineColor}
+              />
+            </g>
+          );
+        })}
+
+        {dataAdd.map((item, index) => {
+          const x = paddingLeft + (index / (dataAdd.length - 1)) * innerWidth;
+          const y = paddingTop + innerHeight - ((item.value - min) / range) * innerHeight;
+          const isHovered = hoveredIndex === index;
+          return (
+            <g key={`add-${index}`}>
+              <circle
+                cx={x}
+                cy={y}
+                r={hoverAreaRadius}
+                fill="transparent"
+                onMouseEnter={() => handlePointMouseEnter(index)}
+              />
+              <circle
+                cx={x}
+                cy={y}
+                r={isHovered ? hoverPointRadius : pointRadius}
+                fill={addColor}
               />
             </g>
           );
