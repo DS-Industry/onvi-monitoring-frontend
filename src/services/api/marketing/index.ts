@@ -1074,6 +1074,7 @@ export type UpdateCorporateClientRequest = {
   name?: string;
   inn?: string;
   address?: string;
+  ownerPhone?: string;
   organizationId: number;
   status?: CorporateClientStatus;
 };
