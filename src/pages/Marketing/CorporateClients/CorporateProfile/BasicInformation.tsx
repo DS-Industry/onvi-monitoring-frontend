@@ -58,6 +58,7 @@ const BasicInformation: React.FC = () => {
       name: clientData?.name || '',
       inn: clientData?.inn || '',
       address: clientData?.address || '',
+      ownerPhone: clientData?.ownerPhone || '',
     }),
     [clientData]
   );
@@ -92,6 +93,7 @@ const BasicInformation: React.FC = () => {
     setValue('name', clientData?.name || '');
     setValue('inn', clientData?.inn || '');
     setValue('address', clientData?.address || '');
+    setValue('ownerPhone', clientData?.ownerPhone || '');
   };
 
   const handleCancel = () => {
@@ -106,6 +108,7 @@ const BasicInformation: React.FC = () => {
         name: values.name,
         inn: values.inn,
         address: values.address,
+        ownerPhone: values.ownerPhone,
         organizationId: Number(user.organizationId),
       });
       message.success(t('corporateClients.updateSuccess'));
@@ -157,7 +160,9 @@ const BasicInformation: React.FC = () => {
                         ? t('corporateClients.enterCompanyName')
                         : fieldName === 'inn'
                           ? t('enterInnPlaceholder')
-                          : ''
+                          : fieldName === 'ownerPhone'
+                            ? t('corporateClients.enterOwnerPhone')
+                            : ''
                     }
                     size='large'
                   />
@@ -224,18 +229,7 @@ const BasicInformation: React.FC = () => {
                 </div>
               </Upload>
             </div>
-            <div>
-              <div className="text-text02 text-sm">
-                {t('corporateClients.ownerPhone')}
-              </div>
-              <Form.Item layout="vertical">
-                <div
-                  className={`border border-borderFill ${isEditing ? 'bg-disabledFill text-text03' : ''} rounded-md px-3 py-1 w-86 h-10 flex items-center`}
-                >
-                  {clientData.ownerPhone || '-'}
-                </div>
-              </Form.Item>
-            </div>
+            {renderField(t('corporateClients.ownerPhone'), clientData?.ownerPhone, 'ownerPhone')}
             <div>
               <div className="text-text02 text-sm">{t('constants.status')}</div>
               <Form.Item layout="vertical">

@@ -73,7 +73,7 @@ const CorporateClients: React.FC = () => {
   const corporateClients =
     response?.data.map(item => ({
       ...item,
-      status: t(`tables.${item.status}`),
+      statusDisplay: t(`tables.${item.status}`),
     })) || [];
     
   const pagination = response
@@ -151,7 +151,7 @@ const CorporateClients: React.FC = () => {
       },
       {
         title: t('constants.status'),
-        dataIndex: 'status',
+        dataIndex: 'statusDisplay',
         key: 'status',
         render: statusRender,
       },
