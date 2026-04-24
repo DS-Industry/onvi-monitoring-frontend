@@ -93,8 +93,8 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
                   style={{
                     width: '12px',
                     height: '12px',
-                    border: '1px solid #f44336',
-                    backgroundColor: 'transparent',
+                    backgroundColor: '#f44336',
+                    borderRadius: '2px',
                   }}
                 />
                 <span style={{ fontSize: '13px' }}>{t('chemicalConsumption.filling')}:</span>
