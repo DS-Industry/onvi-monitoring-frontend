@@ -6,6 +6,7 @@ import useSWRMutation from 'swr/mutation';
 import { Skeleton, Input, Select, DatePicker, Button } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
+import { debounce } from 'lodash';
 
 import { getReportById, applyReport, ReportParam } from '@/services/api/reports';
 import { getDevices, getPoses } from '@/services/api/equipment';
@@ -79,6 +80,7 @@ const IncomeReport: React.FC = () => {
 
   const [formValues, setFormValues] = useState<Record<string, FormValue>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [debouncedManagerSearch, setDebouncedManagerSearch] = useState('');
   const selectedOrganizationId = useMemo(() => {
     const raw = formValues.organizationId;
     if (raw === null || raw === undefined || raw === '') return undefined;
@@ -94,6 +96,24 @@ const IncomeReport: React.FC = () => {
       setFormValues(initial);
     }
   }, [reportData]);
+
+  const debouncedManagerSearchUpdate = useMemo(
+    () => debounce((value: string) => {
+      setDebouncedManagerSearch(value.trim().toLowerCase());
+    }, 300),
+    []
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedManagerSearchUpdate.cancel();
+    };
+  }, [debouncedManagerSearchUpdate]);
+
+  useEffect(() => {
+    setDebouncedManagerSearch('');
+    debouncedManagerSearchUpdate.cancel();
+  }, [selectedOrganizationId, debouncedManagerSearchUpdate]);
 
   const handleInputChange = (name: string, value: FormValue) => {
     setFormValues(prev => ({ ...prev, [name]: value }));
@@ -137,11 +157,15 @@ const IncomeReport: React.FC = () => {
 
   const { data: managerData } = useSWR(
     selectedOrganizationId
-      ? ['get-worker-manager', selectedOrganizationId]
+      ? ['get-worker-manager', selectedOrganizationId, debouncedManagerSearch]
       : null,
-    () => getWorkerManager(selectedOrganizationId!),
+    () => getWorkerManager(selectedOrganizationId!, debouncedManagerSearch),
     { revalidateOnFocus: false, keepPreviousData: true }
   );
+
+  const managerOptions = useMemo(() => {
+    return (managerData || []).map(m => ({ label: `${m.name} ${m.surname}`, value: m.id }));
+  }, [managerData]);
 
   const renderField = (param: ReportParam) => {
     const value = formValues[param.name];
@@ -251,11 +275,17 @@ const IncomeReport: React.FC = () => {
       return (
         <Select
           placeholder={param.description}
-          options={managerData?.map(m => ({ label: `${m.name} ${m.surname}`, value: m.id })) || []}
+          options={managerOptions}
           allowClear
           showSearch
+          filterOption={false}
           value={value ?? undefined}
           onChange={(val) => handleInputChange(param.name, val)}
+          onSearch={debouncedManagerSearchUpdate}
+          onClear={() => {
+            debouncedManagerSearchUpdate.cancel();
+            setDebouncedManagerSearch('');
+          }}
           status={status}
           className="w-64"
         />
