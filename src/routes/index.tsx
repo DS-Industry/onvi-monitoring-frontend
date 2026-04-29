@@ -123,6 +123,9 @@ const ListOfRoles = React.lazy(
 const PosTabs = React.lazy(() => import('@/pages/Organization/PosTabs'));
 const PlanAct = React.lazy(() => import('@/pages/Pos/PlanAct'));
 const InviteUser = React.lazy(() => import('@/pages/Onboarding/InviteUser'));
+const PaymentSuccess = React.lazy(
+  () => import('@/pages/Onboarding/PaymentSuccess')
+);
 const Employees = React.lazy(() => import('@/pages/Hr/Employees'));
 const Positions = React.lazy(() => import('@/pages/Hr/Positions'));
 const SalaryCalculation = React.lazy(
@@ -1611,6 +1614,15 @@ const routes: RouteItem[] = [
     path: '/inviteUser',
     subMenu: false,
     component: InviteUser,
+    isSidebar: false,
+    isPublicRoute: true,
+    permissions: [],
+  },
+  {
+    name: 'Payment Success',
+    path: '/payment/success',
+    subMenu: false,
+    component: PaymentSuccess,
     isSidebar: false,
     isPublicRoute: true,
     permissions: [],
