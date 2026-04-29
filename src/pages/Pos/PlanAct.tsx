@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 
 import { getPlanFactMonthlyByPos, updatePosMonthlyPlan } from '@/services/api/pos';
 
@@ -16,6 +17,8 @@ import TableUtils from '@/utils/TableUtils.tsx';
 
 import { ColumnsType } from 'antd/es/table';
 import { useTranslation } from 'react-i18next';
+
+dayjs.extend(utc);
 
 interface PlanFact {
   monthDate: string;
@@ -40,7 +43,7 @@ const PlanAct: React.FC = () => {
   const [editedPlans, setEditedPlans] = useState<Record<string, number>>({});
   const [savingMonth, setSavingMonth] = useState<string | null>(null);
 
-  const today = dayjs().format('YYYY-MM-DD');
+  const today = dayjs.utc().format('YYYY-MM-DD');
 
   const posId = Number(searchParams.get('posId')) || undefined;
   const dateStart = searchParams.get('dateStart') || `${today} 00:00`;
@@ -78,8 +81,8 @@ const PlanAct: React.FC = () => {
     swrKey,
     () =>
       getPlanFactMonthlyByPos(filterParams.posId!, {
-        dateStart: dayjs(filterParams.dateStart).format('YYYY-MM-DD'),
-        dateEnd: dayjs(filterParams.dateEnd).format('YYYY-MM-DD'),
+        dateStart: dayjs.utc(filterParams.dateStart).format('YYYY-MM-DD'),
+        dateEnd: dayjs.utc(filterParams.dateEnd).format('YYYY-MM-DD'),
       }),
     {
       keepPreviousData: true,
@@ -95,11 +98,11 @@ const PlanAct: React.FC = () => {
         ?.slice()
         .sort(
           (a: PlanFact, b: PlanFact) =>
-            new Date(a.monthDate).getTime() - new Date(b.monthDate).getTime()
+            dayjs.utc(a.monthDate).valueOf() - dayjs.utc(b.monthDate).valueOf()
         )
         .map((item: PlanFact) => ({
           ...item,
-          monthDateDisplay: dayjs(item.monthDate).format('MM.YYYY'),
+          monthDateDisplay: dayjs.utc(item.monthDate).format('MM.YYYY'),
         })) || []
     );
   }, [planFactData]);
@@ -130,7 +133,7 @@ const PlanAct: React.FC = () => {
       setSavingMonth(record.monthDate);
       try {
         await updatePosMonthlyPlan(posId, {
-          monthDate: record.monthDate,
+          monthDate: dayjs.utc(record.monthDate).format('YYYY-MM-DD'),
           monthlyPlan,
         });
 
