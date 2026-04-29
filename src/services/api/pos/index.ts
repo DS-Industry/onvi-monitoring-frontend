@@ -312,6 +312,31 @@ type PlanFactResponse = {
   totalCount: number;
 };
 
+export type PlanFactMonthlyByPosResponse = {
+  posId: number;
+  monthly: {
+    monthDate: string;
+    plan: number;
+    cashFact: number;
+    virtualSumFact: number;
+    yandexSumFact: number;
+    onviSumFact: number;
+    sumFact: number;
+    completedPercent: number;
+    notCompletedPercent: number;
+  }[];
+  total: {
+    plan: number;
+    cashFact: number;
+    virtualSumFact: number;
+    yandexSumFact: number;
+    onviSumFact: number;
+    sumFact: number;
+    completedPercent: number;
+    notCompletedPercent: number;
+  };
+};
+
 type CurrencyResponse = {
   id: number;
   code: number;
@@ -497,6 +522,17 @@ export async function getPlanFact(
   return response.data;
 }
 
+export async function getPlanFactMonthlyByPos(
+  posId: number,
+  params: { dateStart: string; dateEnd: string }
+): Promise<PlanFactMonthlyByPosResponse> {
+  const response: AxiosResponse<PlanFactMonthlyByPosResponse> = await api.get(
+    `user/pos/plan-fact/${posId}/monthly`,
+    { params }
+  );
+  return response.data;
+}
+
 export async function getCurrency(): Promise<CurrencyResponse[]> {
   const url = POS.GET_CURRENCY;
   const response: AxiosResponse<CurrencyResponse[]> = await api.get(url);
@@ -543,6 +579,29 @@ export type UpdatePositionSalaryRateRequest = {
   baseRateNight: number;
   bonusRateNight: number;
 };
+
+export type UpdatePosMonthlyPlanRequest = {
+  monthDate: string;
+  monthlyPlan: number;
+};
+
+export type UpdatePosMonthlyPlanResponse = {
+  id: number;
+  posId: number;
+  monthDate: string;
+  monthlyPlan: number;
+};
+
+export async function updatePosMonthlyPlan(
+  id: number,
+  body: UpdatePosMonthlyPlanRequest
+): Promise<UpdatePosMonthlyPlanResponse> {
+  const response: AxiosResponse<UpdatePosMonthlyPlanResponse> = await api.patch(
+    `user/pos/${id}/monthly-plan`,
+    body
+  );
+  return response.data;
+}
 
 export async function updatePositionSalaryRate(
   id: number,
