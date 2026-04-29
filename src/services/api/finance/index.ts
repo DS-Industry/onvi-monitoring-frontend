@@ -1160,9 +1160,13 @@ export async function updateManagerPaperType(
   return response.data;
 }
 
-export async function getWorkerManager(orgId: number): Promise<WorkerResponse[]> {
+export async function getWorkerManager(
+  orgId: number,
+  search?: string
+): Promise<WorkerResponse[]> {
   const response: AxiosResponse<WorkerResponse[]> = await api.get(
-    FINANCE.GET_WORKER_MANAGER + `/${orgId}`
+    FINANCE.GET_WORKER_MANAGER + `/${orgId}`,
+    { params: { name: search || undefined } }
   );  
   return response.data;
 }
