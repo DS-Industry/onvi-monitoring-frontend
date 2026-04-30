@@ -1590,7 +1590,11 @@
       "startDate": "Дата начала",
       "endDate": "Дата окончания",
       "organizationId": "Организация",
-      "carWashPosId": "Автомойка (POS)"
+      "carWashPosId": "Автомойка (POS)",
+      "managerId": "ID менеджера",
+      "placementId": "Регион",
+      "yearMonth": "Расчетный месяц",
+      "posId": "Автомойка (POS)"
     }
   },
   "roles": {

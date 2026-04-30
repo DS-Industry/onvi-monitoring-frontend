@@ -1590,7 +1590,11 @@
       "startDate": "Start date",
       "endDate": "End date",
       "organizationId": "Organization",
-      "carWashPosId": "Car wash (POS)"
+      "carWashPosId": "Car wash (POS)",
+      "managerId": "Manager ID",
+      "placementId": "Placement",
+      "yearMonth": "Billing month",
+      "posId": "Car wash (POS)"
     }
   },
   "roles": {
