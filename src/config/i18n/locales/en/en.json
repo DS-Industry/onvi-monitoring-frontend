@@ -332,7 +332,9 @@
     "baseRateDay": "Base Rate (Day)",
     "bonusRateDay": "Bonus Rate (Day)",
     "baseRateNight": "Base Rate (Night)",
-    "bonusRateNight": "Bonus Rate (Night)"
+    "bonusRateNight": "Bonus Rate (Night)",
+    "publicName": "Public name",
+    "enterPublicName": "Enter public name"
   },
   "profile": {
     "basic": "Basic Details",

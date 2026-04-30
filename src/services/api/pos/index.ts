@@ -97,6 +97,7 @@ export type PosRequestBody = {
 
 type UpdatePosBody = {
   name?: string;
+  publicName?: string;
   startTime?: string;
   endTime?: string;
   posMetaData?: string;
@@ -128,6 +129,7 @@ interface Address {
 interface CarWashProps {
   id: number;
   name: string;
+  publicName?: string;
   slug: string;
   startTime?: string;
   endTime?: string;
