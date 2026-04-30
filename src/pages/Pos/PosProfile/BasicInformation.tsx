@@ -20,6 +20,7 @@ const BasicInformation: React.FC = () => {
 
   const defaultValues = {
     name: '',
+    publicName: '',
     description: '',
     address: '',
     startTime: '',
@@ -57,6 +58,7 @@ const BasicInformation: React.FC = () => {
     if (posData) {
       setFormData({
         name: posData.props.name,
+        publicName: posData.props.publicName || '',
         description: '',
         startTime: posData.props.startTime || '',
         endTime: posData.props.endTime || '',
@@ -77,6 +79,7 @@ const BasicInformation: React.FC = () => {
         Number(posId),
         {
           name: formData.name,
+          publicName: formData.publicName,
           startTime: formData.startTime,
           endTime: formData.endTime,
           organizationId: formData.organizationId,
@@ -167,6 +170,20 @@ const BasicInformation: React.FC = () => {
               onChange={e => handleInputChange('name', e.target.value)}
             />
           </div>
+
+          <div>
+            <div className="text-text01 text-sm font-semibold">
+              {t('pos.publicName')}
+            </div>
+            <Input
+              placeholder={t('pos.enterPublicName')}
+              className="w-full sm:w-auto sm:min-w-72 lg:min-w-96"
+              {...register('publicName')}
+              value={formData.publicName}
+              onChange={e => handleInputChange('publicName', e.target.value)}
+            />
+          </div>
+
           <div>
             <div className="text-text01 text-sm font-semibold">
               {t('marketing.address')}
