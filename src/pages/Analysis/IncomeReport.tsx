@@ -11,7 +11,7 @@ import { debounce } from 'lodash';
 import { getReportById, applyReport, ReportParam } from '@/services/api/reports';
 import { getDevices, getPoses } from '@/services/api/equipment';
 import { getPlacement } from '@/services/api/device';
-import { getWarehouses } from '@/services/api/warehouse';
+// import { getWarehouses } from '@/services/api/warehouse';
 import { getOrganization } from '@/services/api/organization';
 import { getWorkerManager } from '@/services/api/finance';
 import { useToast } from '@/components/context/useContext';
@@ -49,11 +49,11 @@ const IncomeReport: React.FC = () => {
     () => getDevices(posIdParam),
     { revalidateOnFocus: false, keepPreviousData: true }
   );
-  const { data: warehouseData } = useSWR(
-    [`get-warehouse`],
-    () => getWarehouses({ posId: posIdParam, placementId: cityParam }),
-    { revalidateOnFocus: false, keepPreviousData: true }
-  );
+  // const { data: warehouseData } = useSWR(
+  //   [`get-warehouse`],
+  //   () => getWarehouses({ posId: posIdParam, placementId: cityParam }),
+  //   { revalidateOnFocus: false, keepPreviousData: true }
+  // );
   const { data: organizationData } = useSWR(
     [`get-organization`],
     () => getOrganization({ placementId: cityParam }),
@@ -243,20 +243,20 @@ const IncomeReport: React.FC = () => {
         />
       );
     }
-    if (nameLower.includes('warehouse')) {
-      return (
-        <Select
-          placeholder={param.description}
-          options={warehouseData?.map(w => ({ label: w.props.name, value: w.props.id })) || []}
-          allowClear
-          showSearch
-          value={value ?? undefined}
-          onChange={(val) => handleInputChange(param.name, val)}
-          status={status}
-          className="w-64"
-        />
-      );
-    }
+    // if (nameLower.includes('warehouse')) {
+    //   return (
+    //     <Select
+    //       placeholder={param.description}
+    //       options={warehouseData?.map(w => ({ label: w.props.name, value: w.props.id })) || []}
+    //       allowClear
+    //       showSearch
+    //       value={value ?? undefined}
+    //       onChange={(val) => handleInputChange(param.name, val)}
+    //       status={status}
+    //       className="w-64"
+    //     />
+    //   );
+    // }
     if (param.type === 'selectListOrg' || nameLower.includes('org')) {
       return (
         <Select
