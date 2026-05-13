@@ -1990,7 +1990,9 @@
       "localId": "Локальный ID",
       "currency": "Валюта",
       "carCount": "Кол-во машин",
-      "receiptAverage": "Средний чек"
+      "receiptAverage": "Средний чек",
+      "legalOperSum": "Сумма по юр. лицам",
+      "optiSum": "OPTI Сумма"
     }
   },
   "general": {

@@ -218,7 +218,9 @@ type DepositPosResponse = {
     cashbackSumCard: number;
     cashbackSumMub: number;
     carCount: number;           
-    receiptAverage: number;     
+    receiptAverage: number;
+    legalOperSum: number;
+    optiSum: number; 
   }[];
   totalCount: number;
 };
