@@ -332,7 +332,9 @@
     "baseRateDay": "Базовая ставка (День)",
     "bonusRateDay": "Бонусная ставка (День)",
     "baseRateNight": "Базовая ставка (Ночь)",
-    "bonusRateNight": "Бонусная ставка (Ночь)"
+    "bonusRateNight": "Бонусная ставка (Ночь)",
+    "publicName": "Публичное имя",
+    "enterPublicName": "Введите публичное имя"
   },
   "profile": {
     "basic": "Основные данные",
@@ -1590,7 +1592,11 @@
       "startDate": "Дата начала",
       "endDate": "Дата окончания",
       "organizationId": "Организация",
-      "carWashPosId": "Автомойка (POS)"
+      "carWashPosId": "Автомойка (POS)",
+      "managerId": "ID менеджера",
+      "placementId": "Регион",
+      "yearMonth": "Расчетный месяц",
+      "posId": "Автомойка (POS)"
     }
   },
   "roles": {
@@ -1984,7 +1990,9 @@
       "localId": "Локальный ID",
       "currency": "Валюта",
       "carCount": "Кол-во машин",
-      "receiptAverage": "Средний чек"
+      "receiptAverage": "Средний чек",
+      "legalOperSum": "Сумма по юр. лицам",
+      "optiSum": "OPTI Сумма"
     }
   },
   "general": {

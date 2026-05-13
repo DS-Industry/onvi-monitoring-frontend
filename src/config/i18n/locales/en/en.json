@@ -332,7 +332,9 @@
     "baseRateDay": "Base Rate (Day)",
     "bonusRateDay": "Bonus Rate (Day)",
     "baseRateNight": "Base Rate (Night)",
-    "bonusRateNight": "Bonus Rate (Night)"
+    "bonusRateNight": "Bonus Rate (Night)",
+    "publicName": "Public name",
+    "enterPublicName": "Enter public name"
   },
   "profile": {
     "basic": "Basic Details",
@@ -1590,7 +1592,11 @@
       "startDate": "Start date",
       "endDate": "End date",
       "organizationId": "Organization",
-      "carWashPosId": "Car wash (POS)"
+      "carWashPosId": "Car wash (POS)",
+      "managerId": "Manager ID",
+      "placementId": "Placement",
+      "yearMonth": "Billing month",
+      "posId": "Car wash (POS)"
     }
   },
   "roles": {
@@ -1984,7 +1990,9 @@
       "localId": "Local ID",
       "currency": "Currency",
       "carCount": "Car count",
-      "receiptAverage": "Average receipt"
+      "receiptAverage": "Average receipt",
+      "legalOperSum": "Amount by legal entities",
+      "optiSum": "OPTI Amount"
     }
   },
   "general": {
