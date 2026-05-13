@@ -1990,7 +1990,9 @@
       "localId": "Local ID",
       "currency": "Currency",
       "carCount": "Car count",
-      "receiptAverage": "Average receipt"
+      "receiptAverage": "Average receipt",
+      "legalOperSum": "Amount by legal entities",
+      "optiSum": "OPTI Amount"
     }
   },
   "general": {

@@ -186,6 +186,18 @@ const DepositDevices: React.FC = () => {
       render: currencyRender,
     },
     {
+      title: t('deposit.columns.legalOperSum'),
+      dataIndex: 'legalOperSum',
+      key: 'legalOperSum',
+      render: currencyRender,
+    },
+    {
+      title: t('deposit.columns.optiSum'),
+      dataIndex: 'optiSum',
+      key: 'optiSum',
+      render: currencyRender,
+    },
+    {
       title: t('deposit.columns.operationsCount'),
       dataIndex: 'counter',
       key: 'counter',
@@ -240,6 +252,8 @@ const DepositDevices: React.FC = () => {
       cashSum: 0,
       virtualSum: 0,
       onviSum: 0,
+      legalOperSum: 0,
+      optiSum: 0,
       yandexSum: 0,
       counter: 0,
       mobileSum: 0,
@@ -254,6 +268,8 @@ const DepositDevices: React.FC = () => {
       totals.cashSum += item.cashSum || 0;
       totals.virtualSum += item.virtualSum || 0;
       totals.onviSum += item.onviSum || 0;
+      totals.legalOperSum += item.legalOperSum || 0;
+      totals.optiSum += item.optiSum || 0;
       totals.yandexSum += item.yandexSum || 0;
       totals.counter += item.counter || 0;
       totals.mobileSum += item.mobileSum || 0;
@@ -329,7 +345,7 @@ const DepositDevices: React.FC = () => {
                       if (dataIndex === 'receiptAverage') {
                         value = '';
                       } else if (
-                        ['cashSum', 'virtualSum', 'onviSum', 'yandexSum', 'mobileSum', 'cardSum', 'cashbackSumMub', 'discountSum'].includes(dataIndex)
+                        ['cashSum', 'virtualSum', 'onviSum', 'legalOperSum', 'optiSum', 'yandexSum', 'mobileSum', 'cardSum', 'cashbackSumMub', 'discountSum'].includes(dataIndex)
                       ) {
                         value = currencyRender(totalsRow[dataIndex]);
                       } else if (dataIndex === 'counter') {
