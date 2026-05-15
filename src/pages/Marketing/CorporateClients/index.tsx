@@ -38,6 +38,7 @@ const CorporateClients: React.FC = () => {
   const inn = searchParams.get('inn') || undefined;
   const ownerPhone = searchParams.get('ownerPhone') || undefined;
   const name = searchParams.get('name') || undefined;
+  const cardNumber = searchParams.get('cardNumber') || undefined;
 
   const userPermissions = useAuthStore(state => state.permissions);
 
@@ -49,6 +50,7 @@ const CorporateClients: React.FC = () => {
     inn,
     ownerPhone,
     name,
+    cardNumber,
     page: currentPage,
     size: pageSize,
     registrationFrom,

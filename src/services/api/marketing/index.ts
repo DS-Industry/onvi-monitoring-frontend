@@ -1021,6 +1021,7 @@ export type CorporateClientsParams = {
   inn?: string;
   ownerPhone?: string;
   name?: string;
+  cardNumber?: string;
   page?: number;
   size?: number;
   registrationFrom?: string;
