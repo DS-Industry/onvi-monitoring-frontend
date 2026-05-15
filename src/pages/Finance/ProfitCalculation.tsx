@@ -262,6 +262,7 @@ const ProfitCalculation: React.FC = () => {
     [normalizedData, partnerId]
   );
   const currencyRender = getCurrencyRender();
+  const formatPercent = (val: number | null | undefined) => (val != null ? `${val.toFixed(2)}%` : '—');
   const fileInputRefs = useRef<Map<number, HTMLInputElement>>(new Map());
 
   const handleFileUpload = async (record: ProfitItem, file: File) => {
@@ -381,13 +382,13 @@ const ProfitCalculation: React.FC = () => {
       title: t('finance.profitabilityPercent'),
       dataIndex: 'profitabilityPercent',
       key: 'profitabilityPercent',
-      render: (val: number) => `${val.toFixed(2)}%`,
+      render: formatPercent,
     },
     {
       title: t('finance.profitPercent'),
       dataIndex: 'profitPercent',
       key: 'profitPercent',
-      render: (val: number) => `${val.toFixed(2)}%`,
+      render: formatPercent,
     },
     {
       title: t('finance.file'),
