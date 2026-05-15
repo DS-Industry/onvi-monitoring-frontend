@@ -1078,6 +1078,7 @@
     "clientName": "Имя клиента",
     "uniqueCardNumber": "№ УН Карты",
     "cardNumber": "№ Карты",
+    "device": "Устройство",
     "level": "Уровень",
     "discount": "Скидка",
     "balance": "Баланс",

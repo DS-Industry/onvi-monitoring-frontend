@@ -24,7 +24,9 @@ type OperationRow = {
   key: string;
   id: string | number;
   branch: string;
-  cardNo: string;
+  device: string;
+  cardUnqNumber: string;
+  cardNumber: string;
   date: string;
   time: string;
   amount: string;
@@ -85,61 +87,64 @@ const Operations: React.FC = () => {
   };
 
   const dataSource: OperationRow[] =
-    operations?.data.map(operation => {
-      const occurredAtRaw =
-        'occurredAt' in operation ? operation.occurredAt : operation.orderData;
-      const isEquaring =
-        'kind' in operation ? operation.kind === 'equaring' : false;
-      const equaringType = 'type' in operation ? operation.type : null;
-      const transactionId =
-        'transactionId' in operation ? operation.transactionId : null;
-      const branchName =
-        'carWashDeviceName' in operation ? operation.carWashDeviceName : null;
-      const amountRaw =
-        'amount' in operation ? operation.amount : operation.sumReal;
-      const bonus = 'sumBonus' in operation ? operation.sumBonus : 0;
-      const cashback = 'sumCashback' in operation ? operation.sumCashback : 0;
+  operations?.data.map(operation => {
+    const occurredAtRaw =
+      'occurredAt' in operation ? operation.occurredAt : operation.orderData;
+    const isEquaring = operation.kind === 'equaring';
+    const equaringType = 'type' in operation ? operation.type : null;
+    const transactionId =
+      'transactionId' in operation ? operation.transactionId : null;
+    
+    const branchName = isEquaring ? '-' : (operation.carWashPosName || '-');
+    const deviceName = isEquaring ? '-' : (operation.carWashDeviceName || '-');
+    
+    const amountRaw =
+      'amount' in operation ? operation.amount : operation.sumReal;
+    const bonus = 'sumBonus' in operation ? operation.sumBonus : 0;
+    const cashback = 'sumCashback' in operation ? operation.sumCashback : 0;
 
-      const occurredAt =
-        occurredAtRaw instanceof Date ||
-        typeof occurredAtRaw === 'string' ||
-        typeof occurredAtRaw === 'number'
-          ? occurredAtRaw
-          : new Date().toISOString();
-      const dateObj = new Date(occurredAt);
-      const date = dateObj.toLocaleDateString('ru-RU');
-      const time = dateObj.toLocaleTimeString('ru-RU', {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
+    const occurredAt =
+      occurredAtRaw instanceof Date ||
+      typeof occurredAtRaw === 'string' ||
+      typeof occurredAtRaw === 'number'
+        ? occurredAtRaw
+        : new Date().toISOString();
+    const dateObj = new Date(occurredAt);
+    const date = dateObj.toLocaleDateString('ru-RU');
+    const time = dateObj.toLocaleTimeString('ru-RU', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
 
-      const amountNumber =
-        typeof amountRaw === 'number' ? amountRaw : Number(amountRaw ?? 0);
-      const bonusNumber = isEquaring ? 0 : (bonus ?? 0);
-      const cashbackNumber = isEquaring ? 0 : (cashback ?? 0);
+    const amountNumber =
+      typeof amountRaw === 'number' ? amountRaw : Number(amountRaw ?? 0);
+    const bonusNumber = isEquaring ? 0 : (bonus ?? 0);
+    const cashbackNumber = isEquaring ? 0 : (cashback ?? 0);
 
-      const operationType: OperationType = isEquaring
-        ? equaringType === 'TOP_UP'
-          ? 'REPLENISHMENT'
-          : 'DEDUCTION'
-        : 'ORDER';
+    const operationType: OperationType = isEquaring
+      ? equaringType === 'TOP_UP'
+        ? 'REPLENISHMENT'
+        : 'DEDUCTION'
+      : 'ORDER';
 
-      return {
-        key: `${isEquaring ? 'equaring' : 'order'}-${operation.id}`,
-        id: isEquaring ? operation.id : transactionId || operation.id,
-        branch: isEquaring ? '-' : branchName || '-',
-        cardNo: operation.cardUnqNumber,
-        date,
-        time,
-        amount: formatSignedCurrency(amountNumber),
-        amountNumber,
-        sumBonus: formatSignedCurrency(bonusNumber, true),
-        sumCashback: formatSignedCurrency(cashbackNumber, true),
-        operationType,
-        bonusNumber,
-        cashbackNumber,
-      };
-    }) || [];
+    return {
+      key: `${isEquaring ? 'equaring' : 'order'}-${operation.id}`,
+      id: isEquaring ? operation.id : transactionId || operation.id,
+      branch: branchName,
+      device: deviceName,
+      cardUnqNumber: operation.cardUnqNumber || '-',
+      cardNumber: operation.cardNumber || '-',
+      date,
+      time,
+      amount: formatSignedCurrency(amountNumber),
+      amountNumber,
+      sumBonus: formatSignedCurrency(bonusNumber, true),
+      sumCashback: formatSignedCurrency(cashbackNumber, true),
+      operationType,
+      bonusNumber,
+      cashbackNumber,
+    };
+  }) || [];
 
   const columns = [
     {
@@ -162,9 +167,19 @@ const Operations: React.FC = () => {
       ),
     },
     {
+      title: t('marketing.device'),
+      dataIndex: 'device',
+      key: 'device',
+    },
+    {
+      title: t('marketing.uniqueCardNumber'),
+      dataIndex: 'cardUnqNumber',
+      key: 'cardUnqNumber',
+    },
+    {
       title: t('marketing.cardNumber'),
-      dataIndex: 'cardNo',
-      key: 'cardNo',
+      dataIndex: 'cardNumber',
+      key: 'cardNumber',
     },
     {
       title: t('marketing.operationDate'),
