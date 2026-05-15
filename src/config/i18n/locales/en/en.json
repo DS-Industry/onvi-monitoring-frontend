@@ -1078,6 +1078,7 @@
     "clientName": "Client Name",
     "uniqueCardNumber": "Unique Card Number",
     "cardNumber": "Card Number",
+    "device": "Device",
     "level": "Level",
     "discount": "Discount",
     "balance": "Balance",
