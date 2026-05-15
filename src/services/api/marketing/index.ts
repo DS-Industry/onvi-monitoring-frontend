@@ -1109,6 +1109,7 @@ type CorporateClientCardsResponse = {
 
 type CorporateCardOperationResponse = {
   id: number;
+  kind: string;
   transactionId: string;
   cardId: number;
   cardUnqNumber: string;
@@ -1127,6 +1128,7 @@ type CorporateCardOperationResponse = {
   orderHandlerStatus?: string;
   carWashDeviceId: number;
   carWashDeviceName?: string;
+  carWashPosName?: string;
 };
 
 type CorporateCardsOperationsPaginatedResponse = {
