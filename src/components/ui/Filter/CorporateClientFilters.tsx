@@ -13,18 +13,20 @@ const CorporateClientFilters: React.FC = () => {
   const [innValue, setInnValue] = useState(searchParams.get('inn') || '');
   const [ownerPhoneValue, setOwnerPhoneValue] = useState(searchParams.get('ownerPhone') || '');
   const [nameValue, setNameValue] = useState(searchParams.get('name') || '');
+  const [cardNumberValue, setCardNumberValue] = useState(searchParams.get('cardNumber') || '');
 
   useEffect(() => {
     setInnValue(searchParams.get('inn') || '');
     setOwnerPhoneValue(searchParams.get('ownerPhone') || '');
     setNameValue(searchParams.get('name') || '');
+    setCardNumberValue(searchParams.get('cardNumber') || '');
   }, [searchParams]);
 
   const debouncedUpdateInn = useCallback(
     debounce((value: string) => {
       updateSearchParams(searchParams, setSearchParams, {
         inn: value || undefined,
-        page: '1', 
+        page: '1',
       });
     }, 500),
     [searchParams, setSearchParams]
@@ -44,7 +46,17 @@ const CorporateClientFilters: React.FC = () => {
     debounce((value: string) => {
       updateSearchParams(searchParams, setSearchParams, {
         name: value || undefined,
-        page: '1', 
+        page: '1',
+      });
+    }, 500),
+    [searchParams, setSearchParams]
+  );
+
+  const debouncedUpdateCardNumber = useCallback(
+    debounce((value: string) => {
+      updateSearchParams(searchParams, setSearchParams, {
+        cardNumber: value || undefined,
+        page: '1',
       });
     }, 500),
     [searchParams, setSearchParams]
@@ -66,6 +78,12 @@ const CorporateClientFilters: React.FC = () => {
     const value = e.target.value;
     setNameValue(value);
     debouncedUpdateName(value);
+  };
+
+  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCardNumberValue(value);
+    debouncedUpdateCardNumber(value);
   };
 
   return (
@@ -122,6 +140,19 @@ const CorporateClientFilters: React.FC = () => {
                   placeholder={t('corporateClients.name')}
                   value={nameValue}
                   onChange={handleNameChange}
+                  className="w-40"
+                  allowClear
+                />
+              </div>
+
+              <div className="flex flex-col">
+                <label className="text-sm font-medium text-gray-700 mb-1">
+                  {t('marketing.cardNumber')}
+                </label>
+                <Input
+                  placeholder={t('marketing.cardNumber')}
+                  value={cardNumberValue}
+                  onChange={handleCardNumberChange}
                   className="w-40"
                   allowClear
                 />
