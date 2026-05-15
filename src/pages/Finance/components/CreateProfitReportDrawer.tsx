@@ -27,6 +27,13 @@ const CreateProfitReportDrawer: React.FC<CreateProfitReportDrawerProps> = ({
 }) => {
   const { t } = useTranslation();
 
+  const parseNumber = (value: string | undefined) => {
+    if (!value) return 0;
+    const normalized = value.replace(/,/g, '.');
+    const num = parseFloat(normalized);
+    return isNaN(num) ? 0 : num;
+  };
+
   return (
     <Drawer
       title={t('pos.creating')}
@@ -60,6 +67,7 @@ const CreateProfitReportDrawer: React.FC<CreateProfitReportDrawerProps> = ({
             step={0.01}
             precision={2}
             addonAfter="₽"
+            parser={parseNumber}
           />
         </Form.Item>
         <Form.Item
@@ -73,6 +81,7 @@ const CreateProfitReportDrawer: React.FC<CreateProfitReportDrawerProps> = ({
             step={0.01}
             precision={2}
             addonAfter="₽"
+            parser={parseNumber}
           />
         </Form.Item>
         <Form.Item
