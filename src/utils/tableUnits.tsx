@@ -19,6 +19,19 @@ export function getCurrencyRender() {
   };
 }
 
+export function getFractionalCurrencyRender() {
+  return (val: number | null | undefined): string => {
+    if (val === null || val === undefined || isNaN(val)) return '—';
+    const isInteger = val % 1 === 0;
+    const formatted = new Intl.NumberFormat('ru-RU', {
+      minimumFractionDigits: isInteger ? 0 : 1,
+      maximumFractionDigits: 2,
+      useGrouping: true,
+    }).format(val);
+    return `${formatted} ₽`;
+  };
+}
+
 /**
  * Render function for dates in "YYYY-MM-DD HH:mm" format.
  */
