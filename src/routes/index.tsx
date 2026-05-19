@@ -1009,7 +1009,10 @@ const routes: RouteItem[] = [
     component: Default,
     isSidebar: true,
     requiredPlanCodes: BUSINESS_AND_UP,
-    permissions: [],
+    permissions: [
+      { action: 'read', subject: 'ReportAnalytics' },
+      { action: 'manage', subject: 'ReportAnalytics' },
+    ],
     subNavHeading: '',
     subNav: [
       {
