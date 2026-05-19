@@ -9,7 +9,7 @@ import { getPlacement } from '@/services/api/device';
 
 // utils
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import { getCurrencyRender, getDateRender, formatNumber } from '@/utils/tableUnits';
+import { getCurrencyRender, getDateRender, formatNumber, getFractionalCurrencyRender } from '@/utils/tableUnits';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 
 // components
@@ -104,6 +104,7 @@ const Deposit: React.FC = () => {
   );
 
   const currencyRender = getCurrencyRender();
+  const currencyFractionalRender = getFractionalCurrencyRender();
   const dateRender = getDateRender();
 
   const columns: ColumnsType<DepositResponse> = [
@@ -148,7 +149,7 @@ const Deposit: React.FC = () => {
       title: t('deposit.columns.cash'),
       dataIndex: 'cashSum',
       key: 'cashSum',
-      render: currencyRender,
+      render: currencyFractionalRender,
     },
     {
       title: t('deposit.columns.cashless'),
@@ -277,7 +278,7 @@ const Deposit: React.FC = () => {
                   {visibleColumns.map((col, index) => {
                     const dataIndex = 'dataIndex' in col ? (col.dataIndex as string) : undefined;
                     let value: React.ReactNode = '';
-
+          
                     if (index === 0) {
                       return (
                         <Table.Summary.Cell key={col.key?.toString() || index} index={index}>
@@ -285,26 +286,21 @@ const Deposit: React.FC = () => {
                         </Table.Summary.Cell>
                       );
                     }
-
+          
                     if (dataIndex) {
                       if (dataIndex === 'name' || dataIndex === 'city' || dataIndex === 'lastOper') {
                         value = '';
                       } else if (dataIndex === 'counter') {
                         value = formatNumber(totalsRow[dataIndex]);
+                      } else if (dataIndex === 'cashSum') {
+                        value = currencyFractionalRender(totalsRow[dataIndex]);
                       } else if (
-                        [
-                          'cashSum',
-                          'virtualSum',
-                          'onviSum',
-                          'yandexSum',
-                          'cardSum',
-                          'discountSum',
-                        ].includes(dataIndex)
+                        ['virtualSum', 'onviSum', 'yandexSum', 'cardSum', 'discountSum'].includes(dataIndex)
                       ) {
                         value = currencyRender(totalsRow[dataIndex]);
                       }
                     }
-
+          
                     return (
                       <Table.Summary.Cell key={col.key?.toString() || index} index={index}>
                         <span className="font-bold">{value}</span>
