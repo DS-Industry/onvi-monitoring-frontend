@@ -9,6 +9,7 @@ import {
   formatNumber,
   getCurrencyRender,
   getDateRender,
+  getFractionalCurrencyRender,
 } from '@/utils/tableUnits';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
@@ -123,6 +124,7 @@ const DepositDevices: React.FC = () => {
   );
 
   const currencyRender = getCurrencyRender();
+  const currencyFractionalRender = getFractionalCurrencyRender();
   const dateRender = getDateRender();
 
   const columns: ColumnsType<DepositResponse> = [
@@ -171,7 +173,7 @@ const DepositDevices: React.FC = () => {
       title: t('deposit.columns.cash'),
       dataIndex: 'cashSum',
       key: 'cashSum',
-      render: currencyRender,
+      render: currencyFractionalRender,
     },
     {
       title: t('deposit.columns.cashless'),
@@ -332,7 +334,7 @@ const DepositDevices: React.FC = () => {
                   {visibleColumns.map((col, index) => {
                     const dataIndex = 'dataIndex' in col ? (col.dataIndex as string) : undefined;
                     let value: React.ReactNode = '';
-
+          
                     if (index === 0) {
                       return (
                         <Table.Summary.Cell key={col.key?.toString() || index} index={index}>
@@ -340,12 +342,14 @@ const DepositDevices: React.FC = () => {
                         </Table.Summary.Cell>
                       );
                     }
-
+          
                     if (dataIndex && totalsRow[dataIndex] !== undefined) {
                       if (dataIndex === 'receiptAverage') {
                         value = '';
+                      } else if (dataIndex === 'cashSum') {
+                        value = currencyFractionalRender(totalsRow[dataIndex]);
                       } else if (
-                        ['cashSum', 'virtualSum', 'onviSum', 'legalOperSum', 'optiSum', 'yandexSum', 'mobileSum', 'cardSum', 'cashbackSumMub', 'discountSum'].includes(dataIndex)
+                        ['virtualSum', 'onviSum', 'legalOperSum', 'optiSum', 'yandexSum', 'mobileSum', 'cardSum', 'cashbackSumMub', 'discountSum'].includes(dataIndex)
                       ) {
                         value = currencyRender(totalsRow[dataIndex]);
                       } else if (dataIndex === 'counter') {
@@ -356,7 +360,7 @@ const DepositDevices: React.FC = () => {
                         value = '';
                       }
                     }
-
+          
                     return (
                       <Table.Summary.Cell key={col.key?.toString() || index} index={index}>
                         <span className="font-bold">{value}</span>
