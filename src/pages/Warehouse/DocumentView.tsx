@@ -2,15 +2,17 @@ import {
   getDocument,
   getNomenclature,
   getWarehouses,
+  unsendDocument,
   WarehouseDocumentStatus,
 } from '@/services/api/warehouse';
 import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
+import useSWRMutation from 'swr/mutation';
 import { useTranslation } from 'react-i18next';
 import Input from '@/components/ui/Input/Input';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
-import { Skeleton, Button } from 'antd';
+import { Skeleton, Button, Popconfirm } from 'antd';
 import DateInput from '@/components/ui/Input/DateInput';
 import dayjs from 'dayjs';
 import DocumentsViewTable from './DocumentsTables/DocumentsViewTable';
@@ -18,6 +20,7 @@ import { ArrowLeftOutlined, PlusOutlined } from '@ant-design/icons';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
 import { useUser } from '@/hooks/useUserStore';
+import { useToast } from '@/components/context/useContext';
 
 type InventoryMetaData = {
   oldQuantity: number;
@@ -39,6 +42,7 @@ const DocumentView: React.FC = () => {
   const user = useUser();
 
   const userPermissions = usePermissions();
+  const { showToast } = useToast();
 
   const documentId = searchParams.get('documentId');
   const {
@@ -186,10 +190,34 @@ const DocumentView: React.FC = () => {
   const allowed = hasPermission(
     [
       { action: 'manage', subject: 'Warehouse' },
-      { action: 'create', subject: 'Warehouse' }
+      { action: 'create', subject: 'Warehouse' },
     ],
     userPermissions
   );
+
+  const isSent =
+    document?.document.props.status === WarehouseDocumentStatus.SENT;
+
+  const { trigger: unsendDoc, isMutating: unsendingDoc } = useSWRMutation(
+    ['unsend-document-view'],
+    (_, { arg }: { arg: number }) => unsendDocument(arg)
+  );
+
+  const handleUnsend = async () => {
+    try {
+      await unsendDoc(Number(documentId));
+      await mutate([`get-document`]);
+      showToast(t('warehouse.unsendSuccess'), 'success');
+    } catch (error: unknown) {
+      const message =
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message;
+      showToast(
+        message || t('errors.other.errorDuringFormSubmission'),
+        'error'
+      );
+    }
+  };
 
   return (
     <div>
@@ -208,19 +236,33 @@ const DocumentView: React.FC = () => {
             {t(`routes.${documentType}`)}
           </span>
         </div>
-        {allowed && document?.document.props.status !== WarehouseDocumentStatus.SENT && (
-          <Button
-            icon={<PlusOutlined />}
-            className="btn-primary"
-            onClick={() => {
-              navigate(
-                `/warehouse/documents/creation?documentId=${documentId}&document=${documentType}`
-              );
-            }}
-          >
-            <div className="hidden sm:flex">{t(`routes.edit`)}</div>
-          </Button>
-        )}
+        {allowed &&
+          !loadingDocument &&
+          !validatingDocument &&
+          (isSent ? (
+            <Popconfirm
+              title={t('warehouse.unsendConfirm')}
+              onConfirm={handleUnsend}
+              okText={t('warehouse.unsendReturn')}
+              cancelText={t('organizations.cancel')}
+            >
+              <Button className="btn-primary" loading={unsendingDoc}>
+                {t('warehouse.unsendReturn')}
+              </Button>
+            </Popconfirm>
+          ) : (
+            <Button
+              icon={<PlusOutlined />}
+              className="btn-primary"
+              onClick={() => {
+                navigate(
+                  `/warehouse/documents/creation?documentId=${documentId}&document=${documentType}`
+                );
+              }}
+            >
+              <div className="hidden sm:flex">{t(`routes.edit`)}</div>
+            </Button>
+          ))}
       </div>
       {loadingDocument || validatingDocument ? (
         <div className="mt-16">
