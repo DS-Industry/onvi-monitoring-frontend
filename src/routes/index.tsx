@@ -28,6 +28,9 @@ const ProfitCalculation = React.lazy(() => import('@/pages/Finance/ProfitCalcula
 const MyReports = React.lazy(() => import('@/pages/Finance/MyReports'));
 const PercentageOfObjects = React.lazy(() => import('@/pages/Finance/PercentageOfObjects'));
 const FalseDeposit = React.lazy(() => import('@/pages/Finance/FalseDeposit'));
+const DeviceDataRawFileUpload = React.lazy(
+  () => import('@/pages/Finance/DeviceDataRawFileUpload')
+);
 const DepositDevice = React.lazy(() => import('@/pages/Pos/DepositDevice'));
 const ProgramDevices = React.lazy(() => import('@/pages/Pos/ProgramDevices'));
 const ProgramDevice = React.lazy(() => import('@/pages/Pos/ProgramDevice'));
@@ -932,6 +935,21 @@ const routes: RouteItem[] = [
               { action: 'delete', subject: 'Pos' },
             ],
             isSidebar: false,
+            isHr: false,
+            titleName: '',
+            subNav: [],
+            subMenu: false,
+          },
+          {
+            name: 'deviceDataRawFileUpload',
+            isVisible: true,
+            path: '/finance/debugging/device-data-raw/upload',
+            component: DeviceDataRawFileUpload,
+            permissions: [
+              { action: 'manage', subject: 'Pos' },
+              { action: 'read', subject: 'Pos' },
+            ],
+            isSidebar: true,
             isHr: false,
             titleName: '',
             subNav: [],
