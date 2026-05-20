@@ -163,34 +163,34 @@ const DocumentView: React.FC = () => {
   }[] =
     documentType === 'INVENTORY'
       ? (document?.details || []).map(doc => ({
-          id: doc.props.id,
-          responsibleName: document?.document.props.responsibleName ?? '',
-          nomenclatureName:
-            nomenclatures.find(nom => nom.value === doc.props.nomenclatureId)
-              ?.name || '',
-          quantity: doc.props.quantity,
-          comment: doc.props.comment,
-          oldQuantity: isInventoryMetaData(doc.props.metaData)
-            ? doc.props.metaData.oldQuantity
-            : 0,
-          deviation: isInventoryMetaData(doc.props.metaData)
-            ? doc.props.metaData.deviation
-            : 0,
-        }))
+        id: doc.props.id,
+        responsibleName: document?.document.props.responsibleName ?? '',
+        nomenclatureName:
+          nomenclatures.find(nom => nom.value === doc.props.nomenclatureId)
+            ?.name || '',
+        quantity: doc.props.quantity,
+        comment: doc.props.comment,
+        oldQuantity: isInventoryMetaData(doc.props.metaData)
+          ? doc.props.metaData.oldQuantity
+          : 0,
+        deviation: isInventoryMetaData(doc.props.metaData)
+          ? doc.props.metaData.deviation
+          : 0,
+      }))
       : (document?.details || []).map(doc => ({
-          id: doc.props.id,
-          responsibleName: document?.document.props.responsibleName ?? '',
-          nomenclatureName:
-            nomenclatures.find(nom => nom.value === doc.props.nomenclatureId)
-              ?.name || '',
-          quantity: doc.props.quantity,
-          comment: doc.props.comment,
-        }));
+        id: doc.props.id,
+        responsibleName: document?.document.props.responsibleName ?? '',
+        nomenclatureName:
+          nomenclatures.find(nom => nom.value === doc.props.nomenclatureId)
+            ?.name || '',
+        quantity: doc.props.quantity,
+        comment: doc.props.comment,
+      }));
 
   const allowed = hasPermission(
     [
       { action: 'manage', subject: 'Warehouse' },
-      { action: 'create', subject: 'Warehouse' },
+      { action: 'update', subject: 'Warehouse' },
     ],
     userPermissions
   );
@@ -284,7 +284,7 @@ const DocumentView: React.FC = () => {
                 <Input
                   type={''}
                   value={document?.document.props.name}
-                  changeValue={() => {}}
+                  changeValue={() => { }}
                   disabled={true}
                 />
               </div>
@@ -298,7 +298,7 @@ const DocumentView: React.FC = () => {
                       ? dayjs(document?.document.props.createdAt)
                       : null
                   }
-                  changeValue={() => {}}
+                  changeValue={() => { }}
                   disabled={true}
                 />
               </div>
@@ -329,7 +329,7 @@ const DocumentView: React.FC = () => {
                     }
                     options={warehouses}
                     classname="w-48 sm:w-80"
-                    onChange={() => {}}
+                    onChange={() => { }}
                     isDisabled={true}
                   />
                 </div>

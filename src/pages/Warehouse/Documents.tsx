@@ -185,6 +185,14 @@ const Documents: React.FC = () => {
     userPermissions
   );
 
+  const allowedUnsend = hasPermission(
+    [
+      { action: 'manage', subject: 'Warehouse' },
+      { action: 'update', subject: 'Warehouse' },
+    ],
+    userPermissions
+  );
+
   const dateRender = getDateRender();
   const statusRender = getStatusTagRender(t);
 
@@ -200,7 +208,7 @@ const Documents: React.FC = () => {
           ) : (
             <img src={SavedIcon} loading="lazy" alt="SAVED" />
           )}
-          {allowed && record.statusRaw === WarehouseDocumentStatus.SENT && (
+          {allowedUnsend && record.statusRaw === WarehouseDocumentStatus.SENT && (
             <Popconfirm
               title={t('warehouse.unsendConfirm')}
               onConfirm={() => handleUnsend(record.id)}
