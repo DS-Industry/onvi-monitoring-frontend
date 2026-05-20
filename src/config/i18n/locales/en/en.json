@@ -136,7 +136,13 @@
     "partners": "Partners",
     "profitCalculation": "Profit calculation",
     "myReports": "My reports",
-    "percentageOfObjects": "Percentage of objects"
+    "percentageOfObjects": "Percentage of objects",
+    "deviceDataRawFileUpload": "Upload operations file"
+  },
+  "deviceDataRawFile": {
+    "uploading": "Uploading file and registering…",
+    "uploadSuccess": "File uploaded successfully",
+    "uploadError": "Upload failed"
   },
   "marketingTransactions": {
     "columns": {

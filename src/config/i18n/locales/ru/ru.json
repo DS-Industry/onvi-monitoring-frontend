@@ -136,7 +136,13 @@
     "partners": "Партнеры",
     "profitCalculation": "Расчет прибыли",
     "myReports": "Мои Отчеты",
-    "percentageOfObjects": "Процент объектов"
+    "percentageOfObjects": "Процент объектов",
+    "deviceDataRawFileUpload": "Загрузка файла с операциями"
+  },
+  "deviceDataRawFile": {
+    "uploading": "Загрузка файла и регистрация…",
+    "uploadSuccess": "Файл успешно загружен",
+    "uploadError": "Ошибка загрузки"
   },
   "marketingTransactions": {
     "columns": {
