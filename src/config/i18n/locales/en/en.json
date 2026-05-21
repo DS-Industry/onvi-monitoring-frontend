@@ -2442,6 +2442,7 @@
     "description": "Description in the application",
     "bannerIcon": "Banner/icon in the application",
     "optimally": "(optimally: 166 x 166 px - icon, 343 x 180 px - for banner)",
+    "imageTooLarge": "Image size must be less than 5 MB",
     "map": "Map",
     "settingUpAffiliates": "Setting up affiliates participating in the campaign",
     "timePeriod": "Time period",
