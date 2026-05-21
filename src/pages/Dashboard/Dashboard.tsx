@@ -7,7 +7,7 @@ import useUserStore from '@/config/store/userSlice';
 // components
 const News = React.lazy(() => import('./News'));
 import GenericTabs from '@ui/Tabs/GenericTab';
-import { Select } from 'antd';
+import { Select, type SelectProps } from 'antd';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import Indicators from './Indicators';
@@ -16,6 +16,12 @@ import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
 
 type TAB = 'news' | 'indicators' | 'rating';
+
+const organizationOptionRender: SelectProps['optionRender'] = option => (
+  <div className="overflow-x-auto whitespace-nowrap max-w-[min(20rem,90vw)]">
+    {option.label}
+  </div>
+);
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation();
@@ -76,7 +82,10 @@ const Dashboard: React.FC = () => {
             {t('warehouse.organization')}
           </label>
           <Select
-            className="w-40 truncate"
+            className="w-40 [&_.ant-select-selection-item]:overflow-x-auto [&_.ant-select-selection-item]:whitespace-nowrap [&_.ant-select-selection-item]:block [&_.ant-select-selection-item]:max-w-full"
+            popupMatchSelectWidth={false}
+            popupClassName="[&_.ant-select-item-option-content]:overflow-x-auto [&_.ant-select-item-option-content]:whitespace-nowrap"
+            optionRender={organizationOptionRender}
             placeholder={t('filters.device.placeholder')}
             value={user?.organizationId || ''}
             onChange={val => {
