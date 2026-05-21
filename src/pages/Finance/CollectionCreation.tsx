@@ -593,9 +593,6 @@ const CollectionCreation: React.FC = () => {
               <Descriptions.Item label={t('finance.cash')}>{`${formatNumber(collectionData.virtualSum) || '00'
                 } ₽`}</Descriptions.Item>
             )}
-            <Descriptions.Item label={t('finance.amt')}>
-              {`${formatNumber(collectionData.sumCard) || '00'} ₽`}
-            </Descriptions.Item>
 
             <Descriptions.Item label={t('finance.short')}>{`${formatNumber(collectionData.shortage) || '00'
               } ₽`}</Descriptions.Item>
@@ -674,6 +671,7 @@ const CollectionCreation: React.FC = () => {
         </>
       )}
       <div>
+        Мухахахахаххахахахахах
         {tableData.length > 0 ? (
           <div>
             <div className="flex items-center space-x-2">
