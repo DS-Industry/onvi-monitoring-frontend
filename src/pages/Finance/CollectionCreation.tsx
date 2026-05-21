@@ -671,7 +671,6 @@ const CollectionCreation: React.FC = () => {
         </>
       )}
       <div>
-        Мухахахахаххахахахахах
         {tableData.length > 0 ? (
           <div>
             <div className="flex items-center space-x-2">
