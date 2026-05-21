@@ -21,8 +21,11 @@ import {
   ACTION_TYPE
 } from '@/services/api/marketing';
 import { uploadFileWithPresignedUrl } from '@/services/api/s3';
+import { convertImageToWebp } from '@/utils/convertImageToWebp';
 
 const { Text } = Typography;
+
+const MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 
 interface BasicDataProps {
   campaign?: MarketingCampaignResponse;
@@ -127,18 +130,31 @@ const Promotion: React.FC<BasicDataProps> = ({ campaign, isEditable = true }) =>
     const fileObj = file.originFileObj || file;
 
     if (fileObj instanceof File) {
-      const imageUrl = URL.createObjectURL(fileObj);
-      setBannerImage(imageUrl);
-
       setUploadingImage(true);
+      let previewUrl: string | null = null;
+
       try {
+        const webpFile = await convertImageToWebp(fileObj);
+
+        if (webpFile.size > MAX_IMAGE_SIZE_BYTES) {
+          showToast(t('marketingCampaigns.imageTooLarge'), 'error');
+          return;
+        }
+
+        previewUrl = URL.createObjectURL(webpFile);
+        setBannerImage(previewUrl);
+
         const timestamp = Date.now();
-        const key = `marketing-campaigns/${marketingCampaignId || 'temp'}/mobile-display/${timestamp}-${fileObj.name}`;
-        const uploadedKey = await uploadFileWithPresignedUrl(fileObj, key);
+        const key = `marketing-campaigns/${marketingCampaignId || 'temp'}/mobile-display/${timestamp}-${webpFile.name}`;
+        const uploadedKey = await uploadFileWithPresignedUrl(webpFile, key);
         const s3Url = `${import.meta.env.VITE_S3_CLOUD}/${uploadedKey}`;
         setBannerImageUrl(s3Url);
       } catch (error) {
         console.error('Failed to upload image:', error);
+        if (previewUrl) {
+          URL.revokeObjectURL(previewUrl);
+          setBannerImage(null);
+        }
         showToast(
           t('errors.other.errorDuringFormSubmission') ||
           'Failed to upload image',
@@ -171,12 +187,11 @@ const Promotion: React.FC<BasicDataProps> = ({ campaign, isEditable = true }) =>
     beforeUpload: file => {
       const isImage = file.type.startsWith('image/');
       if (!isImage) {
-        console.error('File must be an image');
+        showToast(t('validation.invalidFileType'), 'error');
         return Upload.LIST_IGNORE;
       }
-      const maxSize = 5 * 1024 * 1024;
-      if (file.size > maxSize) {
-        console.error('Image size must be less than 5MB');
+      if (file.size > MAX_IMAGE_SIZE_BYTES) {
+        showToast(t('marketingCampaigns.imageTooLarge'), 'error');
         return Upload.LIST_IGNORE;
       }
       return false;
