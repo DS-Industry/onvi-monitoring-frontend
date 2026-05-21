@@ -75,20 +75,25 @@ const TechTaskTemplateManager: React.FC<TechTaskTemplateManagerProps> = ({
               {t('techTasks.availableTemplates')} ({availableTemplates.length})
             </span>
           </div>
-          <div className="lg:h-48 max-h-48 overflow-y-auto">
+          <div className="lg:h-48 max-h-48 overflow-auto">
             {availableTemplates.length > 0 ? (
-              availableTemplates.map(template => (
-                <div
-                  key={template.id}
-                  className={`flex items-center gap-2 p-3 border-b cursor-pointer hover:bg-gray-50 ${
-                    selectedForTransfer.includes(template.id) ? 'bg-blue-50' : ''
-                  }`}
-                  onClick={() => toggleTemplateSelection(template.id)}
-                >
-                  <Checkbox checked={selectedForTransfer.includes(template.id)} />
-                  <span className="text-sm truncate min-w-0">{template.title}</span>
-                </div>
-              ))
+              <div className="min-w-full w-max">
+                {availableTemplates.map(template => (
+                  <div
+                    key={template.id}
+                    className={`flex items-center gap-2 p-3 border-b w-full cursor-pointer hover:bg-gray-50 ${
+                      selectedForTransfer.includes(template.id) ? 'bg-blue-50' : ''
+                    }`}
+                    onClick={() => toggleTemplateSelection(template.id)}
+                  >
+                    <Checkbox
+                      className="flex-shrink-0"
+                      checked={selectedForTransfer.includes(template.id)}
+                    />
+                    <span className="text-sm whitespace-nowrap">{template.title}</span>
+                  </div>
+                ))}
+              </div>
             ) : (
               <div className="p-4">
                 <Empty 
@@ -125,20 +130,25 @@ const TechTaskTemplateManager: React.FC<TechTaskTemplateManagerProps> = ({
               {t('techTasks.selectedTemplatesList')} ({selectedTemplates.length})
             </span>
           </div>
-          <div className="lg:h-48 max-h-48 overflow-y-auto">
+          <div className="lg:h-48 max-h-48 overflow-auto">
             {selectedTemplates.length > 0 ? (
-              selectedTemplates.map(template => (
-                <div
-                  key={template.id}
-                  className={`flex items-center gap-2 p-3 border-b cursor-pointer hover:bg-gray-50 ${
-                    selectedForTransfer.includes(template.id) ? 'bg-blue-50' : ''
-                  }`}
-                  onClick={() => toggleTemplateSelection(template.id)}
-                >
-                  <Checkbox checked={selectedForTransfer.includes(template.id)} />
-                  <span className="text-sm truncate min-w-0">{template.title}</span>
-                </div>
-              ))
+              <div className="min-w-full w-max">
+                {selectedTemplates.map(template => (
+                  <div
+                    key={template.id}
+                    className={`flex items-center gap-2 p-3 border-b w-full cursor-pointer hover:bg-gray-50 ${
+                      selectedForTransfer.includes(template.id) ? 'bg-blue-50' : ''
+                    }`}
+                    onClick={() => toggleTemplateSelection(template.id)}
+                  >
+                    <Checkbox
+                      className="flex-shrink-0"
+                      checked={selectedForTransfer.includes(template.id)}
+                    />
+                    <span className="text-sm whitespace-nowrap">{template.title}</span>
+                  </div>
+                ))}
+              </div>
             ) : (
               <div className="p-4">
                 <Empty 
