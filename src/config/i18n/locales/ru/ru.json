@@ -606,7 +606,8 @@
     "quantityComingOnWarehouse": "Приход по складу",
     "isWriteOffFromWarehouse": "Проведено на складе",
     "sendToWarehouse": "Провести на складе",
-    "carryingDocumentWarehouseAt": "Дата проведения документа по складу"
+    "carryingDocumentWarehouseAt": "Дата проведения документа по складу",
+    "equipmentType": "Вид оборудования"
   },
   "daily": {
     "noText": "В этом разделе отображаются отчеты по ежедневным параметрам",

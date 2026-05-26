@@ -76,6 +76,7 @@ const EquipmentFailure: React.FC = () => {
     startDate: '',
     finishDate: '',
     objectName: '',
+    equipmentKnotTypeDeviceId: undefined,
     equipmentKnotId: undefined,
     incidentNameId: undefined,
     incidentReasonId: undefined,
@@ -133,11 +134,13 @@ const EquipmentFailure: React.FC = () => {
     }
   );
 
+  const [equipmentTypeId, setEquipmentTypeId] = useState<number | undefined>();
+
   const { data: incidentEquipmentKnotData } = useSWR(
     equipmentKnotData ? [`get-incident-equipment-knot`] : null,
     () =>
       getIncidentEquipmentKnots(
-        equipmentKnotData ? equipmentKnotData[0].props.id : 0
+        equipmentKnotData ? equipmentKnotData[0].id : 0
       ),
     {
       revalidateOnFocus: false,
@@ -230,6 +233,7 @@ const EquipmentFailure: React.FC = () => {
         startDate: formData.startDate,
         finishDate: formData.finishDate,
         objectName: formData.objectName,
+        equipmentKnotTypeDeviceId: formData.equipmentKnotTypeDeviceId,
         equipmentKnotId: formData.equipmentKnotId,
         incidentNameId: formData.incidentNameId,
         incidentReasonId: formData.incidentReasonId,
@@ -250,6 +254,7 @@ const EquipmentFailure: React.FC = () => {
         startDate: formData.startDate,
         finishDate: formData.finishDate,
         objectName: formData.objectName,
+        equipmentKnotTypeDeviceId: formData.equipmentKnotTypeDeviceId,
         equipmentKnotId: formData.equipmentKnotId,
         incidentNameId: formData.incidentNameId,
         incidentReasonId: formData.incidentReasonId,
@@ -267,6 +272,7 @@ const EquipmentFailure: React.FC = () => {
       'downtime',
       'posId',
       'workerId',
+      'equipmentKnotTypeDeviceId',
       'equipmentKnotId',
       'incidentNameId',
       'incidentReasonId',
@@ -285,13 +291,18 @@ const EquipmentFailure: React.FC = () => {
 
     const incidentToEdit = incidents.find(org => org.id === id);
 
-    if (incidentToEdit) {
-      const knotNameToId: { [key: string]: number } = equipmentKnotData
-        ? equipmentKnotData.reduce(
-          (acc, eq) => ({ ...acc, [eq.props.name]: eq.props.id }),
-          {}
-        )
-        : {};
+    if (incidentToEdit && equipmentKnotData) {
+      const foundType = equipmentKnotData.find(type =>
+        type.equipmentKnots.some(knot => knot.name === incidentToEdit.equipmentKnot)
+      );
+      if (foundType) {
+        setEquipmentTypeId(foundType.id);
+        handleInputChange('equipmentKnotTypeDeviceId', String(foundType.id));
+        const foundKnot = foundType.equipmentKnots.find(knot => knot.name === incidentToEdit.equipmentKnot);
+        if (foundKnot) {
+          handleInputChange('equipmentKnotId', String(foundKnot.id));
+        }
+      }
 
       const problemNameToId: { [key: string]: number } =
         incidentEquipmentKnotData
@@ -313,25 +324,21 @@ const EquipmentFailure: React.FC = () => {
         return dayjs(dateString).format('YYYY-MM-DDTHH:mm');
       };
 
-      setFormData({
+      setFormData(prev => ({
+        ...prev,
         posId: incidentToEdit.posId,
         workerId: incidentToEdit.workerId,
         appearanceDate: formatDateTime(incidentToEdit.appearanceDate),
         startDate: formatDateTime(incidentToEdit.startDate),
         finishDate: formatDateTime(incidentToEdit.finishDate),
         objectName: incidentToEdit.objectName,
-        equipmentKnotId:
-          knotNameToId[incidentToEdit.equipmentKnot] || undefined,
-        incidentNameId:
-          problemNameToId[incidentToEdit.incidentName] || undefined,
-        incidentReasonId:
-          reasonLabelToValue[incidentToEdit.incidentReason] || undefined,
-        incidentSolutionId:
-          solutionLabelToValue[incidentToEdit.incidentSolution] || undefined,
+        incidentNameId: problemNameToId[incidentToEdit.incidentName] || undefined,
+        incidentReasonId: reasonLabelToValue[incidentToEdit.incidentReason] || undefined,
+        incidentSolutionId: solutionLabelToValue[incidentToEdit.incidentSolution] || undefined,
         downtime: incidentToEdit.downtime === 'Нет' ? 0 : 1,
         comment: incidentToEdit.comment,
         carWashDeviceProgramsTypeId: incidentToEdit.programId,
-      });
+      }));
     }
   };
 
@@ -341,6 +348,7 @@ const EquipmentFailure: React.FC = () => {
     reset();
     setEditIncidentId(0);
     setDrawerOpen(false);
+    setEquipmentTypeId(undefined);
   };
 
   const onSubmit = async () => {
@@ -419,6 +427,12 @@ const EquipmentFailure: React.FC = () => {
       title: t('equipment.device'),
       dataIndex: 'objectName',
       key: 'objectName',
+    },
+    {
+      title: t('equipment.equipmentType'),
+      dataIndex: 'equipmentKnotTypeDevice',
+      key: 'equipmentKnotTypeDevice',
+      render: (value: string) => <div>{value ? value : '-'}</div>,
     },
     {
       title: t('equipment.knot'),
@@ -723,6 +737,33 @@ const EquipmentFailure: React.FC = () => {
             </Form.Item>
           </div>
           <div>
+            <div className="text-text02 text-sm">{t('equipment.equipmentType')}</div>
+            <Form.Item>
+              <Select
+                placeholder={t('warehouse.notSel')}
+                options={equipmentKnotData?.map(item => ({
+                  value: item.id,
+                  label: item.name,
+                }))}
+                className="!w-72"
+                value={equipmentTypeId}
+                onChange={value => {
+                  setEquipmentTypeId(value);
+                  handleInputChange('equipmentKnotTypeDeviceId', String(value));
+                  setFormData(prev => ({ ...prev, equipmentKnotId: undefined }));
+                  setValue('equipmentKnotId', undefined);
+                }}
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.label ?? '')
+                    .toString()
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+              />
+            </Form.Item>
+          </div>
+          <div>
             <div className="text-text02 text-sm">{t('equipment.knot')}</div>
             <Form.Item>
               <Select
@@ -731,10 +772,14 @@ const EquipmentFailure: React.FC = () => {
                     ? t('warehouse.noVal')
                     : t('warehouse.notSel')
                 }
-                options={equipmentKnotData?.map(item => ({
-                  value: item.props.id,
-                  label: item.props.name,
-                }))}
+                options={
+                  equipmentKnotData
+                    ?.find(item => item.id === equipmentTypeId)
+                    ?.equipmentKnots.map(knot => ({
+                      value: knot.id,
+                      label: knot.name,
+                    })) || []
+                }
                 className="!w-72"
                 {...register('equipmentKnotId')}
                 value={formData.equipmentKnotId}
@@ -748,6 +793,7 @@ const EquipmentFailure: React.FC = () => {
                     .toLowerCase()
                     .includes(input.toLowerCase())
                 }
+                disabled={!equipmentTypeId}
               />
             </Form.Item>
           </div>
