@@ -33,6 +33,7 @@ type InputProps = {
   countryCode?: string;
   onCountryChange?: (code: string) => void;
   disableCountrySelect?: boolean;
+  onWheel?: (e: React.WheelEvent<HTMLInputElement>) => void;
 };
 
 const Input: React.FC<InputProps> = ({
@@ -53,6 +54,7 @@ const Input: React.FC<InputProps> = ({
   countryCode = '+7',
   onCountryChange,
   disableCountrySelect = false,
+  onWheel,
 }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -203,6 +205,7 @@ const Input: React.FC<InputProps> = ({
                     setIsPreFilled(true);
                   }
                 }}
+                onWheel={onWheel}
                 {...inputConfig}
                 className={`${error ? 'border-errorFill' : ''}`}
               />
@@ -233,6 +236,7 @@ const Input: React.FC<InputProps> = ({
                   setIsPreFilled(true);
                 }
               }}
+              onWheel={onWheel}
               {...inputConfig}
               className={`${error ? 'border-errorFill' : ''}`}
             />
