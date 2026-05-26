@@ -784,7 +784,10 @@
     "totalSum": "Total sum",
     "date": "Date of sale",
     "remainder": "Remainder",
-    "qty": "Qty"
+    "qty": "Qty",
+    "return": "Return",
+    "returnConfirm": "Return this sale? The warehouse write-off will be cancelled and the \"Sale\" income entry will be removed. The sale record will remain in the list.",
+    "returnSuccess": "Sale returned. Write-off cancelled, income entry removed."
   },
   "marketing": {
     "orderType": "Order type",
@@ -1202,6 +1205,8 @@
     "7009": "An error occurred while retrieving inventory items. Please try again.",
     "7010": "An error occurred while saving the document. Please try again.",
     "7011": "An error occurred while retrieving remaining items. Please try again.",
+    "7017": "Sale document not found.",
+    "7019": "Cannot return sale: operation already cancelled or data is ambiguous. Contact your administrator.",
     "8001": "An error occurred while creating the cash collection. Please try again.",
     "8002": "An error occurred while recalculate the cash collection. Please try again.",
     "8003": "An error occurred while return the cash collection. Please try again.",
