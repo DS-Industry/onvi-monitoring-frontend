@@ -2,17 +2,19 @@ import DropdownInput from '@/components/ui/Input/DropdownInput';
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import {
   createDocument,
   getAllDocuments,
+  unsendDocument,
+  WarehouseDocumentStatus,
   WarehouseDocumentType,
 } from '@/services/api/warehouse';
 import useSWRMutation from 'swr/mutation';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { useToast } from '@/components/context/useContext';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
-import { Table, Button, Modal } from 'antd';
+import { Table, Button, Modal, Popconfirm } from 'antd';
 import SavedIcon from '@icons/SavedIcon.png';
 import SentIcon from '@icons/SentIcon.png';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
@@ -32,7 +34,9 @@ type Documents = {
   name: string;
   carryingAt: Date;
   status: string;
+  statusRaw: WarehouseDocumentStatus;
   type: string;
+  typeRaw: WarehouseDocumentType;
   warehouseName: string;
   responsibleName: string;
 };
@@ -41,6 +45,9 @@ const Documents: React.FC = () => {
   const { t } = useTranslation();
   const user = useUser();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [unsendingDocumentId, setUnsendingDocumentId] = useState<number | null>(
+    null
+  );
   const today = dayjs().toDate();
   const formattedDate = today.toISOString().slice(0, 10);
   const userPermissions = usePermissions();
@@ -56,7 +63,7 @@ const Documents: React.FC = () => {
   const dateEnd =
     searchParams.get('dateEnd') ?? dayjs().toDate().toISOString().slice(0, 10);
   const cityParam = Number(searchParams.get('city')) || undefined;
-  
+
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
@@ -93,7 +100,9 @@ const Documents: React.FC = () => {
     allDocuments?.data?.map(item => ({
       ...item,
       status: t(`tables.${item.status}`),
+      statusRaw: item.status,
       type: t(`routes.${item.type}`),
+      typeRaw: item.type,
       statusCheck: '',
     })) || [];
 
@@ -121,6 +130,30 @@ const Documents: React.FC = () => {
       createDocument(arg)
   );
 
+  const { trigger: unsendDoc } = useSWRMutation(
+    ['unsend-document'],
+    (_, { arg }: { arg: number }) => unsendDocument(arg)
+  );
+
+  const handleUnsend = async (documentId: number) => {
+    setUnsendingDocumentId(documentId);
+    try {
+      await unsendDoc(documentId);
+      await mutate(swrKey);
+      showToast(t('warehouse.unsendSuccess'), 'success');
+    } catch (error: unknown) {
+      const message =
+        (error as { response?: { data?: { message?: string } } })?.response
+          ?.data?.message;
+      showToast(
+        message || t('errors.other.errorDuringFormSubmission'),
+        'error'
+      );
+    } finally {
+      setUnsendingDocumentId(null);
+    }
+  };
+
   const handleModalSubmit = async () => {
     if (documentType) {
       try {
@@ -144,6 +177,22 @@ const Documents: React.FC = () => {
     }
   };
 
+  const allowed = hasPermission(
+    [
+      { action: 'manage', subject: 'Warehouse' },
+      { action: 'create', subject: 'Warehouse' },
+    ],
+    userPermissions
+  );
+
+  const allowedUnsend = hasPermission(
+    [
+      { action: 'manage', subject: 'Warehouse' },
+      { action: 'update', subject: 'Warehouse' },
+    ],
+    userPermissions
+  );
+
   const dateRender = getDateRender();
   const statusRender = getStatusTagRender(t);
 
@@ -152,12 +201,34 @@ const Documents: React.FC = () => {
       title: '',
       dataIndex: 'statusCheck',
       key: 'statusCheck',
-      render: (_: unknown, record: { status: string }) =>
-        record.status === t('tables.SENT') ? (
-          <img src={SentIcon} loading="lazy" alt="SENT" />
-        ) : (
-          <img src={SavedIcon} loading="lazy" alt="SAVED" />
-        ),
+      render: (_: unknown, record: Documents) => (
+        <div className="flex items-center gap-2">
+          {record.statusRaw === WarehouseDocumentStatus.SENT ? (
+            <img src={SentIcon} loading="lazy" alt="SENT" />
+          ) : (
+            <img src={SavedIcon} loading="lazy" alt="SAVED" />
+          )}
+          {allowedUnsend && record.statusRaw === WarehouseDocumentStatus.SENT && (
+            <Popconfirm
+              title={t('warehouse.unsendConfirm')}
+              onConfirm={() => handleUnsend(record.id)}
+              okText={t('warehouse.unsendReturn')}
+              cancelText={t('organizations.cancel')}
+            >
+              <Button
+                size="small"
+                loading={unsendingDocumentId === record.id}
+                disabled={
+                  unsendingDocumentId !== null &&
+                  unsendingDocumentId !== record.id
+                }
+              >
+                {t('warehouse.unsendReturn')}
+              </Button>
+            </Popconfirm>
+          )}
+        </div>
+      ),
     },
     {
       title: t('warehouse.no'),
@@ -168,13 +239,11 @@ const Documents: React.FC = () => {
       title: t('equipment.name'),
       dataIndex: 'name',
       key: 'name',
-      render: (text: string, record: { id: number; type: string }) => (
+      render: (text: string, record: Documents) => (
         <Link
           to={{
             pathname: '/warehouse/documents/view',
-            search: `?documentId=${record.id}&document=${
-              documentTypes.find(doc => doc.name === record.type)?.value
-            }`,
+            search: `?documentId=${record.id}&document=${record.typeRaw}`,
           }}
           className="text-blue-500 hover:text-blue-700 font-semibold"
         >
@@ -213,14 +282,6 @@ const Documents: React.FC = () => {
 
   const { checkedList, setCheckedList, options, visibleColumns } =
     useColumnSelector(columnsAllDocuments, 'documents-table-columns');
-
-    const allowed = hasPermission(
-      [
-        { action: 'manage', subject: 'Warehouse' },
-        { action: 'create', subject: 'Warehouse' }
-      ],
-      userPermissions
-    );
 
   const handleTableChange = (pagination: any) => {
     const { current, pageSize } = pagination;

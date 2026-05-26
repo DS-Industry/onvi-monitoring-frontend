@@ -257,6 +257,12 @@ type GET_DOCUMENT_RESPONSE = {
   }[];
 };
 
+type DOCUMENT_UNSEND_RESPONSE = {
+  document: GET_DOCUMENT_RESPONSE['document'];
+  details: GET_DOCUMENT_RESPONSE['details'];
+  status: 'UNSEND';
+};
+
 export type GET_STOCK_LEVEL_SALE_RESPONSE = {
   nomenclatureId: number;
   nomenclatureName: string;
@@ -510,6 +516,15 @@ export async function sendDocument(
   const response: AxiosResponse<DOCUMENT_SAVE_RESPONSE> = await api.post(
     WAREHOUSE.CREATE_DOCUMENT + `/send/${documentId}`,
     body
+  );
+  return response.data;
+}
+
+export async function unsendDocument(
+  documentId: number
+): Promise<DOCUMENT_UNSEND_RESPONSE> {
+  const response: AxiosResponse<DOCUMENT_UNSEND_RESPONSE> = await api.post(
+    WAREHOUSE.CREATE_DOCUMENT + `/unsend/${documentId}`
   );
   return response.data;
 }
