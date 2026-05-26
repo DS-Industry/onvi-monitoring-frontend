@@ -35,12 +35,6 @@ const api = axios.create({
 
 api.interceptors.request.use(
   config => {
-    datadogLogs.logger.info('API Request Initiated', {
-      url: config.url,
-      method: config.method,
-      timestamp: new Date().toISOString(),
-    });
-
     return config;
   },
   error => {
@@ -56,12 +50,6 @@ const getTranslatedError = (code: number) => i18n.t(`errors.${String(code)}`);
 
 api.interceptors.response.use(
   response => {
-    datadogLogs.logger.info('API Response Received', {
-      url: response.config.url,
-      method: response.config.method,
-      status: response.status,
-      timestamp: new Date().toISOString(),
-    });
     return response;
   },
   async error => {
