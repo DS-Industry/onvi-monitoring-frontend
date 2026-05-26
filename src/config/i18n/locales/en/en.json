@@ -334,7 +334,9 @@
     "baseRateNight": "Base Rate (Night)",
     "bonusRateNight": "Bonus Rate (Night)",
     "publicName": "Public name",
-    "enterPublicName": "Enter public name"
+    "enterPublicName": "Enter public name",
+    "payment": "Payment",
+    "cleaning": "Cleaning"
   },
   "profile": {
     "basic": "Basic Details",

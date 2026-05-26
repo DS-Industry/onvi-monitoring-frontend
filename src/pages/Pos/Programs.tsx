@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import useSWR from 'swr';
-import { Table } from 'antd';
-import { getPrograms, Program, ProgramDetail } from '@/services/api/pos';
+import { Table, Select } from 'antd';
+import { getPrograms, Program, ProgramDetail, TurningType } from '@/services/api/pos';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -65,6 +65,7 @@ const Programs: React.FC = () => {
   const posId = Number(searchParams.get('posId'));
 
   const [totalCount, setTotalCount] = useState(0);
+  const [turningType, setTurningType] = useState<TurningType | undefined>(TurningType.PAYMENT);
 
   // Prepare API Filters
   const filterParams = useMemo(
@@ -72,17 +73,19 @@ const Programs: React.FC = () => {
       dateStart: new Date(dateStart),
       dateEnd: new Date(dateEnd),
       posId,
+      turningType,
     }),
-    [dateStart, dateEnd, posId]
+    [dateStart, dateEnd, posId, turningType]
   );
 
   // Get Programs Data
   const { data: programRaw, isLoading: programsLoading } = useSWR(
-    ['get-programs', posId, dateStart, dateEnd],
+    ['get-programs', posId, dateStart, dateEnd, turningType],
     () =>
       getPrograms(posId, {
         dateStart: filterParams.dateStart,
         dateEnd: filterParams.dateEnd,
+        turningType: filterParams.turningType,
       }).then(data => {
         setTotalCount(data?.length || 0);
         return data?.sort((a, b) => a.id - b.id) ?? [];
@@ -331,13 +334,30 @@ const Programs: React.FC = () => {
       <div className="ml-12 md:ml-0 flex items-center space-x-2 mb-5">
         <span className="text-xl sm:text-3xl font-normal text-text01">
           {t('routes.programDevices')}
+          {/* 2 */}
         </span>
       </div>
 
       <GeneralFilters
         count={totalCount}
         display={['pos', 'city', 'dateTime']}
-      />
+      >
+        <div className="w-full sm:w-64">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
+            {t('pos.turningType')}
+          </label>
+          <Select
+            placeholder={t('constants.all')}
+            allowClear
+            value={turningType}
+            onChange={setTurningType}
+            options={[
+              { label: t('pos.payment'), value: TurningType.PAYMENT },
+              { label: t('pos.cleaning'), value: TurningType.CLEANING },
+            ]}
+          />
+        </div>
+      </GeneralFilters>
 
       <div className="mt-8 space-y-6">
         {!programsLoading && portalPrograms.length > 0 && (
