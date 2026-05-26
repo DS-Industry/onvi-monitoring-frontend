@@ -600,7 +600,8 @@
     "quantityComingOnWarehouse": "Quantity coming on warehouse",
     "isWriteOffFromWarehouse": "Warehouse completed",
     "sendToWarehouse": "Conduct in warehouse",
-    "carryingDocumentWarehouseAt": "Carrying document warehouse at"
+    "carryingDocumentWarehouseAt": "Carrying document warehouse at",
+    "equipmentType": "Type of equipment"
   },
   "daily": {
     "noText": "This section displays reports on daily parameters",

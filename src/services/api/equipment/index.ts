@@ -63,6 +63,7 @@ export type Incident = {
   finishDate: Date;
   objectName: string;
   equipmentKnot: string;
+  equipmentKnotTypeDevice: string;
   incidentName: string;
   incidentReason: string;
   incidentSolution: string;
@@ -79,6 +80,7 @@ export type IncidentBody = {
   startDate: string;
   finishDate: string;
   objectName: string;
+  equipmentKnotTypeDeviceId?: number
   equipmentKnotId?: number;
   incidentNameId?: number;
   incidentReasonId?: number;
@@ -95,6 +97,7 @@ type UpdateIncidentBody = {
   startDate?: string;
   finishDate?: string;
   objectName?: string;
+  equipmentKnotTypeDeviceId?: number
   equipmentKnotId?: number;
   incidentNameId?: number;
   incidentReasonId?: number;
@@ -179,13 +182,16 @@ type DeviceResponse = {
   };
 };
 
-type EquipmentKnotResponse = {
-  props: {
-    id: number;
-    name: string;
-    posId: number;
-  };
-};
+export interface EquipmentKnot {
+  id: number;
+  name: string;
+}
+
+export interface EquipmentType {
+  id: number;
+  name: string;
+  equipmentKnots: EquipmentKnot[];
+}
 
 type IncidentEquipmentKnotResponse = {
   id: number;
@@ -672,8 +678,8 @@ export async function getDevices(
 
 export async function getEquipmentKnots(
   posId: number | string
-): Promise<EquipmentKnotResponse[]> {
-  const response: AxiosResponse<EquipmentKnotResponse[]> = await api.get(
+): Promise<EquipmentType[]> {
+  const response: AxiosResponse<EquipmentType[]> = await api.get(
     EQUIPMENT.GET_EQUIPMENT + `/${posId}`
   );
 
