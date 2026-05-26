@@ -137,11 +137,8 @@ const EquipmentFailure: React.FC = () => {
   const [equipmentTypeId, setEquipmentTypeId] = useState<number | undefined>();
 
   const { data: incidentEquipmentKnotData } = useSWR(
-    equipmentKnotData ? [`get-incident-equipment-knot`] : null,
-    () =>
-      getIncidentEquipmentKnots(
-        equipmentKnotData ? equipmentKnotData[0].id : 0
-      ),
+    formData.equipmentKnotId ? [`get-incident-equipment-knot`, formData.equipmentKnotId] : null,
+    () => getIncidentEquipmentKnots(formData.equipmentKnotId!),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -279,9 +276,14 @@ const EquipmentFailure: React.FC = () => {
       'incidentSolutionId',
       'carWashDeviceProgramsTypeId',
     ];
-    const updatedValue = numericFields.includes(field) ? Number(value) : value;
+    let updatedValue: any = value;
+    if (numericFields.includes(field)) {
+      updatedValue = value === '' ? undefined : Number(value);
+    } else {
+      updatedValue = value;
+    }
     setFormData(prev => ({ ...prev, [field]: updatedValue }));
-    setValue(field, value);
+    setValue(field, updatedValue);
   };
 
   const handleUpdate = (id: number) => {
@@ -785,6 +787,9 @@ const EquipmentFailure: React.FC = () => {
                 value={formData.equipmentKnotId}
                 onChange={value => {
                   handleInputChange('equipmentKnotId', String(value));
+                  handleInputChange('incidentNameId', '');
+                  handleInputChange('incidentReasonId', '');
+                  handleInputChange('incidentSolutionId', '');
                 }}
                 showSearch={true}
                 filterOption={(input, option) =>
