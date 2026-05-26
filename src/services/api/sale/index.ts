@@ -90,6 +90,19 @@ export type SALE_MANAGER_RESPONSE = {
     name: string;
 };
 
+export type SALE_DOCUMENT_RETURN_RESPONSE = {
+    status: 'RETURN';
+    saleDocument: SALE_DOCUMENT_RESPONSE;
+    warehouseDocument: {
+        id: number;
+        name: string;
+        type: string;
+        status: string;
+        warehouseId: number;
+    };
+    details: SALE_DOCUMENT_RESPONSE['details'];
+};
+
 export async function postSalePrice(
     body: SALE_PRICE_CREATE_REQUEST,
 ): Promise<SALE_PRICE_RESPONSE> {
@@ -165,6 +178,15 @@ export async function getSaleDocuments(
     const response: AxiosResponse<SALE_DOCUMENTS_RESPONSE[]> = await api.get(
         SALE.SALE_DOCUMENTS,
         { params }
+    );
+    return response.data;
+}
+
+export async function returnSaleDocument(
+    documentId: number,
+): Promise<SALE_DOCUMENT_RETURN_RESPONSE> {
+    const response: AxiosResponse<SALE_DOCUMENT_RETURN_RESPONSE> = await api.post(
+        SALE.SALE_DOCUMENT + `/return/${documentId}`,
     );
     return response.data;
 }
