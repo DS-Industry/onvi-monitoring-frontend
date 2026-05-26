@@ -1158,6 +1158,7 @@ const Articles: React.FC = () => {
               error={!!errors.sum}
               {...register('sum', { required: 'sum is required' })}
               helperText={errors.sum?.message || ''}
+              onWheel={e => e.currentTarget.blur()}
             />
             <MultilineInput
               title={t('equipment.comment')}
