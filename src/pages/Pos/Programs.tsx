@@ -65,9 +65,20 @@ const Programs: React.FC = () => {
   const posId = Number(searchParams.get('posId'));
 
   const [totalCount, setTotalCount] = useState(0);
-  const [turningType, setTurningType] = useState<TurningType | undefined>(TurningType.PAYMENT);
 
-  // Prepare API Filters
+  const turningTypeParam = searchParams.get('turningType') as TurningType | null;
+  const [turningType, setTurningType] = useState<TurningType | undefined>(
+    turningTypeParam === 'PAYMENT' || turningTypeParam === 'CLEANING' ? turningTypeParam : TurningType.PAYMENT
+  );
+
+  const handleTurningTypeChange = (value: TurningType | undefined) => {
+    setTurningType(value);
+    updateSearchParams(searchParams, setSearchParams, {
+      turningType: value || undefined,
+      page: DEFAULT_PAGE,
+    });
+  };
+
   const filterParams = useMemo(
     () => ({
       dateStart: new Date(dateStart),
@@ -132,71 +143,71 @@ const Programs: React.FC = () => {
   const childColumns: ColumnsType<ProgramDetail> =
     portalPrograms.length > 0
       ? [
-        {
-          title: t('equipment.program'),
-          dataIndex: 'programName',
-          key: 'programName',
-        },
-        {
-          title: t('table.headers.programs'),
-          dataIndex: 'counter',
-          key: 'counter',
-          render: (_value, record) => formatNumber(record.counter),
-        },
-        {
-          title: t('finance.totalTime'),
-          dataIndex: 'totalTime',
-          key: 'totalTime',
-          render: (_value, record) => formatNumber(record.totalTime),
-        },
-        {
-          title: t('table.headers.averageTime'),
-          dataIndex: 'averageTime',
-          key: 'averageTime',
-        },
-        {
-          title: t('finance.REVENUE'),
-          dataIndex: 'totalProfit',
-          key: 'totalProfit',
-          render: currencyRender,
-        },
-        {
-          title: t('marketing.avg'),
-          dataIndex: 'averageProfit',
-          key: 'averageProfit',
-          render: currencyRender,
-        },
-      ]
+          {
+            title: t('equipment.program'),
+            dataIndex: 'programName',
+            key: 'programName',
+          },
+          {
+            title: t('table.headers.programs'),
+            dataIndex: 'counter',
+            key: 'counter',
+            render: (_value, record) => formatNumber(record.counter),
+          },
+          {
+            title: t('finance.totalTime'),
+            dataIndex: 'totalTime',
+            key: 'totalTime',
+            render: (_value, record) => formatNumber(record.totalTime),
+          },
+          {
+            title: t('table.headers.averageTime'),
+            dataIndex: 'averageTime',
+            key: 'averageTime',
+          },
+          {
+            title: t('finance.REVENUE'),
+            dataIndex: 'totalProfit',
+            key: 'totalProfit',
+            render: currencyRender,
+          },
+          {
+            title: t('marketing.avg'),
+            dataIndex: 'averageProfit',
+            key: 'averageProfit',
+            render: currencyRender,
+          },
+        ]
       : [
-        {
-          title: t('equipment.program'),
-          dataIndex: 'programName',
-          key: 'programName',
-        },
-        {
-          title: t('table.headers.programs'),
-          dataIndex: 'counter',
-          key: 'counter',
-          render: (_value, record) => formatNumber(record.counter),
-        },
-        {
-          title: t('finance.totalTime'),
-          dataIndex: 'totalTime',
-          key: 'totalTime',
-          render: (_value, record) => formatNumber(record.totalTime),
-        },
-        {
-          title: t('table.headers.averageTime'),
-          dataIndex: 'averageTime',
-          key: 'averageTime',
-        },
-        {
-          title: t('table.headers.latestProgram'),
-          dataIndex: 'lastOper',
-          key: 'lastOper',
-          render: getDateRender(),
-        },
-      ];
+          {
+            title: t('equipment.program'),
+            dataIndex: 'programName',
+            key: 'programName',
+          },
+          {
+            title: t('table.headers.programs'),
+            dataIndex: 'counter',
+            key: 'counter',
+            render: (_value, record) => formatNumber(record.counter),
+          },
+          {
+            title: t('finance.totalTime'),
+            dataIndex: 'totalTime',
+            key: 'totalTime',
+            render: (_value, record) => formatNumber(record.totalTime),
+          },
+          {
+            title: t('table.headers.averageTime'),
+            dataIndex: 'averageTime',
+            key: 'averageTime',
+          },
+          {
+            title: t('table.headers.latestProgram'),
+            dataIndex: 'lastOper',
+            key: 'lastOper',
+            render: getDateRender(),
+          },
+        ];
 
   const getRandomColor = (index: number) => {
     const colors = ['#5E5FCD', '#6ECD5E', '#A95ECD', '#CD5E5E'];
@@ -350,7 +361,7 @@ const Programs: React.FC = () => {
             placeholder={t('constants.all')}
             allowClear
             value={turningType}
-            onChange={setTurningType}
+            onChange={handleTurningTypeChange}
             options={[
               { label: t('pos.payment'), value: TurningType.PAYMENT },
               { label: t('pos.cleaning'), value: TurningType.CLEANING },

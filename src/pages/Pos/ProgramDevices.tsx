@@ -34,7 +34,18 @@ const ProgramDevices: React.FC = () => {
   const dateEnd = searchParams.get('dateEnd') || `${formattedDate} 23:59`;
   const cityParam = Number(searchParams.get('city')) || undefined;
 
-  const [turningType, setTurningType] = useState<TurningType | undefined>(TurningType.PAYMENT);
+  const turningTypeParam = searchParams.get('turningType') as TurningType | null;
+  const [turningType, setTurningType] = useState<TurningType | undefined>(
+    turningTypeParam === 'PAYMENT' || turningTypeParam === 'CLEANING' ? turningTypeParam : TurningType.PAYMENT
+  );
+
+  const handleTurningTypeChange = (value: TurningType | undefined) => {
+    setTurningType(value);
+    updateSearchParams(searchParams, setSearchParams, {
+      turningType: value || undefined,
+      page: DEFAULT_PAGE,
+    });
+  };
 
   const filterParams = useMemo(
     () => ({
@@ -228,7 +239,7 @@ const ProgramDevices: React.FC = () => {
             placeholder={t('constants.all')}
             allowClear
             value={turningType}
-            onChange={setTurningType}
+            onChange={handleTurningTypeChange}
             options={[
               { label: t('pos.payment'), value: TurningType.PAYMENT },
               { label: t('pos.cleaning'), value: TurningType.CLEANING },

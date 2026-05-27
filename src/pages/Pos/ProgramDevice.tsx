@@ -34,7 +34,19 @@ const ProgramDevice: React.FC = () => {
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
-  const [turningType, setTurningType] = useState<TurningType | undefined>(TurningType.PAYMENT);
+
+  const turningTypeParam = searchParams.get('turningType') as TurningType | null;
+  const [turningType, setTurningType] = useState<TurningType | undefined>(
+    turningTypeParam === 'PAYMENT' || turningTypeParam === 'CLEANING' ? turningTypeParam : TurningType.PAYMENT
+  );
+
+  const handleTurningTypeChange = (value: TurningType | undefined) => {
+    setTurningType(value);
+    updateSearchParams(searchParams, setSearchParams, {
+      turningType: value || undefined,
+      page: DEFAULT_PAGE,
+    });
+  };
 
   // Filter params (memoized)
   const filterParams = useMemo(
@@ -174,7 +186,7 @@ const ProgramDevice: React.FC = () => {
             placeholder={t('constants.all')}
             allowClear
             value={turningType}
-            onChange={setTurningType}
+            onChange={handleTurningTypeChange}
             options={[
               { label: t('pos.payment'), value: TurningType.PAYMENT },
               { label: t('pos.cleaning'), value: TurningType.CLEANING },
