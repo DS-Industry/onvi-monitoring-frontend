@@ -172,6 +172,11 @@ interface UpdateCarWashResponse {
   }[];
 }
 
+export enum TurningType {
+  PAYMENT = 'PAYMENT',
+  CLEANING = 'CLEANING',
+}
+
 type DepositParam = {
   dateStart: Date;
   dateEnd: Date;
@@ -180,6 +185,7 @@ type DepositParam = {
   organizationId?: number;
   placementId?: number;
   placementIds?: number[];
+  turningType?: TurningType;
   page?: number;
   size?: number;
 };
@@ -303,6 +309,7 @@ type ProgramDevice = {
 export type ProgramDeviceType = ProgramDevice['prog'][0];
 
 type DevicesParams = {
+  turningType?: TurningType;
   dateStart: Date;
   dateEnd: Date;
 };
@@ -310,6 +317,7 @@ type DevicesParams = {
 type DeviceParams = {
   dateStart: Date;
   dateEnd: Date;
+  turningType?: TurningType; 
   page?: number;
   size?: number;
 };

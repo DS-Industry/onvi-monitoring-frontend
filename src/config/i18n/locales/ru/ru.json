@@ -340,7 +340,10 @@
     "baseRateNight": "Базовая ставка (Ночь)",
     "bonusRateNight": "Бонусная ставка (Ночь)",
     "publicName": "Публичное имя",
-    "enterPublicName": "Введите публичное имя"
+    "enterPublicName": "Введите публичное имя",
+    "turningType": "Тип включения",
+    "payment": "Оплата",
+    "cleaning": "Уборка"
   },
   "profile": {
     "basic": "Основные данные",

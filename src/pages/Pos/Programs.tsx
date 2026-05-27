@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import useSWR from 'swr';
-import { Table } from 'antd';
-import { getPrograms, Program, ProgramDetail } from '@/services/api/pos';
+import { Table, Select } from 'antd';
+import { getPrograms, Program, ProgramDetail, TurningType } from '@/services/api/pos';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -66,23 +66,37 @@ const Programs: React.FC = () => {
 
   const [totalCount, setTotalCount] = useState(0);
 
-  // Prepare API Filters
+  const turningTypeParam = searchParams.get('turningType') as TurningType | null;
+  const [turningType, setTurningType] = useState<TurningType | undefined>(
+    turningTypeParam === 'PAYMENT' || turningTypeParam === 'CLEANING' ? turningTypeParam : TurningType.PAYMENT
+  );
+
+  const handleTurningTypeChange = (value: TurningType | undefined) => {
+    setTurningType(value);
+    updateSearchParams(searchParams, setSearchParams, {
+      turningType: value || undefined,
+      page: DEFAULT_PAGE,
+    });
+  };
+
   const filterParams = useMemo(
     () => ({
       dateStart: new Date(dateStart),
       dateEnd: new Date(dateEnd),
       posId,
+      turningType,
     }),
-    [dateStart, dateEnd, posId]
+    [dateStart, dateEnd, posId, turningType]
   );
 
   // Get Programs Data
   const { data: programRaw, isLoading: programsLoading } = useSWR(
-    ['get-programs', posId, dateStart, dateEnd],
+    ['get-programs', posId, dateStart, dateEnd, turningType],
     () =>
       getPrograms(posId, {
         dateStart: filterParams.dateStart,
         dateEnd: filterParams.dateEnd,
+        turningType: filterParams.turningType,
       }).then(data => {
         setTotalCount(data?.length || 0);
         return data?.sort((a, b) => a.id - b.id) ?? [];
@@ -129,71 +143,71 @@ const Programs: React.FC = () => {
   const childColumns: ColumnsType<ProgramDetail> =
     portalPrograms.length > 0
       ? [
-        {
-          title: t('equipment.program'),
-          dataIndex: 'programName',
-          key: 'programName',
-        },
-        {
-          title: t('table.headers.programs'),
-          dataIndex: 'counter',
-          key: 'counter',
-          render: (_value, record) => formatNumber(record.counter),
-        },
-        {
-          title: t('finance.totalTime'),
-          dataIndex: 'totalTime',
-          key: 'totalTime',
-          render: (_value, record) => formatNumber(record.totalTime),
-        },
-        {
-          title: t('table.headers.averageTime'),
-          dataIndex: 'averageTime',
-          key: 'averageTime',
-        },
-        {
-          title: t('finance.REVENUE'),
-          dataIndex: 'totalProfit',
-          key: 'totalProfit',
-          render: currencyRender,
-        },
-        {
-          title: t('marketing.avg'),
-          dataIndex: 'averageProfit',
-          key: 'averageProfit',
-          render: currencyRender,
-        },
-      ]
+          {
+            title: t('equipment.program'),
+            dataIndex: 'programName',
+            key: 'programName',
+          },
+          {
+            title: t('table.headers.programs'),
+            dataIndex: 'counter',
+            key: 'counter',
+            render: (_value, record) => formatNumber(record.counter),
+          },
+          {
+            title: t('finance.totalTime'),
+            dataIndex: 'totalTime',
+            key: 'totalTime',
+            render: (_value, record) => formatNumber(record.totalTime),
+          },
+          {
+            title: t('table.headers.averageTime'),
+            dataIndex: 'averageTime',
+            key: 'averageTime',
+          },
+          {
+            title: t('finance.REVENUE'),
+            dataIndex: 'totalProfit',
+            key: 'totalProfit',
+            render: currencyRender,
+          },
+          {
+            title: t('marketing.avg'),
+            dataIndex: 'averageProfit',
+            key: 'averageProfit',
+            render: currencyRender,
+          },
+        ]
       : [
-        {
-          title: t('equipment.program'),
-          dataIndex: 'programName',
-          key: 'programName',
-        },
-        {
-          title: t('table.headers.programs'),
-          dataIndex: 'counter',
-          key: 'counter',
-          render: (_value, record) => formatNumber(record.counter),
-        },
-        {
-          title: t('finance.totalTime'),
-          dataIndex: 'totalTime',
-          key: 'totalTime',
-          render: (_value, record) => formatNumber(record.totalTime),
-        },
-        {
-          title: t('table.headers.averageTime'),
-          dataIndex: 'averageTime',
-          key: 'averageTime',
-        },
-        {
-          title: t('table.headers.latestProgram'),
-          dataIndex: 'lastOper',
-          key: 'lastOper',
-          render: getDateRender(),
-        },
-      ];
+          {
+            title: t('equipment.program'),
+            dataIndex: 'programName',
+            key: 'programName',
+          },
+          {
+            title: t('table.headers.programs'),
+            dataIndex: 'counter',
+            key: 'counter',
+            render: (_value, record) => formatNumber(record.counter),
+          },
+          {
+            title: t('finance.totalTime'),
+            dataIndex: 'totalTime',
+            key: 'totalTime',
+            render: (_value, record) => formatNumber(record.totalTime),
+          },
+          {
+            title: t('table.headers.averageTime'),
+            dataIndex: 'averageTime',
+            key: 'averageTime',
+          },
+          {
+            title: t('table.headers.latestProgram'),
+            dataIndex: 'lastOper',
+            key: 'lastOper',
+            render: getDateRender(),
+          },
+        ];
 
   const getRandomColor = (index: number) => {
     const colors = ['#5E5FCD', '#6ECD5E', '#A95ECD', '#CD5E5E'];
@@ -331,13 +345,30 @@ const Programs: React.FC = () => {
       <div className="ml-12 md:ml-0 flex items-center space-x-2 mb-5">
         <span className="text-xl sm:text-3xl font-normal text-text01">
           {t('routes.programDevices')}
+          {/* 2 */}
         </span>
       </div>
 
       <GeneralFilters
         count={totalCount}
         display={['pos', 'city', 'dateTime']}
-      />
+      >
+        <div className="w-full sm:w-64">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
+            {t('pos.turningType')}
+          </label>
+          <Select
+            placeholder={t('constants.all')}
+            allowClear
+            value={turningType}
+            onChange={handleTurningTypeChange}
+            options={[
+              { label: t('pos.payment'), value: TurningType.PAYMENT },
+              { label: t('pos.cleaning'), value: TurningType.CLEANING },
+            ]}
+          />
+        </div>
+      </GeneralFilters>
 
       <div className="mt-8 space-y-6">
         {!programsLoading && portalPrograms.length > 0 && (
