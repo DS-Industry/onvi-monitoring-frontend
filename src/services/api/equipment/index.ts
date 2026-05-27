@@ -403,8 +403,21 @@ type ConsumptionRateCoeffPatchResponse = {
 
 type PosParams = {
   placementId?: number;
+  placementIds?: number[];
   organizationId?: number;
   posId?: number;
+  posIds?: number[];
+};
+
+const serializePosFilterQueryParams = (params: PosParams) => {
+  const { placementIds, posIds, ...rest } = params;
+
+  return {
+    ...rest,
+    placementIds:
+      placementIds?.length ? placementIds.join(',') : undefined,
+    posIds: posIds?.length ? posIds.join(',') : undefined,
+  };
 };
 
 type ProgramParams = {
@@ -638,7 +651,7 @@ export async function updateIncident(
 export async function getPoses(params: PosParams): Promise<PosResponse[]> {
   const response: AxiosResponse<PosResponse[]> = await api.get(
     EQUIPMENT.GET_POS,
-    { params }
+    { params: serializePosFilterQueryParams(params) }
   );
 
   return response.data;
