@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 
 // utils
 import { useTranslation } from 'react-i18next';
@@ -14,16 +14,24 @@ import { Table } from 'antd';
 
 // types
 import type { ColumnsType } from 'antd/es/table';
+import dayjs from 'dayjs';
+import { TurningType } from '@/services/api/pos';
 
 interface TableRowData {
   key: string;
   deviceName: string | null;
+  deviceId: number;
   programName: string;
   countProgram: number;
   time: string;
 }
 
-const CleaningTab: React.FC = () => {
+interface CleaningTabProps {
+  shiftStartDate?: Date;
+  shiftEndDate?: Date;
+}
+
+const CleaningTab: React.FC<CleaningTabProps> = ({ shiftStartDate, shiftEndDate }) => {
   const { t } = useTranslation();
 
   const [searchParams] = useSearchParams();
@@ -59,18 +67,18 @@ const CleaningTab: React.FC = () => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
-  const tableData =
+  const tableData: TableRowData[] =
     cashOperCleanData?.flatMap(({ deviceId, programData }) => {
-      const deviceName =
-        devices.find(dev => dev.value === deviceId)?.name || '';
+      const deviceName = devices.find(dev => dev.value === deviceId)?.name || '';
 
       return programData.map(({ programName, countProgram, time }, index) => ({
         key: `${deviceId}-${programName}-${index}`,
         deviceName: index === 0 ? deviceName : null,
+        deviceId,
         programName,
         countProgram,
         time,
@@ -82,6 +90,24 @@ const CleaningTab: React.FC = () => {
       title: t('finance.deviceName'),
       dataIndex: 'deviceName',
       key: 'deviceName',
+      render: (text, record) => {
+        if (!text) return null;
+        const dateStartValue = shiftStartDate
+          ? dayjs(shiftStartDate).format('YYYY-MM-DDTHH:mm')
+          : '';
+        const dateEndValue = shiftEndDate
+          ? dayjs(shiftEndDate).format('YYYY-MM-DDTHH:mm')
+          : '';
+        const url = `/station/programs/device?posId=${posId}&deviceId=${record.deviceId}&dateStart=${encodeURIComponent(dateStartValue)}&dateEnd=${encodeURIComponent(dateEndValue)}&turningType=${TurningType.CLEANING}&page=1`;
+        return (
+          <Link
+            to={url}
+            className="text-primary02 hover:text-primary02_Hover font-semibold"
+          >
+            {text}
+          </Link>
+        );
+      },
     },
     {
       title: t('finance.program'),

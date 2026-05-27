@@ -2,9 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import dayjs from 'dayjs';
-import { getProgramDevice, ProgramDeviceType } from '@/services/api/pos';
-
-import { Table } from 'antd';
+import { getProgramDevice, ProgramDeviceType, TurningType } from '@/services/api/pos';
+import { Table, Select } from 'antd';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 
@@ -36,6 +35,19 @@ const ProgramDevice: React.FC = () => {
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
+  const turningTypeParam = searchParams.get('turningType') as TurningType | null;
+  const [turningType, setTurningType] = useState<TurningType | undefined>(
+    turningTypeParam === 'PAYMENT' || turningTypeParam === 'CLEANING' ? turningTypeParam : TurningType.PAYMENT
+  );
+
+  const handleTurningTypeChange = (value: TurningType | undefined) => {
+    setTurningType(value);
+    updateSearchParams(searchParams, setSearchParams, {
+      turningType: value || undefined,
+      page: DEFAULT_PAGE,
+    });
+  };
+
   // Filter params (memoized)
   const filterParams = useMemo(
     () => ({
@@ -44,8 +56,9 @@ const ProgramDevice: React.FC = () => {
       page: currentPage,
       size: pageSize,
       deviceId,
+      turningType,
     }),
-    [dateStart, dateEnd, currentPage, pageSize, deviceId]
+    [dateStart, dateEnd, currentPage, pageSize, deviceId, turningType]
   );
 
   // SWR key and data fetch
@@ -58,6 +71,7 @@ const ProgramDevice: React.FC = () => {
       filterParams.dateEnd,
       filterParams.page,
       filterParams.size,
+      filterParams.turningType,
     ];
   }, [deviceId, filterParams]);
 
@@ -69,6 +83,7 @@ const ProgramDevice: React.FC = () => {
         dateEnd: new Date(filterParams.dateEnd),
         page: filterParams.page,
         size: filterParams.size,
+        turningType: filterParams.turningType,
       }).finally(() => {
         setIsInitialLoading(false);
       }),
@@ -158,10 +173,27 @@ const ProgramDevice: React.FC = () => {
       <div className="ml-12 md:ml-0 flex items-center space-x-2 mb-5">
         <span className="text-xl sm:text-3xl font-normal text-text01">
           {t('routes.programDevice')}
+          {/* 3 */}
         </span>
       </div>
 
-      <GeneralFilters count={totalCount} display={['device', 'dateTime']} />
+      <GeneralFilters count={totalCount} display={['device', 'dateTime']}>
+        <div className="w-full sm:w-64">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
+            {t('pos.turningType')}
+          </label>
+          <Select
+            placeholder={t('constants.all')}
+            allowClear
+            value={turningType}
+            onChange={handleTurningTypeChange}
+            options={[
+              { label: t('pos.payment'), value: TurningType.PAYMENT },
+              { label: t('pos.cleaning'), value: TurningType.CLEANING },
+            ]}
+          />
+        </div>
+      </GeneralFilters>
 
       <div className="mt-8">
         <ColumnSelector

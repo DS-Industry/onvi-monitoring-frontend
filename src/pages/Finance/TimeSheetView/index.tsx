@@ -78,7 +78,10 @@ const TimesheetView: React.FC = () => {
         )}
         {visitedTabs.current.has('cleaning') && (
           <div style={{ display: activeTab === 'cleaning' ? 'block' : 'none' }}>
-            <CleaningTab />
+            <CleaningTab
+              shiftStartDate={dayShiftData?.startWorkingTime}
+              shiftEndDate={dayShiftData?.endWorkingTime}
+            />
           </div>
         )}
         {visitedTabs.current.has('susp') && (

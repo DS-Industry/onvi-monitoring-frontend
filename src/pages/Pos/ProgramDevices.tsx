@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import useSWR from 'swr';
-import { Table } from 'antd';
-import { getProgramPos, Program, ProgramDetail } from '@/services/api/pos';
+import { Table, Select } from 'antd';
+import { getProgramPos, Program, ProgramDetail, TurningType } from '@/services/api/pos';
 import { useLocation, useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
@@ -34,6 +34,19 @@ const ProgramDevices: React.FC = () => {
   const dateEnd = searchParams.get('dateEnd') || `${formattedDate} 23:59`;
   const cityParam = Number(searchParams.get('city')) || undefined;
 
+  const turningTypeParam = searchParams.get('turningType') as TurningType | null;
+  const [turningType, setTurningType] = useState<TurningType | undefined>(
+    turningTypeParam === 'PAYMENT' || turningTypeParam === 'CLEANING' ? turningTypeParam : TurningType.PAYMENT
+  );
+
+  const handleTurningTypeChange = (value: TurningType | undefined) => {
+    setTurningType(value);
+    updateSearchParams(searchParams, setSearchParams, {
+      turningType: value || undefined,
+      page: DEFAULT_PAGE,
+    });
+  };
+
   const filterParams = useMemo(
     () => ({
       dateStart: new Date(dateStart || `${formattedDate} 00:00`),
@@ -42,7 +55,8 @@ const ProgramDevices: React.FC = () => {
       placementId: cityParam,
       page: currentPage,
       size: pageSize,
-      organizationId: user.organizationId
+      organizationId: user.organizationId,
+      turningType,
     }),
     [
       dateStart,
@@ -52,13 +66,14 @@ const ProgramDevices: React.FC = () => {
       currentPage,
       pageSize,
       location.state,
-      user.organizationId
+      user.organizationId,
+      turningType,
     ]
   );
 
   const swrKey = useMemo(
     () =>
-      `get-pos-programs-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}-${filterParams.organizationId}`,
+      `get-pos-programs-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}-${filterParams.organizationId}-${filterParams.turningType}`,
     [filterParams]
   );
 
@@ -208,13 +223,30 @@ const ProgramDevices: React.FC = () => {
       <div className="ml-12 md:ml-0 flex items-center space-x-2 mb-5">
         <span className="text-xl sm:text-3xl font-normal text-text01">
           {t('routes.programs')}
+          {/* 1 */}
         </span>
       </div>
 
       <GeneralFilters
         count={totalCount}
         display={['pos', 'city', 'dateTime']}
-      />
+      >
+        <div className="w-full sm:w-64">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
+            {t('pos.turningType')}
+          </label>
+          <Select
+            placeholder={t('constants.all')}
+            allowClear
+            value={turningType}
+            onChange={handleTurningTypeChange}
+            options={[
+              { label: t('pos.payment'), value: TurningType.PAYMENT },
+              { label: t('pos.cleaning'), value: TurningType.CLEANING },
+            ]}
+          />
+        </div>
+      </GeneralFilters>
 
       <div className="mt-8">
         <ColumnSelector
