@@ -176,10 +176,23 @@ type DepositParam = {
   dateStart: Date;
   dateEnd: Date;
   posId?: number;
+  posIds?: number[];
   organizationId?: number;
   placementId?: number;
+  placementIds?: number[];
   page?: number;
   size?: number;
+};
+
+const serializeDepositQueryParams = (params: DepositParam) => {
+  const { placementIds, posIds, ...rest } = params;
+
+  return {
+    ...rest,
+    placementIds:
+      placementIds?.length ? placementIds.join(',') : undefined,
+    posIds: posIds?.length ? posIds.join(',') : undefined,
+  };
 };
 
 export type DepositResponse = {
@@ -468,7 +481,7 @@ export async function getDepositPos(
 ): Promise<DepositPosResponse> {
   const response: AxiosResponse<DepositPosResponse> = await api.get(
     POS.GET_DEPOSIT,
-    { params }
+    { params: serializeDepositQueryParams(params) }
   );
   return response.data;
 }
