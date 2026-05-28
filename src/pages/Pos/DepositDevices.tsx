@@ -4,7 +4,6 @@ import React, { useMemo, useState } from 'react';
 import useSWR from 'swr';
 import { DepositResponse, getDepositPos } from '@/services/api/pos';
 import { useLocation, useSearchParams } from 'react-router-dom';
-import { getPlacement } from '@/services/api/device';
 import {
   formatNumber,
   getCurrencyRender,
@@ -12,10 +11,16 @@ import {
   getFractionalCurrencyRender,
 } from '@/utils/tableUnits';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
-import { updateSearchParams } from '@/utils/searchParamsUtils';
+import {
+  formatIdsParam,
+  parseIdsParam,
+  updateSearchParams,
+} from '@/utils/searchParamsUtils';
 
 // components
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import CityFilterMulti from '@/components/ui/Filter/CityFilterMulti';
+import PosFilterMulti from '@/components/ui/Filter/PosFilterMulti';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 
 import { Link } from 'react-router-dom';
@@ -43,39 +48,35 @@ const DepositDevices: React.FC = () => {
 
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
-  const posId = searchParams.get('posId') || undefined;
+  const cityIds = useMemo(
+    () => parseIdsParam(searchParams, 'cityIds'),
+    [searchParams.get('cityIds')]
+  );
+  const posIdsFromUrl = useMemo(
+    () => parseIdsParam(searchParams, 'posIds'),
+    [searchParams.get('posIds')]
+  );
   const dateStart =
     searchParams.get('dateStart') ?? new Date().toISOString().slice(0, 10);
 
   const dateEnd =
     searchParams.get('dateEnd') ?? new Date().toISOString().slice(0, 10);
 
-  const cityParam = Number(searchParams.get('city')) || undefined;
-
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
-  // Fetch cities for the dropdown filter
-  const { data: cities } = useSWR(
-    [`get-city`],
-    () =>
-      getPlacement().then(
-        data =>
-          data?.map(item => ({ text: item.region, value: item.region })) || []
-      ),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false
-    }
-  );
+  const resolvedPosIds = useMemo(() => {
+    if (posIdsFromUrl.length) return posIdsFromUrl;
+    const ownerId = location.state?.ownerId;
+    if (ownerId != null) return [Number(ownerId)].filter(id => !Number.isNaN(id));
+    return undefined;
+  }, [posIdsFromUrl, location.state?.ownerId]);
 
   const filterParams = useMemo(
     () => ({
       dateStart: new Date(dateStart || `${formattedDate} 00:00`),
       dateEnd: new Date(dateEnd?.toString() || `${formattedDate} 23:59`),
-      posId: posId || location.state?.ownerId,
-      placementId: cityParam,
+      placementIds: cityIds.length ? cityIds : undefined,
+      posIds: resolvedPosIds,
       page: currentPage,
       size: pageSize,
       organizationId: user.organizationId
@@ -83,20 +84,19 @@ const DepositDevices: React.FC = () => {
     [
       dateStart,
       dateEnd,
-      posId,
-      cityParam,
+      cityIds,
+      resolvedPosIds,
       currentPage,
       pageSize,
       formattedDate,
-      location.state?.ownerId,
       user.organizationId
     ]
   );
 
   const swrKey = useMemo(
     () =>
-      `get-pos-deposits-${filterParams.posId}-${filterParams.placementId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}-${filterParams.organizationId}`,
-    [filterParams]
+      `get-pos-deposits-${formatIdsParam(cityIds)}-${formatIdsParam(resolvedPosIds ?? [])}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}-${filterParams.organizationId}`,
+    [filterParams, cityIds, resolvedPosIds]
   );
 
   const [totalPosesCount, setTotalPosesCount] = useState(0);
@@ -158,8 +158,6 @@ const DepositDevices: React.FC = () => {
       title: t('pos.city'),
       dataIndex: 'city',
       key: 'city',
-      filters: cities,
-      onFilter: (value, record) => record.city === value,
     },
     {
       title: t('deposit.columns.lastOperation'),
@@ -294,10 +292,10 @@ const DepositDevices: React.FC = () => {
         </span>
       </div>
 
-      <GeneralFilters
-        count={totalPosesCount}
-        display={['pos', 'city', 'dateTime']}
-      />
+      <GeneralFilters count={totalPosesCount} display={['dateTime']}>
+        <CityFilterMulti />
+        <PosFilterMulti />
+      </GeneralFilters>
 
       <div className="mt-8">
         <ColumnSelector
@@ -334,7 +332,7 @@ const DepositDevices: React.FC = () => {
                   {visibleColumns.map((col, index) => {
                     const dataIndex = 'dataIndex' in col ? (col.dataIndex as string) : undefined;
                     let value: React.ReactNode = '';
-          
+
                     if (index === 0) {
                       return (
                         <Table.Summary.Cell key={col.key?.toString() || index} index={index}>
@@ -342,7 +340,7 @@ const DepositDevices: React.FC = () => {
                         </Table.Summary.Cell>
                       );
                     }
-          
+
                     if (dataIndex && totalsRow[dataIndex] !== undefined) {
                       if (dataIndex === 'receiptAverage') {
                         value = '';
@@ -360,7 +358,7 @@ const DepositDevices: React.FC = () => {
                         value = '';
                       }
                     }
-          
+
                     return (
                       <Table.Summary.Cell key={col.key?.toString() || index} index={index}>
                         <span className="font-bold">{value}</span>
