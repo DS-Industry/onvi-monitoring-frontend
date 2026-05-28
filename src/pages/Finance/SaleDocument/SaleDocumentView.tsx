@@ -1,24 +1,38 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import useSWR from 'swr';
-import { getSaleDocument } from '@/services/api/sale';
-import { Table } from 'antd';
+import useSWR, { mutate } from 'swr';
+import useSWRMutation from 'swr/mutation';
+import { getSaleDocument, returnSaleDocument } from '@/services/api/sale';
+import { Button, Popconfirm, Table } from 'antd';
 import Input from '@ui/Input/Input.tsx';
 import DateInput from '@ui/Input/DateInput.tsx';
 import dayjs from 'dayjs';
 import DropdownInput from '@ui/Input/DropdownInput.tsx';
 import { getWarehouses } from '@/services/api/warehouse';
 import { ArrowLeftOutlined } from '@ant-design/icons';
+import { usePermissions } from '@/hooks/useAuthStore';
+import hasPermission from '@/permissions/hasPermission';
+import { useToast } from '@/components/context/useContext';
 
 const SaleDocumentView: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const documentId = searchParams.get('documentId');
+  const userPermissions = usePermissions();
+  const { showToast } = useToast();
+
+  const allowedReturn = hasPermission(
+    [
+      { action: 'manage', subject: 'Warehouse' },
+      { action: 'update', subject: 'Warehouse' },
+    ],
+    userPermissions
+  );
 
   const { data: saleDocument, isLoading: loadingSaleDocument } = useSWR(
-    [`get-sale-document`],
+    documentId ? [`get-sale-document`, documentId] : null,
     () => getSaleDocument(Number(documentId)),
     {
       revalidateOnFocus: false,
@@ -36,6 +50,20 @@ const SaleDocumentView: React.FC = () => {
       keepPreviousData: true,
     }
   );
+
+  const { trigger: returnDoc, isMutating: returningDoc } = useSWRMutation(
+    ['return-sale-document'],
+    (_, { arg }: { arg: number }) => returnSaleDocument(arg)
+  );
+
+  const handleReturn = async () => {
+    await returnDoc(Number(documentId));
+    await mutate(
+      key => Array.isArray(key) && key[0] === 'get-sales-document'
+    );
+    showToast(t('sale.returnSuccess'), 'success');
+    navigate('/finance/saleDocument');
+  };
 
   const warehouses: { name: string; value: number }[] =
     warehouseData?.map(item => ({
@@ -77,12 +105,24 @@ const SaleDocumentView: React.FC = () => {
         <ArrowLeftOutlined />
         <p className="ms-2">{t('login.back')}</p>
       </div>
-      <div className="ml-12 md:ml-0 mb-5">
+      <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
         <div className="flex items-center space-x-2">
           <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.saleDocumentView')}
           </span>
         </div>
+        {allowedReturn && !loadingSaleDocument && (
+          <Popconfirm
+            title={t('sale.returnConfirm')}
+            onConfirm={handleReturn}
+            okText={t('sale.return')}
+            cancelText={t('organizations.cancel')}
+          >
+            <Button className="btn-primary" loading={returningDoc}>
+              {t('sale.return')}
+            </Button>
+          </Popconfirm>
+        )}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-4 py-4">
