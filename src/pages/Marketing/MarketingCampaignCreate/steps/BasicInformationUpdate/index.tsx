@@ -104,7 +104,7 @@ const BasicInformationUpdate: React.FC<BasicDataProps> = ({
 
     const handleInputChange = (
         field: keyof typeof defaultValues,
-        value: string | number
+        value: string | number | Date | null
     ) => {
         setFormData(prev => ({ ...prev, [field]: value }));
         setValue(field, value);
@@ -112,39 +112,49 @@ const BasicInformationUpdate: React.FC<BasicDataProps> = ({
 
     const onSubmit = async () => {
         try {
-            if (
-                campaign &&
-                formData.name === (campaign.name ?? '') &&
-                formData.description === (campaign.description ?? '')
-            ) {
-                updateSearchParams(searchParams, setSearchParams, {
-                    step: 2,
-                    marketingCampaignId,
-                });
-                return;
-            }
-            const result = await updateCampaign({
-                ltyProgramId: Number(formData.ltyProgramId),
-                name: formData.name,
-                description: formData.description,
-                launchDate: formData.launchDate,
-                endDate: formData.endDate,
-                ltyProgramParticipantId:
-                    loyaltyProgramsData?.find(
-                        item => item.props.id === Number(formData.ltyProgramId)
-                    )?.props.participantId || 0,
+          const isNameSame = formData.name === (campaign?.name ?? '');
+          const isDescSame = formData.description === (campaign?.description ?? '');
+          const isLaunchDateSame = formData.launchDate && campaign?.launchDate
+            ? dayjs(formData.launchDate).isSame(dayjs(campaign.launchDate), 'day')
+            : formData.launchDate === campaign?.launchDate;
+          const isEndDateSame = formData.endDate && campaign?.endDate
+            ? dayjs(formData.endDate).isSame(dayjs(campaign.endDate), 'day')
+            : formData.endDate === campaign?.endDate;
+      
+          if (
+            isNameSame &&
+            isDescSame &&
+            isLaunchDateSame &&
+            isEndDateSame
+          ) {
+            updateSearchParams(searchParams, setSearchParams, {
+              step: 2,
+              marketingCampaignId,
             });
-            if (result) {
-                mutate();
-                updateSearchParams(searchParams, setSearchParams, {
-                    step: 2,
-                    marketingCampaignId: result.id,
-                });
-                showToast(t('tables.SAVED'), 'success');
-            }
+            return;
+          }
+          const result = await updateCampaign({
+            ltyProgramId: Number(formData.ltyProgramId),
+            name: formData.name,
+            description: formData.description,
+            launchDate: formData.launchDate,
+            endDate: formData.endDate,
+            ltyProgramParticipantId:
+              loyaltyProgramsData?.find(
+                item => item.props.id === Number(formData.ltyProgramId)
+              )?.props.participantId || 0,
+          });
+          if (result) {
+            mutate();
+            updateSearchParams(searchParams, setSearchParams, {
+              step: 2,
+              marketingCampaignId: result.id,
+            });
+            showToast(t('tables.SAVED'), 'success');
+          }
         } catch (error) {
-            console.error('Error during form submission: ', error);
-            showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+          console.error('Error during form submission: ', error);
+          showToast(t('errors.other.errorDuringFormSubmission'), 'error');
         }
     };
 
@@ -259,18 +269,11 @@ const BasicInformationUpdate: React.FC<BasicDataProps> = ({
                                     >
                                         <DatePicker
                                             className="w-40 sm:w-auto sm:min-w-[160px]"
-                                            value={
-                                                formData.launchDate ? dayjs(formData.launchDate) : null
-                                            }
+                                            value={formData.launchDate ? dayjs(formData.launchDate) : null}
                                             {...register('launchDate', {
-                                                required: t('validation.startDateRequired'),
+                                              required: t('validation.startDateRequired'),
                                             })}
-                                            onChange={date =>
-                                                handleInputChange(
-                                                    'launchDate',
-                                                    date ? date.toISOString() : ''
-                                                )
-                                            }
+                                            onChange={date => handleInputChange('launchDate', date ? date.toDate() : null)}
                                             disabled={!isEditable}
                                         />
                                     </Form.Item>
@@ -278,18 +281,13 @@ const BasicInformationUpdate: React.FC<BasicDataProps> = ({
                                         {t('analysis.endDate')}
                                     </div>
                                     <Form.Item className="mb-0 min-h-[72px]">
-                                        <DatePicker
-                                            className="w-40 sm:w-auto sm:min-w-[160px]"
-                                            value={formData.endDate ? dayjs(formData.endDate) : null}
-                                            {...register('endDate')}
-                                            onChange={date =>
-                                                handleInputChange(
-                                                    'endDate',
-                                                    date ? date.toISOString() : ''
-                                                )
-                                            }
-                                            disabled={!isEditable}
-                                        />
+                                    <DatePicker
+                                        className="w-40 sm:w-auto sm:min-w-[160px]"
+                                        value={formData.endDate ? dayjs(formData.endDate) : null}
+                                        {...register('endDate')}
+                                        onChange={date => handleInputChange('endDate', date ? date.toDate() : null)}
+                                        disabled={!isEditable}
+                                    />
                                     </Form.Item>
                                 </div>
                             </div>
