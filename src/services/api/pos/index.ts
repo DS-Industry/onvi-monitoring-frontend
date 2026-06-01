@@ -185,6 +185,7 @@ type DepositParam = {
   organizationId?: number;
   placementId?: number;
   placementIds?: number[];
+  countryId?: number;
   turningType?: TurningType;
   page?: number;
   size?: number;
