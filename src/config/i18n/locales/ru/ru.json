@@ -2092,6 +2092,9 @@
     "city": {
       "placeholder": "Выберите город"
     },
+    "country": {
+      "placeholder": "Выберите страну"
+    },
     "employee": {
       "placeholder": "Выберите сотрудника"
     }

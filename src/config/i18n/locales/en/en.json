@@ -2091,6 +2091,9 @@
     "city": {
       "placeholder": "Select City"
     },
+    "country": {
+      "placeholder": "Select country"
+    },
     "employee": {
       "placeholder": "Select employee"
     }

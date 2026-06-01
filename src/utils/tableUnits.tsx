@@ -9,26 +9,48 @@ interface TagItem {
   name: string;
 }
 
-/**
- * Render function for currency values (₽ formatted).
- */
-export function getCurrencyRender() {
+const DEFAULT_CURRENCY_CODE = 'RUB';
+
+function formatAsCurrency(
+  val: number,
+  currencyCode: string,
+  options: { fractional?: boolean }
+): string {
+  const isInteger = val % 1 === 0;
+  const minimumFractionDigits = options.fractional ? (isInteger ? 0 : 1) : 0;
+  const maximumFractionDigits = options.fractional ? 2 : 0;
+
+  try {
+    return new Intl.NumberFormat('ru-RU', {
+      style: 'currency',
+      currency: currencyCode,
+      minimumFractionDigits,
+      maximumFractionDigits,
+      useGrouping: true,
+    }).format(val);
+  } catch {
+    const formatted = new Intl.NumberFormat('ru-RU', {
+      minimumFractionDigits,
+      maximumFractionDigits,
+      useGrouping: true,
+    }).format(val);
+    return `${formatted} ${currencyCode}`;
+  }
+}
+
+export function getCurrencyRender(currencyCode: string = DEFAULT_CURRENCY_CODE) {
   return (val: number | null | undefined): string => {
     if (val === null || val === undefined || isNaN(val)) return '—';
-    return `${formatNumber(val)} ₽`;
+    return formatAsCurrency(val, currencyCode, { fractional: false });
   };
 }
 
-export function getFractionalCurrencyRender() {
+export function getFractionalCurrencyRender(
+  currencyCode: string = DEFAULT_CURRENCY_CODE
+) {
   return (val: number | null | undefined): string => {
     if (val === null || val === undefined || isNaN(val)) return '—';
-    const isInteger = val % 1 === 0;
-    const formatted = new Intl.NumberFormat('ru-RU', {
-      minimumFractionDigits: isInteger ? 0 : 1,
-      maximumFractionDigits: 2,
-      useGrouping: true,
-    }).format(val);
-    return `${formatted} ₽`;
+    return formatAsCurrency(val, currencyCode, { fractional: true });
   };
 }
 
@@ -254,9 +276,8 @@ export const formatRussianPhone = (input: string) => {
   const masked = `+7${digits.length > 1 ? ' (' : ''}${digits.slice(
     1,
     4
-  )}${digits.length > 4 ? ') ' : ''}${digits.slice(4, 7)}${
-    digits.length > 7 ? '-' : ''
-  }${digits.slice(7, 9)}${digits.length > 9 ? '-' : ''}${digits.slice(9, 11)}`;
+  )}${digits.length > 4 ? ') ' : ''}${digits.slice(4, 7)}${digits.length > 7 ? '-' : ''
+    }${digits.slice(7, 9)}${digits.length > 9 ? '-' : ''}${digits.slice(9, 11)}`;
   return masked.trim();
 };
 

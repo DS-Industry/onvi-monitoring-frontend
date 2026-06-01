@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 // utils
 import useSWR from 'swr';
+import { getCountries } from '@/services/api/countries';
 import { DepositResponse, getDepositPos } from '@/services/api/pos';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import {
@@ -19,6 +20,7 @@ import {
 
 // components
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import CountryFilterMulti from '@/components/ui/Filter/CountryFilterMulti';
 import CityFilterMulti from '@/components/ui/Filter/CityFilterMulti';
 import PosFilterMulti from '@/components/ui/Filter/PosFilterMulti';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
@@ -56,6 +58,13 @@ const DepositDevices: React.FC = () => {
     () => parseIdsParam(searchParams, 'posIds'),
     [searchParams.get('posIds')]
   );
+  const countryId = useMemo(() => {
+    const raw = searchParams.get('countryId');
+    if (!raw) return undefined;
+    const id = Number(raw);
+    return Number.isNaN(id) ? undefined : id;
+  }, [searchParams.get('countryId')]);
+  const canFetchDeposits = countryId != null;
   const dateStart =
     searchParams.get('dateStart') ?? new Date().toISOString().slice(0, 10);
 
@@ -75,6 +84,7 @@ const DepositDevices: React.FC = () => {
     () => ({
       dateStart: new Date(dateStart || `${formattedDate} 00:00`),
       dateEnd: new Date(dateEnd?.toString() || `${formattedDate} 23:59`),
+      countryId,
       placementIds: cityIds.length ? cityIds : undefined,
       posIds: resolvedPosIds,
       page: currentPage,
@@ -84,6 +94,7 @@ const DepositDevices: React.FC = () => {
     [
       dateStart,
       dateEnd,
+      countryId,
       cityIds,
       resolvedPosIds,
       currentPage,
@@ -95,11 +106,20 @@ const DepositDevices: React.FC = () => {
 
   const swrKey = useMemo(
     () =>
-      `get-pos-deposits-${formatIdsParam(cityIds)}-${formatIdsParam(resolvedPosIds ?? [])}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}-${filterParams.organizationId}`,
-    [filterParams, cityIds, resolvedPosIds]
+      canFetchDeposits
+        ? `get-pos-deposits-${countryId}-${formatIdsParam(cityIds)}-${formatIdsParam(resolvedPosIds ?? [])}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}-${filterParams.organizationId}`
+        : null,
+    [canFetchDeposits, countryId, filterParams, cityIds, resolvedPosIds]
   );
 
   const [totalPosesCount, setTotalPosesCount] = useState(0);
+
+  useEffect(() => {
+    if (!canFetchDeposits) {
+      setTotalPosesCount(0);
+      setIsInitialLoading(false);
+    }
+  }, [canFetchDeposits]);
 
   // Fetch devices data based on the filter parameters
   const { data: devices, isLoading: filterLoading } = useSWR(
@@ -123,11 +143,27 @@ const DepositDevices: React.FC = () => {
     }
   );
 
-  const currencyRender = getCurrencyRender();
-  const currencyFractionalRender = getFractionalCurrencyRender();
+  const { data: countries } = useSWR('get-countries', getCountries, {
+    shouldRetryOnError: false,
+  });
+
+  const currencyCode = useMemo(
+    () => countries?.find(c => c.id === countryId)?.currency,
+    [countries, countryId]
+  );
+
+  const currencyRender = useMemo(
+    () => getCurrencyRender(currencyCode),
+    [currencyCode]
+  );
+  const currencyFractionalRender = useMemo(
+    () => getFractionalCurrencyRender(currencyCode),
+    [currencyCode]
+  );
   const dateRender = getDateRender();
 
-  const columns: ColumnsType<DepositResponse> = [
+  const columns: ColumnsType<DepositResponse> = useMemo(
+    () => [
     {
       title: t('table.columns.id'),
       dataIndex: 'id',
@@ -236,7 +272,9 @@ const DepositDevices: React.FC = () => {
       sorter: (a, b) => (a.receiptAverage || 0) - (b.receiptAverage || 0),
       render: currencyRender,
     },
-  ];
+  ],
+    [t, currencyRender, currencyFractionalRender, dateRender, dateStart, dateEnd]
+  );
 
   const { checkedList, setCheckedList, options, visibleColumns } =
     useColumnSelector(columns, 'pos-deposits-table-columns');
@@ -293,7 +331,8 @@ const DepositDevices: React.FC = () => {
       </div>
 
       <GeneralFilters count={totalPosesCount} display={['dateTime']}>
-        <CityFilterMulti />
+        <CountryFilterMulti />
+        <CityFilterMulti countryParamKey="countryId" />
         <PosFilterMulti />
       </GeneralFilters>
 
@@ -306,10 +345,10 @@ const DepositDevices: React.FC = () => {
 
         <Table
           rowKey="id"
-          dataSource={devices}
+          dataSource={canFetchDeposits ? devices : []}
           columns={visibleColumns}
           scroll={{ x: 'max-content' }}
-          loading={filterLoading || isInitialLoading}
+          loading={canFetchDeposits && (filterLoading || isInitialLoading)}
           pagination={{
             current: currentPage,
             pageSize: pageSize,
