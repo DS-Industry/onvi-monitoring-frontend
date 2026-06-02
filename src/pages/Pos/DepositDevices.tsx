@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 // utils
 import useSWR from 'swr';
@@ -84,6 +84,7 @@ const DepositDevices: React.FC = () => {
   }, [searchParams.get('currencyRate')]);
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const hasInitializedDefaultCountry = useRef(false);
 
   const resolvedPosIds = useMemo(() => {
     if (posIdsFromUrl.length) return posIdsFromUrl;
@@ -158,6 +159,23 @@ const DepositDevices: React.FC = () => {
   const { data: countries } = useSWR('get-countries', getCountries, {
     shouldRetryOnError: false,
   });
+
+  useEffect(() => {
+    if (hasInitializedDefaultCountry.current) return;
+    if (!countries) return;
+
+    hasInitializedDefaultCountry.current = true;
+    if (countryId != null) return;
+
+    const hasDefaultCountry = countries.some(item => item.id === 1);
+    if (!hasDefaultCountry) return;
+
+    updateSearchParams(searchParams, setSearchParams, {
+      countryId: '1',
+      page: String(DEFAULT_PAGE),
+    });
+  }, [countries, countryId, searchParams, setSearchParams]);
+
   const selectedCountry = useMemo(
     () => countries?.find(item => item.id === countryId),
     [countries, countryId]
