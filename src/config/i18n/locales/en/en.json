@@ -2011,6 +2011,11 @@
       "receiptAverage": "Average receipt",
       "legalOperSum": "Amount by legal entities",
       "optiSum": "OPTI Amount"
+    },
+    "converter": {
+      "toCurrency": "Conversion currency",
+      "selectCurrency": "Select currency",
+      "rate": "Rate"
     }
   },
   "general": {
@@ -2090,6 +2095,9 @@
     },
     "city": {
       "placeholder": "Select City"
+    },
+    "country": {
+      "placeholder": "Select country"
     },
     "employee": {
       "placeholder": "Select employee"

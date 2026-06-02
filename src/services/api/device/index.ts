@@ -40,8 +40,17 @@ export async function getDeviceByPosId(posId: number | string): Promise<Pos[]> {
   return response.data;
 }
 
-export async function getPlacement(): Promise<City[]> {
-  const response: AxiosResponse<City[]> = await api.get(DEVICE.GET_PLACEMENT);
+type PlacementParams = {
+  countryId?: number;
+};
+
+export async function getPlacement(
+  params?: PlacementParams
+): Promise<City[]> {
+  const response: AxiosResponse<City[]> = await api.get(DEVICE.GET_PLACEMENT, {
+    params:
+      params?.countryId != null ? { countryId: params.countryId } : undefined,
+  });
 
   return response.data;
 }
