@@ -2012,6 +2012,11 @@
       "receiptAverage": "Средний чек",
       "legalOperSum": "Сумма по юр. лицам",
       "optiSum": "OPTI Сумма"
+    },
+    "converter": {
+      "toCurrency": "Валюта конвертации",
+      "selectCurrency": "Выберите валюту",
+      "rate": "Курс"
     }
   },
   "general": {

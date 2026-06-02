@@ -11,6 +11,7 @@ export type CountryResponse = {
   name: string;
   currencyId: number;
   currency: string;
+  symbol?: string;
 };
 
 export async function getCountries(): Promise<CountryResponse[]> {

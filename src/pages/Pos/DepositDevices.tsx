@@ -27,7 +27,7 @@ import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 
 import { Link } from 'react-router-dom';
 
-import { Table } from 'antd';
+import { InputNumber, Select, Table } from 'antd';
 
 // types
 import type { ColumnsType } from 'antd/es/table';
@@ -70,6 +70,18 @@ const DepositDevices: React.FC = () => {
 
   const dateEnd =
     searchParams.get('dateEnd') ?? new Date().toISOString().slice(0, 10);
+  const targetCurrencyId = useMemo(() => {
+    const raw = searchParams.get('targetCurrencyId');
+    if (!raw) return undefined;
+    const id = Number(raw);
+    return Number.isNaN(id) ? undefined : id;
+  }, [searchParams.get('targetCurrencyId')]);
+  const conversionRate = useMemo(() => {
+    const raw = searchParams.get('currencyRate');
+    if (!raw) return undefined;
+    const value = Number(raw);
+    return Number.isFinite(value) && value > 0 ? value : undefined;
+  }, [searchParams.get('currencyRate')]);
 
   const [isInitialLoading, setIsInitialLoading] = useState(true);
 
@@ -146,19 +158,92 @@ const DepositDevices: React.FC = () => {
   const { data: countries } = useSWR('get-countries', getCountries, {
     shouldRetryOnError: false,
   });
-
-  const currencyCode = useMemo(
-    () => countries?.find(c => c.id === countryId)?.currency,
+  const selectedCountry = useMemo(
+    () => countries?.find(item => item.id === countryId),
     [countries, countryId]
   );
+  const currencyCode = selectedCountry?.currency;
+  const sourceCurrencyId = selectedCountry?.currencyId;
+  const availableCountryCurrencies = useMemo(() => {
+    const uniqueMap = new Map<
+      number,
+      { currencyId: number; currency: string; symbol?: string }
+    >();
+
+    (countries ?? []).forEach(item => {
+      if (!uniqueMap.has(item.currencyId)) {
+        uniqueMap.set(item.currencyId, {
+          currencyId: item.currencyId,
+          currency: item.currency,
+          symbol: item.symbol,
+        });
+      }
+    });
+
+    return Array.from(uniqueMap.values());
+  }, [countries]);
+  const targetCurrency = useMemo(
+    () =>
+      availableCountryCurrencies.find(
+        item => item.currencyId === targetCurrencyId
+      ),
+    [availableCountryCurrencies, targetCurrencyId]
+  );
+  const targetCurrencyOptions = useMemo(
+    () =>
+      availableCountryCurrencies
+        .filter(item => item.currencyId !== sourceCurrencyId)
+        .map(item => ({
+          label: item.symbol
+            ? `${item.currency} (${item.symbol})`
+            : item.currency,
+          value: String(item.currencyId),
+        })),
+    [availableCountryCurrencies, sourceCurrencyId]
+  );
+  const isConversionActive = Boolean(
+    targetCurrency && conversionRate && conversionRate > 0
+  );
+  const displayCurrencyCode = useMemo(() => {
+    const code = isConversionActive ? targetCurrency?.currency : currencyCode;
+    if (code == null) return undefined;
+    return String(code);
+  }, [isConversionActive, targetCurrency?.currency, currencyCode]);
+  const monetaryFields = [
+    'cashSum',
+    'virtualSum',
+    'onviSum',
+    'legalOperSum',
+    'optiSum',
+    'yandexSum',
+    'mobileSum',
+    'cardSum',
+    'cashbackSumMub',
+    'discountSum',
+    'receiptAverage',
+  ];
+  const convertedDevices = useMemo<DepositResponse[] | undefined>(() => {
+    if (!devices || !isConversionActive || !conversionRate) return devices;
+
+    return devices.map(item => {
+      const convertedItem = { ...item } as DepositResponse & Record<string, unknown>;
+      monetaryFields.forEach(field => {
+        const value = convertedItem[field];
+        if (typeof value === 'number') {
+          convertedItem[field] = value * conversionRate;
+        }
+      });
+      return convertedItem;
+    });
+  }, [devices, isConversionActive, conversionRate]);
 
   const currencyRender = useMemo(
-    () => getCurrencyRender(currencyCode),
-    [currencyCode]
+    () => getCurrencyRender(displayCurrencyCode),
+    [displayCurrencyCode]
   );
   const currencyFractionalRender = useMemo(
-    () => getFractionalCurrencyRender(currencyCode),
-    [currencyCode]
+    () => getFractionalCurrencyRender(displayCurrencyCode),
+    [displayCurrencyCode]
   );
   const dateRender = getDateRender();
 
@@ -280,7 +365,7 @@ const DepositDevices: React.FC = () => {
     useColumnSelector(columns, 'pos-deposits-table-columns');
 
   const calculateTotals = () => {
-    if (!devices || devices.length === 0) return null;
+    if (!convertedDevices || convertedDevices.length === 0) return null;
 
     const totals: any = {
       id: 'total-row',
@@ -302,19 +387,20 @@ const DepositDevices: React.FC = () => {
       receiptAverage: 0,
     };
 
-    devices.forEach(item => {
-      totals.cashSum += item.cashSum || 0;
-      totals.virtualSum += item.virtualSum || 0;
-      totals.onviSum += item.onviSum || 0;
-      totals.legalOperSum += item.legalOperSum || 0;
-      totals.optiSum += item.optiSum || 0;
-      totals.yandexSum += item.yandexSum || 0;
-      totals.counter += item.counter || 0;
-      totals.mobileSum += item.mobileSum || 0;
-      totals.cardSum += item.cardSum || 0;
-      totals.cashbackSumMub += item.cashbackSumMub || 0;
-      totals.discountSum += item.discountSum || 0;
-      totals.carCount += item.carCount || 0;
+    convertedDevices.forEach(item => {
+      const row = item as DepositResponse & Record<string, number | undefined>;
+      totals.cashSum += row.cashSum || 0;
+      totals.virtualSum += row.virtualSum || 0;
+      totals.onviSum += row.onviSum || 0;
+      totals.legalOperSum += row.legalOperSum || 0;
+      totals.optiSum += row.optiSum || 0;
+      totals.yandexSum += row.yandexSum || 0;
+      totals.counter += row.counter || 0;
+      totals.mobileSum += row.mobileSum || 0;
+      totals.cardSum += row.cardSum || 0;
+      totals.cashbackSumMub += row.cashbackSumMub || 0;
+      totals.discountSum += row.discountSum || 0;
+      totals.carCount += row.carCount || 0;
     });
 
     return totals;
@@ -337,6 +423,63 @@ const DepositDevices: React.FC = () => {
       </GeneralFilters>
 
       <div className="mt-8">
+        <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-3">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              {t('deposit.columns.currency')}
+            </label>
+            <Select
+              disabled
+              className="w-full"
+              options={
+                currencyCode
+                  ? [{ label: currencyCode, value: currencyCode }]
+                  : undefined
+              }
+              value={currencyCode}
+              placeholder="—"
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              {t('deposit.converter.toCurrency')}
+            </label>
+            <Select
+              allowClear
+              className="w-full"
+              disabled={!currencyCode}
+              options={targetCurrencyOptions}
+              placeholder={t('deposit.converter.selectCurrency')}
+              value={
+                targetCurrencyId != null ? String(targetCurrencyId) : undefined
+              }
+              onChange={value => {
+                updateSearchParams(searchParams, setSearchParams, {
+                  targetCurrencyId: value || undefined,
+                });
+              }}
+            />
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              {t('deposit.converter.rate')}
+            </label>
+            <InputNumber
+              min={0}
+              step={0.0001}
+              className="w-full"
+              disabled={!targetCurrencyId}
+              placeholder="0.0000"
+              value={conversionRate}
+              onChange={value => {
+                updateSearchParams(searchParams, setSearchParams, {
+                  currencyRate: value ? String(value) : undefined,
+                });
+              }}
+            />
+          </div>
+        </div>
+
         <ColumnSelector
           checkedList={checkedList}
           options={options}
@@ -345,7 +488,7 @@ const DepositDevices: React.FC = () => {
 
         <Table
           rowKey="id"
-          dataSource={canFetchDeposits ? devices : []}
+          dataSource={canFetchDeposits ? convertedDevices : []}
           columns={visibleColumns}
           scroll={{ x: 'max-content' }}
           loading={canFetchDeposits && (filterLoading || isInitialLoading)}
