@@ -137,7 +137,8 @@
     "profitCalculation": "Profit calculation",
     "myReports": "My reports",
     "percentageOfObjects": "Percentage of objects",
-    "deviceDataRawFileUpload": "Upload operations file"
+    "deviceDataRawFileUpload": "Upload operations file",
+    "engineHours": "Engine hours"
   },
   "deviceDataRawFile": {
     "uploading": "Uploading file and registering…",
@@ -609,7 +610,15 @@
     "isWriteOffFromWarehouse": "Warehouse completed",
     "sendToWarehouse": "Conduct in warehouse",
     "carryingDocumentWarehouseAt": "Carrying document warehouse at",
-    "equipmentType": "Type of equipment"
+    "equipmentType": "Type of equipment",
+    "oilLimit": "Oil limit",
+    "pumpRunHours": "Pump runtime",
+    "oilRunHours": "Oil hours since last change",
+    "lastOilChange": "Previous oil change",
+    "lastPumpChange": "Previous pump change",
+    "pumpVersion": "Pump version",
+    "of": "of",
+    "actions": "Actions"
   },
   "daily": {
     "noText": "This section displays reports on daily parameters",

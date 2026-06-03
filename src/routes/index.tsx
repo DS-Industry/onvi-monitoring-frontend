@@ -60,6 +60,7 @@ const ConsumptionRate = React.lazy(
 const ObjectConsumables = React.lazy(() => import('@/pages/Equipment/ObjectConsumables/ObjectConsumables'));
 const ExpenseReport = React.lazy(() => import('@/pages/Equipment/ExpenseReport/ExpenseReport'));
 const ExpenseReportEdit = React.lazy(() => import('@/pages/Equipment/ExpenseReport/ExpenseReportEdit'));
+const EngineHours = React.lazy(() => import('@/pages/Equipment/EngineHours/index'));
 const InventoryCreation = React.lazy(
   () => import('@/pages/Warehouse/InventoryCreation')
 );
@@ -1426,6 +1427,18 @@ const routes: RouteItem[] = [
         titleName: '',
         subNav: [],
         subMenu: false,
+      },
+      {
+        name: 'engineHours',
+        isVisible: true,
+        path: '/equipment/engine-hours',
+        component: EngineHours,
+        permissions: [
+          { action: 'manage', subject: 'Incident' },
+          { action: 'read', subject: 'Incident' },
+        ],
+        isSidebar: true,
+        subNav: [],
       },
     ],
     component: Default,

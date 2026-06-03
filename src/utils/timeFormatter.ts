@@ -45,3 +45,11 @@ export const formatTimeDisplay = (value: string | number): string => {
   if (!value || value === '-') return '-';
   return value.toString();
 };
+
+export const formatHoursToTime = (hours: number | null): string => {
+  if (hours === null || isNaN(hours)) return '-';
+  const totalMinutes = Math.floor(hours * 60);
+  const h = Math.floor(totalMinutes / 60);
+  const m = totalMinutes % 60;
+  return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+};
