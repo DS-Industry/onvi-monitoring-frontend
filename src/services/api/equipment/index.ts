@@ -10,6 +10,7 @@ enum EQUIPMENT {
   GET_PROGRAMS = 'user/device/program/type',
   TECH_EXPENSE = 'user/tech-expense/consumables',
   EXPENSE_REPORT = 'user/tech-expense',
+  TECH_PARAMS = 'user/device/tech-params',
 }
 
 enum TECHTASKS {
@@ -1138,4 +1139,50 @@ export async function getTechExpenseReport(
     `${EQUIPMENT.EXPENSE_REPORT}/report/${reportId}`
   );
   return response.data;
+}
+
+export interface EngineHoursResponse {
+  deviceId: number;
+  deviceName: string;
+  posName: string;
+  pumpVersion: number;
+  oilLimit: number | null;
+  pumpRunHours: number | null;  
+  oilRunHours: number | null;
+  lastOilChangeDate: string | null;
+  lastPumpChangeDate: string | null;
+}
+
+export interface GetEngineHoursParams {
+  dateStart: string;
+  dateEnd: string;
+  placementId?: number;
+  posId?: number;
+}
+
+export async function getEngineHours(
+  params: GetEngineHoursParams
+): Promise<EngineHoursResponse[]> {
+  const response: AxiosResponse<EngineHoursResponse[]> = await api.get(
+    `${EQUIPMENT.TECH_PARAMS}/engine-hours`,
+    { params }
+  );
+  return response.data;
+}
+
+export interface UpdateTechParamsPayload {
+  pumpVersion?: number;
+  oilLimit?: number;
+  lastOilChangeDate?: string | null;
+  lastPumpChangeDate?: string | null;
+}
+
+export async function updateDeviceTechParams(
+  deviceId: number,
+  data: UpdateTechParamsPayload
+): Promise<void> {
+  await api.patch(
+    `${EQUIPMENT.TECH_PARAMS}/${deviceId}`, 
+    data
+  );
 }

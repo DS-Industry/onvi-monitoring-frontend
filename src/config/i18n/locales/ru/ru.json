@@ -137,7 +137,8 @@
     "profitCalculation": "Расчет прибыли",
     "myReports": "Мои Отчеты",
     "percentageOfObjects": "Процент объектов",
-    "deviceDataRawFileUpload": "Загрузка файла с операциями"
+    "deviceDataRawFileUpload": "Загрузка файла с операциями",
+    "engineHours": "Моточасы"
   },
   "deviceDataRawFile": {
     "uploading": "Загрузка файла и регистрация…",
@@ -610,7 +611,15 @@
     "isWriteOffFromWarehouse": "Проведено на складе",
     "sendToWarehouse": "Провести на складе",
     "carryingDocumentWarehouseAt": "Дата проведения документа по складу",
-    "equipmentType": "Вид оборудования"
+    "equipmentType": "Вид оборудования",
+    "oilLimit": "Уставка масла",
+    "pumpRunHours": "Время работы помпы",
+    "oilRunHours": "Наработка масла с последней замены",
+    "lastOilChange": "Предыдущая замена масла",
+    "lastPumpChange": "Предыдущая замена помпы",
+    "pumpVersion": "Версия помпы",
+    "of": "из",
+    "actions": "Действия"
   },
   "daily": {
     "noText": "В этом разделе отображаются отчеты по ежедневным параметрам",
