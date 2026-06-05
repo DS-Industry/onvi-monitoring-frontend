@@ -48,6 +48,7 @@ jobs:
           VITE_MESSAGING_ID: 645871534181
           VITE_APP_ID: 1:645871534181:web:8cd42b272a364cdea9c68c
           VITE_S3_CLOUD: https://storage.yandexcloud.net/onvi-business
+          VITE_TECH_TASK_BUSINESS_TIMEZONE: Europe/Moscow
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
