@@ -708,6 +708,7 @@ export type PosPartnerReportResponse = {
   percentProfitability: number;
   percentReturnAssets: number;
   meta: PosPartnerReportMeta[];
+  carCount: number;
 };
 
 export type CreatePosPartnerReportBody = {
@@ -747,6 +748,7 @@ export type PosPartnerReportMeResponse = {
   percentPartner: number;
   sumPartner: number;
   reportFileKey: string;
+  carCount: number;
 };
 
 export async function postCollection(
