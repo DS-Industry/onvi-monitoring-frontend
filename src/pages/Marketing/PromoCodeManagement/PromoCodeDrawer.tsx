@@ -30,28 +30,15 @@ import {
 
 const { Option } = Select;
 
-const RUSSIAN_PROMO_WORDS = [
-  'Солнце', 'Лето', 'Зима', 'Море', 'Отдых', 'Скидка', 'Бонус', 'Подарок',
-  'Удача', 'Радость', 'Праздник', 'День', 'Ночь', 'Звезда', 'Мечта', 'Счастье',
-  'Весна', 'Осень', 'Дождь', 'Снег', 'Ветер', 'Река', 'Гора', 'Лес', 'Цветок',
-  'Мир', 'Друг', 'Семья', 'Дом', 'Путь', 'Свет', 'Тепло', 'Красота', 'Сила',
-  'Время', 'Шанс', 'Выгода', 'Супер', 'Макси', 'Топ', 'Плюс', 'Про',
-];
+const ALPHABET = 'АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ0123456789';
 
-function generateRandomRussianPromoCode(): string {
-  const wordCount = 2 + Math.floor(Math.random() * 2);
-  const words: string[] = [];
-  const used = new Set<number>();
-  while (words.length < wordCount) {
-    const idx = Math.floor(Math.random() * RUSSIAN_PROMO_WORDS.length);
-    if (!used.has(idx)) {
-      used.add(idx);
-      words.push(RUSSIAN_PROMO_WORDS[idx]);
-    }
-  }
-  const withNumber = Math.random() > 0.5;
-  const code = words.join('') + (withNumber ? String(10 + Math.floor(Math.random() * 90)) : '');
-  return code;
+export function generatePromoCode(length = 10): string {
+  const bytes = new Uint32Array(length);
+  crypto.getRandomValues(bytes);
+
+  return Array.from(bytes, byte =>
+    ALPHABET[byte % ALPHABET.length]
+  ).join('');
 }
 
 interface PromoCodeDrawerProps {
@@ -277,7 +264,7 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
             <Button
               type="default"
               disabled={isCampaignPromocode}
-              onClick={() => form.setFieldValue('code', generateRandomRussianPromoCode())}
+              onClick={() => form.setFieldValue('code', generatePromoCode())}
             >
               {t('marketing.generateRandomPromoCode')}
             </Button>

@@ -1,10 +1,11 @@
 import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Select, Table, Input, Tag } from 'antd';
+import { Select, Table, Input, Tag, Button, Popconfirm } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import useSWR from 'swr';
-import { getLoyaltyPrograms, getLoyaltyProgramOrders, SignOper, OrderItem, OrderStatus } from '@/services/api/marketing';
+import { getLoyaltyPrograms, getLoyaltyProgramOrders, updateOrderStatus, SignOper, OrderItem, OrderStatus } from '@/services/api/marketing';
 import { useUser } from '@/hooks/useUserStore';
+import { useToast } from '@/hooks/useToast';
 import { ContractType } from '@/utils/constants';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { SearchOutlined } from '@ant-design/icons';
@@ -24,12 +25,23 @@ interface ExpandedRowData {
   comment: string | null;
 }
 
+const REFUNDABLE_STATUSES = [
+  OrderStatus.COMPLETED,
+  OrderStatus.PAYED,
+  OrderStatus.POS_PROCESSED,
+] as const;
+
+const canRefundOrder = (status: OrderStatus) =>
+  REFUNDABLE_STATUSES.includes(status as typeof REFUNDABLE_STATUSES[number]);
+
 const MarketingTransactions: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const user = useUser();
+  const { showToast } = useToast();
   const [selectedLoyaltyProgram, setSelectedLoyaltyProgram] = useState<number | undefined>(undefined);
   const [expandedRowKeys, setExpandedRowKeys] = useState<number[]>([]);
+  const [refundingOrderId, setRefundingOrderId] = useState<number | null>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchValue, setSearchValue] = useState<string>(searchParams.get('search') || '');
 
@@ -85,7 +97,7 @@ const MarketingTransactions: React.FC = () => {
     { revalidateOnFocus: false, revalidateOnReconnect: false }
   );
 
-  const { data: ordersData, isLoading: ordersLoading } = useSWR(
+  const { data: ordersData, isLoading: ordersLoading, mutate: mutateOrders } = useSWR(
     selectedLoyaltyProgram ? [
       'get-loyalty-program-orders',
       selectedLoyaltyProgram,
@@ -138,6 +150,18 @@ const MarketingTransactions: React.FC = () => {
       setExpandedRowKeys(expandedRowKeys.filter(id => id !== orderId));
     } else {
       setExpandedRowKeys([...expandedRowKeys, orderId]);
+    }
+  };
+
+  const handleRefund = async (orderId: number) => {
+    if (!selectedLoyaltyProgram) return;
+    setRefundingOrderId(orderId);
+    try {
+      await updateOrderStatus(selectedLoyaltyProgram, orderId, OrderStatus.REFUNDED);
+      await mutateOrders();
+      showToast(t('marketingTransactions.refundSuccess'), 'success');
+    } finally {
+      setRefundingOrderId(null);
     }
   };
 
@@ -363,6 +387,31 @@ const MarketingTransactions: React.FC = () => {
           {translateOrderStatus(record.orderStatus)}
         </Tag>
       ),
+    },
+    {
+      title: t('constants.actions'),
+      key: 'actions',
+      width: 120,
+      render: (_, record) =>
+        canRefundOrder(record.orderStatus) ? (
+          <Popconfirm
+            title={t('marketingTransactions.confirmRefund')}
+            onConfirm={() => handleRefund(record.id)}
+            okText={t('marketingTransactions.refund')}
+            okType="danger"
+            cancelText={t('common.cancel')}
+            onCancel={e => e?.stopPropagation()}
+          >
+            <Button
+              danger
+              size="small"
+              loading={refundingOrderId === record.id}
+              onClick={e => e.stopPropagation()}
+            >
+              {t('marketingTransactions.refund')}
+            </Button>
+          </Popconfirm>
+        ) : null,
     },
   ];
 

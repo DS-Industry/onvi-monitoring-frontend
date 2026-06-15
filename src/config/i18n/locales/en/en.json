@@ -190,6 +190,9 @@
     "searchLabel": "User / Phone number / Card / Transaction ID",
     "transactions": "transactions",
     "of": "of",
+    "refund": "Refund",
+    "confirmRefund": "Are you sure you want to refund this order?",
+    "refundSuccess": "Order refunded successfully",
     "statuses": {
       "completed": "Completed",
       "created": "Created",
