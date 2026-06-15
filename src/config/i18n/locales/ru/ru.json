@@ -190,6 +190,9 @@
     "searchLabel": "Пользователь / Номер телефона / Карта / ID транзакции",
     "transactions": "транзакций",
     "of": "из",
+    "refund": "Вернуть",
+    "confirmRefund": "Вы уверены, что хотите вернуть этот заказ?",
+    "refundSuccess": "Заказ успешно возвращён",
     "statuses": {
       "completed": "Завершено",
       "created": "Создано",
@@ -1485,6 +1488,7 @@
     "revenue": "Выручка",
     "profit": "Прибыль",
     "profitPercent": "% доходности",
+    "carCount": "Кол-во авто",
     "profitabilityPercent": "% рентабельности",
     "partnerName": "Партнёр",
     "partnerShare": "Доля партнёра",

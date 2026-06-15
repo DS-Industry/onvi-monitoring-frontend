@@ -38,6 +38,7 @@ interface MyReportItem {
   percentReturnAssets: number;
   percentPartner: number;
   sumPartner: number;
+  carCount: number;
   reportFileKey: string;
 }
 
@@ -141,6 +142,7 @@ const MyReports: React.FC = () => {
       percentReturnAssets: report.percentProfitability,
       percentPartner: report.percentPartner,
       sumPartner: report.sumPartner,
+      carCount: report.carCount,
       reportFileKey: report.reportFileKey,
     }));
   }, [allReports]);
@@ -208,6 +210,13 @@ const MyReports: React.FC = () => {
       render: (val: number) => `${val.toFixed(2)}%`,
     },
     { title: t('finance.dividendSum'), dataIndex: 'sumPartner', key: 'sumPartner', render: currencyRender },
+    {
+      title: t('finance.carCount'),
+      dataIndex: 'carCount',
+      key: 'carCount',
+      render: (value: number) => value ?? 0,
+      sorter: (a, b) => (a.carCount ?? 0) - (b.carCount ?? 0),
+    },
     {
       title: t('finance.file'),
       dataIndex: 'reportFileKey',

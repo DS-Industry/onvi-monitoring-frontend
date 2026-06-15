@@ -68,6 +68,7 @@ interface ProfitItem {
   profit: number;
   profitPercent: number;
   profitabilityPercent: number;
+  carCount: number;
   file?: FileInfo;
   partners?: PartnerDetail[];
 }
@@ -227,11 +228,12 @@ const ProfitCalculation: React.FC = () => {
       profit: report.profit,
       profitPercent: report.percentProfitability,
       profitabilityPercent: report.percentReturnAssets,
+      carCount: report.carCount,
       file: report.reportFileKey
         ? {
-          key: report.reportFileKey,
-          name: report.reportFileKey.split('/').pop() || report.reportFileKey,
-        }
+            key: report.reportFileKey,
+            name: report.reportFileKey.split('/').pop() || report.reportFileKey,
+          }
         : undefined,
       partners: (report.meta || []).map(partner => ({
         partnerId: partner.partnerId,
@@ -351,7 +353,7 @@ const ProfitCalculation: React.FC = () => {
               step={0.01}
               precision={2}
               style={{ width: '100%' }}
-            />
+              />
           </div>
         ) : (
           currencyRender(value)
@@ -389,6 +391,13 @@ const ProfitCalculation: React.FC = () => {
       dataIndex: 'profitPercent',
       key: 'profitPercent',
       render: formatPercent,
+    },
+    {
+      title: t('finance.carCount'),
+      dataIndex: 'carCount',
+      key: 'carCount',
+      render: (value: number) => value ?? 0,
+      sorter: (a, b) => (a.carCount ?? 0) - (b.carCount ?? 0),
     },
     {
       title: t('finance.file'),

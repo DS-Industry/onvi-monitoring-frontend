@@ -190,6 +190,9 @@
     "searchLabel": "User / Phone number / Card / Transaction ID",
     "transactions": "transactions",
     "of": "of",
+    "refund": "Refund",
+    "confirmRefund": "Are you sure you want to refund this order?",
+    "refundSuccess": "Order refunded successfully",
     "statuses": {
       "completed": "Completed",
       "created": "Created",
@@ -1484,6 +1487,7 @@
     "revenue": "Revenue",
     "profit": "Profit",
     "profitPercent": "Profitability %",
+    "carCount": "Car count",
     "profitabilityPercent": "Return on Assets %",
     "partnerName": "Partner",
     "partnerShare": "Partner Share",

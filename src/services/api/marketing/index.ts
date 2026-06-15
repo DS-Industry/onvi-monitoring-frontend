@@ -536,6 +536,22 @@ export async function getLoyaltyProgramOrders(
   return response.data;
 }
 
+type UpdateOrderStatusResponse = {
+  message: string;
+};
+
+export async function updateOrderStatus(
+  programId: number,
+  orderId: number,
+  status: OrderStatus
+): Promise<UpdateOrderStatusResponse> {
+  const response: AxiosResponse<UpdateOrderStatusResponse> = await api.patch(
+    `${MARKETING.LOYALTY}/program/${programId}/orders/${orderId}/status`,
+    { status }
+  );
+  return response.data;
+}
+
 export async function getLoyaltyProgramsPaginated(
   params: LoyaltyProgramParams
 ): Promise<LoyaltyParticipantProgramsPaginatedResponse> {
