@@ -222,6 +222,13 @@ const IncomeReport: React.FC = () => {
           options={sortedPosOptions}
           allowClear
           showSearch
+          optionFilterProp="label"
+          filterOption={(input, option) =>
+            (option?.label ?? '')
+              .toString()
+              .toLowerCase()
+              .includes(input.toLowerCase())
+          }
           value={value ?? undefined}
           onChange={(val) => handleInputChange(param.name, val)}
           status={status}
