@@ -89,38 +89,15 @@ const IncomeReport: React.FC = () => {
   const [formValues, setFormValues] = useState<Record<string, FormValue>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [debouncedManagerSearch, setDebouncedManagerSearch] = useState('');
+  const [cachedSelectedPos, setCachedSelectedPos] = useState<{ id: number; name: string } | null>(null);
 
-  const selectedPosId = useMemo(() => {
-    const param = reportData?.params?.params.find(p =>
-      p.name.toLowerCase().includes('pos')
-    );
-    const raw = param ? formValues[param.name] : null;
-    const id = Number(raw);
-    return Number.isFinite(id) && id > 0 ? id : undefined;
-  }, [reportData, formValues]);
-
-  const { data: selectedPosData } = useSWR(
-    user?.organizationId &&
-      selectedPosId &&
-      !posData?.some(p => p.id === selectedPosId)
-      ? ['get-pos-by-id', selectedPosId, user.organizationId]
-      : null,
-    () =>
-      getPoses({
-        posId: selectedPosId,
-        organizationId: user.organizationId,
-      }),
-    { revalidateOnFocus: false }
-  );
-
-  const sortedPosOptions = useMemo(() => {
-    const items = [...(posData || [])];
-    const selected = selectedPosData?.[0];
-    if (selected && !items.some(p => p.id === selected.id)) {
-      items.push(selected);
+  const posOptions = useMemo(() => {
+    const options = (posData || []).map(p => ({ label: p.name, value: p.id }));
+    if (cachedSelectedPos && !options.some(o => o.value === cachedSelectedPos.id)) {
+      options.push({ label: cachedSelectedPos.name, value: cachedSelectedPos.id });
     }
-    return items.map(p => ({ label: p.name, value: p.id }));
-  }, [posData, selectedPosData]);
+    return options;
+  }, [posData, cachedSelectedPos]);
 
   const selectedOrganizationId = useMemo(() => {
     const raw = formValues.organizationId;
@@ -135,6 +112,7 @@ const IncomeReport: React.FC = () => {
         initial[param.name] = null;
       });
       setFormValues(initial);
+      setCachedSelectedPos(null);
     }
   }, [reportData]);
 
@@ -260,16 +238,32 @@ const IncomeReport: React.FC = () => {
       return (
         <Select
           placeholder={param.description}
-          options={sortedPosOptions}
+          options={posOptions}
           allowClear
           showSearch
           filterOption={false}
           value={value ?? undefined}
-          onChange={(val) => handleInputChange(param.name, val)}
+          onChange={(val) => {
+            handleInputChange(param.name, val ?? null);
+            if (val == null) {
+              setCachedSelectedPos(null);
+            } else {
+              const id = Number(val);
+              const label =
+                posOptions.find(o => o.value === id)?.label ??
+                posData?.find(p => p.id === id)?.name;
+              if (label) {
+                setCachedSelectedPos({ id, name: label });
+              }
+            }
+            debouncedPosSearchUpdate.cancel();
+            setDebouncedPosSearch('');
+          }}
           onSearch={debouncedPosSearchUpdate}
           onClear={() => {
             debouncedPosSearchUpdate.cancel();
             setDebouncedPosSearch('');
+            setCachedSelectedPos(null);
           }}
           status={status}
           className="w-64"
