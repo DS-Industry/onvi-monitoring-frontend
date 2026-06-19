@@ -16,7 +16,6 @@ import { getOrganization } from '@/services/api/organization';
 import { getWorkerManager } from '@/services/api/finance';
 import { useToast } from '@/components/context/useContext';
 import { useUser } from '@/hooks/useUserStore';
-import { getNumericPrefix } from '@/utils/getNumericPrefix';
 
 type FormValue = string | number | null;
 
@@ -39,9 +38,30 @@ const IncomeReport: React.FC = () => {
   const cityParam = Number(searchParams.get('city')) || undefined;
   const posIdParam = Number(searchParams.get('posId')) || undefined;
 
+  const [debouncedPosSearch, setDebouncedPosSearch] = useState('');
+
+  const debouncedPosSearchUpdate = useMemo(
+    () => debounce((value: string) => setDebouncedPosSearch(value.trim()), 300),
+    []
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedPosSearchUpdate.cancel();
+    };
+  }, [debouncedPosSearchUpdate]);
+
   const { data: posData } = useSWR(
-    [`get-pos`, cityParam, user.organizationId],
-    () => getPoses({ placementId: cityParam, organizationId: user.organizationId }),
+    user?.organizationId
+      ? ['get-pos-report', cityParam, user.organizationId, debouncedPosSearch]
+      : null,
+    () =>
+      getPoses({
+        placementId: cityParam,
+        organizationId: user.organizationId,
+        size: 10,
+        search: debouncedPosSearch || undefined,
+      }),
     { revalidateOnFocus: false, keepPreviousData: true }
   );
   const { data: deviceData } = useSWR(
@@ -66,21 +86,42 @@ const IncomeReport: React.FC = () => {
     () => getReportById(reportId)
   );
 
-  const sortedPosOptions = useMemo(() => {
-    if (!posData) return [];
-    return [...posData]
-      .sort((a, b) => {
-        const numA = getNumericPrefix(a.name);
-        const numB = getNumericPrefix(b.name);
-        if (numA !== numB) return numA - numB;
-        return a.name.localeCompare(b.name);
-      })
-      .map(p => ({ label: p.name, value: p.id }));
-  }, [posData]);
-
   const [formValues, setFormValues] = useState<Record<string, FormValue>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [debouncedManagerSearch, setDebouncedManagerSearch] = useState('');
+
+  const selectedPosId = useMemo(() => {
+    const param = reportData?.params?.params.find(p =>
+      p.name.toLowerCase().includes('pos')
+    );
+    const raw = param ? formValues[param.name] : null;
+    const id = Number(raw);
+    return Number.isFinite(id) && id > 0 ? id : undefined;
+  }, [reportData, formValues]);
+
+  const { data: selectedPosData } = useSWR(
+    user?.organizationId &&
+      selectedPosId &&
+      !posData?.some(p => p.id === selectedPosId)
+      ? ['get-pos-by-id', selectedPosId, user.organizationId]
+      : null,
+    () =>
+      getPoses({
+        posId: selectedPosId,
+        organizationId: user.organizationId,
+      }),
+    { revalidateOnFocus: false }
+  );
+
+  const sortedPosOptions = useMemo(() => {
+    const items = [...(posData || [])];
+    const selected = selectedPosData?.[0];
+    if (selected && !items.some(p => p.id === selected.id)) {
+      items.push(selected);
+    }
+    return items.map(p => ({ label: p.name, value: p.id }));
+  }, [posData, selectedPosData]);
+
   const selectedOrganizationId = useMemo(() => {
     const raw = formValues.organizationId;
     if (raw === null || raw === undefined || raw === '') return undefined;
@@ -222,15 +263,14 @@ const IncomeReport: React.FC = () => {
           options={sortedPosOptions}
           allowClear
           showSearch
-          optionFilterProp="label"
-          filterOption={(input, option) =>
-            (option?.label ?? '')
-              .toString()
-              .toLowerCase()
-              .includes(input.toLowerCase())
-          }
+          filterOption={false}
           value={value ?? undefined}
           onChange={(val) => handleInputChange(param.name, val)}
+          onSearch={debouncedPosSearchUpdate}
+          onClear={() => {
+            debouncedPosSearchUpdate.cancel();
+            setDebouncedPosSearch('');
+          }}
           status={status}
           className="w-64"
         />
