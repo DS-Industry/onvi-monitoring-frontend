@@ -112,6 +112,11 @@ const EngineHours: React.FC = () => {
 
   const columns: ColumnsType<EngineHoursResponse> = [
     {
+      title: t('equipment.carWash'),
+      dataIndex: 'posName',
+      key: 'posName',
+    },
+    {
       title: t('equipment.device'),
       dataIndex: 'deviceName',
       key: 'deviceName',
@@ -165,7 +170,18 @@ const EngineHours: React.FC = () => {
       title: t('equipment.oilRunHours'),
       dataIndex: 'oilRunHours',
       key: 'oilRunHours',
-      render: (value: number | null) => formatHoursToTime(value),
+      render: (value: number | null, record: EngineHoursResponse) => {
+        const isOverLimit =
+          record.oilRunHours != null &&
+          record.oilLimit != null &&
+          record.oilRunHours > record.oilLimit;
+
+        return (
+          <div style={{ color: isOverLimit ? 'red' : '' }}>
+            {formatHoursToTime(value)}
+          </div>
+        );
+      },
     },
     {
       title: t('equipment.lastOilChange'),
