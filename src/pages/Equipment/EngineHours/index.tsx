@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
-import { Table, Select, InputNumber, DatePicker, Button, Typography } from 'antd';
+import { Table, Select, InputNumber, DatePicker, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { EditOutlined } from '@ant-design/icons';
 
@@ -17,6 +17,8 @@ import { formatHoursToTime } from '@/utils/timeFormatter';
 
 const { Text } = Typography;
 
+type EditableField = 'pumpVersion' | 'oilLimit' | 'lastOilChangeDate' | 'lastPumpChangeDate';
+
 const EngineHours: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -28,8 +30,8 @@ const EngineHours: React.FC = () => {
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
-  const [editingRowId, setEditingRowId] = useState<number | null>(null);
-  const [editValues, setEditValues] = useState<Partial<EngineHoursResponse>>({});
+  const [editingCell, setEditingCell] = useState<{ deviceId: number; field: EditableField } | null>(null);
+  const [editCellValue, setEditCellValue] = useState<any>(null);
 
   const queryParams = useMemo(() => {
     const params: Record<string, string | number | undefined> = {
@@ -49,65 +51,58 @@ const EngineHours: React.FC = () => {
     { revalidateOnFocus: false, keepPreviousData: true }
   );
 
-  const startEditing = (record: EngineHoursResponse) => {
-    setEditingRowId(record.deviceId);
-    setEditValues({
-      pumpVersion: record.pumpVersion,
-      oilLimit: record.oilLimit,
-      lastOilChangeDate: record.lastOilChangeDate,
-      lastPumpChangeDate: record.lastPumpChangeDate,
-    });
+  const startEditing = (record: EngineHoursResponse, field: EditableField) => {
+    setEditingCell({ deviceId: record.deviceId, field });
+    setEditCellValue(record[field]);
   };
 
   const cancelEditing = () => {
-    setEditingRowId(null);
-    setEditValues({});
+    setEditingCell(null);
+    setEditCellValue(null);
   };
 
-  const saveEditing = async (record: EngineHoursResponse) => {
-    const changes: any = {};
-    
-    if (editValues.pumpVersion !== undefined && editValues.pumpVersion !== record.pumpVersion)
-      changes.pumpVersion = editValues.pumpVersion;
-
-    if (editValues.oilLimit !== undefined && editValues.oilLimit !== record.oilLimit)
-      changes.oilLimit = editValues.oilLimit;
-
-    if (editValues.lastOilChangeDate !== undefined && editValues.lastOilChangeDate !== record.lastOilChangeDate)
-      changes.lastOilChangeDate = editValues.lastOilChangeDate || null;
-
-    if (editValues.lastPumpChangeDate !== undefined && editValues.lastPumpChangeDate !== record.lastPumpChangeDate)
-      changes.lastPumpChangeDate = editValues.lastPumpChangeDate || null;
-
-    if (Object.keys(changes).length === 0) {
-      setEditingRowId(null);
+  const saveEditing = async (record: EngineHoursResponse, field: EditableField, newValue: any) => {
+    if (newValue === record[field]) {
+      cancelEditing();
       return;
     }
-
     try {
-      await updateDeviceTechParams(record.deviceId, changes);
+      await updateDeviceTechParams(record.deviceId, { [field]: newValue });
       mutate();
-      setEditingRowId(null);
-      setEditValues({});
     } catch (error) {
       console.error(error);
+    } finally {
+      cancelEditing();
     }
   };
 
-  const handlePumpVersionChange = (value: number) =>
-    setEditValues(prev => ({ ...prev, pumpVersion: value }));
-
-  const handleOilLimitChange = (value: number | null) =>
-    setEditValues(prev => ({ ...prev, oilLimit: value ?? undefined }));
-
-  const handleLastOilChangeDateChange = (date: dayjs.Dayjs | null) => {
-    const value = date ? date.startOf('minute').toISOString() : null;
-    setEditValues(prev => ({ ...prev, lastOilChangeDate: value }));
+  // Обработчики изменений
+  const handlePumpVersionChange = (value: number) => {
+    setEditCellValue(value);
+    if (editingCell) {
+      const record = tableData.find(r => r.deviceId === editingCell.deviceId);
+      if (record) saveEditing(record, 'pumpVersion', value);
+    }
   };
 
-  const handleLastPumpChangeDateChange = (date: dayjs.Dayjs | null) => {
+  const handleOilLimitChange = (value: number | null) => {
+    setEditCellValue(value);
+  };
+
+  const handleOilLimitBlur = () => {
+    if (editingCell) {
+      const record = tableData.find(r => r.deviceId === editingCell.deviceId);
+      if (record) saveEditing(record, 'oilLimit', editCellValue);
+    }
+  };
+
+  const handleDateChange = (field: EditableField) => (date: dayjs.Dayjs | null) => {
     const value = date ? date.startOf('minute').toISOString() : null;
-    setEditValues(prev => ({ ...prev, lastPumpChangeDate: value }));
+    setEditCellValue(value);
+    if (editingCell) {
+      const record = tableData.find(r => r.deviceId === editingCell.deviceId);
+      if (record) saveEditing(record, field, value);
+    }
   };
 
   const columns: ColumnsType<EngineHoursResponse> = [
@@ -126,19 +121,26 @@ const EngineHours: React.FC = () => {
       dataIndex: 'pumpVersion',
       key: 'pumpVersion',
       render: (value: number, record: EngineHoursResponse) => {
-        const isEditing = editingRowId === record.deviceId;
+        const isEditing = editingCell?.deviceId === record.deviceId && editingCell?.field === 'pumpVersion';
         return isEditing ? (
           <Select
-            value={editValues.pumpVersion ?? value}
+            value={editCellValue ?? value}
             onChange={handlePumpVersionChange}
             style={{ width: 100 }}
             options={[
               { label: '1', value: 1 },
               { label: '2', value: 2 },
             ]}
+            autoFocus
           />
         ) : (
-          <Text>{value ?? '-'}</Text>
+          <div
+            onClick={() => startEditing(record, 'pumpVersion')}
+            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+          >
+            <Text>{value ?? '-'}</Text>
+            <EditOutlined style={{ color: '#1890ff', fontSize: 14 }} />
+          </div>
         );
       },
     },
@@ -147,16 +149,25 @@ const EngineHours: React.FC = () => {
       dataIndex: 'oilLimit',
       key: 'oilLimit',
       render: (value: number | null, record: EngineHoursResponse) => {
-        const isEditing = editingRowId === record.deviceId;
+        const isEditing = editingCell?.deviceId === record.deviceId && editingCell?.field === 'oilLimit';
         return isEditing ? (
           <InputNumber
-            value={editValues.oilLimit ?? value ?? undefined}
+            value={editCellValue ?? value ?? undefined}
             onChange={handleOilLimitChange}
+            onBlur={handleOilLimitBlur}
+            onPressEnter={handleOilLimitBlur}
             min={0}
             style={{ width: 100 }}
+            autoFocus
           />
         ) : (
-          <Text>{value ?? '-'}</Text>
+          <div
+            onClick={() => startEditing(record, 'oilLimit')}
+            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+          >
+            <Text>{value ?? '-'}</Text>
+            <EditOutlined style={{ color: '#1890ff', fontSize: 14 }} />
+          </div>
         );
       },
     },
@@ -188,17 +199,24 @@ const EngineHours: React.FC = () => {
       dataIndex: 'lastOilChangeDate',
       key: 'lastOilChangeDate',
       render: (value: string | null, record: EngineHoursResponse) => {
-        const isEditing = editingRowId === record.deviceId;
+        const isEditing = editingCell?.deviceId === record.deviceId && editingCell?.field === 'lastOilChangeDate';
         return isEditing ? (
           <DatePicker
             showTime={{ format: 'HH:mm' }}
             format="DD.MM.YYYY HH:mm"
-            value={editValues.lastOilChangeDate ? dayjs(editValues.lastOilChangeDate) : null}
-            onChange={handleLastOilChangeDateChange}
+            value={editCellValue ? dayjs(editCellValue) : null}
+            onChange={handleDateChange('lastOilChangeDate')}
             style={{ width: 200 }}
+            autoFocus
           />
         ) : (
-          <Text>{value ? dayjs(value).format('DD.MM.YYYY HH:mm') : '-'}</Text>
+          <div
+            onClick={() => startEditing(record, 'lastOilChangeDate')}
+            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+          >
+            <Text>{value ? dayjs(value).format('DD.MM.YYYY HH:mm') : '-'}</Text>
+            <EditOutlined style={{ color: '#1890ff', fontSize: 14 }} />
+          </div>
         );
       },
     },
@@ -207,41 +225,24 @@ const EngineHours: React.FC = () => {
       dataIndex: 'lastPumpChangeDate',
       key: 'lastPumpChangeDate',
       render: (value: string | null, record: EngineHoursResponse) => {
-        const isEditing = editingRowId === record.deviceId;
+        const isEditing = editingCell?.deviceId === record.deviceId && editingCell?.field === 'lastPumpChangeDate';
         return isEditing ? (
           <DatePicker
             showTime={{ format: 'HH:mm' }}
             format="DD.MM.YYYY HH:mm"
-            value={editValues.lastPumpChangeDate ? dayjs(editValues.lastPumpChangeDate) : null}
-            onChange={handleLastPumpChangeDateChange}
+            value={editCellValue ? dayjs(editCellValue) : null}
+            onChange={handleDateChange('lastPumpChangeDate')}
             style={{ width: 200 }}
+            autoFocus
           />
         ) : (
-          <Text>{value ? dayjs(value).format('DD.MM.YYYY HH:mm') : '-'}</Text>
-        );
-      },
-    },
-    {
-      title: t('equipment.actions'),
-      key: 'actions',
-      width: 250,
-      render: (_: unknown, record: EngineHoursResponse) => {
-        if (editingRowId === record.deviceId) {
-          return (
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <Button type="primary" size="small" onClick={() => saveEditing(record)}>
-                {t('common.save')}
-              </Button>
-              <Button size="small" onClick={cancelEditing}>
-                {t('common.cancel')}
-              </Button>
-            </div>
-          );
-        }
-        return (
-          <Typography.Link onClick={() => startEditing(record)}>
-            <EditOutlined />
-          </Typography.Link>
+          <div
+            onClick={() => startEditing(record, 'lastPumpChangeDate')}
+            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+          >
+            <Text>{value ? dayjs(value).format('DD.MM.YYYY HH:mm') : '-'}</Text>
+            <EditOutlined style={{ color: '#1890ff', fontSize: 14 }} />
+          </div>
         );
       },
     },
