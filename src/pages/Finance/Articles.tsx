@@ -8,6 +8,7 @@ import {
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import SearchDropdownInput from '@/components/ui/Input/SearchDropdownInput';
+import PosSearchSelect from '@/components/ui/Filter/PosSearchSelect';
 import useSWR, { mutate } from 'swr';
 import { getPoses, getWorkers } from '@/services/api/equipment';
 import Input from '@/components/ui/Input/Input';
@@ -112,16 +113,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const city = Number(searchParams.get('city')) || undefined;
-  const { data: posData } = useSWR(
-    [`get-pos`, city],
-    () => getPoses({ placementId: city }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false,
-    }
-  );
+  const user = useUser();
 
   const { data: paperTypeData } = useSWR(
     [`get-paper-type`],
@@ -133,10 +125,6 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
       shouldRetryOnError: false,
     }
   );
-
-  const poses: { name: string; value: number | undefined }[] = (
-    posData?.map(item => ({ name: item.name, value: item.id })) || []
-  ).sort((a, b) => a.name.localeCompare(b.name));
 
   const paperTypes: { name: string; value: number }[] = (
     paperTypeData?.map(item => ({
@@ -198,12 +186,12 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
         noHeight={true}
       />
     ) : dataIndex === 'posId' ? (
-      <SearchDropdownInput
-        options={poses}
+      <PosSearchSelect
+        placementId={city}
+        organizationId={user.organizationId}
         value={form.getFieldValue(dataIndex)}
         onChange={value => form.setFieldValue(dataIndex, value)}
-        classname="w-44"
-        noHeight={true}
+        className="w-44"
       />
     ) : dataIndex === 'paperTypeId' ? (
       <SearchDropdownInput
@@ -493,8 +481,14 @@ const Articles: React.FC = () => {
   ];
 
   const { data: posData } = useSWR(
-    [`get-pos`, city],
-    () => getPoses({ placementId: city }),
+    city && data.length
+      ? ['get-pos-names', city, [...new Set(data.map(item => item.posId))].join(',')]
+      : null,
+    () =>
+      getPoses({
+        placementId: city,
+        posIds: [...new Set(data.map(item => item.posId))],
+      }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -502,6 +496,9 @@ const Articles: React.FC = () => {
       shouldRetryOnError: false,
     }
   );
+
+  const poses: { name: string; value: number | undefined }[] =
+    posData?.map(item => ({ name: item.name, value: item.id })) || [];
 
   const { data: paperTypeData } = useSWR(
     [`get-paper-type`],
@@ -513,10 +510,6 @@ const Articles: React.FC = () => {
       shouldRetryOnError: false,
     }
   );
-
-  const poses: { name: string; value: number | undefined }[] = (
-    posData?.map(item => ({ name: item.name, value: item.id })) || []
-  ).sort((a, b) => a.name.localeCompare(b.name));
 
   const paperTypes: { name: string; value: number; type: string }[] = (
     paperTypeData?.map(item => ({
@@ -1067,22 +1060,19 @@ const Articles: React.FC = () => {
               error={!!errors.group}
               errorText={errors.group?.message}
             />
-            <SearchDropdownInput
-              title={t('analysis.posId')}
-              classname="w-full"
+            <label className="text-sm text-text02">{t('analysis.posId')}</label>
+            <PosSearchSelect
+              className="w-full"
               placeholder="Выберите объект"
-              options={poses}
-              {...register('posId', {
-                required: 'Pos ID is required',
-                validate: value => value !== 0 || 'Pos ID is required',
-              })}
-              value={formData.posId}
-              onChange={value => {
-                handleInputChange('posId', value);
-              }}
-              error={!!errors.posId}
-              errorText={errors.posId?.message}
+              placementId={city}
+              organizationId={user.organizationId}
+              value={formData.posId === 0 ? undefined : formData.posId}
+              onChange={value => handleInputChange('posId', value ?? 0)}
+              status={errors.posId ? 'error' : ''}
             />
+            {errors.posId?.message && (
+              <span className="text-sm text-errorFill mt-1">{errors.posId.message}</span>
+            )}
             <Space.Compact className="w-full">
               <div className="w-full">
                 <div className="text-sm text-text02">

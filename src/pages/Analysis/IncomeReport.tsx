@@ -9,14 +9,14 @@ import dayjs, { Dayjs } from 'dayjs';
 import { debounce } from 'lodash';
 
 import { getReportById, applyReport, ReportParam } from '@/services/api/reports';
-import { getDevices, getPoses } from '@/services/api/equipment';
+import { getDevices } from '@/services/api/equipment';
 import { getPlacement } from '@/services/api/device';
+import PosSearchSelect from '@/components/ui/Filter/PosSearchSelect';
 // import { getWarehouses } from '@/services/api/warehouse';
 import { getOrganization } from '@/services/api/organization';
 import { getWorkerManager } from '@/services/api/finance';
 import { useToast } from '@/components/context/useContext';
 import { useUser } from '@/hooks/useUserStore';
-import { getNumericPrefix } from '@/utils/getNumericPrefix';
 
 type FormValue = string | number | null;
 
@@ -39,11 +39,6 @@ const IncomeReport: React.FC = () => {
   const cityParam = Number(searchParams.get('city')) || undefined;
   const posIdParam = Number(searchParams.get('posId')) || undefined;
 
-  const { data: posData } = useSWR(
-    [`get-pos`, cityParam, user.organizationId],
-    () => getPoses({ placementId: cityParam, organizationId: user.organizationId }),
-    { revalidateOnFocus: false, keepPreviousData: true }
-  );
   const { data: deviceData } = useSWR(
     posIdParam ? [`get-device`, posIdParam] : null,
     () => getDevices(posIdParam),
@@ -65,18 +60,6 @@ const IncomeReport: React.FC = () => {
     reportId ? [`get-report-${reportId}`] : null,
     () => getReportById(reportId)
   );
-
-  const sortedPosOptions = useMemo(() => {
-    if (!posData) return [];
-    return [...posData]
-      .sort((a, b) => {
-        const numA = getNumericPrefix(a.name);
-        const numB = getNumericPrefix(b.name);
-        if (numA !== numB) return numA - numB;
-        return a.name.localeCompare(b.name);
-      })
-      .map(p => ({ label: p.name, value: p.id }));
-  }, [posData]);
 
   const [formValues, setFormValues] = useState<Record<string, FormValue>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -217,13 +200,12 @@ const IncomeReport: React.FC = () => {
     const nameLower = param.name.toLowerCase();
     if (nameLower.includes('pos')) {
       return (
-        <Select
+        <PosSearchSelect
           placeholder={param.description}
-          options={sortedPosOptions}
-          allowClear
-          showSearch
-          value={value ?? undefined}
-          onChange={(val) => handleInputChange(param.name, val)}
+          placementId={cityParam}
+          organizationId={user.organizationId}
+          value={typeof value === 'number' ? value : value ? Number(value) : undefined}
+          onChange={val => handleInputChange(param.name, val ?? null)}
           status={status}
           className="w-64"
         />

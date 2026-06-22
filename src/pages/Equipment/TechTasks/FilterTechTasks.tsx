@@ -4,12 +4,12 @@ import { CarOutlined, CheckOutlined, FilterOutlined, ScheduleOutlined, Unordered
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import { getTags, getPoses, StatusTechTask, getWorkers } from '@/services/api/equipment';
+import { getTags, getWorkers, StatusTechTask } from '@/services/api/equipment';
 import useSWR from 'swr';
 import dayjs from 'dayjs';
 import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
-import { getNumericPrefix } from '@/utils/getNumericPrefix';
+import PosSearchSelect from '@/components/ui/Filter/PosSearchSelect';
 
 interface FilterValues {
   branch: string;
@@ -46,15 +46,6 @@ const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
     shouldRetryOnError: false,
   });
 
-  const { data: posesData } = useSWR(user.organizationId ? ['get-poses'] : null, () => getPoses({
-    organizationId: user.organizationId,
-  }), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-    shouldRetryOnError: false,
-  });
-
   const { data: workersData } = useSWR(
     user.organizationId && shouldShow('assigned') ? ['get-workers', user.organizationId] : null,
     () => getWorkers(user.organizationId!),
@@ -71,18 +62,7 @@ const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
     value: tag.props.name,
   })) || [];
 
-  const branchOptions = posesData
-    ?.slice()
-    .sort((a, b) => {
-      const numA = getNumericPrefix(a.name);
-      const numB = getNumericPrefix(b.name);
-      if (numA !== numB) return numA - numB;
-      return a.name.localeCompare(b.name);
-    })
-    .map(pos => ({
-      label: pos.name,
-      value: pos.id.toString(),
-    })) || [];
+  const allBranchesLabel = t('filters.filterTechTasks.all');
 
   const workerOptions = workersData?.map(worker => ({
     label: worker.name + " " + worker.surname,
@@ -206,20 +186,21 @@ const FilterTechTasks: React.FC<FilterTechTasksProps> = ({
                 {t('filters.filterTechTasks.branch')}
               </span>
             </div>
-            <Select
+            <PosSearchSelect
               className="w-full"
-              value={tempFilters.branch}
-              onChange={(value) => setTempFilters(prev => ({ ...prev, branch: value }))}
-              options={[
-                { label: t('filters.filterTechTasks.all'), value: t('filters.filterTechTasks.all') },
-                ...branchOptions
-              ]}
-              suffixIcon={<span className="text-gray-400">▼</span>}
-              showSearch
-              filterOption={(input, option) => {
-                const label = option?.label?.toString().toLowerCase() || '';
-                return label.includes(input.toLowerCase());
-              }}
+              organizationId={user.organizationId}
+              value={
+                tempFilters.branch === allBranchesLabel
+                  ? allBranchesLabel
+                  : Number(tempFilters.branch) || tempFilters.branch
+              }
+              extraOptions={[{ label: allBranchesLabel, value: allBranchesLabel }]}
+              onChange={value =>
+                setTempFilters(prev => ({
+                  ...prev,
+                  branch: value === undefined ? allBranchesLabel : String(value),
+                }))
+              }
             />
           </div>
         )}

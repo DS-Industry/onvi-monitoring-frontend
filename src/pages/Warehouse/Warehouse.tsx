@@ -4,6 +4,7 @@ import useSWR, { mutate } from 'swr';
 import { getPoses, getWorkers } from '@/services/api/equipment';
 import { createWarehouse, getWarehousesPaginated } from '@/services/api/warehouse';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
+import PosSearchSelect from '@/components/ui/Filter/PosSearchSelect';
 import useFormHook from '@/hooks/useFormHook';
 import { useToast } from '@/components/context/useContext';
 import useSWRMutation from 'swr/mutation';
@@ -55,17 +56,6 @@ const Warehouse: React.FC = () => {
     return ['get-warehouses-paginated', filterParams.posId, filterParams.placementId, currentPage, pageSize];
   }, [filterParams, currentPage, pageSize]);
 
-  const { data: posData } = useSWR(
-    [`get-pos`, placementId],
-    () => getPoses({ placementId: placementId }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false
-    }
-  );
-
   const user = useUser();
 
   const { data: workerData } = useSWR(
@@ -94,6 +84,33 @@ const Warehouse: React.FC = () => {
       revalidateOnReconnect: false,
       keepPreviousData: true,
       shouldRetryOnError: false
+    }
+  );
+
+  const warehousePosIds = useMemo(
+    () =>
+      [
+        ...new Set(
+          warehousePaginatedData?.data?.map(item => item.props.posId).filter(Boolean) ?? []
+        ),
+      ],
+    [warehousePaginatedData]
+  );
+
+  const { data: posData } = useSWR(
+    placementId && warehousePosIds.length
+      ? ['get-pos-names', placementId, warehousePosIds.join(',')]
+      : null,
+    () =>
+      getPoses({
+        placementId,
+        posIds: warehousePosIds,
+      }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false,
     }
   );
 
@@ -304,22 +321,20 @@ const Warehouse: React.FC = () => {
             helperText={errors.managerId?.message}
             showSearch={true}
           />
-          <DropdownInput
-            title={`${t('marketing.carWash')} *`}
-            label={t('warehouse.notSel')}
-            options={poses}
-            classname="w-64"
-            {...register('posId', {
-              required: t('validation.categoryIdRequired'),
-              validate: value =>
-                value !== 0 || t('validation.categoryIdRequired'),
-            })}
-            value={formData.posId}
-            onChange={value => handleInputChange('posId', value)}
-            error={!!errors.posId}
-            helperText={errors.posId?.message}
-            showSearch={true}
-          />
+          <div className="flex flex-col w-64">
+            <label className="text-sm text-text02">{t('marketing.carWash')} *</label>
+            <PosSearchSelect
+              className="w-64"
+              placementId={placementId}
+              organizationId={user.organizationId}
+              value={formData.posId === 0 ? undefined : formData.posId}
+              onChange={value => handleInputChange('posId', String(value ?? 0))}
+              status={errors.posId ? 'error' : ''}
+            />
+            {errors.posId?.message && (
+              <span className="text-[11px] text-errorFill mt-1">{errors.posId.message}</span>
+            )}
+          </div>
           <div className="flex flex-col sm:flex-row gap-4 mt-6">
             <Button onClick={() => resetForm()}>
               {t('organizations.cancel')}

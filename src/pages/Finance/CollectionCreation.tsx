@@ -1,6 +1,6 @@
 import DropdownInput from '@/components/ui/Input/DropdownInput';
+import PosSearchSelect from '@/components/ui/Filter/PosSearchSelect';
 import useFormHook from '@/hooks/useFormHook';
-import { getPoses } from '@/services/api/equipment';
 import {
   AllWorkersResponse,
   deleteCollectionById,
@@ -109,17 +109,6 @@ const CollectionCreation: React.FC = () => {
   const isRole4or7 = user.userRoleId === 4 || user.userRoleId === 7;
 
 
-  const { data: posData } = useSWR(
-    [`get-pos`, city],
-    () => getPoses({ placementId: city }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false,
-    }
-  );
-
   const { data: collections } = useSWR(
     id ? [`get-collection`, id] : null,
     () => getCollectionById(Number(id)),
@@ -130,9 +119,6 @@ const CollectionCreation: React.FC = () => {
       shouldRetryOnError: false,
     }
   );
-
-  const poses: { name: string; value: number }[] =
-    posData?.map(item => ({ name: item.name, value: item.id })) || [];
 
   const defaultValues = {
     posId: posIdFromParams || 0,
@@ -533,19 +519,20 @@ const CollectionCreation: React.FC = () => {
               classname="w-64"
             />
           </div>
-          <DropdownInput
-            title={t('finance.carWash')}
-            options={poses}
-            classname="w-64"
-            {...register('posId', {
-              required: 'Pos ID is required',
-              validate: value => value !== 0 || 'Pos ID is required',
-            })}
-            value={formData.posId}
-            onChange={value => handleInputChange('posId', value)}
-            error={!!errors.posId}
-            helperText={errors.posId?.message}
-          />
+          <div className="flex flex-col w-64">
+            <label className="text-sm text-text02">{t('finance.carWash')}</label>
+            <PosSearchSelect
+              className="w-64"
+              placementId={city}
+              organizationId={user.organizationId}
+              value={formData.posId === 0 ? undefined : formData.posId}
+              onChange={value => handleInputChange('posId', String(value ?? 0))}
+              status={errors.posId ? 'error' : ''}
+            />
+            {errors.posId?.message && (
+              <span className="text-[11px] text-errorFill mt-1">{errors.posId.message}</span>
+            )}
+          </div>
           {!hideButton && (
             <div className="flex justify-between">
               <Button

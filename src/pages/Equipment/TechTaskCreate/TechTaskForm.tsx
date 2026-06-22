@@ -1,5 +1,6 @@
 import DateInput from '@/components/ui/Input/DateInput';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
+import PosSearchSelect from '@/components/ui/Filter/PosSearchSelect';
 import Input from '@/components/ui/Input/Input';
 import MultiInput from '@/components/ui/Input/MultiInput';
 import TiptapEditor from '@/components/ui/Input/TipTapEditor';
@@ -7,7 +8,6 @@ import useFormHook from '@/hooks/useFormHook';
 import {
   createTag,
   createTechTask,
-  getPoses,
   getTags,
   getTechTaskItem,
   TechTaskBody,
@@ -27,6 +27,7 @@ import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
 import { useToast } from '@/components/context/useContext';
+import { useUser } from '@/hooks/useUserStore';
 
 const { Option } = Select;
 
@@ -60,6 +61,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
   const posId = Number(searchParams.get('posId')) || undefined;
   const { showToast } = useToast();
+  const user = useUser();
 
   const defaultValues: TechTaskBody = {
     name: '',
@@ -73,13 +75,6 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
     techTaskItem: [],
     tagIds: [],
   };
-
-  const { data: poses } = useSWR([`get-pos`], () => getPoses({}), {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-    keepPreviousData: true,
-    shouldRetryOnError: false
-  });
 
   const {
     data: tagsData,
@@ -370,30 +365,23 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
           })}
           helperText={errors.name?.message || ''}
         />
-        <DropdownInput
-          title={t('equipment.carWash')}
-          label={
-            poses?.length === 0 ? t('warehouse.noVal') : t('warehouse.notSel')
-          }
-          options={
-            poses?.map(item => ({ name: item.name, value: item.id })) || []
-          }
-          classname="w-96"
-          {...register('posId', {
-            required: techTaskToEdit === null && t('validation.posRequired'),
-            validate: value =>
-              value !== 0 ||
-              techTaskToEdit !== null ||
-              t('validation.posRequired'),
-          })}
-          value={formData.posId}
-          onChange={value => {
-            handleInputChange('posId', value);
-          }}
-          error={!!errors.posId}
-          helperText={errors.posId?.message}
-          isDisabled={techTaskToEdit !== null}
-        />
+        <div className="flex flex-col w-96">
+          <label className="text-sm text-text02">
+            {t('equipment.carWash')}
+            {' *'}
+          </label>
+          <PosSearchSelect
+            className="w-96"
+            organizationId={user.organizationId}
+            disabled={techTaskToEdit !== null}
+            value={formData.posId === 0 ? undefined : formData.posId}
+            onChange={value => handleInputChange('posId', String(value ?? 0))}
+            status={errors.posId ? 'error' : ''}
+          />
+          {errors.posId?.message && (
+            <span className="text-[11px] text-errorFill mt-1">{errors.posId.message}</span>
+          )}
+        </div>
         <DropdownInput
           title={`${t('routine.type')} *`}
           label={t('warehouse.notSel')}

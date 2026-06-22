@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import BasicBouns from '@icons/BasicBonus.svg?react';
 import useSWR from 'swr';
+import PosSearchSelect from '@/components/ui/Filter/PosSearchSelect';
 import { getPoses } from '@/services/api/equipment';
 import {
   Select,
@@ -64,6 +65,7 @@ const Settings: React.FC = () => {
     });
 
   const user = useUser();
+  const posIds = Array.isArray(watch('posIds')) ? watch('posIds') : [];
 
   const { data: loyaltyProgramsData } = useSWR<LoyaltyProgramsResponse[]>(
     user.organizationId ? ['get-loyalty-programs', user.organizationId] : null,
@@ -75,17 +77,19 @@ const Settings: React.FC = () => {
     }
   );
 
-  const { data: posData } = useSWR(
-    user.organizationId ? [`get-pos`, user.organizationId] : null,
+  const { data: selectedPosData } = useSWR(
+    user.organizationId && posIds.length
+      ? ['get-pos-marketing-selected', user.organizationId, posIds.join(',')]
+      : null,
     () =>
       getPoses({
-        organizationId: user.organizationId,
+        organizationId: user.organizationId!,
+        posIds,
       }),
     {
       revalidateOnFocus: false,
-      revalidateOnReconnect: false,
       keepPreviousData: true,
-      shouldRetryOnError: false
+      shouldRetryOnError: false,
     }
   );
 
@@ -153,9 +157,7 @@ const Settings: React.FC = () => {
       async ([, id], { arg }) => updateMarketingCampaign(id, arg)
     );
 
-  const posIds = Array.isArray(watch('posIds')) ? watch('posIds') : [];
-
-  const handleSelectBranch = (value: number | undefined) => {
+  const handleSelectBranch = (value: number | string | undefined) => {
     if (typeof value === 'number' && !posIds.includes(value)) {
       setValue('posIds', [...posIds, value]);
     }
@@ -315,22 +317,12 @@ const Settings: React.FC = () => {
                     help={fieldState.error?.message}
                     style={{ marginBottom: 16 }}
                   >
-                    <Select
-                      {...field}
+                    <PosSearchSelect
+                      organizationId={user.organizationId}
+                      excludeIds={posIds}
                       placeholder={t('marketing.selectBranch')}
-                      value={undefined}
-                      onSelect={handleSelectBranch}
-                      options={posData
-                        ?.filter(
-                          option => !posIds.includes(option.id)
-                        )
-                        .map(item => ({
-                          label: item.name,
-                          value: item.id,
-                        }))}
-                      popupRender={menu => <div>{menu}</div>}
                       className="w-full sm:max-w-80"
-                      allowClear
+                      onChange={handleSelectBranch}
                     />
                   </Form.Item>
                 )}
@@ -348,7 +340,7 @@ const Settings: React.FC = () => {
                       padding: '4px 12px',
                     }}
                   >
-                    {posData?.find(item => item.id === branch)?.name}
+                    {selectedPosData?.find(item => item.id === branch)?.name ?? branch}
                   </Tag>
                 ))}
               </div>

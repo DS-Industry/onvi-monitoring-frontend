@@ -5,7 +5,6 @@ import dayjs from 'dayjs';
 import { useUser } from '@/hooks/useUserStore';
 import {
   createTechTask,
-  getPoses,
   getTags,
   getTechTaskItem,
   TechTaskBody,
@@ -53,12 +52,6 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
   const fullscreen = !screens.md;
 
   const swrConfig = { revalidateOnFocus: false, revalidateOnReconnect: false, keepPreviousData: true };
-
-  const { data: poses } = useSWR(
-    user.organizationId ? ['get-poses'] : null,
-    () => getPoses({ organizationId: user.organizationId }),
-    swrConfig
-  );
 
   const { data: tagsData } = useSWR(['get-tags'], getTags, swrConfig);
   const { data: techTaskItems } = useSWR(['get-tech-task-item'], getTechTaskItem, swrConfig);
@@ -152,7 +145,6 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
             <CreateTechTaskInfoPanel
               form={form}
               tagsData={tagsData}
-              posesData={poses}
             />
           </div>
         </div>

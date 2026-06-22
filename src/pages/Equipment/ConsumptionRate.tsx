@@ -1,7 +1,6 @@
 import {
   ConsumptionRateResponse,
   getConsumptionRate,
-  getPoses,
   patchProgramCoefficient,
 } from '@/services/api/equipment';
 import React, { useEffect, useState } from 'react';
@@ -12,6 +11,7 @@ import { usePermissions } from '@/hooks/useAuthStore';
 import { Can } from '@/permissions/Can';
 import { useSearchParams } from 'react-router-dom';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import PosFilter from '@/components/ui/Filter/PosFilter';
 import Input from '@/components/ui/Input/Input';
 import { Table, Button, Select, Spin } from 'antd';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
@@ -27,17 +27,6 @@ const ConsumptionRate: React.FC = () => {
   const city = placementId ? Number(placementId) : undefined;
   const userPermissions = usePermissions();
   const user = useUser();
-
-  const { data: posData, isLoading } = useSWR(
-    user.organizationId ? [`get-pos`, city, user.organizationId] : null,
-    () => getPoses({ placementId: city, organizationId: user.organizationId }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false,
-    }
-  );
 
   const { data: consumptionRateData, isLoading: programCoeffsLoading } = useSWR(
     posId ? [`get-consumption-rate`, posId] : null,
@@ -77,13 +66,6 @@ const ConsumptionRate: React.FC = () => {
   const cities = [
     ...(cityData?.map(item => ({
       label: item.region,
-      value: String(item.id),
-    })) || []),
-  ];
-
-  const posesFilter = [
-    ...(posData?.map(item => ({
-      label: item.name,
       value: String(item.id),
     })) || []),
   ];
@@ -234,34 +216,7 @@ const ConsumptionRate: React.FC = () => {
             }
           />
         </div>
-        <div className="w-full sm:w-80">
-          <label className="block mb-1 text-sm font-medium text-gray-700">
-            {t('analysis.posId')}
-          </label>
-          <Select
-            showSearch
-            allowClear={false}
-            placeholder={t('chemical.select')}
-            value={getParam(searchParams, 'posId') || null}
-            onChange={(value: string | undefined) => {
-              updateSearchParams(searchParams, setSearchParams, {
-                posId: value,
-                page: DEFAULT_PAGE,
-              });
-            }}
-            loading={isLoading}
-            className="w-full"
-            options={posesFilter}
-            optionFilterProp="label"
-            filterOption={(input, option) =>
-              (option?.label ?? '')
-                .toString()
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-            notFoundContent={isLoading ? <Spin size="small" /> : null}
-          />
-        </div>
+        <PosFilter />
       </GeneralFilters>
       <div className="mt-8">
         <Table

@@ -22,6 +22,7 @@ import DateTimeInput from '@/components/ui/Input/DateTimeInput';
 import dayjs from 'dayjs';
 import { useSearchParams } from 'react-router-dom';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import PosSearchSelect from '@/components/ui/Filter/PosSearchSelect';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { Drawer, Form, Select, Table, Tooltip } from 'antd';
 import { getDateRender } from '@/utils/tableUnits';
@@ -565,33 +566,22 @@ const EquipmentFailure: React.FC = () => {
               help={errors.posId?.message}
               validateStatus={errors.posId ? 'error' : undefined}
             >
-              <Select
+              <PosSearchSelect
                 placeholder={t('pos.companyName')}
-                options={posData?.map(item => ({
-                  value: item.id,
-                  label: item.name,
-                }))}
                 className="!w-72"
-                {...register('posId', {
-                  required: !isEditMode && t('validation.posRequired'),
-                  validate: value =>
-                    value !== 0 || isEditMode || t('validation.posRequired'),
-                })}
+                placementId={cityParam}
+                organizationId={user.organizationId}
                 value={formData.posId === 0 ? undefined : formData.posId}
                 onChange={value => {
-                  handleInputChange('posId', String(value));
-                  updateSearchParams(searchParams, setSearchParams, {
-                    posId: value,
-                  });
+                  handleInputChange('posId', String(value ?? 0));
+                  setValue('posId', value ?? 0);
+                  if (value) {
+                    updateSearchParams(searchParams, setSearchParams, {
+                      posId: value,
+                    });
+                  }
                 }}
                 status={errors.posId ? 'error' : ''}
-                showSearch={true}
-                filterOption={(input, option) =>
-                  (option?.label ?? '')
-                    .toString()
-                    .toLowerCase()
-                    .includes(input.toLowerCase())
-                }
               />
             </Form.Item>
           </div>

@@ -21,7 +21,7 @@ import {
   updateWorkerPosConnections,
   getWorkerConnectedPoses,
 } from '@/services/api/hr';
-import { getPoses } from '@/services/api/equipment';
+import PosSearchSelectMulti from '@/components/ui/Filter/PosSearchSelectMulti';
 import { useUser } from '@/hooks/useUserStore';
 import useSWRMutation from 'swr/mutation';
 import DateInput from '@/components/ui/Input/DateInput';
@@ -130,20 +130,6 @@ const EmployeeProfile: React.FC = () => {
       shouldRetryOnError: false,
     }
   );
-
-  const { data: organizationPoses, isLoading: loadingOrganizationPoses } =
-    useSWR(
-      user.organizationId
-        ? [`get-organization-poses`, user.organizationId]
-        : null,
-      () => getPoses({ organizationId: user.organizationId }),
-      {
-        revalidateOnFocus: false,
-        revalidateOnReconnect: false,
-        keepPreviousData: true,
-        shouldRetryOnError: false,
-      }
-    );
 
   const { data: connectedPosesData, isLoading: loadingConnectedPoses } = useSWR(
     workerId !== 0 ? [`get-worker-connected-poses`, workerId] : null,
@@ -905,7 +891,7 @@ const EmployeeProfile: React.FC = () => {
                       <div className="text-lg font-semibold text-text01 mb-4">
                         {t('hr.connectedPoses')}
                       </div>
-                      {loadingOrganizationPoses || loadingConnectedPoses ? (
+                      {loadingConnectedPoses ? (
                         <div className="mt-4">{DoubleSkeleton()}</div>
                       ) : (
                         <div className="space-y-4">
@@ -913,26 +899,12 @@ const EmployeeProfile: React.FC = () => {
                             <div className="text-sm text-text02 mb-2">
                               {t('hr.selectPoses')}
                             </div>
-                            <Select
-                              mode="multiple"
+                            <PosSearchSelectMulti
+                              organizationId={user.organizationId}
                               placeholder={t('hr.selectPoses')}
                               className="w-full max-w-md"
                               value={selectedPosIds}
                               onChange={setSelectedPosIds}
-                              options={
-                                organizationPoses?.map(pos => ({
-                                  label: `${pos.name} - ${pos.address}`,
-                                  value: pos.id,
-                                })) || []
-                              }
-                              loading={loadingOrganizationPoses}
-                              showSearch={true}
-                              filterOption={(input, option) =>
-                                (option?.label ?? '')
-                                  .toString()
-                                  .toLowerCase()
-                                  .includes(input.toLowerCase())
-                              }
                             />
                           </div>
                           {allowed && (

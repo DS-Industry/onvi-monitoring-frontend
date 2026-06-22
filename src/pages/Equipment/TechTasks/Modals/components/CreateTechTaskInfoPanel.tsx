@@ -1,15 +1,16 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Form, Input, Select, DatePicker, Avatar } from 'antd';
-import { 
-  CalendarOutlined, 
+import {
+  CalendarOutlined,
   CarOutlined,
-  ClockCircleOutlined, 
-  NumberOutlined, 
-  ToolOutlined, 
-  UnorderedListOutlined, 
-  UserOutlined 
+  ClockCircleOutlined,
+  NumberOutlined,
+  ToolOutlined,
+  UnorderedListOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
+import PosSearchSelectMulti from '@/components/ui/Filter/PosSearchSelectMulti';
 import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
 import { TypeTechTask, PeriodType } from '@/services/api/equipment';
@@ -23,21 +24,14 @@ interface TagData {
   };
 }
 
-interface PosData {
-  id: number;
-  name: string;
-}
-
 interface CreateTechTaskInfoPanelProps {
   form: any;
   tagsData?: TagData[];
-  posesData?: PosData[];
 }
 
 const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
   form,
   tagsData,
-  posesData,
 }) => {
   const { t } = useTranslation();
   const user = useUser();
@@ -64,19 +58,12 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
           }
           rules={[{ required: true, message: t('techTasks.selectCarWash') }]}
         >
-          <Select 
-            mode="multiple"
-            placeholder={t('techTasks.selectCarWash')} 
+          <PosSearchSelectMulti
+            organizationId={user.organizationId}
+            placeholder={t('techTasks.selectCarWash')}
             size="large"
-            showSearch
-            filterOption={(input, option) =>
-              String(option?.children || '').toLowerCase().includes(input.toLowerCase())
-            }
-          >
-            {posesData?.map(pos => (
-              <Option key={pos.id} value={pos.id}>{pos.name}</Option>
-            ))}
-          </Select>
+            className="w-full"
+          />
         </Form.Item>
         
         <Form.Item 
