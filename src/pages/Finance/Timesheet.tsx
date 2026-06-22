@@ -1,12 +1,12 @@
 import React, { useMemo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getPoses } from '@/services/api/equipment';
 import useSWR from 'swr';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getShifts, TypeWorkDay } from '@/services/api/finance';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
 import { getWorkers } from '@/services/api/hr';
+import PosFilter from '@/components/ui/Filter/PosFilter';
 
 import { Calendar, dayjsLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
@@ -14,7 +14,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import ShiftCreateModal from '@/pages/Finance/ShiftManagement/ShiftCreateModal.tsx';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 
-import { Button, message, Select } from 'antd';
+import { Button, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useUser } from '@/hooks/useUserStore';
 import { Can } from '@/permissions/Can';
@@ -63,36 +63,9 @@ const Timesheet: React.FC = () => {
   const posId = Number(searchParams.get('posId')) || undefined;
   const dateStart = searchParams.get('dateStart') || defaultStartDate;
   const dateEnd = searchParams.get('dateEnd') || defaultEndDate;
-  const placementId = Number(searchParams.get('city')) || undefined;
   const user = useUser();
 
   const shouldFetch = Boolean(dateStart && dateEnd && posId);
-
-  const { data: poses, isLoading: isPosLoading } = useSWR(
-    user.organizationId
-      ? `get-pos-${placementId}-${user.organizationId}`
-      : null,
-    () =>
-      getPoses({
-        placementId: placementId,
-        organizationId: user.organizationId,
-      })
-        .then(data => data?.sort((a, b) => a.id - b.id) || [])
-        .then(data => {
-          const options = data.map(item => ({
-            label: item.name,
-            value: item.id,
-          }));
-
-          return options;
-        }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false,
-    }
-  );
 
   const {
     data: shiftsData,
@@ -211,28 +184,7 @@ const Timesheet: React.FC = () => {
         </div>
       </div>
       <div className="mb-5">
-        <div className={`flex flex-col`}>
-          <label className="text-sm text-text02">{t('analysis.posId')}</label>
-          <Select
-            className="w-full sm:w-80"
-            placeholder="Выберите объект"
-            options={poses}
-            value={posId}
-            onChange={value => {
-              updateSearchParams(searchParams, setSearchParams, {
-                posId: value,
-              });
-            }}
-            loading={isPosLoading}
-            showSearch={true}
-            filterOption={(input, option) =>
-              (option?.label ?? '')
-                .toString()
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-          />
-        </div>
+        <PosFilter />
       </div>
       <Can requiredPermissions={[{ action: 'create', subject: 'ShiftReport' }, { action: 'manage', subject: 'ShiftReport' }]} userPermissions={userPermissions}>
         {allowed => allowed && (

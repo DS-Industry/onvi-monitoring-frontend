@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Select } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { debounce } from 'lodash';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { DEFAULT_PAGE } from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { limitSelectOptions } from '@/utils/limitSelectOptions';
 import { SelectOptionString } from '../types';
 
 type Props = {
@@ -24,6 +26,25 @@ const PercentageFilters: React.FC<Props> = ({
   partnerSelectOptions,
 }) => {
   const { t } = useTranslation();
+  const [debouncedPosSearch, setDebouncedPosSearch] = useState('');
+
+  const debouncedPosSearchUpdate = useMemo(
+    () => debounce((value: string) => setDebouncedPosSearch(value.trim()), 300),
+    []
+  );
+
+  useEffect(() => () => debouncedPosSearchUpdate.cancel(), [debouncedPosSearchUpdate]);
+
+  const visiblePosOptions = useMemo(
+    () =>
+      limitSelectOptions(
+        posFilterOptions,
+        debouncedPosSearch,
+        10,
+        searchParams.get('posId') ?? undefined
+      ),
+    [posFilterOptions, debouncedPosSearch, searchParams]
+  );
 
   return (
     <GeneralFilters count={totalCount} display={['city']}>
@@ -37,20 +58,17 @@ const PercentageFilters: React.FC<Props> = ({
           placeholder={t('filters.pos.placeholder')}
           value={searchParams.get('posId') ?? undefined}
           loading={isPosFilterLoading}
-          options={posFilterOptions}
-          optionFilterProp="label"
-          filterOption={(input, option) =>
-            (option?.label ?? '')
-              .toString()
-              .toLowerCase()
-              .includes(input.toLowerCase())
-          }
-          onChange={value =>
+          options={visiblePosOptions}
+          filterOption={false}
+          onSearch={debouncedPosSearchUpdate}
+          onChange={value => {
+            debouncedPosSearchUpdate.cancel();
+            setDebouncedPosSearch('');
             updateSearchParams(searchParams, setSearchParams, {
               posId: value,
               page: DEFAULT_PAGE,
-            })
-          }
+            });
+          }}
         />
       </div>
       <div className="w-full">

@@ -1,11 +1,15 @@
-import React, { useCallback } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import useSWR from 'swr';
 import { Select } from 'antd';
+import { debounce } from 'lodash';
+import { getPoses } from '@/services/api/equipment';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
 import { useUser } from '@/hooks/useUserStore.ts';
-import { usePosSearchOptions } from '@/hooks/usePosSearchOptions';
+
+const PAGE_SIZE = 10;
 
 const PosFilter: React.FC = () => {
   const { t } = useTranslation();
@@ -15,31 +19,85 @@ const PosFilter: React.FC = () => {
   const selectedPosId = posIdParam ? Number(posIdParam) : undefined;
   const user = useUser();
 
-  const handleSelectedIdsPruned = useCallback(
-    (validIds: number[]) => {
-      updateSearchParams(searchParams, setSearchParams, {
-        posId: validIds[0] ? String(validIds[0]) : undefined,
-        page: DEFAULT_PAGE,
-      });
-    },
-    [searchParams, setSearchParams]
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [selectedLabel, setSelectedLabel] = useState<string>();
+
+  const debouncedSearchUpdate = useMemo(
+    () => debounce((value: string) => setDebouncedSearch(value.trim()), 300),
+    []
   );
 
-  const { options, isLoading, debouncedSearchUpdate, resetSearch, updateCachedSelections } =
-    usePosSearchOptions({
-      placementId,
-      organizationId: user.organizationId,
-      enabled: Boolean(user.organizationId),
-      contextKey: String(placementId ?? ''),
-      selectedIds: selectedPosId ? [selectedPosId] : [],
-      onSelectedIdsPruned: handleSelectedIdsPruned,
-    });
+  useEffect(() => () => debouncedSearchUpdate.cancel(), [debouncedSearchUpdate]);
+
+  useEffect(() => {
+    debouncedSearchUpdate.cancel();
+    setDebouncedSearch('');
+    setSelectedLabel(undefined);
+  }, [placementId, debouncedSearchUpdate]);
+
+  const { data: posData, isLoading } = useSWR(
+    user.organizationId ? ['get-pos', placementId, user.organizationId, debouncedSearch] : null,
+    () =>
+      getPoses({
+        placementId,
+        organizationId: user.organizationId!,
+        size: PAGE_SIZE,
+        search: debouncedSearch || undefined,
+      }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false,
+    }
+  );
+
+  const { data: selectedPosData } = useSWR(
+    user.organizationId && selectedPosId && !posData?.some(p => p.id === selectedPosId)
+      ? ['get-pos-selected', placementId, user.organizationId, selectedPosId]
+      : null,
+    () =>
+      getPoses({
+        placementId,
+        organizationId: user.organizationId!,
+        posIds: [selectedPosId!],
+      }),
+    { revalidateOnFocus: false, shouldRetryOnError: false }
+  );
+
+  useEffect(() => {
+    if (!selectedPosId) {
+      setSelectedLabel(undefined);
+      return;
+    }
+    const match = posData?.find(p => p.id === selectedPosId) ?? selectedPosData?.[0];
+    if (match) {
+      setSelectedLabel(match.name);
+      return;
+    }
+    if (selectedPosData?.length === 0) {
+      updateSearchParams(searchParams, setSearchParams, {
+        posId: undefined,
+        page: DEFAULT_PAGE,
+      });
+    }
+  }, [selectedPosId, posData, selectedPosData, searchParams, setSearchParams]);
+
+  const options = useMemo(() => {
+    const items = (posData || []).map(item => ({
+      label: item.name,
+      value: String(item.id),
+    }));
+    if (selectedPosId && selectedLabel && !items.some(o => o.value === String(selectedPosId))) {
+      items.push({ label: selectedLabel, value: String(selectedPosId) });
+    }
+    return items;
+  }, [posData, selectedPosId, selectedLabel]);
 
   const handleChange = (val: string | undefined) => {
-    if (val) {
-      updateCachedSelections([Number(val)]);
-    }
-    resetSearch();
+    debouncedSearchUpdate.cancel();
+    setDebouncedSearch('');
+    setSelectedLabel(val ? options.find(o => o.value === val)?.label : undefined);
     updateSearchParams(searchParams, setSearchParams, {
       posId: val,
       page: DEFAULT_PAGE,

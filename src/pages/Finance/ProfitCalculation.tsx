@@ -22,6 +22,8 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, ALL_PAGE_SIZES } from '@/utils/constants';
 import { getCurrencyRender } from '@/utils/tableUnits';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import { debounce } from 'lodash';
+import { limitSelectOptions } from '@/utils/limitSelectOptions';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import { useToast } from '@/components/context/useContext';
@@ -123,7 +125,26 @@ const ProfitCalculation: React.FC = () => {
   const [posFilterOptions, setPosFilterOptions] = useState<
     Array<{ value: string; label: string }>
   >([]);
+  const [debouncedPosSearch, setDebouncedPosSearch] = useState('');
   const [form] = Form.useForm();
+
+  const debouncedPosSearchUpdate = useMemo(
+    () => debounce((value: string) => setDebouncedPosSearch(value.trim()), 300),
+    []
+  );
+
+  useEffect(() => () => debouncedPosSearchUpdate.cancel(), [debouncedPosSearchUpdate]);
+
+  const visiblePosOptions = useMemo(
+    () =>
+      limitSelectOptions(
+        posFilterOptions,
+        debouncedPosSearch,
+        10,
+        searchParams.get('posId') ?? undefined
+      ),
+    [posFilterOptions, debouncedPosSearch, searchParams]
+  );
 
   useEffect(() => {
     const loadWorkerPartners = async () => {
@@ -640,20 +661,17 @@ const ProfitCalculation: React.FC = () => {
             placeholder={t('filters.pos.placeholder')}
             value={searchParams.get('posId') ?? undefined}
             loading={isPosFilterLoading}
-            options={posFilterOptions}
-            optionFilterProp="label"
-            filterOption={(input, option) =>
-              (option?.label ?? '')
-                .toString()
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-            onChange={value =>
+            options={visiblePosOptions}
+            filterOption={false}
+            onSearch={debouncedPosSearchUpdate}
+            onChange={value => {
+              debouncedPosSearchUpdate.cancel();
+              setDebouncedPosSearch('');
               updateSearchParams(searchParams, setSearchParams, {
                 posId: value,
                 page: DEFAULT_PAGE,
-              })
-            }
+              });
+            }}
           />
         </div>
         <div className="w-full">

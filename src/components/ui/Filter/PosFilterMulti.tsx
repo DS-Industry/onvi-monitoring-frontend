@@ -1,11 +1,15 @@
-import React, { useCallback } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import useSWR from 'swr';
 import { Select } from 'antd';
+import { debounce } from 'lodash';
+import { getPoses } from '@/services/api/equipment';
 import { parseIdsParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
 import { useUser } from '@/hooks/useUserStore';
-import { usePosSearchOptions } from '@/hooks/usePosSearchOptions';
+
+const PAGE_SIZE = 10;
 
 const PosFilterMulti: React.FC = () => {
   const { t } = useTranslation();
@@ -16,39 +20,113 @@ const PosFilterMulti: React.FC = () => {
   const posIds = parseIdsParam(searchParams, 'posIds');
   const cityIdsKey = cityIds.join(',');
 
-  const handleSelectedIdsPruned = useCallback(
-    (validIds: number[]) => {
-      updateSearchParams(searchParams, setSearchParams, {
-        posIds: validIds.length ? validIds : undefined,
-        page: DEFAULT_PAGE,
-      });
-    },
-    [searchParams, setSearchParams]
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [selectedLabels, setSelectedLabels] = useState<Map<number, string>>(new Map());
+  const prevCityIdsKeyRef = useRef(cityIdsKey);
+
+  const debouncedSearchUpdate = useMemo(
+    () => debounce((value: string) => setDebouncedSearch(value.trim()), 300),
+    []
   );
 
-  const handleContextKeyChange = useCallback(() => {
-    if (parseIdsParam(searchParams, 'posIds').length === 0) return;
+  useEffect(() => () => debouncedSearchUpdate.cancel(), [debouncedSearchUpdate]);
+
+  useEffect(() => {
+    if (prevCityIdsKeyRef.current === cityIdsKey) return;
+    prevCityIdsKeyRef.current = cityIdsKey;
+    debouncedSearchUpdate.cancel();
+    setDebouncedSearch('');
+    setSelectedLabels(new Map());
     updateSearchParams(searchParams, setSearchParams, {
       posIds: undefined,
       page: DEFAULT_PAGE,
     });
-  }, [searchParams, setSearchParams]);
+  }, [cityIdsKey, debouncedSearchUpdate, searchParams, setSearchParams]);
 
-  const { options, isLoading, debouncedSearchUpdate, resetSearch, updateCachedSelections } =
-    usePosSearchOptions({
-      placementIds: cityIds.length ? cityIds : undefined,
-      organizationId: user.organizationId,
-      enabled: Boolean(cityIds.length && user.organizationId),
-      contextKey: cityIdsKey,
-      selectedIds: posIds,
-      onSelectedIdsPruned: handleSelectedIdsPruned,
-      onContextKeyChange: handleContextKeyChange,
+  const { data: posData, isLoading } = useSWR(
+    cityIds.length && user.organizationId
+      ? ['get-pos-multi', cityIdsKey, user.organizationId, debouncedSearch]
+      : null,
+    () =>
+      getPoses({
+        placementIds: cityIds,
+        organizationId: user.organizationId!,
+        size: PAGE_SIZE,
+        search: debouncedSearch || undefined,
+      }),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false,
+    }
+  );
+
+  const missingIds = useMemo(
+    () => posIds.filter(id => !posData?.some(p => p.id === id) && !selectedLabels.has(id)),
+    [posIds, posData, selectedLabels]
+  );
+
+  const { data: pinnedPosData } = useSWR(
+    cityIds.length && user.organizationId && missingIds.length
+      ? ['get-pos-multi-pinned', cityIdsKey, user.organizationId, missingIds.join(',')]
+      : null,
+    () =>
+      getPoses({
+        placementIds: cityIds,
+        organizationId: user.organizationId!,
+        posIds: missingIds,
+      }),
+    { revalidateOnFocus: false, shouldRetryOnError: false }
+  );
+
+  useEffect(() => {
+    if (!pinnedPosData) return;
+
+    setSelectedLabels(prev => {
+      const next = new Map(prev);
+      pinnedPosData.forEach(p => next.set(p.id, p.name));
+      return next;
     });
 
+    const validIds = new Set(pinnedPosData.map(p => p.id));
+    const pruned = posIds.filter(id => !missingIds.includes(id) || validIds.has(id));
+    if (pruned.length !== posIds.length) {
+      updateSearchParams(searchParams, setSearchParams, {
+        posIds: pruned.length ? pruned : undefined,
+        page: DEFAULT_PAGE,
+      });
+    }
+  }, [pinnedPosData, missingIds, posIds, searchParams, setSearchParams]);
+
+  const options = useMemo(() => {
+    const items = (posData || []).map(item => ({
+      label: item.name,
+      value: String(item.id),
+    }));
+    selectedLabels.forEach((name, id) => {
+      if (!items.some(o => o.value === String(id))) {
+        items.push({ label: name, value: String(id) });
+      }
+    });
+    return items;
+  }, [posData, selectedLabels]);
+
   const handleChange = (values: string[]) => {
+    debouncedSearchUpdate.cancel();
+    setDebouncedSearch('');
     const selected = values.map(v => Number(v)).filter(id => !Number.isNaN(id));
-    updateCachedSelections(selected);
-    resetSearch();
+    setSelectedLabels(prev => {
+      const next = new Map<number, string>();
+      selected.forEach(id => {
+        const label =
+          posData?.find(p => p.id === id)?.name ??
+          prev.get(id) ??
+          options.find(o => o.value === String(id))?.label;
+        if (label) next.set(id, label);
+      });
+      return next;
+    });
     updateSearchParams(searchParams, setSearchParams, {
       posIds: selected.length ? selected : undefined,
       page: DEFAULT_PAGE,

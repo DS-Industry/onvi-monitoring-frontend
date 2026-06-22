@@ -1,6 +1,5 @@
 import Button from '@/components/ui/Button/Button';
-import SearchDropdownInput from '@/components/ui/Input/SearchDropdownInput';
-import { getPoses } from '@/services/api/equipment';
+import PosFilter from '@/components/ui/Filter/PosFilter';
 import { getTimestamp, postTimestamp } from '@/services/api/finance';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,8 +9,6 @@ import { useToast } from '@/components/context/useContext';
 import { Table } from 'antd';
 import dayjs from 'dayjs';
 import { useSearchParams } from 'react-router-dom';
-import { updateSearchParams } from '@/utils/searchParamsUtils';
-import { useUser } from '@/hooks/useUserStore';
 import { Can } from '@/permissions/Can';
 import useAuthStore from '@/config/store/authSlice';
 
@@ -34,26 +31,7 @@ const Timestamps: React.FC = () => {
     [key: number]: boolean;
   }>({});
   const { showToast } = useToast();
-  const user = useUser();
-  const city = Number(searchParams.get('city')) || undefined;
   const userPermissions = useAuthStore(state => state.permissions);
-
-  const { data: posData } = useSWR(
-    user.organizationId ? [`get-pos`, city, user.organizationId] : null,
-    () => getPoses({ placementId: city, organizationId: user.organizationId }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false,
-    }
-  );
-
-  const poses: { name: string; value: number }[] =
-    posData?.map(item => ({
-      name: item.name,
-      value: item.id,
-    })) || [];
 
   const {
     data: timestampData,
@@ -154,18 +132,7 @@ const Timestamps: React.FC = () => {
       </div>
 
       <div className="mt-5">
-        <SearchDropdownInput
-          title={t('finance.carWash')}
-          options={poses}
-          classname="w-64"
-          value={Number(posId)}
-          onChange={value =>
-            updateSearchParams(searchParams, setSearchParams, {
-              posId: value,
-            })
-          }
-          allowClear={true}
-        />
+        <PosFilter />
 
         <div className="mt-8">
           <Table

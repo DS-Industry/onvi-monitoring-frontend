@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 import { Select, Table } from 'antd';
+import { debounce } from 'lodash';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import useSWR from 'swr';
@@ -22,6 +23,7 @@ import { getPresignedDownloadUrl } from '@/services/api/s3';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE, ALL_PAGE_SIZES } from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { getCurrencyRender } from '@/utils/tableUnits';
+import { limitSelectOptions } from '@/utils/limitSelectOptions';
 
 interface MyReportItem {
   id: number;
@@ -60,10 +62,6 @@ const MyReports: React.FC = () => {
   const posId = Number(searchParams.get('posId')) || undefined;
   const dateStart = searchParams.get('dateStart');
   const dateEnd = searchParams.get('dateEnd');
-  const [isPosFilterLoading, setIsPosFilterLoading] = useState(false);
-  const [posFilterOptions, setPosFilterOptions] = useState<
-    Array<{ value: string; label: string }>
-  >([]);
 
   const parsedDateStart = dateStart ? dayjs(dateStart) : null;
   const parsedDateEnd = dateEnd ? dayjs(dateEnd) : null;
@@ -74,6 +72,30 @@ const MyReports: React.FC = () => {
       : undefined;
   const requestDateEnd =
     parsedDateEnd && parsedDateEnd.isValid() ? parsedDateEnd.format('YYYY-MM-DD') : undefined;
+
+  const [isPosFilterLoading, setIsPosFilterLoading] = useState(false);
+  const [posFilterOptions, setPosFilterOptions] = useState<
+    Array<{ value: string; label: string }>
+  >([]);
+  const [debouncedPosSearch, setDebouncedPosSearch] = useState('');
+
+  const debouncedPosSearchUpdate = useMemo(
+    () => debounce((value: string) => setDebouncedPosSearch(value.trim()), 300),
+    []
+  );
+
+  useEffect(() => () => debouncedPosSearchUpdate.cancel(), [debouncedPosSearchUpdate]);
+
+  const visiblePosOptions = useMemo(
+    () =>
+      limitSelectOptions(
+        posFilterOptions,
+        debouncedPosSearch,
+        10,
+        searchParams.get('posId') ?? undefined
+      ),
+    [posFilterOptions, debouncedPosSearch, searchParams]
+  );
 
   useEffect(() => {
     const loadPosOptions = async () => {
@@ -278,20 +300,17 @@ const MyReports: React.FC = () => {
             placeholder={t('filters.pos.placeholder')}
             value={searchParams.get('posId') ?? undefined}
             loading={isPosFilterLoading}
-            options={posFilterOptions}
-            optionFilterProp="label"
-            filterOption={(input, option) =>
-              (option?.label ?? '')
-                .toString()
-                .toLowerCase()
-                .includes(input.toLowerCase())
-            }
-            onChange={value =>
+            options={visiblePosOptions}
+            filterOption={false}
+            onSearch={debouncedPosSearchUpdate}
+            onChange={value => {
+              debouncedPosSearchUpdate.cancel();
+              setDebouncedPosSearch('');
               updateSearchParams(searchParams, setSearchParams, {
                 posId: value,
                 page: DEFAULT_PAGE,
-              })
-            }
+              });
+            }}
           />
         </div>
       </GeneralFilters>
