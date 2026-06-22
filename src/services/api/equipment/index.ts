@@ -1149,6 +1149,7 @@ export interface EngineHoursResponse {
   oilLimit: number | null;
   pumpRunHours: number | null;  
   oilRunHours: number | null;
+  oilRunHoursPump: number | null;
   lastOilChangeDate: string | null;
   lastPumpChangeDate: string | null;
 }

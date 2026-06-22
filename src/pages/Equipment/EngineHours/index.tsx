@@ -195,6 +195,12 @@ const EngineHours: React.FC = () => {
       },
     },
     {
+      title: t('equipment.oilRunHoursPump'),
+      dataIndex: 'oilRunHoursPump',
+      key: 'oilRunHoursPump',
+      render: (value: number | null) => formatHoursToTime(value),
+    },
+    {
       title: t('equipment.lastOilChange'),
       dataIndex: 'lastOilChangeDate',
       key: 'lastOilChangeDate',
