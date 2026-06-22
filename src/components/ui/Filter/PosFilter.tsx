@@ -1,54 +1,50 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import useSWR from 'swr';
 import { Select } from 'antd';
-import { getPoses } from '@/services/api/equipment';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
 import { useUser } from '@/hooks/useUserStore.ts';
-import { getNumericPrefix } from '@/utils/getNumericPrefix';
+import { usePosSearchOptions } from '@/hooks/usePosSearchOptions';
 
 const PosFilter: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const placementId = Number(searchParams.get('city')) || undefined;
+  const posIdParam = getParam(searchParams, 'posId');
+  const selectedPosId = posIdParam ? Number(posIdParam) : undefined;
   const user = useUser();
 
-  const { data: posData, isLoading } = useSWR(
-    [`get-pos`, placementId, user.organizationId],
-    () =>
-      getPoses({
-        placementId: placementId,
-        organizationId: user.organizationId!,
-      }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false,
-    }
+  const handleSelectedIdsPruned = useCallback(
+    (validIds: number[]) => {
+      updateSearchParams(searchParams, setSearchParams, {
+        posId: validIds[0] ? String(validIds[0]) : undefined,
+        page: DEFAULT_PAGE,
+      });
+    },
+    [searchParams, setSearchParams]
   );
 
-  const handleChange = (val: string) => {
+  const { options, isLoading, debouncedSearchUpdate, resetSearch, updateCachedSelections } =
+    usePosSearchOptions({
+      placementId,
+      organizationId: user.organizationId,
+      enabled: Boolean(user.organizationId),
+      contextKey: String(placementId ?? ''),
+      selectedIds: selectedPosId ? [selectedPosId] : [],
+      onSelectedIdsPruned: handleSelectedIdsPruned,
+    });
+
+  const handleChange = (val: string | undefined) => {
+    if (val) {
+      updateCachedSelections([Number(val)]);
+    }
+    resetSearch();
     updateSearchParams(searchParams, setSearchParams, {
       posId: val,
       page: DEFAULT_PAGE,
     });
   };
-
-  const sortedPoses = posData
-    ?.slice()
-    .sort((a, b) => {
-      const numA = getNumericPrefix(a.name);
-      const numB = getNumericPrefix(b.name);
-      if (numA !== numB) return numA - numB;
-      return a.name.localeCompare(b.name);
-    })
-    .map(item => ({
-      label: item.name,
-      value: String(item.id),
-    })) || [];
 
   return (
     <div className="w-full sm:w-80">
@@ -57,20 +53,15 @@ const PosFilter: React.FC = () => {
       </label>
       <Select
         showSearch
-        allowClear={true}
+        allowClear
         placeholder={t('filters.pos.placeholder')}
-        value={getParam(searchParams, 'posId')}
+        value={posIdParam}
         onChange={handleChange}
         loading={isLoading}
         className="w-full"
-        options={sortedPoses}
-        optionFilterProp="label"
-        filterOption={(input, option) =>
-          (option?.label ?? '')
-            .toString()
-            .toLowerCase()
-            .includes(input.toLowerCase())
-        }
+        options={options}
+        filterOption={false}
+        onSearch={debouncedSearchUpdate}
       />
     </div>
   );
