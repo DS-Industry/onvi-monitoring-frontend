@@ -1157,8 +1157,8 @@ export interface EngineHoursResponse {
 export interface GetEngineHoursParams {
   dateStart: string;
   dateEnd: string;
-  placementId?: number;
-  posId?: number;
+  placementIds?: number[];
+  posIds?: number[];
 }
 
 export async function getEngineHours(

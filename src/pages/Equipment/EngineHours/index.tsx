@@ -8,9 +8,11 @@ import type { ColumnsType } from 'antd/es/table';
 import { EditOutlined } from '@ant-design/icons';
 
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
+import CityFilterMulti from '@/components/ui/Filter/CityFilterMulti';
+import PosFilterMulti from '@/components/ui/Filter/PosFilterMulti';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
-import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { updateSearchParams, parseIdsParam } from '@/utils/searchParamsUtils';
 import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
 import { EngineHoursResponse, getEngineHours, updateDeviceTechParams } from '@/services/api/equipment';
 import { formatHoursToTime } from '@/utils/timeFormatter';
@@ -25,8 +27,8 @@ const EngineHours: React.FC = () => {
 
   const dateStart = searchParams.get('dateStart') || dayjs().startOf('day').format('YYYY-MM-DDTHH:mm');
   const dateEnd = searchParams.get('dateEnd') || dayjs().endOf('day').format('YYYY-MM-DDTHH:mm');
-  const placementId = searchParams.get('city');
-  const posId = searchParams.get('posId');
+  const placementIds = useMemo(() => parseIdsParam(searchParams, 'cityIds'), [searchParams.get('cityIds')]);
+  const posIds = useMemo(() => parseIdsParam(searchParams, 'posIds'), [searchParams.get('posIds')]);
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
@@ -34,14 +36,14 @@ const EngineHours: React.FC = () => {
   const [editCellValue, setEditCellValue] = useState<any>(null);
 
   const queryParams = useMemo(() => {
-    const params: Record<string, string | number | undefined> = {
+    const params: Record<string, string | number | number[] | undefined> = {
       dateStart,
       dateEnd,
     };
-    if (placementId && placementId !== '*') params.placementId = Number(placementId);
-    if (posId && posId !== '*') params.posId = Number(posId);
+    if (placementIds.length) params.placementIds = placementIds;
+    if (posIds.length) params.posIds = posIds;
     return params;
-  }, [dateStart, dateEnd, placementId, posId]);
+  }, [dateStart, dateEnd, placementIds, posIds]);
 
   const swrKey = useMemo(() => ['engine-hours', queryParams], [queryParams]);
 
@@ -277,9 +279,12 @@ const EngineHours: React.FC = () => {
       </div>
 
       <GeneralFilters
-        display={['city', 'pos', 'dateTime', 'reset', 'count']}
+        display={['dateTime', 'reset', 'count']}
         count={tableData.length}
-      />
+      >
+        <CityFilterMulti />
+        <PosFilterMulti />
+      </GeneralFilters>
 
       <div className="mt-8">
         <ColumnSelector checkedList={checkedList} options={options} onChange={setCheckedList} />
