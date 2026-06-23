@@ -81,7 +81,6 @@ const EngineHours: React.FC = () => {
     }
   };
 
-  // Обработчики изменений
   const handlePumpVersionChange = (value: number) => {
     setEditCellValue(value);
     if (editingCell) {
