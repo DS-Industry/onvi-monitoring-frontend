@@ -408,6 +408,8 @@ type PosParams = {
   organizationId?: number;
   posId?: number;
   posIds?: number[];
+  search?: string;
+  size?: number;
 };
 
 const serializePosFilterQueryParams = (params: PosParams) => {
