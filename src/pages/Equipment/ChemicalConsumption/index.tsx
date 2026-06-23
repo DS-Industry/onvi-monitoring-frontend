@@ -28,6 +28,12 @@ interface TableRow {
   [key: string]: string;
 }
 
+type LevelChartPoint = {
+  date: string;
+  value: number;
+  missedReport?: boolean;
+};
+
 interface ExpandedData {
   category: string;
   fact: string | number;
@@ -35,7 +41,7 @@ interface ExpandedData {
   recalculated: string | number;
   chartDataFact?: { period: string; value: number }[];
   chartDataRecalculated?: { period: string; value: number }[];
-  levelChartData?: { date: string; value: number }[];
+  levelChartData?: LevelChartPoint[];
   addChartData?: { date: string; value: number }[];
 }
 
@@ -140,7 +146,11 @@ const ChemicalConsumption: React.FC = () => {
   const [levelModalVisible, setLevelModalVisible] = useState(false);
   const [selectedLevelData, setSelectedLevelData] = useState<{
     category: string;
-    data: { date: string; value: number }[];
+    data: {
+    date: string;
+    value: number;
+    missedReport?: boolean;
+  }[];
     dataAdd: { date: string; value: number }[];
   } | null>(null);
 
@@ -160,28 +170,111 @@ const ChemicalConsumption: React.FC = () => {
       .filter(item => !isNaN(item.value) && item.value !== null);
   };
 
-  const getLevelChartData = (code: ConsumablesType): {
-    levelData: { date: string; value: number }[];
+  const getLevelChartData = (
+    code: ConsumablesType
+  ): {
+    levelData: LevelChartPoint[];
     addData: { date: string; value: number }[];
   } => {
-    const levelData: { date: string; value: number }[] = [];
+    const datesForCode = chemistryAddLevels
+      .filter(item => item.code === code)
+      .sort(
+        (a, b) =>
+          dayjs(a.techTaskDate).valueOf() -
+          dayjs(b.techTaskDate).valueOf()
+      );
+
+    if (!datesForCode.length) {
+      return {
+        levelData: [],
+        addData: [],
+      };
+    }
+
+    const startDate = dayjs(datesForCode[0].techTaskDate).startOf('day');
+    const endDate = dayjs(
+      datesForCode[datesForCode.length - 1].techTaskDate
+    ).startOf('day');
+
+    const allDates: string[] = [];
+
+    let current = startDate;
+
+    while (
+      current.isBefore(endDate) ||
+      current.isSame(endDate)
+    ) {
+      allDates.push(current.format('YYYY-MM-DD'));
+      current = current.add(1, 'day');
+    }
+
+    const codeData = chemistryAddLevels
+      .filter(
+        item =>
+          item.code === code &&
+          item.level !== null
+      )
+      .sort(
+        (a, b) =>
+          dayjs(a.techTaskDate).valueOf() -
+          dayjs(b.techTaskDate).valueOf()
+      );
+
+    const dataMap = new Map(
+      codeData.map(item => [
+        dayjs(item.techTaskDate).format('YYYY-MM-DD'),
+        item,
+      ])
+    );
+
+    const levelData: LevelChartPoint[] = [];
+
     const addData: { date: string; value: number }[] = [];
-    chemistryAddLevels.forEach(item => {
-      if (item.code === code) {
-        const formattedDate = dayjs(item.techTaskDate).format('DD.MM.YYYY HH:mm');
-        if (item.level !== null) {
-          levelData.push({ date: formattedDate, value: item.level });
-        }
-        if (item.add !== null) {
-          addData.push({ date: formattedDate, value: item.add });
-        }
+
+    let lastKnownLevel: number | null = null;
+
+    allDates.forEach(dateKey => {
+      const item = dataMap.get(dateKey);
+
+      if (item) {
+        lastKnownLevel = item.level;
+
+        levelData.push({
+          date: dayjs(item.techTaskDate).format(
+            'DD.MM.YYYY HH:mm'
+          ),
+          value: item.level!,
+        });
+
+        addData.push({
+          date: dayjs(item.techTaskDate).format(
+            'DD.MM.YYYY HH:mm'
+          ),
+          value: item.add ?? 0,
+        });
+
+        return;
+      }
+
+      if (lastKnownLevel !== null) {
+        const date = dayjs(dateKey);
+
+        levelData.push({
+          date: date.format('DD.MM.YYYY HH:mm'),
+          value: lastKnownLevel,
+          missedReport: true,
+        });
+
+        addData.push({
+          date: date.format('DD.MM.YYYY HH:mm'),
+          value: 0,
+        });
       }
     });
-    const sortFn = (a: { date: string }, b: { date: string }) =>
-      dayjs(a.date, 'DD.MM.YYYY HH:mm').valueOf() - dayjs(b.date, 'DD.MM.YYYY HH:mm').valueOf();
+
     return {
-      levelData: levelData.sort(sortFn),
-      addData: addData.sort(sortFn),
+      levelData,
+      addData,
     };
   };
 
