@@ -2443,7 +2443,8 @@
     "numberOfPeriods": "Количество периодов",
     "chartLevelTitle": "Уровень химии",
     "level": "Уровень",
-    "filling": "Залив"
+    "filling": "Залив",
+    "ReportIncomplete": "Отчет не заполнен"
   },
   "marketingCampaigns": {
     "terms": "Условия и призы",

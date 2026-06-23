@@ -2443,7 +2443,8 @@
     "numberOfPeriods": "Number of periods",
     "chartLevelTitle": "Chemistry level",
     "level": "Level",
-    "filling": "Filling"
+    "filling": "Filling",
+    "ReportIncomplete": "The report is incomplete"
   },
   "marketingCampaigns": {
     "terms": "Terms and conditions and prizes",
