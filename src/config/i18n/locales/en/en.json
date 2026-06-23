@@ -1509,7 +1509,8 @@
     "partnersPercentSumMustBe100": "The sum of all partners' percentages must equal 100%",
     "addPartner": "Add partner",
     "partnersOnCreate": "Partners",
-    "selectPartner": "Partner"
+    "selectPartner": "Partner",
+    "tookTimeMustBeGreaterThanOldTime": "Collection time (new) should be later than Collection time (new)"
   },
 
   "shift-management": {

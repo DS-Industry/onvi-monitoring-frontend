@@ -218,7 +218,19 @@ const CollectionCreation: React.FC = () => {
   useEffect(() => {
     if (collections && Object.keys(collections).length > 0) {
       setTableData(collections.cashCollectionDeviceType);
-      setDeviceData(collections.cashCollectionDevice);
+
+      const correctedDevices = collections.cashCollectionDevice.map(device => {
+        const oldDate = new Date(device.oldTookMoneyTime);
+        const tookDate = new Date(device.tookMoneyTime);
+        if (oldDate >= tookDate) {
+          const newTook = new Date(oldDate);
+          newTook.setDate(newTook.getDate() + 1);
+          return { ...device, tookMoneyTime: newTook };
+        }
+        return device;
+      });
+
+      setDeviceData(correctedDevices);
       setCollectionData(collections);
       setOldCashCollectionDate(collections.oldCashCollectionDate);
       setCashCollectionDate(collections.cashCollectionDate);
@@ -723,6 +735,7 @@ const CollectionCreation: React.FC = () => {
                 t={t}
                 loading={collectionLoading}
                 hideVirtualSum={isRole4or7}
+                onSaveError={(msg) => showToast(msg, 'error')}
               />
             )}
           </div>
