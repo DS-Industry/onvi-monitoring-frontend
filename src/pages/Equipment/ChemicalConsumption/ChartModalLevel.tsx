@@ -143,7 +143,7 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
                       borderRadius: '2px',
                     }}
                   />
-                  <span style={{ fontSize: '13px' }}>Отчет не заполнен</span>
+                  <span style={{ fontSize: '13px' }}>{t('chemicalConsumption.ReportIncomplete')}</span>
                 </div>
               )}
             </div>
