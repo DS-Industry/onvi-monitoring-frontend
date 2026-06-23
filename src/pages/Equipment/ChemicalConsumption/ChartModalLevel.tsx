@@ -4,11 +4,17 @@ import { useTranslation } from 'react-i18next';
 import { formatNumber } from '@/utils/tableUnits';
 import MiniChartLevel from './MiniChartLevel';
 
+type LevelChartPoint = {
+  date: string;
+  value: number;
+  missedReport?: boolean;
+};
+
 export interface ChartModalLevelProps {
   visible: boolean;
   onClose: () => void;
   category: string;
-  data: { date: string; value: number }[];
+  data: LevelChartPoint[];
   dataAdd: { date: string; value: number }[];
 }
 
@@ -20,12 +26,18 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
   dataAdd,
 }) => {
   const { t } = useTranslation();
-  const [tooltipData, setTooltipData] = useState<{ date: string; levelValue: number; addValue: number | null } | null>(
+  const [tooltipData, setTooltipData] = useState<{
+    date: string;
+    levelValue: number;
+    addValue: number | null;
+    missedReport?: boolean;
+  } | null>(
     data.length > 0
       ? {
           date: data[data.length - 1].date,
           levelValue: data[data.length - 1].value,
           addValue: dataAdd[dataAdd.length - 1]?.value ?? null,
+          missedReport: data[data.length - 1].missedReport,
         }
       : null
   );
@@ -36,13 +48,26 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
         date: data[data.length - 1].date,
         levelValue: data[data.length - 1].value,
         addValue: dataAdd[dataAdd.length - 1]?.value ?? null,
+        missedReport: data[data.length - 1].missedReport,
       });
     }
   }, [visible, data, dataAdd]);
 
-  const handlePointHover = (date: string, levelValue: number, addValue: number | null) => {
-    setTooltipData({ date, levelValue, addValue });
+  const handlePointHover = (
+    date: string,
+    levelValue: number,
+    addValue: number | null,
+    missedReport?: boolean
+  ) => {
+    setTooltipData({
+      date,
+      levelValue,
+      addValue,
+      missedReport,
+    });
   };
+
+  const hasMissedReports = data.some(item => item.missedReport === true);
 
   return (
     <Modal
@@ -108,6 +133,19 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
                   {tooltipData.addValue !== null ? formatNumber(tooltipData.addValue) : '—'}
                 </span>
               </div>
+              {hasMissedReports && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div
+                    style={{
+                      width: '12px',
+                      height: '12px',
+                      backgroundColor: '#bfbfbf',
+                      borderRadius: '2px',
+                    }}
+                  />
+                  <span style={{ fontSize: '13px' }}>Отчет не заполнен</span>
+                </div>
+              )}
             </div>
           </div>
         ) : (

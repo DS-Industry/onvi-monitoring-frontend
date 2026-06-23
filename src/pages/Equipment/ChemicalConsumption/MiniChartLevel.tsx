@@ -2,13 +2,24 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 
+type LevelChartPoint = {
+  date: string;
+  value: number;
+  missedReport?: boolean;
+};
+
 export interface MiniChartLevelProps {
-  data: { date: string; value: number }[];
+  data: LevelChartPoint[];
   dataAdd?: { date: string; value: number }[];
   width?: number;
   height?: number;
   isLarge?: boolean;
-  onPointHover?: (date: string, levelValue: number, addValue: number | null) => void;
+  onPointHover?: (
+    date: string,
+    levelValue: number,
+    addValue: number | null,
+    missedReport?: boolean
+  ) => void;
 }
 
 const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
@@ -24,6 +35,7 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
   const lineColor = '#52c41a';
   const defaultPointColor = '#52c41a';
   const highlightPointColor = '#f44336';
+  const missedPointColor = '#bfbfbf';
   const axisColor = '#999';
   const labelColor = '#666';
 
@@ -93,7 +105,12 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
     setHoveredIndex(index);
     if (onPointHover && data[index]) {
       const addValue = dataAdd[index] ? dataAdd[index].value : null;
-      onPointHover(data[index].date, data[index].value, addValue);
+      onPointHover(
+        data[index].date,
+        data[index].value,
+        addValue,
+        data[index].missedReport
+      );
     }
   };
 
@@ -241,7 +258,11 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
           const y = paddingTop + innerHeight - ((item.value - min) / range) * innerHeight;
           const isHovered = hoveredIndex === index;
           const hasAdd = dataAdd[index]?.value > 0;
-          const pointColor = hasAdd ? highlightPointColor : defaultPointColor;
+          const pointColor = item.missedReport
+            ? missedPointColor
+            : hasAdd
+              ? highlightPointColor
+              : defaultPointColor;
           return (
             <g key={`level-${index}`}>
               <circle
