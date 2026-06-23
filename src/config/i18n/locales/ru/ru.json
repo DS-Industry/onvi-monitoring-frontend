@@ -2116,7 +2116,8 @@
     },
     "employee": {
       "placeholder": "Выберите сотрудника"
-    }
+    },
+    "excess": "Превышение"
   },
   "corporateClients": {
     "inn": "ИНН",

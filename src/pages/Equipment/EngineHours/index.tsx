@@ -10,11 +10,12 @@ import { EditOutlined } from '@ant-design/icons';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import CityFilterMulti from '@/components/ui/Filter/CityFilterMulti';
 import PosFilterMulti from '@/components/ui/Filter/PosFilterMulti';
+import ExcessFilter from '@/components/ui/Filter/ExcessFilter';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import { updateSearchParams, parseIdsParam } from '@/utils/searchParamsUtils';
 import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
-import { EngineHoursResponse, getEngineHours, updateDeviceTechParams } from '@/services/api/equipment';
+import { EExcessType, EngineHoursResponse, getEngineHours, updateDeviceTechParams } from '@/services/api/equipment';
 import { formatHoursToTime } from '@/utils/timeFormatter';
 
 const { Text } = Typography;
@@ -29,6 +30,7 @@ const EngineHours: React.FC = () => {
   const dateEnd = searchParams.get('dateEnd') || dayjs().endOf('day').format('YYYY-MM-DDTHH:mm');
   const placementIds = useMemo(() => parseIdsParam(searchParams, 'cityIds'), [searchParams.get('cityIds')]);
   const posIds = useMemo(() => parseIdsParam(searchParams, 'posIds'), [searchParams.get('posIds')]);
+  const excess = searchParams.get('excess') || EExcessType.ALL;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
 
@@ -42,8 +44,9 @@ const EngineHours: React.FC = () => {
     };
     if (placementIds.length) params.placementIds = placementIds;
     if (posIds.length) params.posIds = posIds;
+    if (excess && excess !== EExcessType.ALL) params.excess = excess;
     return params;
-  }, [dateStart, dateEnd, placementIds, posIds]);
+  }, [dateStart, dateEnd, placementIds, posIds, excess]);
 
   const swrKey = useMemo(() => ['engine-hours', queryParams], [queryParams]);
 
@@ -284,6 +287,7 @@ const EngineHours: React.FC = () => {
       >
         <CityFilterMulti />
         <PosFilterMulti />
+        <ExcessFilter />
       </GeneralFilters>
 
       <div className="mt-8">

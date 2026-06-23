@@ -1154,11 +1154,17 @@ export interface EngineHoursResponse {
   lastPumpChangeDate: string | null;
 }
 
+export enum EExcessType {
+  EXCESS = "EXCESS",
+  ALL = "ALL"
+}
+
 export interface GetEngineHoursParams {
   dateStart: string;
   dateEnd: string;
   placementIds?: number[];
   posIds?: number[];
+  excess?: EExcessType;
 }
 
 export async function getEngineHours(

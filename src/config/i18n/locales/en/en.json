@@ -2115,7 +2115,8 @@
     },
     "employee": {
       "placeholder": "Select employee"
-    }
+    },
+    "excess": "Excess"
   },
   "corporateClients": {
     "inn": "INN",
