@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { message, Modal, Spin } from 'antd';
 import { useSearchParams } from 'react-router-dom';
@@ -24,6 +24,18 @@ import {
 } from '@/services/api/marketing';
 import { useToast } from '@/components/context/useContext';
 import { getFilteredConditionTypes } from '../../utils/conditionTypes';
+import SpendMilestoneTiersSection from './SpendMilestoneTiersSection';
+import {
+    areSpendMilestonePayloadsEqual,
+    createEmptyTier,
+    DEFAULT_SPEND_CYCLE,
+    isSpendMilestoneCampaign,
+    parseSpendMilestonePayload,
+    SpendCycle,
+    SpendMilestonePayload,
+    SpendMilestoneTier,
+    validateSpendMilestoneTiers,
+} from '../../utils/spendMilestone';
 import { useRewardInitialization } from './useRewardInitialization';
 import { useUser } from '@/hooks/useUserStore';
 
@@ -143,6 +155,35 @@ const Terms: React.FC = () => {
 
     const actionType = marketingCampaign?.actionType as ACTION_TYPE | undefined;
 
+    const isSpendMilestone = useMemo(
+        () => isSpendMilestoneCampaign(marketingCampaign),
+        [marketingCampaign]
+    );
+
+    const [spendCycle, setSpendCycle] = useState<SpendCycle>(DEFAULT_SPEND_CYCLE);
+    const [tiers, setTiers] = useState<SpendMilestoneTier[]>([createEmptyTier()]);
+    const [initialSpendMilestonePayload, setInitialSpendMilestonePayload] =
+        useState<SpendMilestonePayload | null>(null);
+
+    useEffect(() => {
+        if (!marketingCampaign || !isSpendMilestone) return;
+
+        const parsed = parseSpendMilestonePayload(marketingCampaign.actionPayload);
+        const payload: SpendMilestonePayload = {
+            spendCycle: parsed.spendCycle,
+            tiers: parsed.tiers.length > 0 ? parsed.tiers : [createEmptyTier()],
+        };
+
+        setSpendCycle(payload.spendCycle);
+        setTiers(payload.tiers);
+        setInitialSpendMilestonePayload(prev => prev ?? payload);
+    }, [marketingCampaign, isSpendMilestone]);
+
+    const currentSpendMilestonePayload = useMemo(
+        () => ({ spendCycle, tiers }),
+        [spendCycle, tiers]
+    );
+
     const {
         rewardValue,
         discountType,
@@ -160,7 +201,7 @@ const Terms: React.FC = () => {
         isLoading,
         isValidating,
     } = useSWR(
-        marketingCampaignId
+        marketingCampaignId && !isSpendMilestone
             ? ['get-marketing-conditions-by-id', marketingCampaignId]
             : null,
         () => getMarketingConditionsById(marketingCampaignId!),
@@ -171,6 +212,7 @@ const Terms: React.FC = () => {
 
     const hasPromocodeCondition = Boolean(
         actionType === 'PROMOCODE_ISSUE' &&
+        !isSpendMilestone &&
         marketingConditions?.conditions?.some(
             (cond) => cond.type === MarketingCampaignConditionType.PROMOCODE_ENTRY
         )
@@ -361,6 +403,47 @@ const Terms: React.FC = () => {
         }
     };
 
+    const handleSaveSpendMilestoneTiers = async () => {
+        if (!marketingCampaignId || !actionType) return;
+
+        if (
+            editMode &&
+            initialSpendMilestonePayload &&
+            areSpendMilestonePayloadsEqual(
+                currentSpendMilestonePayload,
+                initialSpendMilestonePayload
+            )
+        ) {
+            navigateToNextStep();
+            return;
+        }
+
+        const validation = validateSpendMilestoneTiers(tiers);
+        if (!validation.valid && validation.errorKey) {
+            message.warning(t(validation.errorKey));
+            return;
+        }
+
+        try {
+            setIsUpdatingData(true);
+
+            await updateMarketingCampaignAction(marketingCampaignId, {
+                actionType: 'PROMOCODE_ISSUE',
+                payload: currentSpendMilestonePayload,
+            });
+
+            setInitialSpendMilestonePayload(currentSpendMilestonePayload);
+            await mutateCampaign();
+            navigateToNextStep();
+            showToast(t('tables.SAVED'), 'success');
+        } catch (error) {
+            console.error('Error updating spend milestone tiers:', error);
+            showToast(t('common.somethingWentWrong'), 'error');
+        } finally {
+            setIsUpdatingData(false);
+        }
+    };
+
     const isRewardButtonDisabled = () => {
         if (!rewardValue || rewardValue <= 0) return true;
 
@@ -375,7 +458,15 @@ const Terms: React.FC = () => {
         return false;
     };
 
-    if (isLoadingMarketingCampaign || isLoading || isValidating) {
+    const isSpendMilestoneButtonDisabled = useMemo(
+        () => !validateSpendMilestoneTiers(tiers).valid,
+        [tiers]
+    );
+
+    const isPageLoading =
+        isLoadingMarketingCampaign || (!isSpendMilestone && (isLoading || isValidating));
+
+    if (isPageLoading) {
         return (
             <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-background02 p-6 rounded-lg">
                 <Spin size="large" tip={t('common.loading')} />
@@ -394,49 +485,73 @@ const Terms: React.FC = () => {
                         {t('marketingCampaigns.term')}
                     </div>
                     <div className="text-base03 text-md">
-                        {t('marketingCampaigns.settingUp')}
+                        {isSpendMilestone
+                            ? t('marketingCampaigns.spendMilestoneSettingUp')
+                            : t('marketingCampaigns.settingUp')}
                     </div>
                 </div>
             </div>
 
             {contextHolder}
-            <ConditionModal
-                open={isModalOpen}
-                onCancel={handleCloseModal}
-                onApply={handleApply}
-                currentCondition={currentCondition}
-                setCurrentCondition={setCurrentCondition}
-                loading={isLoadingCondition}
-                allowedConditionTypes={conditionTypes}
-            />
+            {!isSpendMilestone && (
+                <>
+                    <ConditionModal
+                        open={isModalOpen}
+                        onCancel={handleCloseModal}
+                        onApply={handleApply}
+                        currentCondition={currentCondition}
+                        setCurrentCondition={setCurrentCondition}
+                        loading={isLoadingCondition}
+                        allowedConditionTypes={conditionTypes}
+                    />
 
-            <ConditionsSection
-                isLoading={isLoading}
-                isValidating={isValidating}
-                conditions={marketingConditions?.conditions}
-                conditionTypes={conditionTypes}
-                hasPromocodeCondition={hasPromocodeCondition}
-                deletingConditionId={deletingConditionId}
-                onOpenModal={handleOpenModal}
-                onDelete={handleDelete}
-            />
+                    <ConditionsSection
+                        isLoading={isLoading}
+                        isValidating={isValidating}
+                        conditions={marketingConditions?.conditions}
+                        conditionTypes={conditionTypes}
+                        hasPromocodeCondition={hasPromocodeCondition}
+                        deletingConditionId={deletingConditionId}
+                        onOpenModal={handleOpenModal}
+                        onDelete={handleDelete}
+                    />
+                </>
+            )}
 
-            <RewardSection
-                actionType={actionType}
-                marketingCampaign={marketingCampaign}
-                rewardValue={rewardValue}
-                discountType={discountType}
-                onRewardValueChange={setRewardValue}
-                onDiscountTypeChange={setDiscountType}
-            />
+            {isSpendMilestone ? (
+                <SpendMilestoneTiersSection
+                    spendCycle={spendCycle}
+                    tiers={tiers}
+                    onSpendCycleChange={setSpendCycle}
+                    onTiersChange={setTiers}
+                />
+            ) : (
+                <RewardSection
+                    actionType={actionType}
+                    marketingCampaign={marketingCampaign}
+                    rewardValue={rewardValue}
+                    discountType={discountType}
+                    onRewardValueChange={setRewardValue}
+                    onDiscountTypeChange={setDiscountType}
+                />
+            )}
 
             <ActionButtons
                 actionType={actionType}
                 marketingCampaign={marketingCampaign}
+                isSpendMilestone={isSpendMilestone}
                 isUpdating={isUpdatingData}
-                isDisabled={isRewardButtonDisabled()}
+                isDisabled={
+                    isSpendMilestone
+                        ? isSpendMilestoneButtonDisabled
+                        : isRewardButtonDisabled()
+                }
                 onNext={
-                    actionType === 'PROMOCODE_ISSUE' ? navigateToNextStep : handleSaveReward
+                    isSpendMilestone
+                        ? handleSaveSpendMilestoneTiers
+                        : actionType === 'PROMOCODE_ISSUE'
+                          ? navigateToNextStep
+                          : handleSaveReward
                 }
             />
         </div>

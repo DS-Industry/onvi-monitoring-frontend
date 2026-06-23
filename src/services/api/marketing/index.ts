@@ -2172,6 +2172,40 @@ export enum PromocodeDiscountType {
   FREE_SERVICE = 'FREE_SERVICE',
 }
 
+export type SpendCycle = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' | 'ALL_TIME';
+
+export type SpendMilestoneTierDto = {
+  threshold: number;
+  discountType: PromocodeDiscountType;
+  discountValue: number;
+  validDays: number;
+  minOrderAmount?: number;
+  maxDiscountAmount?: number;
+};
+
+export type CreateSpendMilestoneCampaignDto = {
+  name: string;
+  launchDate: Date | string;
+  endDate?: Date | string | null;
+  description?: string;
+  ltyProgramId: number;
+  ltyProgramParticipantId: number;
+  posIds?: number[];
+  spendCycle?: SpendCycle;
+  status?: 'DRAFT' | 'ACTIVE';
+  tiers: SpendMilestoneTierDto[];
+};
+
+export async function createSpendMilestoneCampaign(
+  request: CreateSpendMilestoneCampaignDto
+): Promise<MarketingCampaignResponse> {
+  const response: AxiosResponse<MarketingCampaignResponse> = await api.post(
+    'user/loyalty/marketing-campaign/spend-milestone/create',
+    request
+  );
+  return response.data;
+}
+
 export type CreatePromocodeDto = {
   campaignId?: number;
   code: string;

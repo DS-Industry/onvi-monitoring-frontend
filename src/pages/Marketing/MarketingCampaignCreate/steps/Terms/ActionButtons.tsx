@@ -7,6 +7,7 @@ import { ACTION_TYPE, MarketingCampaignResponse } from '@/services/api/marketing
 interface ActionButtonsProps {
     actionType?: ACTION_TYPE;
     marketingCampaign?: MarketingCampaignResponse;
+    isSpendMilestone?: boolean;
     isUpdating: boolean;
     isDisabled: boolean;
     onNext: () => void;
@@ -15,6 +16,7 @@ interface ActionButtonsProps {
 const ActionButtons: React.FC<ActionButtonsProps> = ({
     actionType,
     marketingCampaign,
+    isSpendMilestone = false,
     isUpdating,
     isDisabled,
     onNext,
@@ -25,7 +27,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
         return null;
     }
 
-    if (actionType === 'PROMOCODE_ISSUE') {
+    if (actionType === 'PROMOCODE_ISSUE' && !isSpendMilestone) {
         return (
             <div className="flex justify-end gap-2 mt-3">
                 <Button
