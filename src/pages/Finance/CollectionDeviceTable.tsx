@@ -31,6 +31,7 @@ type Props = {
   t: TFunction;
   loading: boolean;
   hideVirtualSum?: boolean;
+  onSaveError?: (message: string) => void;
 };
 
 const CollectionDeviceTable: React.FC<Props> = ({
@@ -42,6 +43,7 @@ const CollectionDeviceTable: React.FC<Props> = ({
   t,
   loading,
   hideVirtualSum = false,
+  onSaveError,
 }) => {
   const [editingValue, setEditingValue] = useState<string>(''); // new tookMoneyTime
   const [editingOldValue, setEditingOldValue] = useState<string>(''); // oldTookMoneyTime
@@ -68,6 +70,25 @@ const CollectionDeviceTable: React.FC<Props> = ({
   };
 
   const saveEditing = (record: CashCollectionDevice) => {
+    let oldDate = record.oldTookMoneyTime;
+    let tookDate = record.tookMoneyTime;
+
+    if (editingOldValue) {
+      oldDate = new Date(editingOldValue);
+    }
+    
+    if (editingValue) {
+      tookDate = new Date(editingValue);
+    }
+
+    if (tookDate <= oldDate) {
+      if (onSaveError) {
+        onSaveError(t('finance.tookTimeMustBeGreaterThanOldTime'));
+      }
+
+      return;
+    }
+
     if (editingOldValue) {
       const fakeOldEvent = {
         target: { value: editingOldValue },

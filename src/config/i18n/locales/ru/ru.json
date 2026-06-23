@@ -1511,7 +1511,8 @@
     "partnersPercentSumMustBe100": "Сумма процентов всех участников должна быть равна 100%",
     "addPartner": "Добавить партнёра",
     "partnersOnCreate": "Партнёры",
-    "selectPartner": "Партнёр"
+    "selectPartner": "Партнёр",
+    "tookTimeMustBeGreaterThanOldTime": "Время сбора (новое) должно быть позже Время сбора (новое)"
   },
   "shift-management": {
     "shift-create-modal": {
