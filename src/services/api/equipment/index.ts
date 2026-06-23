@@ -1152,15 +1152,22 @@ export interface EngineHoursResponse {
   oilLimit: number | null;
   pumpRunHours: number | null;  
   oilRunHours: number | null;
+  oilRunHoursPump: number | null;
   lastOilChangeDate: string | null;
   lastPumpChangeDate: string | null;
+}
+
+export enum EExcessType {
+  EXCESS = "EXCESS",
+  ALL = "ALL"
 }
 
 export interface GetEngineHoursParams {
   dateStart: string;
   dateEnd: string;
-  placementId?: number;
-  posId?: number;
+  placementIds?: number[];
+  posIds?: number[];
+  excess?: EExcessType;
 }
 
 export async function getEngineHours(

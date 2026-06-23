@@ -617,7 +617,8 @@
     "equipmentType": "Вид оборудования",
     "oilLimit": "Уставка масла",
     "pumpRunHours": "Время работы помпы",
-    "oilRunHours": "Наработка масла с последней замены",
+    "oilRunHours": "Наработка масла с последней замены масла",
+    "oilRunHoursPump": "Наработка масла с последней замены помпы",
     "lastOilChange": "Предыдущая замена масла",
     "lastPumpChange": "Предыдущая замена помпы",
     "pumpVersion": "Версия помпы",
@@ -2115,7 +2116,8 @@
     },
     "employee": {
       "placeholder": "Выберите сотрудника"
-    }
+    },
+    "excess": "Превышение"
   },
   "corporateClients": {
     "inn": "ИНН",
