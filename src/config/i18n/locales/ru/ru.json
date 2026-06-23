@@ -617,7 +617,8 @@
     "equipmentType": "Вид оборудования",
     "oilLimit": "Уставка масла",
     "pumpRunHours": "Время работы помпы",
-    "oilRunHours": "Наработка масла с последней замены",
+    "oilRunHours": "Наработка масла с последней замены масла",
+    "oilRunHoursPump": "Наработка масла с последней замены помпы",
     "lastOilChange": "Предыдущая замена масла",
     "lastPumpChange": "Предыдущая замена помпы",
     "pumpVersion": "Версия помпы",
@@ -1510,7 +1511,8 @@
     "partnersPercentSumMustBe100": "Сумма процентов всех участников должна быть равна 100%",
     "addPartner": "Добавить партнёра",
     "partnersOnCreate": "Партнёры",
-    "selectPartner": "Партнёр"
+    "selectPartner": "Партнёр",
+    "tookTimeMustBeGreaterThanOldTime": "Время сбора (новое) должно быть позже Время сбора (новое)"
   },
   "shift-management": {
     "shift-create-modal": {
@@ -1939,7 +1941,15 @@
     "required": "Это поле обязательно",
     "positiveNumber": "Должно быть положительным числом",
     "fillExpense": "Заполните расход",
-    "fillRevenue": "Заполните выручку"
+    "fillRevenue": "Заполните выручку",
+    "executionTypeRequired": "Выберите тип срабатывания",
+    "actionTypeRequired": "Выберите тип акции",
+    "spendMilestoneTiersRequired": "Добавьте хотя бы один уровень награды",
+    "spendMilestoneDuplicateThresholds": "Пороги трат должны быть уникальными",
+    "spendMilestoneThresholdsNotAscending": "Пороги трат должны быть отсортированы по возрастанию",
+    "spendMilestoneInvalidThreshold": "Порог трат не может быть отрицательным",
+    "spendMilestoneInvalidDiscountValue": "Значение скидки не может быть отрицательным",
+    "spendMilestoneInvalidValidDays": "Срок действия промокода должен быть не менее 1 дня"
   },
   "table": {
     "noData": "Ничего не найдено",
@@ -2115,7 +2125,8 @@
     },
     "employee": {
       "placeholder": "Выберите сотрудника"
-    }
+    },
+    "excess": "Превышение"
   },
   "corporateClients": {
     "inn": "ИНН",
@@ -2256,6 +2267,11 @@
     "maxDays": "Максимум 365 дней",
     "endDate": "Дата окончания",
     "selectEndDate": "Выберите дату окончания",
+    "scheduleStart": "Дата и время первого запуска",
+    "selectScheduleStart": "Укажите дату и время первого запуска",
+    "scheduleStartAfterEnd": "Первый запуск должен быть не позже даты окончания",
+    "scheduleTimezoneHint": "Дата и время указаны в часовом поясе",
+    "scheduleTimezoneHintSuffix": "(рабочий часовой пояс)",
     "tags": "Теги",
     "selectTags": "Выберите теги",
     "selectAtLeastOneTag": "Выберите хотя бы один тег",
@@ -2499,6 +2515,21 @@
     "promocode": "Промокодная",
     "promocodeDescription": "Возможность создания и выдачи промокодов (ONVI и участники)",
     "promocodeOnlyForOnvi": "Доступно только для маркетинговых кампаний ONVI",
+    "spendMilestone": "Награда за траты",
+    "spendMilestoneDescription": "Персональные промокоды при достижении порога суммы покупок за период",
+    "spendMilestoneSettingUp": "Настройка порогов трат и промокодов",
+    "spendMilestoneSettings": "Пороги трат",
+    "spendMilestoneSettingsDescription": "При достижении клиентом накопленной суммы покупок за период автоматически выдаются персональные промокоды",
+    "spendCycle": "Период накопления",
+    "spendCycle_MONTHLY": "Ежемесячно",
+    "spendCycle_WEEKLY": "Еженедельно",
+    "spendCycle_DAILY": "Ежедневно",
+    "spendCycle_YEARLY": "Ежегодно",
+    "spendCycle_ALL_TIME": "За всё время",
+    "spendTiers": "Уровни наград",
+    "spendThreshold": "Порог трат",
+    "validDays": "Срок действия промокода (дней)",
+    "addSpendTier": "Добавить уровень",
     "noPromocodeLinked": "К этой кампании не привязан промокод",
     "points": "Бальная",
     "pointsDescription": "Возможность начисления баллов клиенту (ONVI)",

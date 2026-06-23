@@ -13,6 +13,8 @@ import {
 import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
 import { TypeTechTask, PeriodType } from '@/services/api/equipment';
+import { getTechTaskBusinessTimezone } from '@/config/techTaskTimezone';
+import dayjs from 'dayjs';
 
 const { Option } = Select;
 
@@ -49,6 +51,12 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
   const workType = Form.useWatch('type', form);
   const periodType = Form.useWatch('periodType', form);
 
+  let businessTimezone: string | undefined;
+  try {
+    businessTimezone = getTechTaskBusinessTimezone();
+  } catch {
+    businessTimezone = undefined;
+  }
 
   return (
     <div className="w-full lg:w-[450px] flex flex-col gap-4 lg:flex-shrink-0">
@@ -92,7 +100,11 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
             size="large"
             onChange={(value: TypeTechTask) => {
               if (value === TypeTechTask.ONETIME) {
-                form.setFieldsValue({ periodType: undefined, customPeriodDays: undefined });
+                form.setFieldsValue({
+                  periodType: undefined,
+                  customPeriodDays: undefined,
+                  startDate: undefined,
+                });
               }
             }}
             placeholder={t('techTasks.selectWorkType')}
@@ -146,6 +158,46 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
               size="large"
               min={1}
               max={365}
+            />
+          </Form.Item>
+        )}
+
+        {workType === TypeTechTask.REGULAR && (
+          <Form.Item
+            name="startDate"
+            label={
+              <span>
+                <CalendarOutlined className="mr-2" /> {t('techTasks.scheduleStart')}
+              </span>
+            }
+            extra={
+              businessTimezone ? (
+                <span className="text-xs text-gray-500">
+                  {t('techTasks.scheduleTimezoneHint')}{' '}
+                  <span className="font-medium">{businessTimezone}</span>{' '}
+                  {t('techTasks.scheduleTimezoneHintSuffix')}
+                </span>
+              ) : undefined
+            }
+            rules={[
+              {
+                validator: (_, value) => {
+                  if (value && dayjs(value).isValid()) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error(t('techTasks.selectScheduleStart'))
+                  );
+                },
+              },
+            ]}
+          >
+            <DatePicker
+              className="w-full"
+              placeholder={t('techTasks.scheduleStart')}
+              size="large"
+              showTime={{ format: 'HH:mm' }}
+              format="DD.MM.YYYY HH:mm"
             />
           </Form.Item>
         )}

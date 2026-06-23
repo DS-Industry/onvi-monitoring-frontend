@@ -16,7 +16,6 @@ import { getOrganization } from '@/services/api/organization';
 import { getWorkerManager } from '@/services/api/finance';
 import { useToast } from '@/components/context/useContext';
 import { useUser } from '@/hooks/useUserStore';
-import { getNumericPrefix } from '@/utils/getNumericPrefix';
 
 type FormValue = string | number | null;
 
@@ -39,9 +38,30 @@ const IncomeReport: React.FC = () => {
   const cityParam = Number(searchParams.get('city')) || undefined;
   const posIdParam = Number(searchParams.get('posId')) || undefined;
 
+  const [debouncedPosSearch, setDebouncedPosSearch] = useState('');
+
+  const debouncedPosSearchUpdate = useMemo(
+    () => debounce((value: string) => setDebouncedPosSearch(value.trim()), 300),
+    []
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedPosSearchUpdate.cancel();
+    };
+  }, [debouncedPosSearchUpdate]);
+
   const { data: posData } = useSWR(
-    [`get-pos`, cityParam, user.organizationId],
-    () => getPoses({ placementId: cityParam, organizationId: user.organizationId }),
+    user?.organizationId
+      ? ['get-pos-report', cityParam, user.organizationId, debouncedPosSearch]
+      : null,
+    () =>
+      getPoses({
+        placementId: cityParam,
+        organizationId: user.organizationId,
+        size: 10,
+        search: debouncedPosSearch || undefined,
+      }),
     { revalidateOnFocus: false, keepPreviousData: true }
   );
   const { data: deviceData } = useSWR(
@@ -66,21 +86,19 @@ const IncomeReport: React.FC = () => {
     () => getReportById(reportId)
   );
 
-  const sortedPosOptions = useMemo(() => {
-    if (!posData) return [];
-    return [...posData]
-      .sort((a, b) => {
-        const numA = getNumericPrefix(a.name);
-        const numB = getNumericPrefix(b.name);
-        if (numA !== numB) return numA - numB;
-        return a.name.localeCompare(b.name);
-      })
-      .map(p => ({ label: p.name, value: p.id }));
-  }, [posData]);
-
   const [formValues, setFormValues] = useState<Record<string, FormValue>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [debouncedManagerSearch, setDebouncedManagerSearch] = useState('');
+  const [cachedSelectedPos, setCachedSelectedPos] = useState<{ id: number; name: string } | null>(null);
+
+  const posOptions = useMemo(() => {
+    const options = (posData || []).map(p => ({ label: p.name, value: p.id }));
+    if (cachedSelectedPos && !options.some(o => o.value === cachedSelectedPos.id)) {
+      options.push({ label: cachedSelectedPos.name, value: cachedSelectedPos.id });
+    }
+    return options;
+  }, [posData, cachedSelectedPos]);
+
   const selectedOrganizationId = useMemo(() => {
     const raw = formValues.organizationId;
     if (raw === null || raw === undefined || raw === '') return undefined;
@@ -94,6 +112,7 @@ const IncomeReport: React.FC = () => {
         initial[param.name] = null;
       });
       setFormValues(initial);
+      setCachedSelectedPos(null);
     }
   }, [reportData]);
 
@@ -219,11 +238,33 @@ const IncomeReport: React.FC = () => {
       return (
         <Select
           placeholder={param.description}
-          options={sortedPosOptions}
+          options={posOptions}
           allowClear
           showSearch
+          filterOption={false}
           value={value ?? undefined}
-          onChange={(val) => handleInputChange(param.name, val)}
+          onChange={(val) => {
+            handleInputChange(param.name, val ?? null);
+            if (val == null) {
+              setCachedSelectedPos(null);
+            } else {
+              const id = Number(val);
+              const label =
+                posOptions.find(o => o.value === id)?.label ??
+                posData?.find(p => p.id === id)?.name;
+              if (label) {
+                setCachedSelectedPos({ id, name: label });
+              }
+            }
+            debouncedPosSearchUpdate.cancel();
+            setDebouncedPosSearch('');
+          }}
+          onSearch={debouncedPosSearchUpdate}
+          onClear={() => {
+            debouncedPosSearchUpdate.cancel();
+            setDebouncedPosSearch('');
+            setCachedSelectedPos(null);
+          }}
           status={status}
           className="w-64"
         />

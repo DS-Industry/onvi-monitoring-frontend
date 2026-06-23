@@ -16,6 +16,12 @@ import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { useToast } from '@/hooks/useToast';
 import { Grid } from 'antd';
+import {
+  toTechTaskStartDate,
+  assertScheduleBeforeEnd,
+  endDateToUtcDate,
+} from '@/utils/techTaskDates';
+import { getTechTaskBusinessTimezone } from '@/config/techTaskTimezone';
 
 import {
   CreateTechTaskModalHeader,
@@ -88,6 +94,14 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
 
   const handleSubmit = async (values: any) => {
     try {
+      const scheduleStart =
+        values.type === TypeTechTask.REGULAR && values.startDate
+          ? dayjs(values.startDate)
+          : null;
+      if (scheduleStart?.isValid() && values.endDate) {
+        assertScheduleBeforeEnd(scheduleStart, dayjs(values.endDate));
+      }
+
       const techTaskData: TechTaskBody = {
         name: values.name,
         posIds: Array.isArray(values.posIds)
@@ -99,8 +113,10 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
         periodType: values.type === TypeTechTask.REGULAR ? values.periodType : undefined,
         customPeriodDays: values.periodType === PeriodType.CUSTOM ? Number(values.customPeriodDays) : undefined,
         markdownDescription: values.authorComment,
-        startDate: new Date(),
-        endSpecifiedDate: values.endDate ? dayjs(values.endDate).toDate() : undefined,
+        startDate: toTechTaskStartDate(values.type, scheduleStart),
+        endSpecifiedDate: values.endDate
+          ? endDateToUtcDate(dayjs(values.endDate), getTechTaskBusinessTimezone())
+          : undefined,
         techTaskItem: selectedTemplateItems.map(item => item.id),
         tagIds: values.tags.map((tagId: any) => Number(tagId)),
       };
@@ -111,7 +127,11 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
       onClose();
     } catch (error) {
       console.error('Failed to create tech task:', error);
-      showToast(t('techTasks.createError') || 'Ошибка при создании задачи', 'error');
+      const message =
+        error instanceof Error && error.message.includes('Schedule start')
+          ? t('techTasks.scheduleStartAfterEnd')
+          : t('techTasks.createError') || 'Ошибка при создании задачи';
+      showToast(message, 'error');
     }
   };
 
