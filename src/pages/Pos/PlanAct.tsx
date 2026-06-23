@@ -43,11 +43,11 @@ const PlanAct: React.FC = () => {
   const [editedPlans, setEditedPlans] = useState<Record<string, number>>({});
   const [savingMonth, setSavingMonth] = useState<string | null>(null);
 
-  const today = dayjs.utc().format('YYYY-MM-DD');
+  const formattedDate = dayjs().format('YYYY-MM-DD');
 
   const posId = Number(searchParams.get('posId')) || undefined;
-  const dateStart = searchParams.get('dateStart') || `${today} 00:00`;
-  const dateEnd = searchParams.get('dateEnd') || `${today} 23:59`;
+  const dateStart = searchParams.get('dateStart') || `${formattedDate} 00:00`;
+  const dateEnd = searchParams.get('dateEnd') || `${formattedDate} 23:59`;
 
   const hasRequiredFilters = Boolean(
     posId &&
@@ -58,8 +58,8 @@ const PlanAct: React.FC = () => {
   const filterParams = useMemo(
     () => ({
       posId,
-      dateStart,
-      dateEnd,
+      dateStart: dayjs(dateStart).toDate(),
+      dateEnd: dayjs(dateEnd).toDate(),
     }),
     [posId, dateStart, dateEnd]
   );
@@ -72,8 +72,8 @@ const PlanAct: React.FC = () => {
     return [
       'get-plan-fact-monthly-by-pos',
       filterParams.posId,
-      filterParams.dateStart,
-      filterParams.dateEnd,
+      dayjs(filterParams.dateStart).toISOString(),
+      dayjs(filterParams.dateEnd).toISOString(),
     ];
   }, [filterParams, hasRequiredFilters]);
 
@@ -81,8 +81,8 @@ const PlanAct: React.FC = () => {
     swrKey,
     () =>
       getPlanFactMonthlyByPos(filterParams.posId!, {
-        dateStart: dayjs.utc(filterParams.dateStart).format('YYYY-MM-DD'),
-        dateEnd: dayjs.utc(filterParams.dateEnd).format('YYYY-MM-DD'),
+        dateStart: filterParams.dateStart,
+        dateEnd: filterParams.dateEnd,
       }),
     {
       keepPreviousData: true,
