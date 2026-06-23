@@ -43,17 +43,11 @@ const PlanAct: React.FC = () => {
   const [editedPlans, setEditedPlans] = useState<Record<string, number>>({});
   const [savingMonth, setSavingMonth] = useState<string | null>(null);
 
-  const formattedDate = dayjs().format('YYYY-MM-DD');
-
   const posId = Number(searchParams.get('posId')) || undefined;
-  const dateStart = searchParams.get('dateStart') || `${formattedDate} 00:00`;
-  const dateEnd = searchParams.get('dateEnd') || `${formattedDate} 23:59`;
+  const dateStart = searchParams.get('dateStart');
+  const dateEnd = searchParams.get('dateEnd');
 
-  const hasRequiredFilters = Boolean(
-    posId &&
-    searchParams.get('dateStart') &&
-    searchParams.get('dateEnd')
-  );
+  const hasRequiredFilters = Boolean(posId && dateStart && dateEnd);
 
   const filterParams = useMemo(
     () => ({
