@@ -616,7 +616,8 @@
     "equipmentType": "Type of equipment",
     "oilLimit": "Oil limit",
     "pumpRunHours": "Pump runtime",
-    "oilRunHours": "Oil hours since last change",
+    "oilRunHours": "Oil hours since last oil change",
+    "oilRunHoursPump": "Oil hours since last pump change",
     "lastOilChange": "Previous oil change",
     "lastPumpChange": "Previous pump change",
     "pumpVersion": "Pump version",
@@ -2115,7 +2116,8 @@
     },
     "employee": {
       "placeholder": "Select employee"
-    }
+    },
+    "excess": "Excess"
   },
   "corporateClients": {
     "inn": "INN",
