@@ -3,7 +3,7 @@ import { Table, Popconfirm, Typography, Button, DatePicker } from 'antd';
 import { TFunction } from 'i18next';
 import dayjs from 'dayjs';
 import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons';
-import { getCurrencyRender } from '@/utils/tableUnits';
+import { getFractionalCurrencyRender } from '@/utils/tableUnits';
 
 type CashCollectionDevice = {
   id: number;
@@ -199,21 +199,21 @@ const CollectionDeviceTable: React.FC<Props> = ({
       dataIndex: 'sumDevice',
       key: 'sumDevice',
       width: '10%',
-      render: getCurrencyRender(),
+      render: getFractionalCurrencyRender(),
     },
     {
       title: t('table.columns.coins'),
       dataIndex: 'sumCoinDevice',
       key: 'sumCoinDevice',
       width: '11%',
-      render: getCurrencyRender(),
+      render: getFractionalCurrencyRender(),
     },
     {
       title: t('table.columns.banknotes'),
       dataIndex: 'sumPaperDevice',
       key: 'sumPaperDevice',
       width: '11%',
-      render: getCurrencyRender(),
+      render: getFractionalCurrencyRender(),
     },
     ...(hideVirtualSum
       ? []
@@ -223,7 +223,7 @@ const CollectionDeviceTable: React.FC<Props> = ({
             dataIndex: 'virtualSumDevice',
             key: 'virtualSumDevice',
             width: '11%',
-            render: getCurrencyRender(),
+            render: getFractionalCurrencyRender(),
           },
         ]),
     {
