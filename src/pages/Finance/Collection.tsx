@@ -75,11 +75,12 @@ const Collection: React.FC = () => {
       page: currentPage,
       size: pageSize,
       placementId: cityParam,
+      organizationId: user.organizationId,
     }),
-    [dateStart, dateEnd, posId, currentPage, pageSize, formattedDate, cityParam]
+    [dateStart, dateEnd, posId, currentPage, pageSize, formattedDate, cityParam, user.organizationId]
   );
 
-  const swrKey = `get-collections-${filterParams.posId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}-${filterParams.placementId}`;
+  const swrKey = `get-collections-${filterParams.posId}-${filterParams.dateStart}-${filterParams.dateEnd}-${filterParams.page}-${filterParams.size}-${filterParams.placementId}-${filterParams.organizationId}`;
 
   const [totalCollectionsCount, setTotalCollectionsCount] = useState(0);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
