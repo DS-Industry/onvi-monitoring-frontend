@@ -17,6 +17,7 @@ import { updateSearchParams, parseIdsParam } from '@/utils/searchParamsUtils';
 import { ALL_PAGE_SIZES, DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
 import { EExcessType, EngineHoursResponse, getEngineHours, updateDeviceTechParams } from '@/services/api/equipment';
 import { formatHoursToTime } from '@/utils/timeFormatter';
+import { useUser } from '@/hooks/useUserStore';
 
 const { Text } = Typography;
 
@@ -33,6 +34,7 @@ const EngineHours: React.FC = () => {
   const excess = searchParams.get('excess') || EExcessType.ALL;
   const currentPage = Number(searchParams.get('page') || DEFAULT_PAGE);
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
+  const user = useUser();
 
   const [editingCell, setEditingCell] = useState<{ deviceId: number; field: EditableField } | null>(null);
   const [editCellValue, setEditCellValue] = useState<any>(null);
@@ -41,12 +43,13 @@ const EngineHours: React.FC = () => {
     const params: Record<string, string | number | number[] | undefined> = {
       dateStart,
       dateEnd,
+      organizationId: user.organizationId,
     };
     if (placementIds.length) params.placementIds = placementIds;
     if (posIds.length) params.posIds = posIds;
     if (excess && excess !== EExcessType.ALL) params.excess = excess;
     return params;
-  }, [dateStart, dateEnd, placementIds, posIds, excess]);
+  }, [dateStart, dateEnd, placementIds, posIds, excess, user.organizationId]);
 
   const swrKey = useMemo(() => ['engine-hours', queryParams], [queryParams]);
 
