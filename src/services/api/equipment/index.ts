@@ -1167,6 +1167,7 @@ export interface GetEngineHoursParams {
   placementIds?: number[];
   posIds?: number[];
   excess?: EExcessType;
+  organizationId?: number;
 }
 
 export async function getEngineHours(
