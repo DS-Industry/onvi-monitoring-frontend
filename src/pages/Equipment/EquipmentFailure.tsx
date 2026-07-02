@@ -325,63 +325,47 @@ const EquipmentFailure: React.FC = () => {
     }
   };
 
-  const handleUpdate = (id: number) => {
-    setEditIncidentId(id);
-    setIsEditMode(true);
-    setDrawerOpen(true);
+const handleUpdate = (id: number) => {
+  setEditIncidentId(id);
+  setIsEditMode(true);
+  setDrawerOpen(true);
 
-    const incidentToEdit = incidents.find(org => org.id === id);
+  const incidentToEdit = incidents.find(org => org.id === id);
+  if (!incidentToEdit) return;
 
-    if (incidentToEdit && equipmentKnotData) {
-      const foundType = equipmentKnotData.find(type =>
-        type.equipmentKnots.some(knot => knot.name === incidentToEdit.equipmentKnot)
-      );
-      if (foundType) {
-        setEquipmentTypeId(foundType.id);
-        handleInputChange('equipmentKnotTypeDeviceId', String(foundType.id));
-        const foundKnot = foundType.equipmentKnots.find(knot => knot.name === incidentToEdit.equipmentKnot);
-        if (foundKnot) {
-          handleInputChange('equipmentKnotId', String(foundKnot.id));
-        }
-      }
+  setFormData({
+    posId: incidentToEdit.posId,
+    workerId: incidentToEdit.workerId,
+    appearanceDate: incidentToEdit.appearanceDate ? dayjs(incidentToEdit.appearanceDate).format('YYYY-MM-DDTHH:mm') : '',
+    startDate: incidentToEdit.startDate ? dayjs(incidentToEdit.startDate).format('YYYY-MM-DDTHH:mm') : '',
+    finishDate: incidentToEdit.finishDate ? dayjs(incidentToEdit.finishDate).format('YYYY-MM-DDTHH:mm') : '',
+    objectName: incidentToEdit.objectName || '',
+    equipmentKnotTypeDeviceId: incidentToEdit.equipmentKnotTypeDeviceId ?? undefined,
+    equipmentKnotId: incidentToEdit.equipmentKnotId ?? undefined,
+    incidentNameId: incidentToEdit.incidentNameId ?? undefined,
+    incidentReasonId: incidentToEdit.incidentReasonId ?? undefined,
+    incidentSolutionId: incidentToEdit.incidentSolutionId ?? undefined,
+    downtime: incidentToEdit.downtime === 'Да' ? 1 : 0,
+    comment: incidentToEdit.comment || '',
+    carWashDeviceProgramsTypeId: incidentToEdit.programId ?? undefined,
+  });
 
-      const problemNameToId: { [key: string]: number } =
-        incidentEquipmentKnotData
-          ? incidentEquipmentKnotData.reduce(
-            (acc, item) => ({ ...acc, [item.problemName]: item.id }),
-            {}
-          )
-          : {};
+  if (incidentToEdit.equipmentKnotTypeDeviceId) {
+    setEquipmentTypeId(incidentToEdit.equipmentKnotTypeDeviceId);
+  } else {
+    setEquipmentTypeId(undefined);
+  }
 
-      const reasonLabelToValue: { [key: string]: number } = reasons
-        ? reasons.reduce((acc, r) => ({ ...acc, [r.label]: r.value }), {})
-        : {};
-
-      const solutionLabelToValue: { [key: string]: number } = solutions
-        ? solutions.reduce((acc, s) => ({ ...acc, [s.label]: s.value }), {})
-        : {};
-
-      const formatDateTime = (dateString: Date) => {
-        return dayjs(dateString).format('YYYY-MM-DDTHH:mm');
-      };
-
-      setFormData(prev => ({
-        ...prev,
-        posId: incidentToEdit.posId,
-        workerId: incidentToEdit.workerId,
-        appearanceDate: formatDateTime(incidentToEdit.appearanceDate),
-        startDate: formatDateTime(incidentToEdit.startDate),
-        finishDate: formatDateTime(incidentToEdit.finishDate),
-        objectName: incidentToEdit.objectName,
-        incidentNameId: problemNameToId[incidentToEdit.incidentName] || undefined,
-        incidentReasonId: reasonLabelToValue[incidentToEdit.incidentReason] || undefined,
-        incidentSolutionId: solutionLabelToValue[incidentToEdit.incidentSolution] || undefined,
-        downtime: incidentToEdit.downtime === 'Нет' ? 0 : 1,
-        comment: incidentToEdit.comment,
-        carWashDeviceProgramsTypeId: incidentToEdit.programId,
-      }));
-    }
-  };
+  if (!incidentToEdit.equipmentKnotTypeDeviceId) {
+    setFormData(prev => ({
+      ...prev,
+      equipmentKnotId: undefined,
+      incidentNameId: undefined,
+      incidentReasonId: undefined,
+      incidentSolutionId: undefined,
+    }));
+  }
+};
 
   const resetForm = () => {
     setFormData(defaultValues);
@@ -418,14 +402,6 @@ const EquipmentFailure: React.FC = () => {
   };
 
   const dateRender = getDateRender();
-
-  const canCreate = hasPermission(
-    [
-      { action: 'manage', subject: 'Incident' },
-      { action: 'update', subject: 'Incident' }
-    ],
-    userPermissions
-  );
 
   const canCreateSimple = hasPermission(
     [
@@ -579,7 +555,7 @@ const EquipmentFailure: React.FC = () => {
               <div className="hidden sm:flex">{t('equipment.reportFailure')}</div>
             </Button>
           )}
-          {canCreate && (
+          {canUpdate && (
             <Button
               icon={<PlusOutlined />}
               className="btn-primary"

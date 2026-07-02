@@ -73,6 +73,11 @@ export type Incident = {
   comment: string;
   programId: number;
   status?: string;
+  equipmentKnotTypeDeviceId?: number;
+  equipmentKnotId?: number;
+  incidentNameId?: number;
+  incidentReasonId?: number;
+  incidentSolutionId?: number;
 };
 
 export type IncidentBody = {
