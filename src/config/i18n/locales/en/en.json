@@ -622,7 +622,9 @@
     "lastPumpChange": "Previous pump change",
     "pumpVersion": "Pump version",
     "of": "of",
-    "actions": "Actions"
+    "actions": "Actions",
+    "reportFailure": "Report a breakdown",
+    "status": "Status"
   },
   "daily": {
     "noText": "This section displays reports on daily parameters",

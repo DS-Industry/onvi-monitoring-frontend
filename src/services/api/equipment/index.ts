@@ -72,6 +72,7 @@ export type Incident = {
   downtime: string;
   comment: string;
   programId: number;
+  status?: string;
 };
 
 export type IncidentBody = {
@@ -644,6 +645,23 @@ export async function updateIncident(
 ): Promise<PostIncidentResponse> {
   const response: AxiosResponse<PostIncidentResponse> = await api.patch(
     EQUIPMENT.GET_INCIDENT,
+    body
+  );
+  return response.data;
+}
+
+export type IncidentSimpleBody = {
+  posId: number;
+  workerId: number;
+  appearanceDate: string;
+  comment: string;
+};
+
+export async function createSimpleIncident(
+  body: IncidentSimpleBody
+): Promise<PostIncidentResponse> {
+  const response: AxiosResponse<PostIncidentResponse> = await api.post(
+    `${EQUIPMENT.GET_INCIDENT}/simple`,
     body
   );
   return response.data;
