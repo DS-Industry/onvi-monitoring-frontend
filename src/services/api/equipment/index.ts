@@ -55,6 +55,11 @@ type IncidentParam = {
   placementId?: number;
 };
 
+export enum EIncidentStatus {
+  NEW = 'NEW',
+  RESOLVED = 'RESOLVED',
+}
+
 export type Incident = {
   id: number;
   posId: number;
@@ -72,7 +77,7 @@ export type Incident = {
   downtime: string;
   comment: string;
   programId: number;
-  status?: string;
+  status?: EIncidentStatus;
   equipmentKnotTypeDeviceId?: number;
   equipmentKnotId?: number;
   incidentNameId?: number;

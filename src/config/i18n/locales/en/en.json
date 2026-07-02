@@ -624,7 +624,9 @@
     "of": "of",
     "actions": "Actions",
     "reportFailure": "Report a breakdown",
-    "status": "Status"
+    "status": "Status",
+    "new": "New",
+    "resolved": "Resolved"
   },
   "daily": {
     "noText": "This section displays reports on daily parameters",

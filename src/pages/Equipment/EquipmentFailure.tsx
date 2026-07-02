@@ -6,6 +6,7 @@ import useSWR, { mutate } from 'swr';
 import {
   createIncident,
   createSimpleIncident,
+  EIncidentStatus,
   getDevices,
   getEquipmentKnots,
   getIncident,
@@ -24,7 +25,7 @@ import dayjs from 'dayjs';
 import { useSearchParams } from 'react-router-dom';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import { Drawer, Form, Select, Table, Tooltip } from 'antd';
+import { Drawer, Form, Select, Table, Tag, Tooltip } from 'antd';
 import { getDateRender } from '@/utils/tableUnits';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
@@ -34,6 +35,7 @@ import Button from 'antd/es/button';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { useUser } from '@/hooks/useUserStore';
+import { STATUS_COLORS, STATUS_LABELS } from '@/utils/incidentStatus';
 
 const EquipmentFailure: React.FC = () => {
   const { t } = useTranslation();
@@ -189,8 +191,7 @@ const EquipmentFailure: React.FC = () => {
           })(),
         programName:
           programs.find(prog => prog.value === item.programId)?.name || '-',
-      }))
-      .sort((a, b) => a.id - b.id) || [];
+      })) || [];
 
   const reasons: { label: string; value: number }[] =
     formData.posId === 0
@@ -507,7 +508,15 @@ const handleUpdate = (id: number) => {
       title: t('equipment.status'),
       dataIndex: 'status',
       key: 'status',
-      render: (value: string) => <div>{value || '—'}</div>,
+      render: (value: string) => {
+        if (!value) return '—';
+        const status = value as EIncidentStatus;
+        return (
+          <Tag color={STATUS_COLORS[status] || 'default'}>
+            {t(`equipment.${status.toLowerCase()}`) || STATUS_LABELS[status] || value}
+          </Tag>
+        );
+      },
     },
   ];
 
