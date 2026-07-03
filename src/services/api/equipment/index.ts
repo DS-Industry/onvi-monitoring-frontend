@@ -55,6 +55,11 @@ type IncidentParam = {
   placementId?: number;
 };
 
+export enum EIncidentStatus {
+  NEW = 'NEW',
+  RESOLVED = 'RESOLVED',
+}
+
 export type Incident = {
   id: number;
   posId: number;
@@ -72,6 +77,12 @@ export type Incident = {
   downtime: string;
   comment: string;
   programId: number;
+  status?: EIncidentStatus;
+  equipmentKnotTypeDeviceId?: number;
+  equipmentKnotId?: number;
+  incidentNameId?: number;
+  incidentReasonId?: number;
+  incidentSolutionId?: number;
 };
 
 export type IncidentBody = {
@@ -644,6 +655,23 @@ export async function updateIncident(
 ): Promise<PostIncidentResponse> {
   const response: AxiosResponse<PostIncidentResponse> = await api.patch(
     EQUIPMENT.GET_INCIDENT,
+    body
+  );
+  return response.data;
+}
+
+export type IncidentSimpleBody = {
+  posId: number;
+  workerId: number;
+  appearanceDate: string;
+  comment: string;
+};
+
+export async function createSimpleIncident(
+  body: IncidentSimpleBody
+): Promise<PostIncidentResponse> {
+  const response: AxiosResponse<PostIncidentResponse> = await api.post(
+    `${EQUIPMENT.GET_INCIDENT}/simple`,
     body
   );
   return response.data;

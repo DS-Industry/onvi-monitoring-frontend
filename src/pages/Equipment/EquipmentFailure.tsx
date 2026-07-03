@@ -5,6 +5,8 @@ import { useToast } from '@/components/context/useContext';
 import useSWR, { mutate } from 'swr';
 import {
   createIncident,
+  createSimpleIncident,
+  EIncidentStatus,
   getDevices,
   getEquipmentKnots,
   getIncident,
@@ -23,7 +25,7 @@ import dayjs from 'dayjs';
 import { useSearchParams } from 'react-router-dom';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import { Drawer, Form, Select, Table, Tooltip } from 'antd';
+import { Drawer, Form, Select, Table, Tag, Tooltip } from 'antd';
 import { getDateRender } from '@/utils/tableUnits';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
@@ -33,6 +35,7 @@ import Button from 'antd/es/button';
 import { useColumnSelector } from '@/hooks/useTableColumnSelector';
 import ColumnSelector from '@/components/ui/Table/ColumnSelector';
 import { useUser } from '@/hooks/useUserStore';
+import { STATUS_COLORS, STATUS_LABELS } from '@/utils/incidentStatus';
 
 const EquipmentFailure: React.FC = () => {
   const { t } = useTranslation();
@@ -49,6 +52,14 @@ const EquipmentFailure: React.FC = () => {
   const cityParam = Number(searchParams.get('city')) || undefined;
   const userPermissions = usePermissions();
   const { showToast } = useToast();
+
+  const [simpleDrawerOpen, setSimpleDrawerOpen] = useState(false);
+  const [simpleFormData, setSimpleFormData] = useState({
+    posId: 0,
+    workerId: 0,
+    appearanceDate: '',
+    comment: '',
+  });
 
   const filterParams = {
     dateStart,
@@ -180,8 +191,7 @@ const EquipmentFailure: React.FC = () => {
           })(),
         programName:
           programs.find(prog => prog.value === item.programId)?.name || '-',
-      }))
-      .sort((a, b) => a.id - b.id) || [];
+      })) || [];
 
   const reasons: { label: string; value: number }[] =
     formData.posId === 0
@@ -262,6 +272,17 @@ const EquipmentFailure: React.FC = () => {
       })
   );
 
+  const { trigger: createSimpleInc, isMutating: simpleMutating } = useSWRMutation(
+    ['create-simple-incident'],
+    async () =>
+      createSimpleIncident({
+        posId: Number(simpleFormData.posId),
+        workerId: Number(simpleFormData.workerId),
+        appearanceDate: simpleFormData.appearanceDate,
+        comment: simpleFormData.comment,
+      })
+  );
+
   type FieldType = keyof typeof defaultValues;
 
   const handleInputChange = (field: FieldType, value: string) => {
@@ -286,63 +307,66 @@ const EquipmentFailure: React.FC = () => {
     setValue(field, updatedValue);
   };
 
-  const handleUpdate = (id: number) => {
-    setEditIncidentId(id);
-    setIsEditMode(true);
-    setDrawerOpen(true);
+  const handleSimpleInputChange = (field: string, value: string | number) => {
+    setSimpleFormData(prev => ({ ...prev, [field]: value }));
+  };
 
-    const incidentToEdit = incidents.find(org => org.id === id);
-
-    if (incidentToEdit && equipmentKnotData) {
-      const foundType = equipmentKnotData.find(type =>
-        type.equipmentKnots.some(knot => knot.name === incidentToEdit.equipmentKnot)
-      );
-      if (foundType) {
-        setEquipmentTypeId(foundType.id);
-        handleInputChange('equipmentKnotTypeDeviceId', String(foundType.id));
-        const foundKnot = foundType.equipmentKnots.find(knot => knot.name === incidentToEdit.equipmentKnot);
-        if (foundKnot) {
-          handleInputChange('equipmentKnotId', String(foundKnot.id));
-        }
+  const handleSimpleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const result = await createSimpleInc();
+      if (result) {
+        mutate(swrKey);
+        setSimpleDrawerOpen(false);
+        setSimpleFormData({ posId: 0, workerId: 0, appearanceDate: '', comment: '' });
+        showToast(t('success.recordCreated'), 'success');
       }
-
-      const problemNameToId: { [key: string]: number } =
-        incidentEquipmentKnotData
-          ? incidentEquipmentKnotData.reduce(
-            (acc, item) => ({ ...acc, [item.problemName]: item.id }),
-            {}
-          )
-          : {};
-
-      const reasonLabelToValue: { [key: string]: number } = reasons
-        ? reasons.reduce((acc, r) => ({ ...acc, [r.label]: r.value }), {})
-        : {};
-
-      const solutionLabelToValue: { [key: string]: number } = solutions
-        ? solutions.reduce((acc, s) => ({ ...acc, [s.label]: s.value }), {})
-        : {};
-
-      const formatDateTime = (dateString: Date) => {
-        return dayjs(dateString).format('YYYY-MM-DDTHH:mm');
-      };
-
-      setFormData(prev => ({
-        ...prev,
-        posId: incidentToEdit.posId,
-        workerId: incidentToEdit.workerId,
-        appearanceDate: formatDateTime(incidentToEdit.appearanceDate),
-        startDate: formatDateTime(incidentToEdit.startDate),
-        finishDate: formatDateTime(incidentToEdit.finishDate),
-        objectName: incidentToEdit.objectName,
-        incidentNameId: problemNameToId[incidentToEdit.incidentName] || undefined,
-        incidentReasonId: reasonLabelToValue[incidentToEdit.incidentReason] || undefined,
-        incidentSolutionId: solutionLabelToValue[incidentToEdit.incidentSolution] || undefined,
-        downtime: incidentToEdit.downtime === 'Нет' ? 0 : 1,
-        comment: incidentToEdit.comment,
-        carWashDeviceProgramsTypeId: incidentToEdit.programId,
-      }));
+    } catch (error) {
+      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
     }
   };
+
+const handleUpdate = (id: number) => {
+  setEditIncidentId(id);
+  setIsEditMode(true);
+  setDrawerOpen(true);
+
+  const incidentToEdit = incidents.find(org => org.id === id);
+  if (!incidentToEdit) return;
+
+  setFormData({
+    posId: incidentToEdit.posId,
+    workerId: incidentToEdit.workerId,
+    appearanceDate: incidentToEdit.appearanceDate ? dayjs(incidentToEdit.appearanceDate).format('YYYY-MM-DDTHH:mm') : '',
+    startDate: incidentToEdit.startDate ? dayjs(incidentToEdit.startDate).format('YYYY-MM-DDTHH:mm') : '',
+    finishDate: incidentToEdit.finishDate ? dayjs(incidentToEdit.finishDate).format('YYYY-MM-DDTHH:mm') : '',
+    objectName: incidentToEdit.objectName || '',
+    equipmentKnotTypeDeviceId: incidentToEdit.equipmentKnotTypeDeviceId ?? undefined,
+    equipmentKnotId: incidentToEdit.equipmentKnotId ?? undefined,
+    incidentNameId: incidentToEdit.incidentNameId ?? undefined,
+    incidentReasonId: incidentToEdit.incidentReasonId ?? undefined,
+    incidentSolutionId: incidentToEdit.incidentSolutionId ?? undefined,
+    downtime: incidentToEdit.downtime === 'Да' ? 1 : 0,
+    comment: incidentToEdit.comment || '',
+    carWashDeviceProgramsTypeId: incidentToEdit.programId ?? undefined,
+  });
+
+  if (incidentToEdit.equipmentKnotTypeDeviceId) {
+    setEquipmentTypeId(incidentToEdit.equipmentKnotTypeDeviceId);
+  } else {
+    setEquipmentTypeId(undefined);
+  }
+
+  if (!incidentToEdit.equipmentKnotTypeDeviceId) {
+    setFormData(prev => ({
+      ...prev,
+      equipmentKnotId: undefined,
+      incidentNameId: undefined,
+      incidentReasonId: undefined,
+      incidentSolutionId: undefined,
+    }));
+  }
+};
 
   const resetForm = () => {
     setFormData(defaultValues);
@@ -380,14 +404,14 @@ const EquipmentFailure: React.FC = () => {
 
   const dateRender = getDateRender();
 
-  const canCreate = hasPermission(
+  const canCreateSimple = hasPermission(
     [
       { action: 'manage', subject: 'Incident' },
       { action: 'create', subject: 'Incident' }
     ],
     userPermissions
   );
-  
+
   const canUpdate = hasPermission(
     [
       { action: 'manage', subject: 'Incident' },
@@ -480,6 +504,20 @@ const EquipmentFailure: React.FC = () => {
       dataIndex: 'programName',
       key: 'programName',
     },
+    {
+      title: t('equipment.status'),
+      dataIndex: 'status',
+      key: 'status',
+      render: (value: string) => {
+        if (!value) return '—';
+        const status = value as EIncidentStatus;
+        return (
+          <Tag color={STATUS_COLORS[status] || 'default'}>
+            {t(`equipment.${status.toLowerCase()}`) || STATUS_LABELS[status] || value}
+          </Tag>
+        );
+      },
+    },
   ];
 
   if (canUpdate) {
@@ -516,15 +554,26 @@ const EquipmentFailure: React.FC = () => {
             {t('routes.equipmentFailure')}
           </span>
         </div>
-        {canCreate && (
-          <Button
-            icon={<PlusOutlined />}
-            className="btn-primary"
-            onClick={() => setDrawerOpen(!drawerOpen)}
-          >
-            <div className="hidden sm:flex">{t('routes.fix')}</div>
-          </Button>
-        )}
+        <div className="flex space-x-2">
+          {canCreateSimple && (
+            <Button
+              icon={<PlusOutlined />}
+              className="btn-primary"
+              onClick={() => setSimpleDrawerOpen(true)}
+            >
+              <div className="hidden sm:flex">{t('equipment.reportFailure')}</div>
+            </Button>
+          )}
+          {canUpdate && (
+            <Button
+              icon={<PlusOutlined />}
+              className="btn-primary"
+              onClick={() => setDrawerOpen(!drawerOpen)}
+            >
+              <div className="hidden sm:flex">{t('routes.fix')}</div>
+            </Button>
+          )}
+        </div>
       </div>
       <GeneralFilters
         count={incidents.length}
@@ -978,6 +1027,93 @@ const EquipmentFailure: React.FC = () => {
               loading={isEditMode ? updatingIncident : isMutating}
               type="primary"
             >
+              {t('organizations.save')}
+            </Button>
+          </div>
+        </form>
+      </Drawer>
+
+      <Drawer
+        title={t('equipment.reportFailure')}
+        placement="right"
+        size="large"
+        onClose={() => {
+          setSimpleDrawerOpen(false);
+          setSimpleFormData({ posId: 0, workerId: 0, appearanceDate: '', comment: '' });
+        }}
+        open={simpleDrawerOpen}
+        className="custom-drawer"
+      >
+        <form className="space-y-6" onSubmit={handleSimpleSubmit}>
+          <div>
+            <div className="flex">
+              <div className="text-text02 text-sm">{t('equipment.carWash')}</div>
+              <span className="text-errorFill">*</span>
+            </div>
+            <Select
+              placeholder={t('pos.companyName')}
+              options={posData?.map(item => ({ value: item.id, label: item.name }))}
+              className="!w-72"
+              value={simpleFormData.posId || undefined}
+              onChange={value => handleSimpleInputChange('posId', value)}
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label ?? '')
+                  .toString()
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+            />
+          </div>
+          <div>
+            <div className="flex">
+              <div className="text-text02 text-sm">{t('equipment.employee')}</div>
+              <span className="text-errorFill">*</span>
+            </div>
+            <Select
+              placeholder={t('warehouse.notSel')}
+              options={workerData?.map(item => ({
+                value: item.id,
+                label: `${item.name} ${item.surname}`,
+              }))}
+              className="!w-72"
+              value={simpleFormData.workerId || undefined}
+              onChange={value => handleSimpleInputChange('workerId', value)}
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label ?? '')
+                  .toString()
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
+            />
+          </div>
+          <DateTimeInput
+            title={t('equipment.call')}
+            classname="w-64"
+            value={simpleFormData.appearanceDate ? dayjs(simpleFormData.appearanceDate) : undefined}
+            changeValue={date =>
+              handleSimpleInputChange('appearanceDate', date ? date.format('YYYY-MM-DDTHH:mm') : '')
+            }
+            error={false}
+          />
+          <MultilineInput
+            title={t('equipment.comment')}
+            classname="w-96"
+            value={simpleFormData.comment}
+            changeValue={e => handleSimpleInputChange('comment', e.target.value)}
+            error={false}
+          />
+          <div className="flex space-x-4">
+            <Button
+              onClick={() => {
+                setSimpleDrawerOpen(false);
+                setSimpleFormData({ posId: 0, workerId: 0, appearanceDate: '', comment: '' });
+              }}
+            >
+              {t('organizations.cancel')}
+            </Button>
+            <Button htmlType="submit" loading={simpleMutating} type="primary">
               {t('organizations.save')}
             </Button>
           </div>
