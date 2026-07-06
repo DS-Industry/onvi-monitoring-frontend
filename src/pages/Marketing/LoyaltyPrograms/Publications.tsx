@@ -215,6 +215,7 @@ const Publications: React.FC<PublicationsProps> = ({ isEditable = true, program,
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-end">
             <Button
               className="text-primary02 w-full sm:w-auto"
+              onClick={() => navigate('/marketing/loyalty')}
             >
               {t('marketingLoyalty.saveAndExit')}
             </Button>
