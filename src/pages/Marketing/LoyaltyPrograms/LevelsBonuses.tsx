@@ -194,7 +194,7 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ program, isEditable = tru
             className="w-full sm:w-auto order-1 sm:order-2"
             onClick={() => {
               updateSearchParams(searchParams, setSearchParams, {
-                step: 5,
+                step: 4,
               });
             }}
           >
