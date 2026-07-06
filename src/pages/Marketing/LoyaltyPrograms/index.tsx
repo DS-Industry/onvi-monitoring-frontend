@@ -5,7 +5,6 @@ import {
   ArrowLeftOutlined,
   SettingOutlined,
   CreditCardOutlined,
-  CarOutlined,
   FireOutlined,
   SyncOutlined,
   LineChartOutlined
@@ -15,7 +14,6 @@ import BasicData from './BasicData';
 import BasicDataUpdate from './update/BasicDataUpdate';
 import WriteOffRules from './WriteOffRules';
 import LevelsBonuses from './LevelsBonuses';
-import Participants from './Participants';
 import Publications from './Publications';
 import Stats from './Stats';
 import useSWR from 'swr';
@@ -76,11 +74,6 @@ const LoyaltyPrograms: React.FC = () => {
       title: t('marketingLoyalty.writeOff'),
       content: <WriteOffRules program={program} isLoading={isValidating || isLoading} mutate={mutate} isEditable={isOwner} />,
       icon: <CreditCardOutlined />,
-    },
-    {
-      title: t('marketingLoyalty.participants'),
-      content: <Participants isEditable={isOwner} />,
-      icon: <CarOutlined />,
     },
     {
       title: t('marketingLoyalty.levelsAndBonuses'),
