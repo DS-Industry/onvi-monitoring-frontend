@@ -5,18 +5,19 @@ import useSWRMutation from 'swr/mutation';
 import { getMarketingCampaignById, getPosesParticipants, PosResponse, updateMarketingCampaign, getLoyaltyPrograms, UpdateMarketingCampaignRequest, MarketingCampaignResponse } from '@/services/api/marketing';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button, message } from 'antd';
-import { GlobalOutlined, PlayCircleFilled } from '@ant-design/icons';
+import { GlobalOutlined, PlayCircleFilled, LeftOutlined } from '@ant-design/icons';
 import ParticipantsMap from '@/components/ui/ParticipantsMap';
 import GeographyList from './GeographyList';
 import { useUser } from '@/hooks/useUserStore';
 import { MarketingCampaignStatus } from '@/utils/constants';
 import { useToast } from '@/components/context/useContext';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 import Spin from 'antd/es/spin';
 
 const Geography: React.FC = () => {
   const { t } = useTranslation();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
   const currentStep = Number(searchParams.get('step')) || 1;
   const editMode = Boolean(searchParams.get('mode') === 'edit');
@@ -80,6 +81,12 @@ const Geography: React.FC = () => {
       setInitialPosIds(marketCampaignByIdData.posIds);
     }
   }, [marketCampaignByIdData, initialPosIds]);
+
+  const goBack = () => {
+    updateSearchParams(searchParams, setSearchParams, {
+      step: currentStep - 1,
+    });
+  };
 
   const handleSaveAndExit = async () => {
     if (!marketingCampaignId || !loyaltyProgramId) {
@@ -327,6 +334,15 @@ const Geography: React.FC = () => {
       </div>
 
       <div className="hidden sm:flex justify-end gap-2 mt-3 px-4 pb-4 flex-shrink-0">
+        {currentStep > 1 && (
+          <Button
+            icon={<LeftOutlined />}
+            onClick={goBack}
+            className="w-full sm:w-auto"
+          >
+            {t('common.back')}
+          </Button>
+        )}
         {currentStep > 1 && (
           <Button onClick={handleSaveAndExit} loading={isUpdating} className="w-full sm:w-auto">
             {t('marketingLoyalty.saveAndExit')}
