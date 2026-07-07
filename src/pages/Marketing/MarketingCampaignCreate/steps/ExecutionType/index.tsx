@@ -5,6 +5,7 @@ import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import {
     RightOutlined,
+    LeftOutlined,
     SettingOutlined,
     GiftOutlined,
     PercentageOutlined,
@@ -19,6 +20,7 @@ import {
     CampaignExecutionType,
     getMarketingCampaignById,
     createMarketingCampaignAction,
+    updateMarketingCampaignAction,
     ACTION_TYPE,
 } from '@/services/api/marketing';
 import ActionTypeCard from './ActionTypeCard';
@@ -155,6 +157,14 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
         [searchParams]
     );
 
+    const currentStep = Number(searchParams.get('step')) || 1;
+
+    const goBack = () => {
+        updateSearchParams(searchParams, setSearchParams, {
+            step: currentStep - 1,
+        });
+    };
+
     const {
         data: marketingCampaign,
         isLoading,
@@ -242,6 +252,17 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
             return;
         }
 
+        const hasExistingAction = Boolean(marketingCampaign?.actionType);
+        const isUnchanged =
+            hasExistingAction &&
+            marketingCampaign?.executionType === executionType &&
+            marketingCampaign?.actionType === actionType;
+
+        if (isUnchanged) {
+            navigateToNextStep();
+            return;
+        }
+
         try {
             setIsUpdating(true);
 
@@ -250,10 +271,16 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
             };
             await updateMarketingCampaigns(updatePayload, marketingCampaignId);
 
-            await createMarketingCampaignAction({
-                campaignId: marketingCampaignId,
-                actionType: actionType!,
-            });
+            if (hasExistingAction) {
+                await updateMarketingCampaignAction(marketingCampaignId, {
+                    actionType: actionType!,
+                });
+            } else {
+                await createMarketingCampaignAction({
+                    campaignId: marketingCampaignId,
+                    actionType: actionType!,
+                });
+            }
 
             await mutate();
             showToast(t('tables.SAVED'), 'success');
@@ -268,6 +295,7 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
         editMode,
         isConfigurationLocked,
         marketingCampaignId,
+        marketingCampaign,
         validateForm,
         executionType,
         actionType,
@@ -367,14 +395,25 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
             </div>
 
             {(isEditable || editMode) && (
-                <div className="flex justify-end gap-2 mt-6">
-
+                <div className="flex flex-col sm:flex-row justify-end gap-2 mt-6">
+                    <div className="order-2 sm:order-1">
+                        {currentStep > 1 && (
+                            <Button
+                                icon={<LeftOutlined />}
+                                onClick={goBack}
+                                className="w-full sm:w-auto"
+                            >
+                                {t('common.back')}
+                            </Button>
+                        )}
+                    </div>
                     <Button
                         type="primary"
                         icon={<RightOutlined />}
                         iconPosition="end"
                         loading={isUpdating}
                         onClick={handleNext}
+                        className="w-full sm:w-auto order-1 sm:order-2"
                     >
                         {t('common.next')}
                     </Button>

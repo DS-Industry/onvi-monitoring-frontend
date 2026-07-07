@@ -31,6 +31,7 @@ const LoyaltyPrograms: React.FC = () => {
   const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
 
   const isUpdate = Boolean(searchParams.get('mode') === 'edit');
+  const hasExistingProgram = isUpdate || Boolean(searchParams.get('loyaltyProgramId'));
 
   const { data: program, isValidating, isLoading, mutate } = useSWR(
     loyaltyProgramId ? [`get-loyalty-program-by-id`, loyaltyProgramId] : null,
@@ -67,7 +68,7 @@ const LoyaltyPrograms: React.FC = () => {
   const steps = [
     {
       title: t('marketingLoyalty.basicData'),
-      content: isUpdate ? <BasicDataUpdate program={program} isLoading={isValidating || isLoading || tiersLoading} mutate={mutate} isEditable={isOwner} minLevels={tiers.length > 0 ? tiers.length : 1} /> : <BasicData isEditable={true} />,
+      content: hasExistingProgram ? <BasicDataUpdate program={program} isLoading={isValidating || isLoading || tiersLoading} mutate={mutate} isEditable={isOwner} minLevels={tiers.length > 0 ? tiers.length : 1} /> : <BasicData isEditable={true} />,
       icon: <SettingOutlined />,
     },
     {
