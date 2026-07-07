@@ -1,7 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { RightOutlined } from '@ant-design/icons';
+import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
+import { useSearchParams } from 'react-router-dom';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { ACTION_TYPE, MarketingCampaignResponse } from '@/services/api/marketing';
 
 interface ActionButtonsProps {
@@ -20,37 +22,42 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
     onNext,
 }) => {
     const { t } = useTranslation();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const currentStep = Number(searchParams.get('step')) || 1;
+
+    const goBack = () => {
+        updateSearchParams(searchParams, setSearchParams, {
+            step: currentStep - 1,
+        });
+    };
 
     if (!actionType) {
         return null;
     }
 
-    if (actionType === 'PROMOCODE_ISSUE') {
-        return (
-            <div className="flex justify-end gap-2 mt-3">
-                <Button
-                    type="primary"
-                    icon={<RightOutlined />}
-                    iconPosition="end"
-                    disabled={!marketingCampaign?.actionPromocode}
-                    loading={isUpdating}
-                    onClick={onNext}
-                >
-                    {t('common.next')}
-                </Button>
-            </div>
-        );
-    }
+    const isPromocode = actionType === 'PROMOCODE_ISSUE';
 
     return (
-        <div className="flex justify-end gap-2 mt-3">
+        <div className="flex flex-col sm:flex-row justify-end gap-2 mt-3">
+            <div className="order-2 sm:order-1">
+                {currentStep > 1 && (
+                    <Button
+                        icon={<LeftOutlined />}
+                        onClick={goBack}
+                        className="w-full sm:w-auto"
+                    >
+                        {t('common.back')}
+                    </Button>
+                )}
+            </div>
             <Button
                 type="primary"
                 icon={<RightOutlined />}
                 iconPosition="end"
                 loading={isUpdating}
-                disabled={isDisabled}
+                disabled={isPromocode ? !marketingCampaign?.actionPromocode : isDisabled}
                 onClick={onNext}
+                className="w-full sm:w-auto order-1 sm:order-2"
             >
                 {t('common.next')}
             </Button>
@@ -59,4 +66,3 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
 };
 
 export default ActionButtons;
-

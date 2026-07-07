@@ -5,6 +5,7 @@ import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import {
     RightOutlined,
+    LeftOutlined,
     SettingOutlined,
     GiftOutlined,
     DollarOutlined,
@@ -143,6 +144,14 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
         () => searchParams.get('mode') === 'edit',
         [searchParams]
     );
+
+    const currentStep = Number(searchParams.get('step')) || 1;
+
+    const goBack = () => {
+        updateSearchParams(searchParams, setSearchParams, {
+            step: currentStep - 1,
+        });
+    };
 
     const {
         data: marketingCampaign,
@@ -353,14 +362,25 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
             </div>
 
             {(isEditable || editMode) && (
-                <div className="flex justify-end gap-2 mt-6">
-
+                <div className="flex flex-col sm:flex-row justify-end gap-2 mt-6">
+                    <div className="order-2 sm:order-1">
+                        {currentStep > 1 && (
+                            <Button
+                                icon={<LeftOutlined />}
+                                onClick={goBack}
+                                className="w-full sm:w-auto"
+                            >
+                                {t('common.back')}
+                            </Button>
+                        )}
+                    </div>
                     <Button
                         type="primary"
                         icon={<RightOutlined />}
                         iconPosition="end"
                         loading={isUpdating}
                         onClick={handleNext}
+                        className="w-full sm:w-auto order-1 sm:order-2"
                     >
                         {t('common.next')}
                     </Button>

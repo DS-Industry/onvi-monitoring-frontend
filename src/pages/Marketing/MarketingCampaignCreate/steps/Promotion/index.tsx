@@ -4,7 +4,7 @@ import useFormHook from '@/hooks/useFormHook';
 import { Button, Row, Col, Card, Typography, Upload, Spin } from 'antd';
 import { useSearchParams } from 'react-router-dom';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import { RightOutlined } from '@ant-design/icons';
+import { RightOutlined, LeftOutlined } from '@ant-design/icons';
 import { useToast } from '@/components/context/useContext';
 import { CameraOutlined } from '@ant-design/icons';
 import useSWR from 'swr';
@@ -37,7 +37,14 @@ const Promotion: React.FC<BasicDataProps> = ({ campaign, isEditable = true }) =>
   const [searchParams, setSearchParams] = useSearchParams();
   const { showToast } = useToast();
   const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
+  const currentStep = Number(searchParams.get('step')) || 1;
   const editMode = Boolean(searchParams.get('mode') === 'edit');
+
+  const goBack = () => {
+    updateSearchParams(searchParams, setSearchParams, {
+      step: currentStep - 1,
+    });
+  };
 
   const isPromocode = campaign?.actionType as ACTION_TYPE === 'PROMOCODE_ISSUE';
 
@@ -433,7 +440,18 @@ const Promotion: React.FC<BasicDataProps> = ({ campaign, isEditable = true }) =>
                       </Upload>
                     </div>
                     {isEditable && (
-                      <div className="flex justify-end gap-2 mt-3">
+                      <div className="flex flex-col sm:flex-row justify-end gap-2 mt-3">
+                        <div className="order-2 sm:order-1">
+                          {currentStep > 1 && (
+                            <Button
+                              icon={<LeftOutlined />}
+                              onClick={goBack}
+                              className="w-full sm:w-auto"
+                            >
+                              {t('common.back')}
+                            </Button>
+                          )}
+                        </div>
                         <Button
                           htmlType="submit"
                           type="primary"
@@ -441,6 +459,7 @@ const Promotion: React.FC<BasicDataProps> = ({ campaign, isEditable = true }) =>
                           iconPosition="end"
                           loading={uploadingImage || isLoading || isSubmiting}
                           disabled={!bannerImageUrl}
+                          className="w-full sm:w-auto order-1 sm:order-2"
                         >
                           {t('common.next')}
                         </Button>
