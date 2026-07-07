@@ -1,5 +1,6 @@
 {
   "routes": {
+    "newsDetail": "Новости",
     "dashboard": "Обзор",
     "administration": "Администрирование",
     "subscriptions": "Подписки",
@@ -228,7 +229,15 @@
     "upToDate": "Здесь храниться актуальная информация про ваш тариф",
     "critical": "Критический остаток",
     "chemistry": "Химия",
-    "chemistryText": "Пополните запасы химии на объекте!"
+    "chemistryText": "Пополните запасы химии на объекте!",
+    "empty": "Новостей пока нет",
+    "emptyDescription": "Здесь будут отображаться опубликованные новости платформы",
+    "loadMore": "Загрузить ещё",
+    "notFound": "Статья не найдена",
+    "notFoundDescription": "Возможно, она была удалена или ещё не опубликована",
+    "pageTitle": "Новости",
+    "tagPlaceholder": "—",
+    "validUntilPlaceholder": "действует до —"
   },
   "indicators": {
     "visitors": "Всего посетителей",
