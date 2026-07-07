@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import Notification from '@ui/Notification.tsx';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
 import {
@@ -34,7 +33,6 @@ import useAuthStore from '@/config/store/authSlice';
 const MarketingLoyalty: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [notificationVisible, setNotificationVisible] = useState(true);
   const [isParticipantModalOpen, setIsParticipantModalOpen] = useState(false);
   const navigate = useNavigate();
   const { showToast } = useToast();
@@ -222,7 +220,7 @@ const MarketingLoyalty: React.FC = () => {
           const isOwner = record.ownerOrganizationId === user.organizationId;
 
           if (!isOwner) return null;
-          
+
           return (
             <Can requiredPermissions={[{ action: 'create', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
               {allowed => allowed && (
@@ -282,14 +280,6 @@ const MarketingLoyalty: React.FC = () => {
         )}
       </div>
       <div className="mt-2">
-        {notificationVisible && (
-          <Notification
-            title={t('routes.loyalty')}
-            message={t('marketing.promotion')}
-            showBonus={true}
-            onClose={() => setNotificationVisible(false)}
-          />
-        )}
 
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 lg:gap-4 mb-6 px-4 sm:px-6 md:px-8 lg:px-0">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
