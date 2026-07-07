@@ -195,7 +195,7 @@ const MarketingCampaigns: React.FC = () => {
                 {text}
               </Link>
             ) : (
-              <span className="text-gray-700">{text}</span> 
+              <span className="text-gray-700">{text}</span>
             )}
           </Can>
         );
@@ -246,12 +246,12 @@ const MarketingCampaigns: React.FC = () => {
         const isActive = record.rawStatus === 'ACTIVE';
         const isPaused = record.rawStatus === 'PAUSED';
         const canDelete = record.campaignUsage === 0;
-    
+
         return (
           <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
             {allowed => {
               if (!allowed) return null;
-    
+
               if (isActive) {
                 return (
                   <Space wrap>
@@ -280,7 +280,7 @@ const MarketingCampaigns: React.FC = () => {
                   </Space>
                 );
               }
-    
+
               if (isPaused) {
                 return (
                   <Space>
@@ -298,7 +298,7 @@ const MarketingCampaigns: React.FC = () => {
                   </Space>
                 );
               }
-    
+
               if (canDelete) {
                 return (
                   <Space>
@@ -316,7 +316,7 @@ const MarketingCampaigns: React.FC = () => {
                   </Space>
                 );
               }
-    
+
               return null;
             }}
           </Can>
@@ -429,9 +429,10 @@ const MarketingCampaigns: React.FC = () => {
                   campaign={card}
                   loading={isLoading || isValidating}
                   onClick={() => {
-                    navigate(
-                      `/marketing/campaign/create/${card.id}?marketingCampaignId=${card.id}&step=1&mode=edit`
-                    );
+                    navigate({
+                      pathname: '/marketing/campaign/create',
+                      search: `?marketingCampaignId=${card.id}&mode=edit`,
+                    });
                   }}
                 />
               ))}

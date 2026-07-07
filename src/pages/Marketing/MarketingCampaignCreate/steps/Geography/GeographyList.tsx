@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { Checkbox, Typography, Button, Grid } from 'antd';
+import { Checkbox, Typography, Button, Grid, Input } from 'antd';
 import { EnvironmentFilled, PlayCircleFilled } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { PosResponse } from '@/services/api/marketing';
@@ -64,6 +64,7 @@ const GeographyList: React.FC<GeographyListProps> = React.memo(({
   const onSelectionChangeRef = useRef(onSelectionChange);
   const initializedRef = useRef(false);
   const [expanded, setExpanded] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const isMdOrLarger = screens.md || screens.lg || screens.xl || screens.xxl;
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -122,6 +123,23 @@ const GeographyList: React.FC<GeographyListProps> = React.memo(({
   }, [selectedIds, participants]);
 
   const selectedIdsSet = useMemo(() => new Set(selectedIds), [selectedIds]);
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+
+  const filteredParticipants = useMemo(() => {
+    if (!normalizedSearchTerm) return participants;
+
+    return participants.filter(branch => {
+      const name = branch.name?.toLowerCase() || '';
+      const city = branch.address?.city?.toLowerCase() || '';
+      const location = branch.address?.location?.toLowerCase() || '';
+
+      return (
+        name.includes(normalizedSearchTerm) ||
+        city.includes(normalizedSearchTerm) ||
+        location.includes(normalizedSearchTerm)
+      );
+    });
+  }, [participants, normalizedSearchTerm]);
 
   const handleToggle = useCallback((id: number, checked: boolean) => {
     setSelectedIds(prev =>
@@ -138,7 +156,7 @@ const GeographyList: React.FC<GeographyListProps> = React.memo(({
   }, []);
 
   const rowVirtualizer = useVirtualizer({
-    count: participants.length,
+    count: filteredParticipants.length,
     getScrollElement: () => scrollContainerRef.current,
     estimateSize: () => ROW_HEIGHT_ESTIMATE,
     overscan: 8,
@@ -202,6 +220,13 @@ const GeographyList: React.FC<GeographyListProps> = React.memo(({
             </div>
           )}
         </div>
+        <Input
+          allowClear
+          className="mt-3"
+          placeholder={t('analysis.search')}
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+        />
       </div>
 
       <div
@@ -212,6 +237,10 @@ const GeographyList: React.FC<GeographyListProps> = React.memo(({
           <div className="text-center py-8 text-base03">
             <Text type="secondary">{t('marketingLoyalty.noParticipants')}</Text>
           </div>
+        ) : filteredParticipants.length === 0 ? (
+          <div className="text-center py-8 text-base03">
+            <Text type="secondary">{t('table.noData')}</Text>
+          </div>
         ) : (
           <div
             style={{
@@ -221,7 +250,7 @@ const GeographyList: React.FC<GeographyListProps> = React.memo(({
             }}
           >
             {virtualItems.map(virtualRow => {
-              const branch = participants[virtualRow.index];
+              const branch = filteredParticipants[virtualRow.index];
               return (
                 <div
                   key={branch.id}
