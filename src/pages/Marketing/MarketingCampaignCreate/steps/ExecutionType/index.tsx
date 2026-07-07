@@ -21,6 +21,7 @@ import {
     CampaignExecutionType,
     getMarketingCampaignById,
     createMarketingCampaignAction,
+    updateMarketingCampaignAction,
     ACTION_TYPE,
 } from '@/services/api/marketing';
 import ActionTypeCard from './ActionTypeCard';
@@ -157,6 +158,7 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
         data: marketingCampaign,
         isLoading,
         isValidating,
+        mutate,
     } = useSWR(
         marketingCampaignId
             ? ['get-marketing-campaign-by-id', marketingCampaignId]
@@ -239,6 +241,17 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
             return;
         }
 
+        const hasExistingAction = Boolean(marketingCampaign?.actionType);
+        const isUnchanged =
+            hasExistingAction &&
+            marketingCampaign?.executionType === executionType &&
+            marketingCampaign?.actionType === actionType;
+
+        if (isUnchanged) {
+            navigateToNextStep();
+            return;
+        }
+
         try {
             setIsUpdating(true);
 
@@ -247,11 +260,18 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
             };
             await updateMarketingCampaigns(updatePayload, marketingCampaignId);
 
-            await createMarketingCampaignAction({
-                campaignId: marketingCampaignId,
-                actionType: actionType!,
-            });
+            if (hasExistingAction) {
+                await updateMarketingCampaignAction(marketingCampaignId, {
+                    actionType: actionType!,
+                });
+            } else {
+                await createMarketingCampaignAction({
+                    campaignId: marketingCampaignId,
+                    actionType: actionType!,
+                });
+            }
 
+            await mutate();
             showToast(t('tables.SAVED'), 'success');
             navigateToNextStep();
         } catch (error) {
@@ -264,12 +284,14 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
         editMode,
         isConfigurationLocked,
         marketingCampaignId,
+        marketingCampaign,
         validateForm,
         executionType,
         actionType,
         showToast,
         t,
         navigateToNextStep,
+        mutate,
     ]);
 
     if (isLoading || isValidating) {

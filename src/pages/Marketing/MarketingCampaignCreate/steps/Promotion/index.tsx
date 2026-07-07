@@ -230,7 +230,7 @@ const Promotion: React.FC<BasicDataProps> = ({ campaign, isEditable = true }) =>
 
         if (!hasChanged) {
           updateSearchParams(searchParams, setSearchParams, {
-            step: 6,
+            step: currentStep + 1,
           });
           setIsSubmitting(false);
           return;
@@ -266,7 +266,7 @@ const Promotion: React.FC<BasicDataProps> = ({ campaign, isEditable = true }) =>
       setInitialPromotionType(promotionType);
 
       updateSearchParams(searchParams, setSearchParams, {
-        step: 6,
+        step: currentStep + 1,
       });
       showToast(t('tables.SAVED'), 'success');
     } catch (error) {
