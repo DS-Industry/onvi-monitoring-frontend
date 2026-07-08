@@ -979,11 +979,17 @@ export async function getClientLoyaltyStats(
   return response.data;
 }
 
+export enum ECardType {
+  PHYSICAL = 'PHYSICAL',
+  VIRTUAL = 'VIRTUAL',
+}
+
 export type ImportCardsRequest = {
   file: File;
   organizationId: number;
   corporateClientId?: number;
   tierId?: number;
+  cardType?: ECardType;
 };
 
 export type ImportCardsResponse = {
@@ -1004,12 +1010,16 @@ export async function importCards(
   const formData = new FormData();
   formData.append('file', request.file);
   formData.append('organizationId', request.organizationId.toString());
-  if (request.corporateClientId) {
-    formData.append('corporateClientId', request.corporateClientId.toString());
-  }
   if (request.tierId) {
     formData.append('tierId', request.tierId.toString());
   }
+  if (request.cardType) {
+    formData.append('cardType', request.cardType);
+  }
+  if (request.corporateClientId) {
+    formData.append('corporateClientId', request.corporateClientId.toString());
+  }
+
   const response: AxiosResponse<ImportCardsResponse> = await api.post(
     'user/loyalty/import-cards',
     formData
@@ -2170,6 +2180,40 @@ export enum PromocodeDiscountType {
   PERCENTAGE = 'PERCENTAGE',
   FIXED_AMOUNT = 'FIXED_AMOUNT',
   FREE_SERVICE = 'FREE_SERVICE',
+}
+
+export type SpendCycle = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' | 'ALL_TIME';
+
+export type SpendMilestoneTierDto = {
+  threshold: number;
+  discountType: PromocodeDiscountType;
+  discountValue: number;
+  validDays: number;
+  minOrderAmount?: number;
+  maxDiscountAmount?: number;
+};
+
+export type CreateSpendMilestoneCampaignDto = {
+  name: string;
+  launchDate: Date | string;
+  endDate?: Date | string | null;
+  description?: string;
+  ltyProgramId: number;
+  ltyProgramParticipantId: number;
+  posIds?: number[];
+  spendCycle?: SpendCycle;
+  status?: 'DRAFT' | 'ACTIVE';
+  tiers: SpendMilestoneTierDto[];
+};
+
+export async function createSpendMilestoneCampaign(
+  request: CreateSpendMilestoneCampaignDto
+): Promise<MarketingCampaignResponse> {
+  const response: AxiosResponse<MarketingCampaignResponse> = await api.post(
+    'user/loyalty/marketing-campaign/spend-milestone/create',
+    request
+  );
+  return response.data;
 }
 
 export type CreatePromocodeDto = {

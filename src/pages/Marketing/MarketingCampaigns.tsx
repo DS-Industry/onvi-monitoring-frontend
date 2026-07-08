@@ -427,12 +427,7 @@ const MarketingCampaigns: React.FC = () => {
                   key={card.id}
                   campaign={card}
                   loading={isLoading || isValidating}
-                  onClick={() => {
-                    navigate({
-                      pathname: '/marketing/campaign/create',
-                      search: `?marketingCampaignId=${card.id}&mode=edit`,
-                    });
-                  }}
+                  onClick={() => navigate(`/marketing/campaign/${card.id}`)}
                 />
               ))}
             </div>
