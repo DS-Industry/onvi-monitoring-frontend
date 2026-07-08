@@ -37,18 +37,25 @@ import { Can } from '@/permissions/Can';
 
 type CampaignRow = MarketingCampaignResponse & { rawStatus?: string };
 
+const tableCellStyle: React.CSSProperties = {
+  padding: '21px 12px',
+  lineHeight: '18px',
+};
+
 const tableHeaderCell = (): React.HTMLAttributes<HTMLElement> => ({
   className:
-    'border-x-2 border-x-background02 border-y-0 bg-background03 px-3 py-[21px] text-sm font-semibold leading-[18px] text-text01 align-middle before:hidden',
+    'rounded-none border-x-2 border-x-background02 border-t-0 border-b border-borderFill bg-background03 text-sm font-semibold text-text01 align-middle before:hidden',
+  style: { ...tableCellStyle, borderRadius: 0 },
 });
 
 const tableBodyCell = (isLastRow: boolean): React.HTMLAttributes<HTMLElement> => ({
   className: [
-    'border-x-2 border-x-background02 bg-background02 px-3 py-3 text-sm leading-[18px] align-middle',
+    'border-x-2 border-x-background02 bg-background02 text-sm align-middle',
     !isLastRow && 'border-b border-borderFill',
   ]
     .filter(Boolean)
     .join(' '),
+  style: tableCellStyle,
 });
 
 const applyTableCells = (
