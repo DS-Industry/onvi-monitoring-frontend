@@ -2453,6 +2453,9 @@
     "ReportIncomplete": "Отчет не заполнен"
   },
   "marketingCampaigns": {
+    "searchPlaceholder": "Поиск кампаний...",
+    "view": "Вид:",
+    "tableName": "Название",
     "terms": "Условия и призы",
     "promotion": "Контент акции",
     "geography": "География применения",
