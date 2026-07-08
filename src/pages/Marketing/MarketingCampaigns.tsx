@@ -1,14 +1,14 @@
-import { Button, Table, Pagination, Input, Tag, Spin, Popconfirm, Modal } from 'antd';
+import { Button, Table, Pagination, Input, Tag, Spin, Popconfirm } from 'antd';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  AppstoreOutlined,
   DeleteOutlined,
   LineChartOutlined,
   PlusOutlined,
   SearchOutlined,
+  UnorderedListOutlined,
 } from '@ant-design/icons';
-import MarketingTableIcon from '@icons/marketing-table.svg?react';
-import MarketingListIcon from '@icons/marketing-list.svg?react';
 import Notification from '@ui/Notification.tsx';
 import { getStatusColor } from '@/utils/tableUnits';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -72,10 +72,10 @@ type ViewToggleProps = {
   active: boolean;
   label: string;
   onClick: () => void;
-  icon: React.FC<React.SVGProps<SVGSVGElement>>;
+  children: React.ReactNode;
 };
 
-const ViewToggle: React.FC<ViewToggleProps> = ({ active, label, onClick, icon: Icon }) => (
+const ViewToggle: React.FC<ViewToggleProps> = ({ active, label, onClick, children }) => (
   <button
     type="button"
     aria-label={label}
@@ -83,11 +83,11 @@ const ViewToggle: React.FC<ViewToggleProps> = ({ active, label, onClick, icon: I
     onClick={onClick}
     className={
       active
-        ? 'flex h-[18px] w-[18px] items-center justify-center text-primary02'
-        : 'flex h-[18px] w-[18px] items-center justify-center text-base03 hover:text-primary02'
+        ? 'flex h-8 w-8 items-center justify-center rounded-md border border-primary02 bg-primary02 text-base text-text04'
+        : 'flex h-8 w-8 items-center justify-center rounded-md border border-borderFill bg-background02 text-base text-text02 hover:border-primary02 hover:text-primary02'
     }
   >
-    <Icon className="h-full w-full" />
+    {children}
   </button>
 );
 
@@ -102,8 +102,6 @@ const MarketingCampaigns: React.FC = () => {
   const pageSize = Number(searchParams.get('size') || DEFAULT_PAGE_SIZE);
   const [searchValue, setSearchValue] = useState(name || '');
   const [view, setView] = useState<'table' | 'cards'>('table');
-  const [statisticsCampaign, setStatisticsCampaign] =
-    useState<CampaignRow | null>(null);
   const userPermissions = useAuthStore(state => state.permissions);
   const navigate = useNavigate();
   const user = useUser();
@@ -294,12 +292,12 @@ const MarketingCampaigns: React.FC = () => {
                       {t('common.delete')}
                     </Button>
                   )}
+                  {/* Заглушка: статистика кампании пока не реализована */}
                   <Button
                     type="link"
                     size="small"
                     icon={<LineChartOutlined />}
                     className="h-auto p-0 text-primary02"
-                    onClick={() => setStatisticsCampaign(record)}
                   >
                     {t('dashboard.indicators')}
                   </Button>
@@ -314,23 +312,6 @@ const MarketingCampaigns: React.FC = () => {
 
   return (
     <div>
-      <Modal
-        open={Boolean(statisticsCampaign)}
-        title={t('dashboard.indicators')}
-        onCancel={() => setStatisticsCampaign(null)}
-        footer={[
-          <Button key="close" onClick={() => setStatisticsCampaign(null)}>
-            {t('common.close')}
-          </Button>,
-        ]}
-      >
-        <p className="mb-4 text-text02">{t('marketingCampaigns.displaying')}</p>
-        <div className="text-text01">
-          <span className="font-semibold">{t('marketingCampaigns.uses')}:</span>{' '}
-          {statisticsCampaign?.campaignUsage ?? statisticsCampaign?.currentUsage ?? 0}
-        </div>
-      </Modal>
-
       <div className="mb-5 ml-12 flex items-start justify-between md:ml-0">
         <span className="text-xl font-normal text-text01 sm:text-3xl">
           {t('routes.marketingCompanies')}
@@ -363,20 +344,22 @@ const MarketingCampaigns: React.FC = () => {
           triggerClassName="ml-[23px] h-9 rounded-md border-borderFill px-3 text-sm shadow-none"
         />
 
-        <div className="ml-[23px] flex items-center gap-3">
-          <span className="whitespace-nowrap text-sm text-text01">{t('marketingCampaigns.view')}</span>
+        <div className="ml-[23px] flex items-center gap-2">
+          <span className="whitespace-nowrap text-sm text-text02">{t('marketingCampaigns.view')}</span>
           <ViewToggle
             active={view === 'table'}
             label={t('equipment.table')}
             onClick={() => setView('table')}
-            icon={MarketingTableIcon}
-          />
+          >
+            <UnorderedListOutlined />
+          </ViewToggle>
           <ViewToggle
             active={view === 'cards'}
             label={t('marketing.cards')}
             onClick={() => setView('cards')}
-            icon={MarketingListIcon}
-          />
+          >
+            <AppstoreOutlined />
+          </ViewToggle>
         </div>
 
         <div className="ml-auto">
