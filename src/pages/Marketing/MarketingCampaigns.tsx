@@ -186,10 +186,7 @@ const MarketingCampaigns: React.FC = () => {
           <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
             {allowed => allowed ? (
               <Link
-                to={{
-                  pathname: '/marketing/campaign/create',
-                  search: `?marketingCampaignId=${record.id}&mode=edit`,
-                }}
+                to={`/marketing/campaign/${record.id}`}
                 className="text-primary02 hover:text-primary02_Hover font-semibold"
               >
                 {text}
@@ -428,12 +425,7 @@ const MarketingCampaigns: React.FC = () => {
                   key={i}
                   campaign={card}
                   loading={isLoading || isValidating}
-                  onClick={() => {
-                    navigate({
-                      pathname: '/marketing/campaign/create',
-                      search: `?marketingCampaignId=${card.id}&mode=edit`,
-                    });
-                  }}
+                  onClick={() => navigate(`/marketing/campaign/${card.id}`)}
                 />
               ))}
             </div>

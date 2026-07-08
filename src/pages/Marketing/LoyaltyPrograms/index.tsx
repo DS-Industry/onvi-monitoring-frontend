@@ -5,6 +5,7 @@ import {
   ArrowLeftOutlined,
   SettingOutlined,
   CarOutlined,
+  CreditCardOutlined,
   FireOutlined,
   SyncOutlined,
   LineChartOutlined
@@ -13,7 +14,6 @@ import { Steps, Skeleton } from 'antd';
 import BasicData from './BasicData';
 import BasicDataUpdate from './update/BasicDataUpdate';
 import LevelsBonuses from './LevelsBonuses';
-import Participants from './Participants';
 import Publications from './Publications';
 import Stats from './Stats';
 import useSWR from 'swr';

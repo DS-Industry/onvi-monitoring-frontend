@@ -23,6 +23,8 @@ const CreateOrganization = React.lazy(
   () => import('@/pages/Organization/CreateOrganization')
 );
 const MarketingCampaignCreate = React.lazy(() => import('@/pages/Marketing/MarketingCampaignCreate'));
+const MarketingCampaignProfile = React.lazy(() => import('@/pages/Marketing/MarketingCampaignProfile'));
+const MarketingCampaignStats = React.lazy(() => import('@/pages/Marketing/MarketingCampaignStats'));
 const FalseDeposits = React.lazy(() => import('@/pages/Finance/FalseDeposits'));
 const ProfitCalculation = React.lazy(() => import('@/pages/Finance/ProfitCalculation'));
 const MyReports = React.lazy(() => import('@/pages/Finance/MyReports'));
@@ -46,6 +48,7 @@ const Deposit = React.lazy(() => import('@/pages/Pos/Deposit'));
 const Programs = React.lazy(() => import('@/pages/Pos/Programs'));
 const DepositDevices = React.lazy(() => import('@/pages/Pos/DepositDevices'));
 const Dashboard = React.lazy(() => import('@/pages/Dashboard/Dashboard'));
+const NewsDetail = React.lazy(() => import('@/pages/Dashboard/NewsDetail'));
 const EquipmentFailure = React.lazy(
   () => import('@/pages/Equipment/EquipmentFailure')
 );
@@ -193,6 +196,18 @@ const routes: RouteItem[] = [
     component: Dashboard,
     isSidebar: true,
     permissions: [],
+    subNav: [
+      {
+        name: 'newsDetail',
+        isVisible: true,
+        path: '/news/:slug',
+        component: NewsDetail,
+        permissions: [],
+        isSidebar: false,
+        subNav: [],
+        subMenu: false,
+      },
+    ],
   },
   {
     name: 'administration',
@@ -1132,6 +1147,26 @@ const routes: RouteItem[] = [
         isVisible: true,
         path: '/marketing/campaign/create',
         component: MarketingCampaignCreate,
+        permissions: [{ action: 'update', subject: 'LTYProgram' }],
+        isSidebar: false,
+        subNav: [],
+        subMenu: false,
+      },
+      {
+        name: 'viewMarketingCampaign',
+        isVisible: false,
+        path: '/marketing/campaign/:id',
+        component: MarketingCampaignProfile,
+        permissions: [{ action: 'update', subject: 'LTYProgram' }],
+        isSidebar: false,
+        subNav: [],
+        subMenu: false,
+      },
+      {
+        name: 'marketingCampaignStats',
+        isVisible: false,
+        path: '/marketing/campaign/:id/stats',
+        component: MarketingCampaignStats,
         permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: false,
         subNav: [],
