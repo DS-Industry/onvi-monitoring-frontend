@@ -34,7 +34,6 @@ import FilterCampaign from './FilterCampaign';
 import CampaignCard from './CampaignCard';
 import useAuthStore from '@/config/store/authSlice';
 import { Can } from '@/permissions/Can';
-import './MarketingCampaigns.css';
 
 type CampaignRow = MarketingCampaignResponse & { rawStatus?: string };
 
@@ -175,7 +174,7 @@ const MarketingCampaigns: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       render: (_, record) => (
-        <Tag bordered color={getStatusColor(t, record.status)} className="marketing-campaigns-status-tag">
+        <Tag bordered color={getStatusColor(t, record.status)} className="m-0 px-2 text-sm leading-[18px]">
           {record.status}
         </Tag>
       ),
@@ -207,7 +206,7 @@ const MarketingCampaigns: React.FC = () => {
         return (
           <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
             {allowed => allowed ? (
-              <div className="marketing-campaigns-actions">
+              <div className="flex flex-col items-start gap-0">
                 {canDelete ? (
                   <Popconfirm
                     title={t('techTasks.confirmDelete')}
@@ -291,25 +290,29 @@ const MarketingCampaigns: React.FC = () => {
         )}
       </div>
 
-      <div className="marketing-campaigns-toolbar">
+      <div className="mb-[26px] mt-[22px] flex flex-wrap items-center">
         <Input
           placeholder={t('marketingCampaigns.searchPlaceholder')}
           prefix={<SearchOutlined className="text-base03" />}
           value={searchValue}
           onChange={handleSearchChange}
           allowClear
-          className="marketing-campaigns-search"
+          className="h-9 w-[296px] max-w-full rounded-md border-borderFill [&_.ant-input]:text-sm [&_.ant-input-prefix]:me-2"
         />
 
-        <div className="marketing-campaigns-toolbar-filters">
+        <div className="ml-[23px] [&_.ant-btn]:h-9 [&_.ant-btn]:rounded-md [&_.ant-btn]:border-borderFill [&_.ant-btn]:px-3 [&_.ant-btn]:text-sm [&_.ant-btn]:text-text01 [&_.ant-btn]:shadow-none [&_.ant-btn:hover]:border-primary02 [&_.ant-btn:hover]:text-primary02">
           <FilterCampaign display={['status']} />
         </div>
 
-        <div className="marketing-campaigns-view">
-          <span className="marketing-campaigns-view-label">{t('marketingCampaigns.view')}</span>
+        <div className="ml-[23px] flex items-center gap-2">
+          <span className="whitespace-nowrap text-sm text-text02">{t('marketingCampaigns.view')}</span>
           <button
             type="button"
-            className={`marketing-campaigns-view-toggle ${view === 'table' ? 'is-active' : ''}`}
+            className={`inline-flex h-8 w-8 items-center justify-center rounded-md border text-base transition-colors ${
+              view === 'table'
+                ? 'border-primary02 bg-primary02 text-text04'
+                : 'border-borderFill bg-background02 text-text02 hover:border-primary02 hover:text-primary02'
+            }`}
             onClick={() => setView('table')}
             aria-label={t('equipment.table')}
           >
@@ -317,7 +320,11 @@ const MarketingCampaigns: React.FC = () => {
           </button>
           <button
             type="button"
-            className={`marketing-campaigns-view-toggle ${view === 'cards' ? 'is-active' : ''}`}
+            className={`inline-flex h-8 w-8 items-center justify-center rounded-md border text-base transition-colors ${
+              view === 'cards'
+                ? 'border-primary02 bg-primary02 text-text04'
+                : 'border-borderFill bg-background02 text-text02 hover:border-primary02 hover:text-primary02'
+            }`}
             onClick={() => setView('cards')}
             aria-label={t('marketing.cards')}
           >
@@ -325,13 +332,13 @@ const MarketingCampaigns: React.FC = () => {
           </button>
         </div>
 
-        <div className="marketing-campaigns-toolbar-actions">
+        <div className="ml-auto">
           <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
             {allowed => allowed && (
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
-                className="marketing-campaigns-create-btn"
+                className="h-9 rounded-md px-4 text-sm shadow-none"
                 onClick={() => navigate('/marketing/campaign/create')}
               >
                 {t('routes.create')}
@@ -348,7 +355,6 @@ const MarketingCampaigns: React.FC = () => {
               <Spin />
             </div>
           ) : (
-            <div className="marketing-campaigns-table-wrap">
             <Table
               rowKey="id"
               className="marketing-campaigns-table"
@@ -372,7 +378,6 @@ const MarketingCampaigns: React.FC = () => {
               loading={isLoading || isValidating}
               locale={{ emptyText: t('table.noData') }}
             />
-            </div>
           )}
         </div>
       )}

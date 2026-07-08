@@ -11,3 +11,42 @@
 .btn-outline-primary {
   @apply bg-background02 text-primary02 hover:text-primary02_Hover border border-primary02 hover:border-primary02_Hover flex items-center px-4 sm:px-6 py-5;
 }
+
+.marketing-campaigns-table.ant-table-wrapper .ant-table,
+.marketing-campaigns-table.ant-table-wrapper .ant-table-container,
+.marketing-campaigns-table.ant-table-wrapper .ant-table .ant-table-header,
+.marketing-campaigns-table.ant-table-wrapper .ant-table table,
+.marketing-campaigns-table.ant-table-wrapper .ant-table-container table,
+.marketing-campaigns-table.ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:first-child,
+.marketing-campaigns-table.ant-table-wrapper .ant-table-container table > thead > tr:first-child > *:last-child,
+.marketing-campaigns-table.ant-table-wrapper .ant-table-footer {
+  @apply rounded-none;
+}
+
+.marketing-campaigns-table.ant-table-wrapper .ant-table-container {
+  @apply overflow-hidden border-b border-borderFill border-l-[2px] border-r-[2px] border-l-background02 border-r-background02 border-t-0;
+}
+
+.marketing-campaigns-table.ant-table-wrapper table > thead > tr > th,
+.marketing-campaigns-table.ant-table-wrapper .ant-table-thead > tr > th.ant-table-cell {
+  @apply !bg-background03 !font-semibold text-text01 border-t-0 border-b-0 border-l-[2px] border-r-[2px] border-l-background02 border-r-background02 text-sm leading-[18px];
+  padding: 21px 12px !important;
+  vertical-align: middle !important;
+}
+
+.marketing-campaigns-table.ant-table-wrapper table > tbody > tr > td,
+.marketing-campaigns-table.ant-table-wrapper .ant-table-tbody > tr > td.ant-table-cell {
+  @apply bg-background02 border-b border-borderFill border-l-[2px] border-r-[2px] border-l-background02 border-r-background02 text-sm leading-[18px];
+  padding: 12px 12px !important;
+  vertical-align: middle !important;
+}
+
+.marketing-campaigns-table.ant-table-wrapper table > thead > tr > th::before,
+.marketing-campaigns-table.ant-table-wrapper .ant-table-thead > tr > th.ant-table-cell::before {
+  display: none !important;
+}
+
+.marketing-campaigns-table.ant-table-wrapper table > tbody > tr:last-child > td,
+.marketing-campaigns-table.ant-table-wrapper .ant-table-tbody > tr:last-child > td.ant-table-cell {
+  @apply border-b-0;
+}
