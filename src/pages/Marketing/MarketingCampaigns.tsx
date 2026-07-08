@@ -1,5 +1,5 @@
 import { Button, Table, Pagination, Input, Tag, Spin, Popconfirm, Modal } from 'antd';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   AppstoreOutlined,
@@ -36,6 +36,53 @@ import useAuthStore from '@/config/store/authSlice';
 import { Can } from '@/permissions/Can';
 
 type CampaignRow = MarketingCampaignResponse & { rawStatus?: string };
+
+const tableHeaderCell = (): React.HTMLAttributes<HTMLElement> => ({
+  className:
+    'border-x-2 border-x-background02 border-y-0 bg-background03 px-3 py-[21px] text-sm font-semibold leading-[18px] text-text01 align-middle before:hidden',
+});
+
+const tableBodyCell = (isLastRow: boolean): React.HTMLAttributes<HTMLElement> => ({
+  className: [
+    'border-x-2 border-x-background02 bg-background02 px-3 py-3 text-sm leading-[18px] align-middle',
+    !isLastRow && 'border-b border-borderFill',
+  ]
+    .filter(Boolean)
+    .join(' '),
+});
+
+const applyTableCells = (
+  columns: ColumnsType<CampaignRow>,
+  rowCount: number
+): ColumnsType<CampaignRow> =>
+  columns.map(column => ({
+    ...column,
+    onHeaderCell: tableHeaderCell,
+    onCell: (_record, rowIndex) => tableBodyCell(rowIndex === rowCount - 1),
+  }));
+
+type ViewToggleProps = {
+  active: boolean;
+  label: string;
+  onClick: () => void;
+  children: React.ReactNode;
+};
+
+const ViewToggle: React.FC<ViewToggleProps> = ({ active, label, onClick, children }) => (
+  <button
+    type="button"
+    aria-label={label}
+    aria-pressed={active}
+    onClick={onClick}
+    className={
+      active
+        ? 'flex h-8 w-8 items-center justify-center rounded-md border border-primary02 bg-primary02 text-base text-text04'
+        : 'flex h-8 w-8 items-center justify-center rounded-md border border-borderFill bg-background02 text-base text-text02 hover:border-primary02 hover:text-primary02'
+    }
+  >
+    {children}
+  </button>
+);
 
 const MarketingCampaigns: React.FC = () => {
   const { t } = useTranslation();
@@ -123,7 +170,7 @@ const MarketingCampaigns: React.FC = () => {
       name,
     ]);
 
-  const handleDeleteDraftCampaign = async (id: number) => {
+  const handleDeleteDraftCampaign = useCallback(async (id: number) => {
     try {
       const res = await deleteDraftMarketingCampaign(id);
       revalidateList();
@@ -135,124 +182,128 @@ const MarketingCampaigns: React.FC = () => {
         'Failed to delete draft campaign';
       showToast(errorMessage, 'error');
     }
-  };
+  }, [revalidateList, showToast, t]);
 
   const formatDateTime = (value?: string) =>
     value ? dayjs(value).format('YYYY-MM-DD HH:mm') : '—';
 
-  const columns: ColumnsType<CampaignRow> = [
-    {
-      title: t('marketingCampaigns.tableName'),
-      dataIndex: 'name',
-      key: 'name',
-      render: (text, record) => (
-        <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
-          {allowed => allowed ? (
-            <Link
-              to={{
-                pathname: '/marketing/campaign/create',
-                search: `?marketingCampaignId=${record.id}&mode=edit`,
-              }}
-              className="text-primary02 hover:text-primary02_Hover"
-            >
-              {text}
-            </Link>
-          ) : (
-            <span className="text-text01">{text}</span>
-          )}
-        </Can>
-      ),
-    },
-    {
-      title: t('marketing.loyaltyProgram'),
-      dataIndex: 'ltyProgramName',
-      key: 'ltyProgramName',
-      render: (text: string) => <span>{text || '—'}</span>,
-    },
-    {
-      title: t('constants.status'),
-      dataIndex: 'status',
-      key: 'status',
-      render: (_, record) => (
-        <Tag bordered color={getStatusColor(t, record.status)} className="m-0 px-2 text-sm leading-[18px]">
-          {record.status}
-        </Tag>
-      ),
-    },
-    {
-      title: t('marketing.launchDate'),
-      dataIndex: 'launchDate',
-      key: 'launchDate',
-      render: (text: string) => <span>{formatDateTime(text)}</span>,
-    },
-    {
-      title: t('shift.endDate'),
-      dataIndex: 'endDate',
-      key: 'endDate',
-      render: (text: string) => <span>{formatDateTime(text)}</span>,
-    },
-    {
-      title: t('roles.rol'),
-      key: 'role',
-      render: () => <span>{t('loyaltyProgramsTable.owner')}</span>,
-    },
-    {
-      title: t('constants.actions'),
-      key: 'actions',
-      width: 140,
-      render: (_: unknown, record) => {
-        const canDelete = record.campaignUsage === 0;
+  const columns: ColumnsType<CampaignRow> = useMemo(() => {
+    const rowCount = promotions.length;
 
-        return (
+    return applyTableCells([
+      {
+        title: t('marketingCampaigns.tableName'),
+        dataIndex: 'name',
+        key: 'name',
+        render: (text, record) => (
           <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
             {allowed => allowed ? (
-              <div className="flex flex-col items-start gap-0">
-                {canDelete ? (
-                  <Popconfirm
-                    title={t('techTasks.confirmDelete')}
-                    onConfirm={() => handleDeleteDraftCampaign(record.id)}
-                    okText={t('common.delete')}
-                    okType="danger"
-                    cancelText={t('common.cancel')}
-                  >
+              <Link
+                to={{
+                  pathname: '/marketing/campaign/create',
+                  search: `?marketingCampaignId=${record.id}&mode=edit`,
+                }}
+                className="text-primary02 hover:text-primary02_Hover"
+              >
+                {text}
+              </Link>
+            ) : (
+              <span className="text-text01">{text}</span>
+            )}
+          </Can>
+        ),
+      },
+      {
+        title: t('marketing.loyaltyProgram'),
+        dataIndex: 'ltyProgramName',
+        key: 'ltyProgramName',
+        render: (text: string) => <span>{text || '—'}</span>,
+      },
+      {
+        title: t('constants.status'),
+        dataIndex: 'status',
+        key: 'status',
+        render: (_, record) => (
+          <Tag bordered color={getStatusColor(t, record.status)} className="m-0 px-2 text-sm leading-[18px]">
+            {record.status}
+          </Tag>
+        ),
+      },
+      {
+        title: t('marketing.launchDate'),
+        dataIndex: 'launchDate',
+        key: 'launchDate',
+        render: (text: string) => <span>{formatDateTime(text)}</span>,
+      },
+      {
+        title: t('shift.endDate'),
+        dataIndex: 'endDate',
+        key: 'endDate',
+        render: (text: string) => <span>{formatDateTime(text)}</span>,
+      },
+      {
+        title: t('roles.rol'),
+        key: 'role',
+        render: () => <span>{t('loyaltyProgramsTable.owner')}</span>,
+      },
+      {
+        title: t('constants.actions'),
+        key: 'actions',
+        width: 140,
+        render: (_: unknown, record) => {
+          const canDelete = record.campaignUsage === 0;
+
+          return (
+            <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
+              {allowed => allowed ? (
+                <div className="flex flex-col items-start gap-0">
+                  {canDelete ? (
+                    <Popconfirm
+                      title={t('techTasks.confirmDelete')}
+                      onConfirm={() => handleDeleteDraftCampaign(record.id)}
+                      okText={t('common.delete')}
+                      okType="danger"
+                      cancelText={t('common.cancel')}
+                    >
+                      <Button
+                        type="link"
+                        danger
+                        size="small"
+                        icon={<DeleteOutlined />}
+                        className="h-auto p-0"
+                      >
+                        {t('common.delete')}
+                      </Button>
+                    </Popconfirm>
+                  ) : (
                     <Button
                       type="link"
                       danger
                       size="small"
                       icon={<DeleteOutlined />}
                       className="h-auto p-0"
+                      disabled
                     >
                       {t('common.delete')}
                     </Button>
-                  </Popconfirm>
-                ) : (
+                  )}
                   <Button
                     type="link"
-                    danger
                     size="small"
-                    icon={<DeleteOutlined />}
-                    className="h-auto p-0"
-                    disabled
+                    icon={<LineChartOutlined />}
+                    className="h-auto p-0 text-primary02"
+                    onClick={() => setStatisticsCampaign(record)}
                   >
-                    {t('common.delete')}
+                    {t('dashboard.indicators')}
                   </Button>
-                )}
-                <Button
-                  type="link"
-                  size="small"
-                  icon={<LineChartOutlined />}
-                  className="h-auto p-0 text-primary02"
-                  onClick={() => setStatisticsCampaign(record)}
-                >
-                  {t('dashboard.indicators')}
-                </Button>
-              </div>
-            ) : null}
-          </Can>
-        );
+                </div>
+              ) : null}
+            </Can>
+          );
+        },
       },
-    },
-  ];
+    ], rowCount);
+  }, [promotions.length, t, userPermissions, handleDeleteDraftCampaign]);
 
   return (
     <div>
@@ -297,39 +348,30 @@ const MarketingCampaigns: React.FC = () => {
           value={searchValue}
           onChange={handleSearchChange}
           allowClear
-          className="h-9 w-[296px] max-w-full rounded-md border-borderFill [&_.ant-input]:text-sm [&_.ant-input-prefix]:me-2"
+          className="h-9 w-[296px] max-w-full rounded-md border-borderFill"
         />
 
-        <div className="ml-[23px] [&_.ant-btn]:h-9 [&_.ant-btn]:rounded-md [&_.ant-btn]:border-borderFill [&_.ant-btn]:px-3 [&_.ant-btn]:text-sm [&_.ant-btn]:text-text01 [&_.ant-btn]:shadow-none [&_.ant-btn:hover]:border-primary02 [&_.ant-btn:hover]:text-primary02">
-          <FilterCampaign display={['status']} />
-        </div>
+        <FilterCampaign
+          display={['status']}
+          triggerClassName="ml-[23px] h-9 rounded-md border-borderFill px-3 text-sm shadow-none"
+        />
 
         <div className="ml-[23px] flex items-center gap-2">
           <span className="whitespace-nowrap text-sm text-text02">{t('marketingCampaigns.view')}</span>
-          <button
-            type="button"
-            className={`inline-flex h-8 w-8 items-center justify-center rounded-md border text-base transition-colors ${
-              view === 'table'
-                ? 'border-primary02 bg-primary02 text-text04'
-                : 'border-borderFill bg-background02 text-text02 hover:border-primary02 hover:text-primary02'
-            }`}
+          <ViewToggle
+            active={view === 'table'}
+            label={t('equipment.table')}
             onClick={() => setView('table')}
-            aria-label={t('equipment.table')}
           >
             <UnorderedListOutlined />
-          </button>
-          <button
-            type="button"
-            className={`inline-flex h-8 w-8 items-center justify-center rounded-md border text-base transition-colors ${
-              view === 'cards'
-                ? 'border-primary02 bg-primary02 text-text04'
-                : 'border-borderFill bg-background02 text-text02 hover:border-primary02 hover:text-primary02'
-            }`}
+          </ViewToggle>
+          <ViewToggle
+            active={view === 'cards'}
+            label={t('marketing.cards')}
             onClick={() => setView('cards')}
-            aria-label={t('marketing.cards')}
           >
             <AppstoreOutlined />
-          </button>
+          </ViewToggle>
         </div>
 
         <div className="ml-auto">
@@ -355,9 +397,10 @@ const MarketingCampaigns: React.FC = () => {
               <Spin />
             </div>
           ) : (
+            <div className="overflow-hidden border-b border-borderFill">
             <Table
               rowKey="id"
-              className="marketing-campaigns-table"
+              className="rounded-none"
               dataSource={promotions}
               columns={columns}
               pagination={{
@@ -378,6 +421,7 @@ const MarketingCampaigns: React.FC = () => {
               loading={isLoading || isValidating}
               locale={{ emptyText: t('table.noData') }}
             />
+            </div>
           )}
         </div>
       )}
