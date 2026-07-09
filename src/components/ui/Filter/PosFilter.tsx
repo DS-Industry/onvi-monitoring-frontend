@@ -1,76 +1,73 @@
-import React from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import useSWR from 'swr';
-import { Select } from 'antd';
-import { getPoses } from '@/services/api/equipment';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
 import { useUser } from '@/hooks/useUserStore.ts';
-import { getNumericPrefix } from '@/utils/getNumericPrefix';
+import PosSearchSelect from './PosSearchSelect';
+
+const parsePosIdParam = (searchParams: URLSearchParams) => {
+  const raw = getParam(searchParams, 'posId');
+  if (!raw) return undefined;
+  const id = Number(raw);
+  return Number.isNaN(id) ? undefined : id;
+};
 
 const PosFilter: React.FC = () => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const placementId = Number(searchParams.get('city')) || undefined;
+  const cityParam = searchParams.get('city');
+  const placementId = useMemo(() => {
+    if (!cityParam) return undefined;
+    const id = Number(cityParam);
+    return Number.isNaN(id) ? undefined : id;
+  }, [cityParam]);
+  const selectedPosId = useMemo(() => parsePosIdParam(searchParams), [searchParams]);
   const user = useUser();
+  const prevPlacementIdRef = useRef(placementId);
 
-  const { data: posData, isLoading } = useSWR(
-    [`get-pos`, placementId, user.organizationId],
-    () =>
-      getPoses({
-        placementId: placementId,
-        organizationId: user.organizationId!,
-      }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false,
+  useEffect(() => {
+    if (getParam(searchParams, 'posId') && selectedPosId === undefined) {
+      updateSearchParams(searchParams, setSearchParams, {
+        posId: undefined,
+        page: DEFAULT_PAGE,
+      });
     }
-  );
+  }, [searchParams, selectedPosId, setSearchParams]);
 
-  const handleChange = (val: string) => {
+  useEffect(() => {
+    if (prevPlacementIdRef.current === placementId) return;
+    prevPlacementIdRef.current = placementId;
+    if (!getParam(searchParams, 'posId')) return;
     updateSearchParams(searchParams, setSearchParams, {
-      posId: val,
+      posId: undefined,
       page: DEFAULT_PAGE,
     });
-  };
+  }, [placementId, searchParams, setSearchParams]);
 
-  const sortedPoses = posData
-    ?.slice()
-    .sort((a, b) => {
-      const numA = getNumericPrefix(a.name);
-      const numB = getNumericPrefix(b.name);
-      if (numA !== numB) return numA - numB;
-      return a.name.localeCompare(b.name);
-    })
-    .map(item => ({
-      label: item.name,
-      value: String(item.id),
-    })) || [];
+  const handleChange = useCallback(
+    (val: number | undefined) => {
+      updateSearchParams(searchParams, setSearchParams, {
+        posId: val ? String(val) : undefined,
+        page: DEFAULT_PAGE,
+      });
+    },
+    [searchParams, setSearchParams]
+  );
 
   return (
     <div className="w-full sm:w-80">
       <label className="block mb-1 text-sm font-medium text-gray-700">
         {t('analysis.posId')}
       </label>
-      <Select
-        showSearch
-        allowClear={true}
+      <PosSearchSelect
+        key={placementId ?? ''}
+        value={selectedPosId}
+        placementId={placementId}
+        organizationId={user.organizationId}
         placeholder={t('filters.pos.placeholder')}
-        value={getParam(searchParams, 'posId')}
-        onChange={handleChange}
-        loading={isLoading}
         className="w-full"
-        options={sortedPoses}
-        optionFilterProp="label"
-        filterOption={(input, option) =>
-          (option?.label ?? '')
-            .toString()
-            .toLowerCase()
-            .includes(input.toLowerCase())
-        }
+        onChange={handleChange}
       />
     </div>
   );
