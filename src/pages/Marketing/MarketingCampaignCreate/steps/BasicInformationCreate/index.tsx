@@ -234,6 +234,10 @@ const BasicInformation: React.FC<BasicDataProps> = ({ isEditable = true }) => {
                                                     date ? date.toISOString() : ''
                                                 )
                                             }
+                                            disabledDate={current =>
+                                                !!formData.launchDate &&
+                                                current.isBefore(dayjs(formData.launchDate).startOf('day'))
+                                            }
                                             disabled={!isEditable}
                                         />
                                     </Form.Item>

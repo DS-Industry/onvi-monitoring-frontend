@@ -979,11 +979,17 @@ export async function getClientLoyaltyStats(
   return response.data;
 }
 
+export enum ECardType {
+  PHYSICAL = 'PHYSICAL',
+  VIRTUAL = 'VIRTUAL',
+}
+
 export type ImportCardsRequest = {
   file: File;
   organizationId: number;
   corporateClientId?: number;
   tierId?: number;
+  cardType?: ECardType;
 };
 
 export type ImportCardsResponse = {
@@ -1004,12 +1010,16 @@ export async function importCards(
   const formData = new FormData();
   formData.append('file', request.file);
   formData.append('organizationId', request.organizationId.toString());
-  if (request.corporateClientId) {
-    formData.append('corporateClientId', request.corporateClientId.toString());
-  }
   if (request.tierId) {
     formData.append('tierId', request.tierId.toString());
   }
+  if (request.cardType) {
+    formData.append('cardType', request.cardType);
+  }
+  if (request.corporateClientId) {
+    formData.append('corporateClientId', request.corporateClientId.toString());
+  }
+
   const response: AxiosResponse<ImportCardsResponse> = await api.post(
     'user/loyalty/import-cards',
     formData
