@@ -16,10 +16,12 @@ type FilterType = 'status';
 
 interface FilterCampaignProps {
   display?: FilterType[];
+  triggerClassName?: string;
 }
 
 const FilterCampaign: React.FC<FilterCampaignProps> = ({
   display = ['status'],
+  triggerClassName,
 }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -176,7 +178,7 @@ const FilterCampaign: React.FC<FilterCampaignProps> = ({
       styles={{ root: { maxWidth: 'calc(100vw - 16px)' } }}
       getPopupContainer={trigger => trigger.parentElement || document.body}
     >
-      <Button icon={<FilterOutlined />}>
+      <Button icon={<FilterOutlined />} className={triggerClassName}>
         {t('filters.filterTechTasks.title')}
       </Button>
     </Popover>
