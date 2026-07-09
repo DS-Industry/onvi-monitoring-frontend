@@ -359,8 +359,7 @@ const LevelsBonusesModal: React.FC<Props> = ({
                     {t('marketing.ty', { defaultValue: 'Тип' })}: {t(`marketing.${item.type}`)}
                   </span>
                   <span className="text-xs text-base03">
-                    {t('marketing.bonu')}:{' '}
-                    {item.bonus}{item.type === BenefitType.CASHBACK ? '%' : 'р'}
+                    {t('marketing.bonu')}: {item.bonus}%
                   </span>
                 </div>
               )}
@@ -459,6 +458,7 @@ const LevelsBonusesModal: React.FC<Props> = ({
                     </div>
                     <Input
                       type="number"
+                      suffix={<div className="text-text02">%</div>}
                       value={benefitForm.bonus}
                       onChange={e =>
                         handleBenefitChange('bonus', Number(e.target.value))
