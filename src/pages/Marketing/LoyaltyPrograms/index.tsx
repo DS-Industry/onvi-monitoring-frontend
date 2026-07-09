@@ -19,6 +19,8 @@ import useSWR from 'swr';
 import { getLoyaltyProgramById, getTiers } from '@/services/api/marketing';
 import { useUser } from '@/hooks/useUserStore';
 
+import Participants from './Participants';
+
 const { Step } = Steps;
 
 const LoyaltyPrograms: React.FC = () => {
