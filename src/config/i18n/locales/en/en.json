@@ -1,5 +1,6 @@
 {
   "routes": {
+    "newsDetail": "News",
     "dashboard": "Dashboard",
     "administration": "Administration",
     "subscriptions": "Subscriptions",
@@ -228,7 +229,15 @@
     "upToDate": "Up-to-date information about your tariff is stored here.",
     "critical": "Critical remainder",
     "chemistry": "Chemistry",
-    "chemistryText": "Replenish chemical supplies at the site!"
+    "chemistryText": "Replenish chemical supplies at the site!",
+    "empty": "No news yet",
+    "emptyDescription": "Published platform news will appear here",
+    "loadMore": "Load more",
+    "notFound": "Article not found",
+    "notFoundDescription": "It may have been deleted or not published yet",
+    "pageTitle": "News",
+    "tagPlaceholder": "—",
+    "validUntilPlaceholder": "valid until —"
   },
   "indicators": {
     "visitors": "Total visitors",
@@ -837,6 +846,10 @@
     "un": "UN cards",
     "comp": "Completion date",
     "cardType": "Card type*",
+    "cardsType": "Card type",
+    "selectCardType": "Select card type",
+    "legalEntity": "Legal entity",
+    "selectLegalEntity": "Select legal entity",
     "key": "Key indicators",
     "comm": "Communication",
     "actions": "Actions",

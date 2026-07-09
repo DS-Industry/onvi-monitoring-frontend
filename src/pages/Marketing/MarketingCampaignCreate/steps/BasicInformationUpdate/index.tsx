@@ -286,6 +286,10 @@ const BasicInformationUpdate: React.FC<BasicDataProps> = ({
                                         value={formData.endDate ? dayjs(formData.endDate) : null}
                                         {...register('endDate')}
                                         onChange={date => handleInputChange('endDate', date ? date.toDate() : null)}
+                                        disabledDate={current =>
+                                            !!formData.launchDate &&
+                                            current.isBefore(dayjs(formData.launchDate).startOf('day'))
+                                        }
                                         disabled={!isEditable}
                                     />
                                     </Form.Item>
