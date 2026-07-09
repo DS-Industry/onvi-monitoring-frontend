@@ -204,11 +204,8 @@ const MarketingCampaigns: React.FC = () => {
           <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
             {allowed => allowed ? (
               <Link
-                to={{
-                  pathname: '/marketing/campaign/create',
-                  search: `?marketingCampaignId=${record.id}&mode=edit`,
-                }}
-                className="text-primary02 hover:text-primary02_Hover"
+                to={`/marketing/campaign/${record.id}`}
+                className="text-primary02 hover:text-primary02_Hover font-semibold"
               >
                 {text}
               </Link>
@@ -297,6 +294,7 @@ const MarketingCampaigns: React.FC = () => {
                     type="link"
                     size="small"
                     icon={<LineChartOutlined />}
+                    onClick={() => navigate(`/marketing/campaign/${record.id}/stats`)}
                     className="h-auto p-0 text-primary02"
                   >
                     {t('dashboard.indicators')}
@@ -386,29 +384,29 @@ const MarketingCampaigns: React.FC = () => {
             </div>
           ) : (
             <div className="overflow-hidden border-b border-borderFill">
-            <Table
-              rowKey="id"
-              className="rounded-none"
-              dataSource={promotions}
-              columns={columns}
-              pagination={{
-                current: currentPage,
-                pageSize: pageSize,
-                total: promotionsData?.total || 0,
-                pageSizeOptions: ALL_PAGE_SIZES,
-                showSizeChanger: true,
-                showTotal: (total, range) =>
-                  `${range[0]}–${range[1]} / ${total}`,
-                onChange: (page, size) =>
-                  updateSearchParams(searchParams, setSearchParams, {
-                    page: String(page),
-                    size: String(size),
-                  }),
-              }}
-              scroll={{ x: 'max-content' }}
-              loading={isLoading || isValidating}
-              locale={{ emptyText: t('table.noData') }}
-            />
+              <Table
+                rowKey="id"
+                className="rounded-none"
+                dataSource={promotions}
+                columns={columns}
+                pagination={{
+                  current: currentPage,
+                  pageSize: pageSize,
+                  total: promotionsData?.total || 0,
+                  pageSizeOptions: ALL_PAGE_SIZES,
+                  showSizeChanger: true,
+                  showTotal: (total, range) =>
+                    `${range[0]}–${range[1]} / ${total}`,
+                  onChange: (page, size) =>
+                    updateSearchParams(searchParams, setSearchParams, {
+                      page: String(page),
+                      size: String(size),
+                    }),
+                }}
+                scroll={{ x: 'max-content' }}
+                loading={isLoading || isValidating}
+                locale={{ emptyText: t('table.noData') }}
+              />
             </div>
           )}
         </div>
@@ -427,12 +425,7 @@ const MarketingCampaigns: React.FC = () => {
                   key={card.id}
                   campaign={card}
                   loading={isLoading || isValidating}
-                  onClick={() => {
-                    navigate({
-                      pathname: '/marketing/campaign/create',
-                      search: `?marketingCampaignId=${card.id}&mode=edit`,
-                    });
-                  }}
+                  onClick={() => navigate(`/marketing/campaign/${card.id}`)}
                 />
               ))}
             </div>

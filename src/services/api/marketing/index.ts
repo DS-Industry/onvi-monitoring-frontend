@@ -979,11 +979,17 @@ export async function getClientLoyaltyStats(
   return response.data;
 }
 
+export enum ECardType {
+  PHYSICAL = 'PHYSICAL',
+  VIRTUAL = 'VIRTUAL',
+}
+
 export type ImportCardsRequest = {
   file: File;
   organizationId: number;
   corporateClientId?: number;
   tierId?: number;
+  cardType?: ECardType;
 };
 
 export type ImportCardsResponse = {
@@ -1004,12 +1010,16 @@ export async function importCards(
   const formData = new FormData();
   formData.append('file', request.file);
   formData.append('organizationId', request.organizationId.toString());
-  if (request.corporateClientId) {
-    formData.append('corporateClientId', request.corporateClientId.toString());
-  }
   if (request.tierId) {
     formData.append('tierId', request.tierId.toString());
   }
+  if (request.cardType) {
+    formData.append('cardType', request.cardType);
+  }
+  if (request.corporateClientId) {
+    formData.append('corporateClientId', request.corporateClientId.toString());
+  }
+
   const response: AxiosResponse<ImportCardsResponse> = await api.post(
     'user/loyalty/import-cards',
     formData
@@ -1424,6 +1434,58 @@ export async function getMarketingCampaignById(
     `user/loyalty/marketing-campaigns/${id}`
   );
 
+  return response.data;
+}
+
+export type CampaignAnalyticsPeriod =
+  | 'lastDay'
+  | 'lastWeek'
+  | 'lastMonth'
+  | 'lastYear'
+  | 'custom';
+
+export type CampaignAnalyticsGranularity = 'day' | 'week' | 'month' | 'year';
+
+export type MetricComparison = {
+  current: number | null;
+  previous: number | null;
+  changePercent: number | null;
+};
+
+export type CampaignAnalyticsParams = {
+  period?: CampaignAnalyticsPeriod;
+  granularity?: CampaignAnalyticsGranularity;
+  startDate?: string;
+  endDate?: string;
+};
+
+export type CampaignAnalyticsResponse = {
+  campaignId: number;
+  period: string;
+  granularity: string;
+  dateRange: { start: string; end: string };
+  uniqueParticipants: number;
+  totalUsages: number;
+  visitFrequency: number | null;
+  averageOrderSum: number | null;
+  ordersWithSumCount: number;
+  comparisons: {
+    uniqueParticipants: MetricComparison;
+    totalUsages: MetricComparison;
+    visitFrequency: MetricComparison;
+    averageOrderSum: MetricComparison;
+  };
+  usagesOverTime: { bucket: string; count: number }[];
+};
+
+export async function getMarketingCampaignAnalytics(
+  id: number,
+  params: CampaignAnalyticsParams = {}
+): Promise<CampaignAnalyticsResponse> {
+  const response: AxiosResponse<CampaignAnalyticsResponse> = await api.get(
+    `user/loyalty/marketing-campaigns/${id}/analytics`,
+    { params }
+  );
   return response.data;
 }
 
@@ -2170,6 +2232,40 @@ export enum PromocodeDiscountType {
   PERCENTAGE = 'PERCENTAGE',
   FIXED_AMOUNT = 'FIXED_AMOUNT',
   FREE_SERVICE = 'FREE_SERVICE',
+}
+
+export type SpendCycle = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' | 'ALL_TIME';
+
+export type SpendMilestoneTierDto = {
+  threshold: number;
+  discountType: PromocodeDiscountType;
+  discountValue: number;
+  validDays: number;
+  minOrderAmount?: number;
+  maxDiscountAmount?: number;
+};
+
+export type CreateSpendMilestoneCampaignDto = {
+  name: string;
+  launchDate: Date | string;
+  endDate?: Date | string | null;
+  description?: string;
+  ltyProgramId: number;
+  ltyProgramParticipantId: number;
+  posIds?: number[];
+  spendCycle?: SpendCycle;
+  status?: 'DRAFT' | 'ACTIVE';
+  tiers: SpendMilestoneTierDto[];
+};
+
+export async function createSpendMilestoneCampaign(
+  request: CreateSpendMilestoneCampaignDto
+): Promise<MarketingCampaignResponse> {
+  const response: AxiosResponse<MarketingCampaignResponse> = await api.post(
+    'user/loyalty/marketing-campaign/spend-milestone/create',
+    request
+  );
+  return response.data;
 }
 
 export type CreatePromocodeDto = {

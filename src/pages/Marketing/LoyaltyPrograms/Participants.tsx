@@ -112,7 +112,7 @@ const Participants: React.FC<ParticipantsProps> = ({ isEditable = true }) => {
             className="w-full sm:w-auto order-1 sm:order-2"
             onClick={() => {
               updateSearchParams(searchParams, setSearchParams, {
-                step: 4,
+                step: currentStep + 1,
               });
             }}
           >

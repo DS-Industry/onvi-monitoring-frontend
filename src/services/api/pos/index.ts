@@ -550,7 +550,7 @@ export async function getPlanFact(
 
 export async function getPlanFactMonthlyByPos(
   posId: number,
-  params: { dateStart: string; dateEnd: string }
+  params: { dateStart: Date; dateEnd: Date }
 ): Promise<PlanFactMonthlyByPosResponse> {
   const response: AxiosResponse<PlanFactMonthlyByPosResponse> = await api.get(
     `user/pos/plan-fact/${posId}/monthly`,

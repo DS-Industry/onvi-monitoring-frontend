@@ -127,7 +127,13 @@ const MarketingCampaignCreate: React.FC = () => {
         <div className="flex items-center space-x-10">
           <div
             className="flex text-primary02 cursor-pointer"
-            onClick={() => navigate('/marketing/campaigns')}
+            onClick={() =>
+              navigate(
+                editMode && marketingCampaignId
+                  ? `/marketing/campaign/${marketingCampaignId}`
+                  : '/marketing/campaigns'
+              )
+            }
           >
             <ArrowLeftOutlined />
             <p className="ms-2">{t('login.back')}</p>

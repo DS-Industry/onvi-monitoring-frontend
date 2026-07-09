@@ -33,8 +33,7 @@ const ActionTypeCard: React.FC<ActionTypeCardProps> = ({
     const { t } = useTranslation();
 
     const isSelected = selectedActionType === actionType;
-    const isEnabledByExecutionType =
-        executionType === CampaignExecutionType.BEHAVIORAL || executionType === requiredExecutionType;
+    const isEnabledByExecutionType = executionType === requiredExecutionType;
     const isDisabled =
         forceDisabled || !executionType || !isEnabledByExecutionType;
 

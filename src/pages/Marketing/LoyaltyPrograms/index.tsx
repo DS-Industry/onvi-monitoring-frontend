@@ -4,7 +4,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ArrowLeftOutlined,
   SettingOutlined,
-  CreditCardOutlined,
   CarOutlined,
   FireOutlined,
   SyncOutlined,
@@ -13,14 +12,14 @@ import {
 import { Steps, Skeleton } from 'antd';
 import BasicData from './BasicData';
 import BasicDataUpdate from './update/BasicDataUpdate';
-import WriteOffRules from './WriteOffRules';
 import LevelsBonuses from './LevelsBonuses';
-import Participants from './Participants';
 import Publications from './Publications';
 import Stats from './Stats';
 import useSWR from 'swr';
 import { getLoyaltyProgramById, getTiers } from '@/services/api/marketing';
 import { useUser } from '@/hooks/useUserStore';
+
+import Participants from './Participants';
 
 const { Step } = Steps;
 
@@ -72,11 +71,6 @@ const LoyaltyPrograms: React.FC = () => {
       title: t('marketingLoyalty.basicData'),
       content: hasExistingProgram ? <BasicDataUpdate program={program} isLoading={isValidating || isLoading || tiersLoading} mutate={mutate} isEditable={isOwner} minLevels={tiers.length > 0 ? tiers.length : 1} /> : <BasicData isEditable={true} />,
       icon: <SettingOutlined />,
-    },
-    {
-      title: t('marketingLoyalty.writeOff'),
-      content: <WriteOffRules program={program} isLoading={isValidating || isLoading} mutate={mutate} isEditable={isOwner} />,
-      icon: <CreditCardOutlined />,
     },
     {
       title: t('marketingLoyalty.participants'),
