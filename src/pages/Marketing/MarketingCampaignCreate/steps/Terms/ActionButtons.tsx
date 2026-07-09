@@ -37,7 +37,13 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
         return null;
     }
 
-    const isPromocode = actionType === 'PROMOCODE_ISSUE';
+    const isPromocodeIssue = actionType === 'PROMOCODE_ISSUE';
+    const isPromocodeEntry =
+        isPromocodeIssue && !isSpendMilestone;
+
+    const isNextDisabled = isPromocodeEntry
+        ? !marketingCampaign?.actionPromocode
+        : isDisabled;
 
     if (actionType === 'PROMOCODE_ISSUE' && !isSpendMilestone) {
         return (
@@ -74,7 +80,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
                 icon={<RightOutlined />}
                 iconPosition="end"
                 loading={isUpdating}
-                disabled={isPromocode ? !marketingCampaign?.actionPromocode : isDisabled}
+                disabled={isNextDisabled}
                 onClick={onNext}
                 className="w-full sm:w-auto order-1 sm:order-2"
             >
