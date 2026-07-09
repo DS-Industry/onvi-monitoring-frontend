@@ -39,7 +39,7 @@ const CampaignHubCard: React.FC<CampaignHubCardProps> = ({
         {icon}
       </div>
       <div className="min-w-0">
-        <div className="font-bold text-2xl">{title}</div>
+        <div className="font-medium text-2xl">{title}</div>
         <div className="text-sm text-[#ACAEB3]">{subtitle}</div>
       </div>
     </div>

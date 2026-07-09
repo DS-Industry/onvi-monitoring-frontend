@@ -8,7 +8,6 @@ import {
     LeftOutlined,
     SettingOutlined,
     GiftOutlined,
-    DollarOutlined,
     PercentageOutlined,
     BankOutlined,
     ScheduleOutlined,
@@ -41,6 +40,7 @@ const PRIMARY_COLOR = '#0B68E1';
 
 const ACTION_TYPE_CONFIGS = [
     {
+        id: 'discount',
         actionType: 'DISCOUNT' as ACTION_TYPE,
         icon: PercentageOutlined,
         titleKey: 'marketingCampaigns.discount',
@@ -48,6 +48,7 @@ const ACTION_TYPE_CONFIGS = [
         requiredExecutionType: CampaignExecutionType.TRANSACTIONAL,
     },
     {
+        id: 'promocode-transactional',
         actionType: 'PROMOCODE_ISSUE' as ACTION_TYPE,
         icon: GiftOutlined,
         titleKey: 'marketingCampaigns.promocode',
@@ -55,19 +56,29 @@ const ACTION_TYPE_CONFIGS = [
         requiredExecutionType: CampaignExecutionType.TRANSACTIONAL,
     },
     {
-        actionType: 'CASHBACK_BOOST' as ACTION_TYPE,
-        icon: BankOutlined,
-        titleKey: 'marketingCampaigns.cashback',
-        descriptionKey: 'marketingCampaigns.cashbackDescription',
+        id: 'spend-milestone',
+        actionType: 'PROMOCODE_ISSUE' as ACTION_TYPE,
+        icon: GiftOutlined,
+        titleKey: 'marketingCampaigns.spendMilestone',
+        descriptionKey: 'marketingCampaigns.spendMilestoneDescription',
         requiredExecutionType: CampaignExecutionType.BEHAVIORAL,
     },
-    {
-        actionType: 'GIFT_POINTS' as ACTION_TYPE,
-        icon: DollarOutlined,
-        titleKey: 'marketingCampaigns.points',
-        descriptionKey: 'marketingCampaigns.pointsDescription',
-        requiredExecutionType: CampaignExecutionType.BEHAVIORAL,
-    },
+    // {
+    //     id: 'cashback',
+    //     actionType: 'CASHBACK_BOOST' as ACTION_TYPE,
+    //     icon: BankOutlined,
+    //     titleKey: 'marketingCampaigns.cashback',
+    //     descriptionKey: 'marketingCampaigns.cashbackDescription',
+    //     requiredExecutionType: CampaignExecutionType.BEHAVIORAL,
+    // },
+    // {
+    //     id: 'points',
+    //     actionType: 'GIFT_POINTS' as ACTION_TYPE,
+    //     icon: DollarOutlined,
+    //     titleKey: 'marketingCampaigns.points',
+    //     descriptionKey: 'marketingCampaigns.pointsDescription',
+    //     requiredExecutionType: CampaignExecutionType.BEHAVIORAL,
+    // },
 ] as const;
 
 interface ExecutionTypeCardProps {
@@ -343,10 +354,10 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
                             titleKey="marketingCampaigns.behavioral"
                             descriptionKey="marketingCampaigns.behavioralDescription"
                             isSelected={executionType === CampaignExecutionType.BEHAVIORAL}
-                            isDisabled={true}
-                            onClick={() => {
+                            isDisabled={!canEdit}
+                            onClick={() =>
                                 handleExecutionTypeChange(CampaignExecutionType.BEHAVIORAL)
-                            }}
+                            }
                         />
                     </div>
                 </div>
@@ -359,7 +370,7 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {ACTION_TYPE_CONFIGS.map((config) => (
                             <ActionTypeCard
-                                key={config.actionType}
+                                key={config.id}
                                 actionType={config.actionType}
                                 icon={config.icon}
                                 titleKey={config.titleKey}
@@ -370,10 +381,10 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
                                 isEditable={canEdit}
                                 onSelect={setActionType}
                                 forceDisabled={
-                                    config.actionType === 'PROMOCODE_ISSUE' && !isOnviProgram
+                                    config.id === 'promocode-transactional' && !isOnviProgram
                                 }
                                 forceDisabledMessageKey={
-                                    config.actionType === 'PROMOCODE_ISSUE' && !isOnviProgram
+                                    config.id === 'promocode-transactional' && !isOnviProgram
                                         ? 'marketingCampaigns.promocodeOnlyForOnvi'
                                         : undefined
                                 }
