@@ -1,7 +1,14 @@
-import { Button, Table, Pagination, Input, Tag, Spin, Popconfirm, Space } from 'antd';
-import React, { useCallback, useEffect, useState } from 'react';
+import { Button, Table, Pagination, Input, Tag, Spin, Popconfirm } from 'antd';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CopyOutlined, PlusOutlined, TableOutlined, StopOutlined, DeleteOutlined, PauseCircleOutlined, PlayCircleOutlined } from '@ant-design/icons';
+import {
+  AppstoreOutlined,
+  DeleteOutlined,
+  LineChartOutlined,
+  PlusOutlined,
+  SearchOutlined,
+  UnorderedListOutlined,
+} from '@ant-design/icons';
 import Notification from '@ui/Notification.tsx';
 import { getStatusColor } from '@/utils/tableUnits';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
@@ -9,10 +16,7 @@ import useSWR, { mutate } from 'swr';
 import {
   getMarketingCampaign,
   MarketingCampaignResponse,
-  cancelMarketingCampaign,
   deleteDraftMarketingCampaign,
-  pauseMarketingCampaign,
-  reactivateMarketingCampaign,
 } from '@/services/api/marketing';
 import { useToast } from '@/components/context/useContext';
 import dayjs from 'dayjs';
@@ -30,6 +34,62 @@ import FilterCampaign from './FilterCampaign';
 import CampaignCard from './CampaignCard';
 import useAuthStore from '@/config/store/authSlice';
 import { Can } from '@/permissions/Can';
+
+type CampaignRow = MarketingCampaignResponse & { rawStatus?: string };
+
+const tableCellStyle: React.CSSProperties = {
+  padding: '21px 12px',
+  lineHeight: '18px',
+};
+
+const tableHeaderCell = (): React.HTMLAttributes<HTMLElement> => ({
+  className:
+    'rounded-none border-x-2 border-x-background02 border-t-0 border-b border-borderFill bg-background03 text-sm font-semibold text-text01 align-middle before:hidden',
+  style: { ...tableCellStyle, borderRadius: 0 },
+});
+
+const tableBodyCell = (isLastRow: boolean): React.HTMLAttributes<HTMLElement> => ({
+  className: [
+    'border-x-2 border-x-background02 bg-background02 text-sm align-middle',
+    !isLastRow && 'border-b border-borderFill',
+  ]
+    .filter(Boolean)
+    .join(' '),
+  style: tableCellStyle,
+});
+
+const applyTableCells = (
+  columns: ColumnsType<CampaignRow>,
+  rowCount: number
+): ColumnsType<CampaignRow> =>
+  columns.map(column => ({
+    ...column,
+    onHeaderCell: tableHeaderCell,
+    onCell: (_record, rowIndex) => tableBodyCell(rowIndex === rowCount - 1),
+  }));
+
+type ViewToggleProps = {
+  active: boolean;
+  label: string;
+  onClick: () => void;
+  children: React.ReactNode;
+};
+
+const ViewToggle: React.FC<ViewToggleProps> = ({ active, label, onClick, children }) => (
+  <button
+    type="button"
+    aria-label={label}
+    aria-pressed={active}
+    onClick={onClick}
+    className={
+      active
+        ? 'flex h-8 w-8 items-center justify-center rounded-md border border-primary02 bg-primary02 text-base text-text04'
+        : 'flex h-8 w-8 items-center justify-center rounded-md border border-borderFill bg-background02 text-base text-text02 hover:border-primary02 hover:text-primary02'
+    }
+  >
+    {children}
+  </button>
+);
 
 const MarketingCampaigns: React.FC = () => {
   const { t } = useTranslation();
@@ -60,11 +120,6 @@ const MarketingCampaigns: React.FC = () => {
   useEffect(() => {
     setSearchValue(name || '');
   }, [name]);
-
-  const handleSearch = (value: string) => {
-    setSearchValue(value);
-    debouncedSearch(value);
-  };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -103,7 +158,7 @@ const MarketingCampaigns: React.FC = () => {
     }
   );
 
-  const promotions =
+  const promotions: CampaignRow[] =
     promotionsData?.data?.map(item => ({
       ...item,
       status: t(`tables.${item.status}`),
@@ -120,21 +175,7 @@ const MarketingCampaigns: React.FC = () => {
       name,
     ]);
 
-  const handleCancelCampaign = async (id: number) => {
-    try {
-      const res = await cancelMarketingCampaign(id);
-      revalidateList();
-      showToast(res?.message ?? t('marketing.campaignCancelled') ?? 'Marketing campaign cancelled successfully', 'success');
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.message ??
-        t('errors.deleteFailed') ??
-        'Failed to cancel marketing campaign';
-      showToast(errorMessage, 'error');
-    }
-  };
-
-  const handleDeleteDraftCampaign = async (id: number) => {
+  const handleDeleteDraftCampaign = useCallback(async (id: number) => {
     try {
       const res = await deleteDraftMarketingCampaign(id);
       revalidateList();
@@ -146,159 +187,82 @@ const MarketingCampaigns: React.FC = () => {
         'Failed to delete draft campaign';
       showToast(errorMessage, 'error');
     }
-  };
+  }, [revalidateList, showToast, t]);
 
-  const handlePauseCampaign = async (id: number) => {
-    try {
-      const res = await pauseMarketingCampaign(id);
-      revalidateList();
-      showToast(res?.message ?? t('marketing.campaignPaused') ?? 'Marketing campaign paused successfully', 'success');
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.message ??
-        t('errors.deleteFailed') ??
-        'Failed to pause marketing campaign';
-      showToast(errorMessage, 'error');
-    }
-  };
+  const formatDateTime = (value?: string) =>
+    value ? dayjs(value).format('YYYY-MM-DD HH:mm') : '—';
 
-  const handleReactivateCampaign = async (id: number) => {
-    try {
-      const res = await reactivateMarketingCampaign(id);
-      revalidateList();
-      showToast(res?.message ?? t('marketing.campaignReactivated') ?? 'Marketing campaign reactivated successfully', 'success');
-    } catch (error: any) {
-      const errorMessage =
-        error?.response?.data?.message ??
-        t('errors.deleteFailed') ??
-        'Failed to reactivate marketing campaign';
-      showToast(errorMessage, 'error');
-    }
-  };
+  const columns: ColumnsType<CampaignRow> = useMemo(() => {
+    const rowCount = promotions.length;
 
-  const columns: ColumnsType<MarketingCampaignResponse> = [
-    {
-      title: t('marketing.campaignName'),
-      dataIndex: 'name',
-      key: 'name',
-      render: (text, record) => {
-        return (
+    return applyTableCells([
+      {
+        title: t('marketingCampaigns.tableName'),
+        dataIndex: 'name',
+        key: 'name',
+        render: (text, record) => (
           <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
             {allowed => allowed ? (
               <Link
-                to={`/marketing/campaign/${record.id}`}
-                className="text-primary02 hover:text-primary02_Hover font-semibold"
+                to={{
+                  pathname: '/marketing/campaign/create',
+                  search: `?marketingCampaignId=${record.id}&mode=edit`,
+                }}
+                className="text-primary02 hover:text-primary02_Hover"
               >
                 {text}
               </Link>
             ) : (
-              <span className="text-gray-700">{text}</span>
+              <span className="text-text01">{text}</span>
             )}
           </Can>
-        );
+        ),
       },
-    },
-    {
-      title: t('constants.status'),
-      dataIndex: 'status',
-      key: 'status',
-      render: (_, record) => {
-        return (
-          <Tag color={getStatusColor(t, record.status)}>{record.status}</Tag>
-        );
+      {
+        title: t('marketing.loyaltyProgram'),
+        dataIndex: 'ltyProgramName',
+        key: 'ltyProgramName',
+        render: (text: string) => <span>{text || '—'}</span>,
       },
-    },
-    {
-      title: t('marketing.campaignType'),
-      dataIndex: 'executionType',
-      key: 'executionType',
-      render: (text: string) => <span>{text ? t(`tables.${text}`) : '—'}</span>,
-    },
-    {
-      title: t('marketing.launchDate'),
-      dataIndex: 'launchDate',
-      key: 'launchDate',
-      render: (text: string) => (
-        <span>{dayjs(text).format('YYYY-MM-DD hh:mm') || '—'}</span>
-      ),
-    },
-    {
-      title: t('shift.endDate'),
-      dataIndex: 'endDate',
-      key: 'endDate',
-      render: (text: string) => (
-        <span>{dayjs(text).format('YYYY-MM-DD hh:mm') || '—'}</span>
-      ),
-    },
-    {
-      title: t('marketingLoyalty.numberOfBranches'),
-      dataIndex: 'posCount',
-      key: 'posCount',
-    },
-    {
-      title: t('constants.actions'),
-      key: 'actions',
-      width: 220,
-      render: (_: unknown, record: MarketingCampaignResponse & { rawStatus?: string }) => {
-        const isActive = record.rawStatus === 'ACTIVE';
-        const isPaused = record.rawStatus === 'PAUSED';
-        const canDelete = record.campaignUsage === 0;
+      {
+        title: t('constants.status'),
+        dataIndex: 'status',
+        key: 'status',
+        render: (_, record) => (
+          <Tag bordered color={getStatusColor(t, record.status)} className="m-0 px-2 text-sm leading-[18px]">
+            {record.status}
+          </Tag>
+        ),
+      },
+      {
+        title: t('marketing.launchDate'),
+        dataIndex: 'launchDate',
+        key: 'launchDate',
+        render: (text: string) => <span>{formatDateTime(text)}</span>,
+      },
+      {
+        title: t('shift.endDate'),
+        dataIndex: 'endDate',
+        key: 'endDate',
+        render: (text: string) => <span>{formatDateTime(text)}</span>,
+      },
+      {
+        title: t('roles.rol'),
+        key: 'role',
+        render: () => <span>{t('loyaltyProgramsTable.owner')}</span>,
+      },
+      {
+        title: t('constants.actions'),
+        key: 'actions',
+        width: 140,
+        render: (_: unknown, record) => {
+          const canDelete = record.campaignUsage === 0;
 
-        return (
-          <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
-            {allowed => {
-              if (!allowed) return null;
-
-              if (isActive) {
-                return (
-                  <Space wrap>
-                    <Popconfirm
-                      title={t('marketing.confirmPauseCampaign')}
-                      onConfirm={() => handlePauseCampaign(record.id)}
-                      okText={t('marketing.pauseCampaign')}
-                      okType="default"
-                      cancelText={t('common.cancel')}
-                    >
-                      <Button type="link" icon={<PauseCircleOutlined />} size="small">
-                        {t('marketing.pauseCampaign')}
-                      </Button>
-                    </Popconfirm>
-                    <Popconfirm
-                      title={t('marketing.confirmCancelCampaign')}
-                      onConfirm={() => handleCancelCampaign(record.id)}
-                      okText={t('marketing.cancelCampaign')}
-                      okType="danger"
-                      cancelText={t('common.cancel')}
-                    >
-                      <Button type="link" danger icon={<StopOutlined />} size="small">
-                        {t('marketing.cancelCampaign')}
-                      </Button>
-                    </Popconfirm>
-                  </Space>
-                );
-              }
-
-              if (isPaused) {
-                return (
-                  <Space>
-                    <Popconfirm
-                      title={t('marketing.confirmReactivateCampaign')}
-                      onConfirm={() => handleReactivateCampaign(record.id)}
-                      okText={t('marketing.reactivateCampaign')}
-                      okType="default"
-                      cancelText={t('common.cancel')}
-                    >
-                      <Button type="link" icon={<PlayCircleOutlined />} size="small">
-                        {t('marketing.reactivateCampaign')}
-                      </Button>
-                    </Popconfirm>
-                  </Space>
-                );
-              }
-
-              if (canDelete) {
-                return (
-                  <Space>
+          return (
+            <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
+              {allowed => allowed ? (
+                <div className="flex flex-col items-start gap-0">
+                  {canDelete ? (
                     <Popconfirm
                       title={t('techTasks.confirmDelete')}
                       onConfirm={() => handleDeleteDraftCampaign(record.id)}
@@ -306,42 +270,54 @@ const MarketingCampaigns: React.FC = () => {
                       okType="danger"
                       cancelText={t('common.cancel')}
                     >
-                      <Button type="link" danger icon={<DeleteOutlined />} size="small">
+                      <Button
+                        type="link"
+                        danger
+                        size="small"
+                        icon={<DeleteOutlined />}
+                        className="h-auto p-0"
+                      >
                         {t('common.delete')}
                       </Button>
                     </Popconfirm>
-                  </Space>
-                );
-              }
-
-              return null;
-            }}
-          </Can>
-        );
+                  ) : (
+                    <Button
+                      type="link"
+                      danger
+                      size="small"
+                      icon={<DeleteOutlined />}
+                      className="h-auto p-0"
+                      disabled
+                    >
+                      {t('common.delete')}
+                    </Button>
+                  )}
+                  {/* Заглушка: статистика кампании пока не реализована */}
+                  <Button
+                    type="link"
+                    size="small"
+                    icon={<LineChartOutlined />}
+                    className="h-auto p-0 text-primary02"
+                  >
+                    {t('dashboard.indicators')}
+                  </Button>
+                </div>
+              ) : null}
+            </Can>
+          );
+        },
       },
-    }
-  ];
+    ], rowCount);
+  }, [promotions.length, t, userPermissions, handleDeleteDraftCampaign]);
 
   return (
     <div>
-      <div className="ml-12 md:ml-0 mb-5 flex items-start justify-between">
-        <div className="flex items-center space-x-2">
-          <span className="text-xl sm:text-3xl font-normal text-text01">
-            {t('routes.marketingCompanies')}
-          </span>
-        </div>
-        <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
-          {allowed => allowed && (
-            <Button
-              icon={<PlusOutlined />}
-              className="btn-primary"
-              onClick={() => navigate('/marketing/campaign/create')}
-            >
-              <div className="hidden sm:flex">{t('routes.newPromotion')}</div>
-            </Button>
-          )}
-        </Can>
+      <div className="mb-5 ml-12 flex items-start justify-between md:ml-0">
+        <span className="text-xl font-normal text-text01 sm:text-3xl">
+          {t('routes.marketingCompanies')}
+        </span>
       </div>
+
       <div className="mt-2">
         {notificationVisible && (
           <Notification
@@ -353,40 +329,66 @@ const MarketingCampaigns: React.FC = () => {
         )}
       </div>
 
-      <div className="mt-6 mb-4 flex flex-col sm:flex-row gap-4">
-        <Input.Search
-          placeholder={t('analysis.search')}
+      <div className="mb-[26px] mt-[22px] flex flex-wrap items-center">
+        <Input
+          placeholder={t('marketingCampaigns.searchPlaceholder')}
+          prefix={<SearchOutlined className="text-base03" />}
           value={searchValue}
           onChange={handleSearchChange}
-          onSearch={handleSearch}
           allowClear
-          className="w-full sm:w-72 md:w-80"
-          style={{ height: '32px' }}
+          className="h-9 w-[296px] max-w-full rounded-md border-borderFill"
         />
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div style={{ height: '32px' }}>
-            <FilterCampaign display={['status']} />
-          </div>
+
+        <FilterCampaign
+          display={['status']}
+          triggerClassName="ml-[23px] h-9 rounded-md border-borderFill px-3 text-sm shadow-none"
+        />
+
+        <div className="ml-[23px] flex items-center gap-2">
+          <span className="whitespace-nowrap text-sm text-text02">{t('marketingCampaigns.view')}</span>
+          <ViewToggle
+            active={view === 'table'}
+            label={t('equipment.table')}
+            onClick={() => setView('table')}
+          >
+            <UnorderedListOutlined />
+          </ViewToggle>
+          <ViewToggle
+            active={view === 'cards'}
+            label={t('marketing.cards')}
+            onClick={() => setView('cards')}
+          >
+            <AppstoreOutlined />
+          </ViewToggle>
         </div>
-        <Button
-          icon={view === 'table' ? <TableOutlined /> : <CopyOutlined />}
-          onClick={() => {
-            if (view === 'table') setView('cards');
-            else setView('table');
-          }}
-        >
-          {view === 'table' ? t('equipment.table') : t('marketing.cards')}
-        </Button>
+
+        <div className="ml-auto">
+          <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
+            {allowed => allowed && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                className="h-9 rounded-md px-4 text-sm shadow-none"
+                onClick={() => navigate('/marketing/campaign/create')}
+              >
+                {t('routes.create')}
+              </Button>
+            )}
+          </Can>
+        </div>
       </div>
 
       {view === 'table' && (
-        <div className="mt-6">
+        <div className="mt-2">
           {isLoading || isValidating ? (
-            <div className="h-[600px] w-full flex justify-center items-center">
+            <div className="flex h-[600px] w-full items-center justify-center">
               <Spin />
             </div>
           ) : (
+            <div className="overflow-hidden border-b border-borderFill">
             <Table
+              rowKey="id"
+              className="rounded-none"
               dataSource={promotions}
               columns={columns}
               pagination={{
@@ -403,11 +405,11 @@ const MarketingCampaigns: React.FC = () => {
                     size: String(size),
                   }),
               }}
-              bordered={false}
               scroll={{ x: 'max-content' }}
               loading={isLoading || isValidating}
               locale={{ emptyText: t('table.noData') }}
             />
+            </div>
           )}
         </div>
       )}
@@ -415,14 +417,14 @@ const MarketingCampaigns: React.FC = () => {
       {view === 'cards' && (
         <div>
           {isLoading || isValidating ? (
-            <div className="h-[600px] w-full flex justify-center items-center">
+            <div className="flex h-[600px] w-full items-center justify-center">
               <Spin />
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-6">
-              {promotions.map((card, i) => (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+              {promotions.map(card => (
                 <CampaignCard
-                  key={i}
+                  key={card.id}
                   campaign={card}
                   loading={isLoading || isValidating}
                   onClick={() => navigate(`/marketing/campaign/${card.id}`)}

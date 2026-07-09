@@ -2485,6 +2485,9 @@
     "ReportIncomplete": "The report is incomplete"
   },
   "marketingCampaigns": {
+    "searchPlaceholder": "Search campaigns...",
+    "view": "View:",
+    "tableName": "Name",
     "terms": "Terms and conditions and prizes",
     "promotion": "Promotion content",
     "geography": "Geography of application",
