@@ -201,7 +201,7 @@ const MarketingCampaignStats: React.FC = () => {
             <LineChartOutlined className="text-2xl" />
           </div>
           <div>
-            <div className="text-2xl font-medium text-text01 sm:text-3xl">
+            <div className="text-xl sm:text-3xl font-normal text-text01">
               {t('marketingLoyalty.stats')}
             </div>
             <div className="text-md text-text02">

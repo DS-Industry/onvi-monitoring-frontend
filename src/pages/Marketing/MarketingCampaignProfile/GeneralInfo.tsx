@@ -88,7 +88,7 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({ campaign, conditionsCount }) 
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary02 text-white">
           <CarOutlined style={{ fontSize: 24 }} />
         </div>
-        <div className="text-2xl font-bold text-text01">{t('warehouse.basic')}</div>
+        <div className="text-2xl font-normal text-text01">{t('warehouse.basic')}</div>
       </div>
 
       <InfoRow
