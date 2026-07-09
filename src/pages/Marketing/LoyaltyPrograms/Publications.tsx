@@ -215,6 +215,7 @@ const Publications: React.FC<PublicationsProps> = ({ isEditable = true, program,
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-end">
             <Button
               className="text-primary02 w-full sm:w-auto"
+              onClick={() => navigate('/marketing/loyalty')}
             >
               {t('marketingLoyalty.saveAndExit')}
             </Button>
@@ -234,7 +235,7 @@ const Publications: React.FC<PublicationsProps> = ({ isEditable = true, program,
       {isEditable && (
         <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
           <div className="order-2 sm:order-1">
-            {currentStep > 1 && isUpdate && (
+            {currentStep > 1 && (
               <Button
                 icon={<LeftOutlined />}
                 onClick={goBack}

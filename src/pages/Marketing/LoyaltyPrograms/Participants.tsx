@@ -19,8 +19,6 @@ const Participants: React.FC<ParticipantsProps> = ({ isEditable = true }) => {
   const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
   const currentStep = Number(searchParams.get('step')) || 1;
 
-  const isUpdate = Boolean(searchParams.get('mode') === 'edit');
-
   const { data: participantsData, isLoading: participantsLoading } = useSWR(
     loyaltyProgramId ? [`get-devices`, loyaltyProgramId] : null,
     () => getPosesParticipants(loyaltyProgramId),
@@ -96,7 +94,7 @@ const Participants: React.FC<ParticipantsProps> = ({ isEditable = true }) => {
       {isEditable && (
         <div className="flex flex-col sm:flex-row justify-end gap-2 mt-3">
           <div className="order-2 sm:order-1">
-            {currentStep > 1 && isUpdate && (
+            {currentStep > 1 && (
               <Button
                 icon={<LeftOutlined />}
                 onClick={goBack}

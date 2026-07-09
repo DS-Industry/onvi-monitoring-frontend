@@ -1,5 +1,6 @@
 {
   "routes": {
+    "newsDetail": "Новости",
     "dashboard": "Обзор",
     "administration": "Администрирование",
     "subscriptions": "Подписки",
@@ -228,7 +229,15 @@
     "upToDate": "Здесь храниться актуальная информация про ваш тариф",
     "critical": "Критический остаток",
     "chemistry": "Химия",
-    "chemistryText": "Пополните запасы химии на объекте!"
+    "chemistryText": "Пополните запасы химии на объекте!",
+    "empty": "Новостей пока нет",
+    "emptyDescription": "Здесь будут отображаться опубликованные новости платформы",
+    "loadMore": "Загрузить ещё",
+    "notFound": "Статья не найдена",
+    "notFoundDescription": "Возможно, она была удалена или ещё не опубликована",
+    "pageTitle": "Новости",
+    "tagPlaceholder": "—",
+    "validUntilPlaceholder": "действует до —"
   },
   "indicators": {
     "visitors": "Всего посетителей",
@@ -617,12 +626,17 @@
     "equipmentType": "Вид оборудования",
     "oilLimit": "Уставка масла",
     "pumpRunHours": "Время работы помпы",
-    "oilRunHours": "Наработка масла с последней замены",
+    "oilRunHours": "Наработка масла с последней замены масла",
+    "oilRunHoursPump": "Наработка масла с последней замены помпы",
     "lastOilChange": "Предыдущая замена масла",
     "lastPumpChange": "Предыдущая замена помпы",
     "pumpVersion": "Версия помпы",
     "of": "из",
-    "actions": "Действия"
+    "actions": "Действия",
+    "reportFailure": "Заявить о поломке",
+    "status": "Статус",
+    "new": "Новый",
+    "resolved": "Решен"
   },
   "daily": {
     "noText": "В этом разделе отображаются отчеты по ежедневным параметрам",
@@ -833,6 +847,10 @@
     "un": "УН карты",
     "comp": "Дата завершения",
     "cardType": "Тип карты*",
+    "cardsType": "Тип карты",
+    "selectCardType": "Выберите тип карты",
+    "legalEntity": "Юридическое лицо",
+    "selectLegalEntity": "Выберите юридическое лицо",
     "key": "Ключевые показатели",
     "comm": "Коммуникация",
     "actions": "Действия",
@@ -1510,7 +1528,8 @@
     "partnersPercentSumMustBe100": "Сумма процентов всех участников должна быть равна 100%",
     "addPartner": "Добавить партнёра",
     "partnersOnCreate": "Партнёры",
-    "selectPartner": "Партнёр"
+    "selectPartner": "Партнёр",
+    "tookTimeMustBeGreaterThanOldTime": "Время сбора (новое) должно быть позже Время сбора (новое)"
   },
   "shift-management": {
     "shift-create-modal": {
@@ -2115,7 +2134,8 @@
     },
     "employee": {
       "placeholder": "Выберите сотрудника"
-    }
+    },
+    "excess": "Превышение"
   },
   "corporateClients": {
     "inn": "ИНН",
@@ -2442,7 +2462,8 @@
     "numberOfPeriods": "Количество периодов",
     "chartLevelTitle": "Уровень химии",
     "level": "Уровень",
-    "filling": "Залив"
+    "filling": "Залив",
+    "ReportIncomplete": "Отчет не заполнен"
   },
   "marketingCampaigns": {
     "terms": "Условия и призы",

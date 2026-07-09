@@ -27,8 +27,6 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ program, isEditable = tru
   const loyaltyProgramId = Number(searchParams.get('loyaltyProgramId'));
   const currentStep = Number(searchParams.get('step')) || 1;
 
-  const isUpdate = Boolean(searchParams.get('mode') === 'edit');
-
   const { showToast } = useToast();
 
   const { data: tiersData, isLoading: tiersLoading } = useSWR(
@@ -176,7 +174,7 @@ const LevelsBonuses: React.FC<LevelsBonusesProps> = ({ program, isEditable = tru
       {isEditable && (
         <div className="flex flex-col sm:flex-row justify-end gap-2 mt-4">
           <div className="order-2 sm:order-1">
-            {currentStep > 1 && isUpdate && (
+            {currentStep > 1 && (
               <Button
                 icon={<LeftOutlined />}
                 onClick={goBack}

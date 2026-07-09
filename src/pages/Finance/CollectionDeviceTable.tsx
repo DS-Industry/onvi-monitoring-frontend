@@ -3,7 +3,7 @@ import { Table, Popconfirm, Typography, Button, DatePicker } from 'antd';
 import { TFunction } from 'i18next';
 import dayjs from 'dayjs';
 import { CheckOutlined, CloseOutlined, EditOutlined } from '@ant-design/icons';
-import { getCurrencyRender } from '@/utils/tableUnits';
+import { getFractionalCurrencyRender } from '@/utils/tableUnits';
 
 type CashCollectionDevice = {
   id: number;
@@ -31,6 +31,7 @@ type Props = {
   t: TFunction;
   loading: boolean;
   hideVirtualSum?: boolean;
+  onSaveError?: (message: string) => void;
 };
 
 const CollectionDeviceTable: React.FC<Props> = ({
@@ -42,6 +43,7 @@ const CollectionDeviceTable: React.FC<Props> = ({
   t,
   loading,
   hideVirtualSum = false,
+  onSaveError,
 }) => {
   const [editingValue, setEditingValue] = useState<string>(''); // new tookMoneyTime
   const [editingOldValue, setEditingOldValue] = useState<string>(''); // oldTookMoneyTime
@@ -68,6 +70,25 @@ const CollectionDeviceTable: React.FC<Props> = ({
   };
 
   const saveEditing = (record: CashCollectionDevice) => {
+    let oldDate = record.oldTookMoneyTime;
+    let tookDate = record.tookMoneyTime;
+
+    if (editingOldValue) {
+      oldDate = new Date(editingOldValue);
+    }
+    
+    if (editingValue) {
+      tookDate = new Date(editingValue);
+    }
+
+    if (tookDate <= oldDate) {
+      if (onSaveError) {
+        onSaveError(t('finance.tookTimeMustBeGreaterThanOldTime'));
+      }
+
+      return;
+    }
+
     if (editingOldValue) {
       const fakeOldEvent = {
         target: { value: editingOldValue },
@@ -178,21 +199,21 @@ const CollectionDeviceTable: React.FC<Props> = ({
       dataIndex: 'sumDevice',
       key: 'sumDevice',
       width: '10%',
-      render: getCurrencyRender(),
+      render: getFractionalCurrencyRender(),
     },
     {
       title: t('table.columns.coins'),
       dataIndex: 'sumCoinDevice',
       key: 'sumCoinDevice',
       width: '11%',
-      render: getCurrencyRender(),
+      render: getFractionalCurrencyRender(),
     },
     {
       title: t('table.columns.banknotes'),
       dataIndex: 'sumPaperDevice',
       key: 'sumPaperDevice',
       width: '11%',
-      render: getCurrencyRender(),
+      render: getFractionalCurrencyRender(),
     },
     ...(hideVirtualSum
       ? []
@@ -202,7 +223,7 @@ const CollectionDeviceTable: React.FC<Props> = ({
             dataIndex: 'virtualSumDevice',
             key: 'virtualSumDevice',
             width: '11%',
-            render: getCurrencyRender(),
+            render: getFractionalCurrencyRender(),
           },
         ]),
     {

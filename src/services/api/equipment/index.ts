@@ -55,6 +55,11 @@ type IncidentParam = {
   placementId?: number;
 };
 
+export enum EIncidentStatus {
+  NEW = 'NEW',
+  RESOLVED = 'RESOLVED',
+}
+
 export type Incident = {
   id: number;
   posId: number;
@@ -72,6 +77,12 @@ export type Incident = {
   downtime: string;
   comment: string;
   programId: number;
+  status?: EIncidentStatus;
+  equipmentKnotTypeDeviceId?: number;
+  equipmentKnotId?: number;
+  incidentNameId?: number;
+  incidentReasonId?: number;
+  incidentSolutionId?: number;
 };
 
 export type IncidentBody = {
@@ -652,6 +663,23 @@ export async function updateIncident(
   return response.data;
 }
 
+export type IncidentSimpleBody = {
+  posId: number;
+  workerId: number;
+  appearanceDate: string;
+  comment: string;
+};
+
+export async function createSimpleIncident(
+  body: IncidentSimpleBody
+): Promise<PostIncidentResponse> {
+  const response: AxiosResponse<PostIncidentResponse> = await api.post(
+    `${EQUIPMENT.GET_INCIDENT}/simple`,
+    body
+  );
+  return response.data;
+}
+
 export async function getPoses(params: PosParams): Promise<PosResponse[]> {
   const response: AxiosResponse<PosResponse[]> = await api.get(
     EQUIPMENT.GET_POS,
@@ -1152,15 +1180,23 @@ export interface EngineHoursResponse {
   oilLimit: number | null;
   pumpRunHours: number | null;  
   oilRunHours: number | null;
+  oilRunHoursPump: number | null;
   lastOilChangeDate: string | null;
   lastPumpChangeDate: string | null;
+}
+
+export enum EExcessType {
+  EXCESS = "EXCESS",
+  ALL = "ALL"
 }
 
 export interface GetEngineHoursParams {
   dateStart: string;
   dateEnd: string;
-  placementId?: number;
-  posId?: number;
+  placementIds?: number[];
+  posIds?: number[];
+  excess?: EExcessType;
+  organizationId?: number;
 }
 
 export async function getEngineHours(

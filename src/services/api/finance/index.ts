@@ -147,6 +147,7 @@ type CashCollectionParams = {
   posId?: number;
   page?: number;
   size?: number;
+  organizationId?: number;
 };
 
 type GetShiftReportsParams = {

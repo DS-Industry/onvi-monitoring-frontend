@@ -33,6 +33,7 @@ const MarketingCampaignCreate: React.FC = () => {
   const marketingCampaignId = Number(searchParams.get('marketingCampaignId'));
 
   const editMode = Boolean(searchParams.get('mode') === 'edit');
+  const hasExistingCampaign = editMode || Boolean(searchParams.get('marketingCampaignId'));
 
   const {
     data: marketingCampaign,
@@ -66,7 +67,7 @@ const MarketingCampaignCreate: React.FC = () => {
   const steps = useMemo(() => [
     {
       title: t('warehouse.basic'),
-      content: editMode ? (
+      content: hasExistingCampaign ? (
         <BasicInformationUpdate
           campaign={marketingCampaign}
           isLoading={isLoading || isValidating}
@@ -106,7 +107,7 @@ const MarketingCampaignCreate: React.FC = () => {
       content: <Geography />,
       icon: <FireOutlined />,
     }
-  ], [t, editMode, marketingCampaign, isLoading, isValidating, mutate, isHubPlus]);
+  ], [t, editMode, hasExistingCampaign, marketingCampaign, isLoading, isValidating, mutate, isHubPlus]);
 
   const safeCurrentStep = useMemo(() => {
     const maxStep = steps.length - 1;

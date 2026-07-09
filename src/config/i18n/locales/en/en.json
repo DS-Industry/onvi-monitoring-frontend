@@ -1,5 +1,6 @@
 {
   "routes": {
+    "newsDetail": "News",
     "dashboard": "Dashboard",
     "administration": "Administration",
     "subscriptions": "Subscriptions",
@@ -228,7 +229,15 @@
     "upToDate": "Up-to-date information about your tariff is stored here.",
     "critical": "Critical remainder",
     "chemistry": "Chemistry",
-    "chemistryText": "Replenish chemical supplies at the site!"
+    "chemistryText": "Replenish chemical supplies at the site!",
+    "empty": "No news yet",
+    "emptyDescription": "Published platform news will appear here",
+    "loadMore": "Load more",
+    "notFound": "Article not found",
+    "notFoundDescription": "It may have been deleted or not published yet",
+    "pageTitle": "News",
+    "tagPlaceholder": "—",
+    "validUntilPlaceholder": "valid until —"
   },
   "indicators": {
     "visitors": "Total visitors",
@@ -616,12 +625,17 @@
     "equipmentType": "Type of equipment",
     "oilLimit": "Oil limit",
     "pumpRunHours": "Pump runtime",
-    "oilRunHours": "Oil hours since last change",
+    "oilRunHours": "Oil hours since last oil change",
+    "oilRunHoursPump": "Oil hours since last pump change",
     "lastOilChange": "Previous oil change",
     "lastPumpChange": "Previous pump change",
     "pumpVersion": "Pump version",
     "of": "of",
-    "actions": "Actions"
+    "actions": "Actions",
+    "reportFailure": "Report a breakdown",
+    "status": "Status",
+    "new": "New",
+    "resolved": "Resolved"
   },
   "daily": {
     "noText": "This section displays reports on daily parameters",
@@ -832,6 +846,10 @@
     "un": "UN cards",
     "comp": "Completion date",
     "cardType": "Card type*",
+    "cardsType": "Card type",
+    "selectCardType": "Select card type",
+    "legalEntity": "Legal entity",
+    "selectLegalEntity": "Select legal entity",
     "key": "Key indicators",
     "comm": "Communication",
     "actions": "Actions",
@@ -1509,7 +1527,8 @@
     "partnersPercentSumMustBe100": "The sum of all partners' percentages must equal 100%",
     "addPartner": "Add partner",
     "partnersOnCreate": "Partners",
-    "selectPartner": "Partner"
+    "selectPartner": "Partner",
+    "tookTimeMustBeGreaterThanOldTime": "Collection time (new) should be later than Collection time (new)"
   },
 
   "shift-management": {
@@ -2114,7 +2133,8 @@
     },
     "employee": {
       "placeholder": "Select employee"
-    }
+    },
+    "excess": "Excess"
   },
   "corporateClients": {
     "inn": "INN",
@@ -2442,7 +2462,8 @@
     "numberOfPeriods": "Number of periods",
     "chartLevelTitle": "Chemistry level",
     "level": "Level",
-    "filling": "Filling"
+    "filling": "Filling",
+    "ReportIncomplete": "The report is incomplete"
   },
   "marketingCampaigns": {
     "terms": "Terms and conditions and prizes",

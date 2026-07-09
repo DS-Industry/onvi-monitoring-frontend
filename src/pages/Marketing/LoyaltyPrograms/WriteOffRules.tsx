@@ -41,8 +41,6 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isLoading, mutat
   const currentStep = Number(searchParams.get('step')) || 1;
   const { showToast } = useToast();
 
-  const isUpdate = Boolean(searchParams.get('mode') === 'edit');
-
   const defaultValues: BonusRedemptionUpdate = {
     loyaltyProgramId: loyaltyProgramId,
     burnoutType: 'month',
@@ -390,7 +388,7 @@ const WriteOffRules: React.FC<WriteOffRulesProps> = ({ program, isLoading, mutat
       {isEditable && (
         <div className="flex flex-col sm:flex-row justify-end gap-2 mt-3">
           <div className="order-2 sm:order-1">
-            {currentStep > 1 && isUpdate && (
+            {currentStep > 1 && (
               <Button
                 icon={<LeftOutlined />}
                 onClick={goBack}
