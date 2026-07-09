@@ -9,6 +9,7 @@ import { ACTION_TYPE, MarketingCampaignResponse } from '@/services/api/marketing
 interface ActionButtonsProps {
     actionType?: ACTION_TYPE;
     marketingCampaign?: MarketingCampaignResponse;
+    isSpendMilestone?: boolean;
     isUpdating: boolean;
     isDisabled: boolean;
     onNext: () => void;
@@ -17,6 +18,7 @@ interface ActionButtonsProps {
 const ActionButtons: React.FC<ActionButtonsProps> = ({
     actionType,
     marketingCampaign,
+    isSpendMilestone = false,
     isUpdating,
     isDisabled,
     onNext,
@@ -35,7 +37,13 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
         return null;
     }
 
-    const isPromocode = actionType === 'PROMOCODE_ISSUE';
+    const isPromocodeIssue = actionType === 'PROMOCODE_ISSUE';
+    const isPromocodeEntry =
+        isPromocodeIssue && !isSpendMilestone;
+
+    const isNextDisabled = isPromocodeEntry
+        ? !marketingCampaign?.actionPromocode
+        : isDisabled;
 
     return (
         <div className="flex flex-col sm:flex-row justify-end gap-2 mt-3">
@@ -55,7 +63,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
                 icon={<RightOutlined />}
                 iconPosition="end"
                 loading={isUpdating}
-                disabled={isPromocode ? !marketingCampaign?.actionPromocode : isDisabled}
+                disabled={isNextDisabled}
                 onClick={onNext}
                 className="w-full sm:w-auto order-1 sm:order-2"
             >
