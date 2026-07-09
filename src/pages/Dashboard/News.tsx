@@ -1,34 +1,52 @@
 import React, { useState } from 'react';
-import Toast from '@ui/Toast';
+import { useTranslation } from 'react-i18next';
+import useSWRInfinite from 'swr/infinite';
+import { Button, Card, Col, Row, Skeleton, Typography } from 'antd';
+import { getPublishedNews } from '@/services/api/news';
+import NewsToastItem from './components/NewsToastItem';
 import Notification from '@ui/Notification';
 import FactoryLetterS from '@/assets/Factory Letter S.png';
 import Attention from '@/assets/Attention.png';
-import { useTranslation } from 'react-i18next';
-import { Row, Col, Card, Typography } from 'antd';
 
 const { Text, Title } = Typography;
 
-interface NewsItem {
-  id: number;
-  title: string;
-  text: string;
-}
+const PAGE_SIZE = 10;
 
-const initialNews: NewsItem[] = [
-  { id: 1, title: 'promotion', text: 'promotionText' },
-  { id: 2, title: 'newEquipment', text: 'newEquipmentText' },
-  { id: 3, title: 'loyalty', text: 'loyaltyText' },
-];
+const cardBodyStyles = {
+  padding: 24,
+  backgroundColor: '#F8F8FA',
+  borderRadius: 18,
+};
+
+const NewsToastSkeleton: React.FC = () => (
+  <div className="rounded-[18px] bg-background05 p-4">
+    <Skeleton.Input active size="small" className="!w-32 !mb-2" />
+    <Skeleton.Input active className="!w-full" />
+  </div>
+);
 
 const News: React.FC = () => {
-  const [notificationVisible, setNotificationVisible] = useState(true);
-  const [news, setNews] = useState<NewsItem[]>(initialNews);
-
   const { t } = useTranslation();
+  const [notificationVisible, setNotificationVisible] = useState(true);
 
-  const handleClose = (id: number) => {
-    setNews(news.filter(item => item.id !== id));
-  };
+  const { data, isLoading, size, setSize, isValidating } = useSWRInfinite(
+    (pageIndex, previousPageData) => {
+      if (previousPageData && !previousPageData.hasNext) return null;
+      return ['news', pageIndex + 1, PAGE_SIZE] as const;
+    },
+    ([, page, pageSize]) => getPublishedNews({ page, size: pageSize }),
+    {
+      revalidateOnFocus: false,
+      keepPreviousData: true,
+      shouldRetryOnError: false,
+    }
+  );
+
+  const articles = data?.flatMap(page => page.data) ?? [];
+  const lastPage = data?.[data.length - 1];
+  const hasMore = lastPage?.hasNext ?? false;
+  const isLoadingMore =
+    isLoading || (size > 0 && data && typeof data[size - 1] === 'undefined');
 
   return (
     <>
@@ -39,17 +57,12 @@ const News: React.FC = () => {
           onClose={() => setNotificationVisible(false)}
         />
       )}
+
       <Row gutter={[24, 24]}>
         <Col xs={24} md={12}>
           <Card
             variant="borderless"
-            styles={{
-              body: {
-                padding: 24,
-                backgroundColor: '#F8F8FA',
-                borderRadius: 18,
-              },
-            }}
+            styles={{ body: cardBodyStyles }}
             style={{ borderRadius: 18 }}
           >
             <Text type="secondary" strong>
@@ -63,7 +76,7 @@ const News: React.FC = () => {
             >
               <Text>{t('news.upToDate')}</Text>
               <div style={{ marginLeft: 'auto' }}>
-                <img src={FactoryLetterS} alt="Factory" />
+                <img src={FactoryLetterS} alt="" />
               </div>
             </div>
           </Card>
@@ -72,13 +85,7 @@ const News: React.FC = () => {
         <Col xs={24} md={12}>
           <Card
             variant="borderless"
-            styles={{
-              body: {
-                padding: 24,
-                backgroundColor: '#F8F8FA',
-                borderRadius: 18,
-              },
-            }}
+            styles={{ body: cardBodyStyles }}
             style={{ borderRadius: 18 }}
           >
             <Text type="secondary" strong>
@@ -92,7 +99,7 @@ const News: React.FC = () => {
             >
               <Text>{t('news.chemistryText')}</Text>
               <div style={{ marginLeft: 'auto' }}>
-                <img src={Attention} alt="Attention" className="h-20" />
+                <img src={Attention} alt="" className="h-20" />
               </div>
             </div>
           </Card>
@@ -100,22 +107,38 @@ const News: React.FC = () => {
 
         <Col xs={24}>
           <Row gutter={[24, 24]}>
-            {news.map(item => (
-              <Col xs={24} md={12} key={item.id}>
-                <Toast
-                  id={item.id}
-                  textColor="black"
-                  bgColor="background05"
-                  onClose={handleClose}
-                >
-                  <div className="font-semibold">{t(`news.${item.title}`)}</div>
-                  <div>{t(`news.${item.text}`)}</div>
-                </Toast>
-              </Col>
-            ))}
+            {isLoading && articles.length === 0
+              ? Array.from({ length: 4 }).map((_, i) => (
+                  <Col xs={24} md={12} key={`skeleton-${i}`}>
+                    <NewsToastSkeleton />
+                  </Col>
+                ))
+              : articles.map(item => (
+                  <Col xs={24} md={12} key={item.id}>
+                    <NewsToastItem item={item} />
+                  </Col>
+                ))}
           </Row>
+
+          {!isLoading && articles.length === 0 && (
+            <Text type="secondary" className="block text-center">
+              {t('news.empty')}
+            </Text>
+          )}
         </Col>
       </Row>
+
+      {hasMore && (
+        <div className="mt-8 flex justify-center">
+          <Button
+            className="btn-primary"
+            loading={isValidating && isLoadingMore}
+            onClick={() => setSize(size + 1)}
+          >
+            {t('news.loadMore')}
+          </Button>
+        </div>
+      )}
     </>
   );
 };

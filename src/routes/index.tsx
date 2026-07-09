@@ -46,6 +46,7 @@ const Deposit = React.lazy(() => import('@/pages/Pos/Deposit'));
 const Programs = React.lazy(() => import('@/pages/Pos/Programs'));
 const DepositDevices = React.lazy(() => import('@/pages/Pos/DepositDevices'));
 const Dashboard = React.lazy(() => import('@/pages/Dashboard/Dashboard'));
+const NewsDetail = React.lazy(() => import('@/pages/Dashboard/NewsDetail'));
 const EquipmentFailure = React.lazy(
   () => import('@/pages/Equipment/EquipmentFailure')
 );
@@ -193,6 +194,18 @@ const routes: RouteItem[] = [
     component: Dashboard,
     isSidebar: true,
     permissions: [],
+    subNav: [
+      {
+        name: 'newsDetail',
+        isVisible: true,
+        path: '/news/:slug',
+        component: NewsDetail,
+        permissions: [],
+        isSidebar: false,
+        subNav: [],
+        subMenu: false,
+      },
+    ],
   },
   {
     name: 'administration',
