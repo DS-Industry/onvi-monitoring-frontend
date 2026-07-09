@@ -7,6 +7,8 @@ import {
   getLoyaltyPrograms,
   getTiers,
   importCards,
+  getCorporateClients,
+  ECardType,
 } from '@/services/api/marketing';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -30,8 +32,12 @@ const ClientsImport: React.FC = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [loyaltyProgramId, setLoyaltyProgramId] = useState<number | null>(null);
   const [tierId, setTierId] = useState<number | null>(null);
-  const corporateClientId = searchParams.get('corporateClientId');
+  const [cardType, setCardType] = useState<ECardType | null>(null);
+  const [corporateClientId, setCorporateClientId] = useState<number | null>(null);
+  const corporateClientIdFromUrl = searchParams.get('corporateClientId');
   const { showToast } = useToast();
+
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const { data: loyaltyProgramsData, isLoading: programsLoading } = useSWR(
     user.organizationId ? ['get-loyalty-programs', user.organizationId] : null,
@@ -49,6 +55,14 @@ const ClientsImport: React.FC = () => {
     }
   );
 
+  const { data: corporateClientsData, isLoading: corporateLoading } = useSWR(
+    user.organizationId ? ['corporate-clients-import', user.organizationId] : null,
+    () => getCorporateClients({ organizationId: user.organizationId, size: 1000 }),
+    { revalidateOnFocus: false, revalidateOnReconnect: false }
+  );
+
+  const corporateClients = corporateClientsData?.data || [];
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
     setSelectedFile(file);
@@ -60,9 +74,40 @@ const ClientsImport: React.FC = () => {
 
   const handleDownload = () => {
     const link = document.createElement('a');
-    link.href = '/client-cards-template.csv';
-    link.download = 'client-cards-template.csv';
+    link.href = '/client-cards-template.xlsx';
+    link.download = 'client-cards-template.xlsx';
     link.click();
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      const allowedExtensions = ['.xlsx', '.xls', '.csv'];
+      const fileExtension = file.name
+        .toLowerCase()
+        .substring(file.name.lastIndexOf('.'));
+      if (allowedExtensions.includes(fileExtension)) {
+        setSelectedFile(file);
+      } else {
+        showToast(t('validation.invalidFileType'), 'error');
+      }
+    }
   };
 
   const { trigger: importCardsMutation, isMutating } = useSWRMutation(
@@ -77,6 +122,7 @@ const ClientsImport: React.FC = () => {
           organizationId: number;
           corporateClientId?: number;
           tierId?: number;
+          cardType?: ECardType;
         };
       }
     ) => {
@@ -127,14 +173,20 @@ const ClientsImport: React.FC = () => {
       return;
     }
 
+    if (!cardType) {
+      showToast(t('validation.cardTypeRequired'), 'error');
+      return;
+    }
+
+    const finalCorporateClientId = corporateClientId || (corporateClientIdFromUrl ? Number(corporateClientIdFromUrl) : undefined);
+
     try {
       const result = await importCardsMutation({
         file: selectedFile,
         organizationId: user.organizationId,
-        corporateClientId: corporateClientId
-          ? Number(corporateClientId)
-          : undefined,
+        corporateClientId: finalCorporateClientId,
         tierId: tierId ? Number(tierId) : undefined,
+        cardType: cardType,
       });
       if (result) {
         showToast(
@@ -147,6 +199,8 @@ const ClientsImport: React.FC = () => {
       showToast(t('marketing.importError'), 'error');
     }
   };
+
+  const isSubmitDisabled = !tierId || !cardType;
 
   return (
     <>
@@ -185,14 +239,16 @@ const ClientsImport: React.FC = () => {
             onClick={() => {
               setDrawerOpen(!drawerOpen);
             }}
-            className={`w-full sm:w-80 h-32 sm:h-40 flex flex-col justify-center text-center cursor-pointer ${drawerOpen
-              ? 'bg-white border-2 border-primary02'
-              : 'bg-background05'
-              } rounded-2xl transition-all duration-200 hover:shadow-md`}
+            className={`w-full sm:w-80 h-32 sm:h-40 flex flex-col justify-center text-center cursor-pointer ${
+              drawerOpen
+                ? 'bg-white border-2 border-primary02'
+                : 'bg-background05'
+            } rounded-2xl transition-all duration-200 hover:shadow-md`}
           >
             <div
-              className={`flex justify-center text-center items-center ${drawerOpen ? 'text-primary02' : 'text-text01'
-                }`}
+              className={`flex justify-center text-center items-center ${
+                drawerOpen ? 'text-primary02' : 'text-text01'
+              }`}
             >
               <FileOutlined className="text-xl md:text-2xl" />
               <div className="ml-2 font-semibold text-base md:text-lg">
@@ -200,8 +256,9 @@ const ClientsImport: React.FC = () => {
               </div>
             </div>
             <div
-              className={`mt-2 px-4 text-sm md:text-base ${drawerOpen ? 'text-text01' : 'text-text02'
-                } font-normal`}
+              className={`mt-2 px-4 text-sm md:text-base ${
+                drawerOpen ? 'text-text01' : 'text-text02'
+              } font-normal`}
             >
               {t('marketing.clickToDownload')}
             </div>
@@ -209,7 +266,9 @@ const ClientsImport: React.FC = () => {
         </div>
 
         <div className="mt-5">
-          <div className="text-text02 text-sm">{t('marketing.loyalty')}</div>
+          <div className="text-text02 text-sm flex items-center">
+            {t('marketing.loyalty')} <span className="text-errorFill ml-1">*</span>
+          </div>
           <Select
             placeholder={t('marketing.selectLoyaltyProgram')}
             options={loyaltyProgramsData?.map(item => ({
@@ -228,7 +287,9 @@ const ClientsImport: React.FC = () => {
 
         {loyaltyProgramId && (
           <div className="mt-5">
-            <div className="text-text02 text-sm">{t('marketing.tier')}</div>
+            <div className="text-text02 text-sm flex items-center">
+              {t('marketing.tier')} <span className="text-errorFill ml-1">*</span>
+            </div>
             <Select
               options={tiersData?.map(item => ({
                 label: item.name,
@@ -247,58 +308,99 @@ const ClientsImport: React.FC = () => {
         )}
 
         {tierId && (
-          <div className="mt-8 md:mt-14 w-full max-w-4xl">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
-              <div className="text-text02 text-sm md:text-base font-normal">
-                {t('marketing.uploadFile')}
+          <>
+            <div className="mt-5">
+              <div className="text-text02 text-sm flex items-center">
+                {t('marketing.cardsType')} <span className="text-errorFill ml-1">*</span>
               </div>
-              <div className="text-text02 text-sm md:text-base font-normal">
-                {t('marketing.excelFormat')}
-              </div>
+              <Select
+                placeholder={t('marketing.selectCardType')}
+                options={[
+                  { label: t('marketing.physical'), value: ECardType.PHYSICAL },
+                  { label: t('marketing.virtual'), value: ECardType.VIRTUAL },
+                ]}
+                value={cardType}
+                className="w-full sm:max-w-80"
+                onChange={value => setCardType(value)}
+              />
             </div>
 
-            <div className="border rounded-lg h-20 md:h-24 flex justify-center text-center flex-col p-4">
-              {!selectedFile && (
-                <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-2">
-                  <label
-                    htmlFor="file-upload"
-                    className="flex text-primary02 cursor-pointer items-center space-x-2 hover:text-primary02_Hover transition-colors"
-                  >
-                    <DownloadOutlined />
-                    <div>{t('marketing.selectFile')}</div>
-                  </label>
-                  <input
-                    id="file-upload"
-                    type="file"
-                    accept=".xlsx, .xls, .csv"
-                    className="hidden"
-                    onChange={handleFileChange}
-                  />
-                  <div className="text-text01">{t('warehouse.or')}</div>
-                </div>
-              )}
-              {selectedFile && (
-                <div className="w-full">
-                  <div className="flex items-center justify-between space-x-3 p-2">
-                    <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 min-w-0">
-                      <div className="text-primary02 text-sm md:text-base truncate">
-                        {selectedFile.name}
-                      </div>
-                      <div className="text-text01 text-xs md:text-sm">
-                        ({(selectedFile.size / 1024).toFixed(2)} kB)
-                      </div>
-                    </div>
-                    <button
-                      className="text-text02 hover:text-text01 transition-colors flex-shrink-0"
-                      onClick={handleFileRemove}
-                    >
-                      <CloseOutlined />
-                    </button>
-                  </div>
-                </div>
-              )}
+            <div className="mt-5">
+              <div className="text-text02 text-sm">{t('marketing.legalEntity')}</div>
+              <Select
+                placeholder={t('marketing.selectLegalEntity')}
+                options={corporateClients.map(item => ({
+                  label: item.name,
+                  value: item.id,
+                }))}
+                value={corporateClientId}
+                allowClear
+                loading={corporateLoading}
+                className="w-full sm:max-w-80"
+                onChange={value => setCorporateClientId(value)}
+              />
             </div>
-          </div>
+
+            <div className="mt-8 md:mt-14 w-full max-w-4xl">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+                <div className="text-text02 text-sm md:text-base font-normal">
+                  {t('marketing.uploadFile')}
+                </div>
+                <div className="text-text02 text-sm md:text-base font-normal">
+                  {t('marketing.excelFormat')}
+                </div>
+              </div>
+
+              <div
+                className={`border rounded-lg h-20 md:h-24 flex justify-center text-center flex-col p-4 transition-all duration-200 ${
+                  isDragOver ? 'border-primary02 bg-blue-50' : ''
+                }`}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                {!selectedFile && (
+                  <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-2">
+                    <label
+                      htmlFor="file-upload"
+                      className="flex text-primary02 cursor-pointer items-center space-x-2 hover:text-primary02_Hover transition-colors"
+                    >
+                      <DownloadOutlined />
+                      <div>{t('marketing.selectFile')}</div>
+                    </label>
+                    <input
+                      id="file-upload"
+                      type="file"
+                      accept=".xlsx, .xls, .csv"
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                    <div className="text-text01">{t('warehouse.or')}</div>
+                  </div>
+                )}
+                {selectedFile && (
+                  <div className="w-full">
+                    <div className="flex items-center justify-between space-x-3 p-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-2 min-w-0">
+                        <div className="text-primary02 text-sm md:text-base truncate">
+                          {selectedFile.name}
+                        </div>
+                        <div className="text-text01 text-xs md:text-sm">
+                          ({(selectedFile.size / 1024).toFixed(2)} kB)
+                        </div>
+                      </div>
+                      <button
+                        className="text-text02 hover:text-text01 transition-colors flex-shrink-0"
+                        onClick={handleFileRemove}
+                      >
+                        <CloseOutlined />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
         )}
 
         <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-8 md:mt-10">
@@ -315,6 +417,7 @@ const ClientsImport: React.FC = () => {
             form={true}
             handleClick={handleSubmit}
             isLoading={isMutating}
+            disabled={isSubmitDisabled}
             classname="w-full sm:w-auto"
           />
         </div>
