@@ -37,14 +37,6 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
         return null;
     }
 
-    const isPromocodeIssue = actionType === 'PROMOCODE_ISSUE';
-    const isPromocodeEntry =
-        isPromocodeIssue && !isSpendMilestone;
-
-    const isNextDisabled = isPromocodeEntry
-        ? !marketingCampaign?.actionPromocode
-        : isDisabled;
-
     if (actionType === 'PROMOCODE_ISSUE' && !isSpendMilestone) {
         return (
             <div className="flex justify-end gap-2 mt-3">
@@ -80,7 +72,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
                 icon={<RightOutlined />}
                 iconPosition="end"
                 loading={isUpdating}
-                disabled={isNextDisabled}
+                disabled={isDisabled}
                 onClick={onNext}
                 className="w-full sm:w-auto order-1 sm:order-2"
             >

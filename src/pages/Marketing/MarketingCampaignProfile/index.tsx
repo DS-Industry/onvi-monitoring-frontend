@@ -208,7 +208,7 @@ const MarketingCampaignProfile: React.FC = () => {
             <ArrowLeftOutlined />
             <p className="ms-2">{t('login.back')}</p>
           </div>
-          <span className="text-xl font-bold text-text01 sm:text-3xl">
+          <span className="text-xl sm:text-3xl font-normal text-text01">
             {t('routes.viewMarketingCampaign')}
           </span>
         </div>

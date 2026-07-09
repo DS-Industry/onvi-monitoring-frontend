@@ -1437,6 +1437,58 @@ export async function getMarketingCampaignById(
   return response.data;
 }
 
+export type CampaignAnalyticsPeriod =
+  | 'lastDay'
+  | 'lastWeek'
+  | 'lastMonth'
+  | 'lastYear'
+  | 'custom';
+
+export type CampaignAnalyticsGranularity = 'day' | 'week' | 'month' | 'year';
+
+export type MetricComparison = {
+  current: number | null;
+  previous: number | null;
+  changePercent: number | null;
+};
+
+export type CampaignAnalyticsParams = {
+  period?: CampaignAnalyticsPeriod;
+  granularity?: CampaignAnalyticsGranularity;
+  startDate?: string;
+  endDate?: string;
+};
+
+export type CampaignAnalyticsResponse = {
+  campaignId: number;
+  period: string;
+  granularity: string;
+  dateRange: { start: string; end: string };
+  uniqueParticipants: number;
+  totalUsages: number;
+  visitFrequency: number | null;
+  averageOrderSum: number | null;
+  ordersWithSumCount: number;
+  comparisons: {
+    uniqueParticipants: MetricComparison;
+    totalUsages: MetricComparison;
+    visitFrequency: MetricComparison;
+    averageOrderSum: MetricComparison;
+  };
+  usagesOverTime: { bucket: string; count: number }[];
+};
+
+export async function getMarketingCampaignAnalytics(
+  id: number,
+  params: CampaignAnalyticsParams = {}
+): Promise<CampaignAnalyticsResponse> {
+  const response: AxiosResponse<CampaignAnalyticsResponse> = await api.get(
+    `user/loyalty/marketing-campaigns/${id}/analytics`,
+    { params }
+  );
+  return response.data;
+}
+
 export type DeleteResponseDto = {
   message: string;
 };
