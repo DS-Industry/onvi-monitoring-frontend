@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import {
   ArrowDownOutlined,
@@ -78,7 +78,12 @@ const MarketingCampaignStats: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const campaignId = Number(id);
+  const fromCampaignsList = searchParams.get('from') === 'campaigns';
+  const backPath = fromCampaignsList
+    ? '/marketing/campaigns'
+    : `/marketing/campaign/${campaignId}`;
   const [period, setPeriod] = useState<PeriodOption>('lastMonth');
 
   const granularity = useMemo(
@@ -181,7 +186,7 @@ const MarketingCampaignStats: React.FC = () => {
         <div className="mb-4 flex items-center gap-3 lg:mb-0 lg:contents">
           <div
             className="flex shrink-0 cursor-pointer text-primary02 lg:col-start-1 lg:row-start-1 lg:self-center"
-            onClick={() => navigate(`/marketing/campaign/${campaignId}`)}
+            onClick={() => navigate(backPath)}
           >
             <ArrowLeftOutlined />
             <p className="ms-2">{t('login.back')}</p>
