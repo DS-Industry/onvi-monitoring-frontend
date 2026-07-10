@@ -281,6 +281,10 @@ const ClientsImport: React.FC = () => {
             className="w-full sm:max-w-80"
             onChange={value => {
               setLoyaltyProgramId(value);
+              setTierId(null);
+              setCardType(null);
+              setCorporateClientId(null);
+              setSelectedFile(null);
             }}
           />
         </div>
