@@ -114,25 +114,33 @@ const BasicInformationUpdate: React.FC<BasicDataProps> = ({
         try {
           const isNameSame = formData.name === (campaign?.name ?? '');
           const isDescSame = formData.description === (campaign?.description ?? '');
-          const isLaunchDateSame = formData.launchDate && campaign?.launchDate
-            ? dayjs(formData.launchDate).isSame(dayjs(campaign.launchDate), 'day')
-            : formData.launchDate === campaign?.launchDate;
-          const isEndDateSame = formData.endDate && campaign?.endDate
-            ? dayjs(formData.endDate).isSame(dayjs(campaign.endDate), 'day')
-            : formData.endDate === campaign?.endDate;
-      
-          if (
+          const isLtyProgramSame =
+            Number(formData.ltyProgramId) === Number(campaign?.ltyProgramId);
+          const isLaunchDateSame =
+            formData.launchDate && campaign?.launchDate
+              ? dayjs(formData.launchDate).isSame(dayjs(campaign.launchDate), 'day')
+              : formData.launchDate === campaign?.launchDate;
+          const isEndDateSame =
+            formData.endDate && campaign?.endDate
+              ? dayjs(formData.endDate).isSame(dayjs(campaign.endDate), 'day')
+              : formData.endDate === campaign?.endDate;
+
+          const hasChanges = !(
             isNameSame &&
             isDescSame &&
+            isLtyProgramSame &&
             isLaunchDateSame &&
             isEndDateSame
-          ) {
+          );
+
+          if (!hasChanges) {
             updateSearchParams(searchParams, setSearchParams, {
               step: 2,
               marketingCampaignId,
             });
             return;
           }
+
           const result = await updateCampaign({
             ltyProgramId: Number(formData.ltyProgramId),
             name: formData.name,
