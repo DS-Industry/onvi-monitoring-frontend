@@ -38,7 +38,11 @@ const DiscountReward: React.FC<DiscountRewardProps> = ({
                                     <div className="text-text02">₽</div>
                                 )
                             }
-                            onChange={e => onValueChange(Number(e.target.value) || 0)}
+                            onChange={e => {
+                                const value = Number(e.target.value) || 0;
+                                if (discountType === 'PERCENTAGE' && value > 99) return;
+                                onValueChange(value);
+                            }}
                         />
                     </div>
                     <Radio.Group
