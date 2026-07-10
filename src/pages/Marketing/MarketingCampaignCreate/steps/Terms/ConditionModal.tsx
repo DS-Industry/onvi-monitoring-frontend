@@ -110,7 +110,9 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
                         (currentCondition.type === MarketingCampaignConditionType.PROMOCODE_ENTRY &&
                             (!promocodeData.code ||
                                 !promocodeData.discountValue ||
-                                !promocodeData.maxUsagePerUser))
+                                !promocodeData.maxUsagePerUser)) ||
+                        (currentCondition.type === MarketingCampaignConditionType.VISIT_COUNT &&
+                            (!currentCondition.value || Number(currentCondition.value) < 1))
                     }
                     loading={loading}
                 >
@@ -248,9 +250,9 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
                                 className="w-60"
                                 placeholder={t('techTasks.enterDaysCount')}
                                 value={currentCondition.value}
-                                min={0}
+                                min={1}
                                 onChange={(e) => {
-                                    if (Number(e.target.value) < 0) return;
+                                    if (Number(e.target.value) < 1) return;
                                     setCurrentCondition(prev => ({
                                         ...prev,
                                         value: e.target.value,
