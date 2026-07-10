@@ -294,7 +294,9 @@ const MarketingCampaigns: React.FC = () => {
                     type="link"
                     size="small"
                     icon={<LineChartOutlined />}
-                    onClick={() => navigate(`/marketing/campaign/${record.id}/stats`)}
+                    onClick={() =>
+                      navigate(`/marketing/campaign/${record.id}/stats?from=campaigns`)
+                    }
                     className="h-auto p-0 text-primary02"
                   >
                     {t('dashboard.indicators')}
