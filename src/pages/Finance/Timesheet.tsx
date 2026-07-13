@@ -6,7 +6,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getShifts, TypeWorkDay } from '@/services/api/finance';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ru';
-import { getWorkers } from '@/services/api/hr';
 
 import { Calendar, dayjsLocalizer } from 'react-big-calendar';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
@@ -114,20 +113,6 @@ const Timesheet: React.FC = () => {
     }
   );
 
-  const { data: employees } = useSWR(
-    user.organizationId ? [`get-workers`, user.organizationId] : null,
-    () =>
-      getWorkers({
-        organizationId: user.organizationId,
-      }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-      shouldRetryOnError: false,
-    }
-  );
-
   const [openSlot, setOpenSlot] = useState(false);
   const [selectedWeekendEvent, setSelectedWeekendEvent] = useState<(typeof calendarEvents)[0] | null>(null);
 
@@ -160,8 +145,7 @@ const Timesheet: React.FC = () => {
 
   // Transform shifts data to calendar events
   const calendarEvents = useMemo(() => {
-    // If shiftsData is the direct array:
-    if (!shiftsData || !Array.isArray(shiftsData) || !employees) {
+    if (!shiftsData || !Array.isArray(shiftsData)) {
       return [];
     }
 
@@ -171,10 +155,7 @@ const Timesheet: React.FC = () => {
 
       return {
         id: shift.props.id,
-        title: `${
-          employees.find(emp => emp.props.id === shift.props.workerId)?.props
-            ?.name || t('tables.unknownWorker')
-        }`,
+        title: shift.props.workerFio || t('tables.unknownWorker'),
         start: startDate,
         end: endDate,
         resource: {
@@ -189,7 +170,7 @@ const Timesheet: React.FC = () => {
         },
       };
     });
-  }, [shiftsData, poses, employees]);
+  }, [shiftsData, t]);
 
   const handleSelectEvent = (event: (typeof calendarEvents)[0]) => {
     if (event.resource?.type === TypeWorkDay.WORKING) {
