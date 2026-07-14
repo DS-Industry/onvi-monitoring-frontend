@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Select } from 'antd';
 import useSWR from 'swr';
-import { getPoses } from '@/services/api/equipment';
+import { getPoses, PosResponse } from '@/services/api/equipment';
 import { useDebouncedSearch } from './useDebouncedSearch';
 
 const PAGE_SIZE = 10;
@@ -29,6 +29,10 @@ const PosSearchSelectMulti: React.FC<Props> = ({
 }) => {
   const { debouncedSearch, debouncedSearchUpdate, resetSearch } = useDebouncedSearch();
   const [pinned, setPinned] = useState<Map<number, string>>(new Map());
+  const [page, setPage] = useState(1);
+  const [items, setItems] = useState<PosResponse[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const loadingMoreRef = useRef(false);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
@@ -37,26 +41,47 @@ const PosSearchSelectMulti: React.FC<Props> = ({
   useEffect(() => {
     resetSearch();
     setPinned(new Map());
+    setPage(1);
+    setItems([]);
+    setHasMore(true);
   }, [placementKey, organizationId, resetSearch]);
 
-  const { data: posData, isLoading } = useSWR(
+  useEffect(() => {
+    setPage(1);
+    setItems([]);
+    setHasMore(true);
+  }, [debouncedSearch]);
+
+  const { data: posData, isLoading, isValidating } = useSWR(
     organizationId
-      ? ['get-pos-search-multi', placementKey, organizationId, debouncedSearch]
+      ? ['get-pos-search-multi', placementKey, organizationId, debouncedSearch, page]
       : null,
     () =>
       getPoses({
         placementId,
         placementIds,
         organizationId: organizationId!,
+        page,
         size: PAGE_SIZE,
         search: debouncedSearch || undefined,
       }),
-    { revalidateOnFocus: false, keepPreviousData: true, shouldRetryOnError: false }
+    { revalidateOnFocus: false, shouldRetryOnError: false }
   );
 
+  useEffect(() => {
+    if (!posData) return;
+    setItems(prev => {
+      if (page === 1) return posData;
+      const ids = new Set(prev.map(p => p.id));
+      return [...prev, ...posData.filter(p => !ids.has(p.id))];
+    });
+    setHasMore(posData.length >= PAGE_SIZE);
+    loadingMoreRef.current = false;
+  }, [posData, page]);
+
   const missingIds = useMemo(
-    () => value.filter(id => !posData?.some(p => p.id === id) && !pinned.has(id)),
-    [value, posData, pinned]
+    () => value.filter(id => !items.some(p => p.id === id) && !pinned.has(id)),
+    [value, items, pinned]
   );
 
   const { data: pinnedData } = useSWR(
@@ -88,12 +113,12 @@ const PosSearchSelectMulti: React.FC<Props> = ({
   }, [pinnedData, missingIds, value]);
 
   const options = useMemo(() => {
-    const items = (posData || []).map(p => ({ label: p.name, value: p.id }));
+    const mapped = items.map(p => ({ label: p.name, value: p.id }));
     pinned.forEach((name, id) => {
-      if (!items.some(o => o.value === id)) items.push({ label: name, value: id });
+      if (!mapped.some(o => o.value === id)) mapped.push({ label: name, value: id });
     });
-    return items;
-  }, [posData, pinned]);
+    return mapped;
+  }, [items, pinned]);
 
   const handleChange = (values: number[]) => {
     resetSearch();
@@ -101,7 +126,7 @@ const PosSearchSelectMulti: React.FC<Props> = ({
       const next = new Map<number, string>();
       values.forEach(id => {
         const label =
-          posData?.find(p => p.id === id)?.name ??
+          items.find(p => p.id === id)?.name ??
           prev.get(id) ??
           options.find(o => o.value === id)?.label;
         if (label) next.set(id, label);
@@ -109,6 +134,14 @@ const PosSearchSelectMulti: React.FC<Props> = ({
       return next;
     });
     onChange(values);
+  };
+
+  const handlePopupScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLDivElement;
+    if (target.scrollTop + target.offsetHeight < target.scrollHeight - 16) return;
+    if (!hasMore || isValidating || loadingMoreRef.current) return;
+    loadingMoreRef.current = true;
+    setPage(p => p + 1);
   };
 
   return (
@@ -123,7 +156,8 @@ const PosSearchSelectMulti: React.FC<Props> = ({
       options={options}
       filterOption={false}
       onSearch={debouncedSearchUpdate}
-      loading={isLoading}
+      onPopupScroll={handlePopupScroll}
+      loading={isLoading || (isValidating && page > 1)}
       className={className}
     />
   );

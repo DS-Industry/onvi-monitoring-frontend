@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Select } from 'antd';
 import useSWR from 'swr';
-import { getPoses } from '@/services/api/equipment';
+import { getPoses, PosResponse } from '@/services/api/equipment';
 import { useDebouncedSearch } from './useDebouncedSearch';
 
 const PAGE_SIZE = 10;
@@ -29,32 +29,58 @@ const PosSearchSelect: React.FC<Props> = ({
 }) => {
   const { debouncedSearch, debouncedSearchUpdate, resetSearch } = useDebouncedSearch();
   const [pinned, setPinned] = useState<{ id: number; name: string }>();
+  const [page, setPage] = useState(1);
+  const [items, setItems] = useState<PosResponse[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const loadingMoreRef = useRef(false);
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
   useEffect(() => {
     resetSearch();
     setPinned(undefined);
+    setPage(1);
+    setItems([]);
+    setHasMore(true);
   }, [placementId, organizationId, resetSearch]);
 
-  const { data: posData, isLoading } = useSWR(
+  useEffect(() => {
+    setPage(1);
+    setItems([]);
+    setHasMore(true);
+  }, [debouncedSearch]);
+
+  const { data: posData, isLoading, isValidating } = useSWR(
     organizationId
-      ? ['get-pos-search', placementId, organizationId, debouncedSearch]
+      ? ['get-pos-search', placementId, organizationId, debouncedSearch, page]
       : null,
     () =>
       getPoses({
         placementId,
         organizationId: organizationId!,
+        page,
         size: PAGE_SIZE,
         search: debouncedSearch || undefined,
       }),
-    { revalidateOnFocus: false, keepPreviousData: true, shouldRetryOnError: false }
+    { revalidateOnFocus: false, shouldRetryOnError: false }
   );
+
+  useEffect(() => {
+    if (!posData) return;
+    setItems(prev => {
+      if (page === 1) return posData;
+      const ids = new Set(prev.map(p => p.id));
+      return [...prev, ...posData.filter(p => !ids.has(p.id))];
+    });
+    setHasMore(posData.length >= PAGE_SIZE);
+    loadingMoreRef.current = false;
+  }, [posData, page]);
 
   const needsPinnedFetch =
     Boolean(organizationId && value) &&
-    posData !== undefined &&
-    !posData.some(p => p.id === value);
+    !items.some(p => p.id === value) &&
+    (!pinned || pinned.id !== value) &&
+    posData !== undefined;
 
   const { data: pinnedData } = useSWR(
     needsPinnedFetch
@@ -74,21 +100,21 @@ const PosSearchSelect: React.FC<Props> = ({
       setPinned(undefined);
       return;
     }
-    const match = posData?.find(p => p.id === value) ?? pinnedData?.[0];
+    const match = items.find(p => p.id === value) ?? pinnedData?.[0];
     if (match) {
       setPinned({ id: match.id, name: match.name });
       return;
     }
     if (pinnedData?.length === 0) onChangeRef.current(undefined);
-  }, [value, posData, pinnedData]);
+  }, [value, items, pinnedData]);
 
   const options = useMemo(() => {
-    const items = (posData || []).map(p => ({ label: p.name, value: p.id }));
-    if (pinned && !items.some(o => o.value === pinned.id)) {
-      items.push({ label: pinned.name, value: pinned.id });
+    const mapped = items.map(p => ({ label: p.name, value: p.id }));
+    if (pinned && !mapped.some(o => o.value === pinned.id)) {
+      mapped.push({ label: pinned.name, value: pinned.id });
     }
-    return items;
-  }, [posData, pinned]);
+    return mapped;
+  }, [items, pinned]);
 
   const handleChange = (val: number | null) => {
     resetSearch();
@@ -102,6 +128,14 @@ const PosSearchSelect: React.FC<Props> = ({
     onChange(val);
   };
 
+  const handlePopupScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLDivElement;
+    if (target.scrollTop + target.offsetHeight < target.scrollHeight - 16) return;
+    if (!hasMore || isValidating || loadingMoreRef.current) return;
+    loadingMoreRef.current = true;
+    setPage(p => p + 1);
+  };
+
   return (
     <Select
       showSearch
@@ -113,7 +147,8 @@ const PosSearchSelect: React.FC<Props> = ({
       options={options}
       filterOption={false}
       onSearch={debouncedSearchUpdate}
-      loading={isLoading}
+      onPopupScroll={handlePopupScroll}
+      loading={isLoading || (isValidating && page > 1)}
       className={className}
     />
   );
