@@ -1255,6 +1255,7 @@ export type MarketingCampaignResponse = {
     id: number;
     name: string;
   };
+  placementId?: number;
 };
 
 export type MarketingCampaignsFilterDto = {
@@ -1306,6 +1307,7 @@ export type UpdateMarketingCampaignRequest = {
   ltyProgramParticipantId?: number;
   status?: MarketingCampaignStatus;
   activeDays?: number | null;
+  placementId?: number;
 };
 
 export async function createCorporateClient(
