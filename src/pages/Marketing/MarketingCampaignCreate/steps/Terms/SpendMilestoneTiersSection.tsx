@@ -118,9 +118,11 @@ const SpendMilestoneTiersSection: React.FC<SpendMilestoneTiersSectionProps> = ({
                     addonAfter={
                         tiers[index].discountType === 'PERCENTAGE' ? '%' : '₽'
                     }
-                    onChange={value =>
-                        updateTier(index, { discountValue: Number(value) || 0 })
-                    }
+                    onChange={value => {
+                        const num = Number(value) || 0;
+                        if (tiers[index].discountType === 'PERCENTAGE' && num > 99) return;
+                        updateTier(index, { discountValue: num });
+                    }}
                 />
             ),
         },
