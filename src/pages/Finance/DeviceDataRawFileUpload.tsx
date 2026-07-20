@@ -1,5 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Upload } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
+import type { UploadRequestOption as RcCustomRequestOptions } from 'rc-upload/lib/interface';
 import { registerDeviceDataRawFile } from '@/services/api/deviceDataRawFile';
 import { getPresignedUploadUrl, uploadFileToS3 } from '@/services/api/s3';
 import { useToast } from '@/hooks/useToast';
@@ -8,44 +11,36 @@ const DEVICE_DATA_RAW_PREFIX = 'device-data-raw';
 
 function buildObjectKey(fileName: string): string {
   const base = fileName.replace(/^.*[/\\]/, '');
-  return `${DEVICE_DATA_RAW_PREFIX}/${base}`;
+  return `${DEVICE_DATA_RAW_PREFIX}/${Date.now()}-${base}`;
+}
+
+async function uploadDeviceDataRawFile(file: File): Promise<string> {
+  const key = buildObjectKey(file.name);
+  const { url } = await getPresignedUploadUrl(key);
+  await uploadFileToS3(file, url);
+  await registerDeviceDataRawFile(key);
+  return key;
 }
 
 const DeviceDataRawFileUpload: React.FC = () => {
   const { t } = useTranslation();
   const { showToast } = useToast();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
 
-  const handleFileChange = async () => {
-    const selected = inputRef.current?.files?.[0] ?? null;
-    setFileName(selected?.name ?? null);
+  const handleUpload = async (options: RcCustomRequestOptions) => {
+    const { file, onSuccess, onError } = options;
 
-    if (!selected) {
-      return;
-    }
-
-    const key = buildObjectKey(selected.name);
-    setBusy(true);
     try {
-      const { url } = await getPresignedUploadUrl(key);
-      await uploadFileToS3(selected, url);
-      await registerDeviceDataRawFile(key);
-      showToast(t('deviceDataRawFile.uploadSuccess'), 'success');
-      setFileName(null);
-      if (inputRef.current) {
-        inputRef.current.value = '';
+      if (!(file instanceof File)) {
+        throw new Error('Invalid file type');
       }
+
+      await uploadDeviceDataRawFile(file);
+      showToast(t('deviceDataRawFile.uploadSuccess'), 'success');
+      onSuccess?.('ok');
     } catch (error) {
       console.error('Device data raw file flow failed:', error);
       showToast(t('deviceDataRawFile.uploadError'), 'error');
-      setFileName(null);
-      if (inputRef.current) {
-        inputRef.current.value = '';
-      }
-    } finally {
-      setBusy(false);
+      onError?.(error as Error);
     }
   };
 
@@ -58,21 +53,13 @@ const DeviceDataRawFileUpload: React.FC = () => {
       </div>
 
       <div className="flex flex-col gap-4 max-w-xl">
-        <input
-          ref={inputRef}
-          type="file"
-          disabled={busy}
-          className="block w-full text-sm text-text01 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-gray-100 file:text-text01 hover:file:bg-gray-200 disabled:opacity-60"
-          onChange={handleFileChange}
-        />
-
-        {(busy || fileName) && (
-          <span className="text-sm text-text02">
-            {busy
-              ? t('deviceDataRawFile.uploading')
-              : fileName}
-          </span>
-        )}
+        <Upload.Dragger multiple customRequest={handleUpload} showUploadList>
+          <p className="ant-upload-drag-icon">
+            <UploadOutlined />
+          </p>
+          <p className="ant-upload-text">{t('deviceDataRawFile.selectFiles')}</p>
+          <p className="ant-upload-hint">{t('deviceDataRawFile.selectFilesHint')}</p>
+        </Upload.Dragger>
       </div>
     </div>
   );

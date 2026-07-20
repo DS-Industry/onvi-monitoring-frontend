@@ -143,7 +143,9 @@
     "engineHours": "Engine hours"
   },
   "deviceDataRawFile": {
-    "uploading": "Uploading file and registering…",
+    "selectFiles": "Click or drag files here to upload",
+    "selectFilesHint": "You can upload multiple files at once",
+    "uploading": "Uploading…",
     "uploadSuccess": "File uploaded successfully",
     "uploadError": "Upload failed"
   },
