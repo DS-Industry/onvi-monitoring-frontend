@@ -7,7 +7,6 @@ import OTPImage from '@/assets/OTPImage.png';
 const RegisterForm = React.lazy(() => import('./RegisterForm'));
 const OTPForm = React.lazy(() => import('./OTPForm'));
 import OnviBlue from '@/assets/onvi_blue.png';
-import { ArrowLeftOutlined } from '@ant-design/icons';
 
 const Register: React.FC = () => {
   const { t } = useTranslation();
@@ -26,13 +25,6 @@ const Register: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-background02 p-4">
       <div className="grid lg:grid-cols-2 gap-4 w-full lg:w-[80%] p-8 lg:p-0 rounded-lg">
         <div className="p-8 lg:w-full">
-          <div
-            className="flex text-primary02 mb-5 cursor-pointer"
-            onClick={handleLoginNavigate}
-          >
-            <ArrowLeftOutlined />
-            <p>{t('login.back')}</p>
-          </div>
           <div className="flex mb-5">
             <img
               src={OnviBlue}
