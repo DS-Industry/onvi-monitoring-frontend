@@ -14,6 +14,7 @@ import { useToast } from '@/components/context/useContext';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 import Spin from 'antd/es/spin';
+import CityFilter from '@/components/ui/Filter/CityFilter';
 
 const Geography: React.FC = () => {
   const { t } = useTranslation();
@@ -76,6 +77,20 @@ const Geography: React.FC = () => {
     setVisibleParticipants(selected);
   }, []);
 
+  useEffect(() => { 
+    const placementId = marketCampaignByIdData?.placementId;
+
+    if (!placementId) return;
+
+    const currentCity = searchParams.get('city');
+
+    if (currentCity !== String(placementId)) {
+      updateSearchParams(searchParams, setSearchParams, {
+        city: String(placementId),
+      });
+    }
+  }, [marketCampaignByIdData?.placementId]);
+
   useEffect(() => {
     if (marketCampaignByIdData?.posIds && initialPosIds === null) {
       setInitialPosIds(marketCampaignByIdData.posIds);
@@ -86,6 +101,11 @@ const Geography: React.FC = () => {
     updateSearchParams(searchParams, setSearchParams, {
       step: currentStep - 1,
     });
+  };
+
+  const getSelectedCityId = (): number | undefined => {
+    const city = searchParams.get('city');
+    return city ? Number(city) : undefined;
   };
 
   const handleSaveAndExit = async () => {
@@ -104,13 +124,15 @@ const Geography: React.FC = () => {
       return;
     }
 
+    const placementId = getSelectedCityId();
+
     if (editMode && initialPosIds) {
       const hasChanged =
         selectedPosIds.length !== initialPosIds.length ||
         selectedPosIds.some(id => !initialPosIds.includes(id)) ||
         initialPosIds.some(id => !selectedPosIds.includes(id));
 
-      if (!hasChanged) {
+      if (!hasChanged && placementId === marketCampaignByIdData?.placementId) {
         navigate('/marketing/campaigns');
         return;
       }
@@ -120,6 +142,7 @@ const Geography: React.FC = () => {
       const updateRequest: UpdateMarketingCampaignRequest = {
         posIds: selectedPosIds,
         ltyProgramParticipantId: selectedProgram.props.participantId,
+        placementId,
       };
 
       await triggerUpdate(updateRequest);
@@ -148,6 +171,8 @@ const Geography: React.FC = () => {
       return;
     }
 
+    const placementId = getSelectedCityId();
+
     if (editMode && initialPosIds) {
       const hasChanged =
         selectedPosIds.length !== initialPosIds.length ||
@@ -160,6 +185,7 @@ const Geography: React.FC = () => {
             posIds: selectedPosIds,
             ltyProgramParticipantId: selectedProgram.props.participantId,
             status: MarketingCampaignStatus.ACTIVE,
+            placementId,
           };
 
           await triggerUpdate(updateRequest);
@@ -177,6 +203,7 @@ const Geography: React.FC = () => {
         posIds: selectedPosIds,
         ltyProgramParticipantId: selectedProgram.props.participantId,
         status: MarketingCampaignStatus.ACTIVE,
+        placementId,
       };
 
       await triggerUpdate(updateRequest);
@@ -264,6 +291,12 @@ const Geography: React.FC = () => {
             {t('marketingCampaigns.settingUpAffiliates')}
           </div>
         </div>
+        <div className="ml-auto flex flex-col">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            {t('marketingCampaigns.displayingOnvi')}:
+          </label>
+          <CityFilter className="w-full sm:w-64" />
+        </div>
       </div>
 
       <div className="relative flex-1 min-h-0 overflow-hidden" style={{ flex: '1 1 0%' }}>
@@ -311,6 +344,12 @@ const Geography: React.FC = () => {
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
+            <div className="p-4 bg-white border-b border-gray-200">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {t('marketingCampaigns.displayingOnvi')}:
+              </label>
+              <CityFilter className="w-full" />
+            </div>
             <GeographyList
               participants={participantsData}
               onSelectionChange={handleSelectionChange}
