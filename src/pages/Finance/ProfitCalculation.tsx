@@ -265,6 +265,12 @@ const ProfitCalculation: React.FC = () => {
   );
   const currencyRender = getCurrencyRender();
   const formatPercent = (val: number | null | undefined) => (val != null ? `${val.toFixed(2)}%` : '—');
+  const parseNumber = (value: string | undefined) => {
+    if (!value) return 0;
+    const normalized = value.replace(/,/g, '.');
+    const num = parseFloat(normalized);
+    return isNaN(num) ? 0 : num;
+  };
   const fileInputRefs = useRef<Map<number, HTMLInputElement>>(new Map());
 
   const handleFileUpload = async (record: ProfitItem, file: File) => {
@@ -352,6 +358,7 @@ const ProfitCalculation: React.FC = () => {
               min={0}
               step={0.01}
               precision={2}
+              parser={parseNumber}
               style={{ width: '100%' }}
               />
           </div>
@@ -372,6 +379,7 @@ const ProfitCalculation: React.FC = () => {
               min={0}
               step={0.01}
               precision={2}
+              parser={parseNumber}
               style={{ width: '100%' }}
             />
           </div>

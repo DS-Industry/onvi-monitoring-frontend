@@ -143,7 +143,9 @@
     "engineHours": "Моточасы"
   },
   "deviceDataRawFile": {
-    "uploading": "Загрузка файла и регистрация…",
+    "selectFiles": "Нажмите или перетащите файлы для загрузки",
+    "selectFilesHint": "Можно загрузить несколько файлов одновременно",
+    "uploading": "Загрузка…",
     "uploadSuccess": "Файл успешно загружен",
     "uploadError": "Ошибка загрузки"
   },
