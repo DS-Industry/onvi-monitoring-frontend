@@ -89,6 +89,8 @@ interface ExecutionTypeCardProps {
     isSelected: boolean;
     isDisabled: boolean;
     onClick: () => void;
+    forceDisabled?: boolean;
+    forceDisabledMessageKey?: string;
 }
 
 const ExecutionTypeCard: React.FC<ExecutionTypeCardProps> = ({
@@ -99,20 +101,29 @@ const ExecutionTypeCard: React.FC<ExecutionTypeCardProps> = ({
     isSelected,
     isDisabled,
     onClick,
+    forceDisabled = false,
+    forceDisabledMessageKey,
 }) => {
     const { t } = useTranslation();
 
+    const isCardDisabled = forceDisabled || isDisabled;
+
     const cardClassName = useMemo(() => {
         const baseClasses = 'transition-all';
-        const cursorClass = isDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer';
+        const cursorClass = isCardDisabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer';
         const borderClass = isSelected ? SELECTED_CARD_STYLE : DEFAULT_CARD_STYLE;
         return `${baseClasses} ${cursorClass} ${borderClass}`;
-    }, [isSelected, isDisabled]);
+    }, [isSelected, isCardDisabled]);
+
+    const handleClick = () => {
+        if (forceDisabled || isDisabled) return;
+        onClick();
+    };
 
     return (
         <Card
-            hoverable={!isDisabled}
-            onClick={onClick}
+            hoverable={!isCardDisabled}
+            onClick={handleClick}
             className={cardClassName}
             style={{
                 borderRadius: CARD_BORDER_RADIUS,
@@ -134,6 +145,11 @@ const ExecutionTypeCard: React.FC<ExecutionTypeCardProps> = ({
                     </div>
                 </div>
                 <div className="text-base03 text-sm">{t(descriptionKey)}</div>
+                {forceDisabled && forceDisabledMessageKey ? (
+                    <div className="text-[#7A7D86] text-xs mt-2">
+                        {t(forceDisabledMessageKey)}
+                    </div>
+                ) : null}
             </div>
         </Card>
     );
@@ -208,13 +224,19 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
     const handleExecutionTypeChange = useCallback(
         (newExecutionType: CampaignExecutionType) => {
             if (!canEdit) return;
+            if (
+                newExecutionType === CampaignExecutionType.BEHAVIORAL &&
+                !isOnviProgram
+            ) {
+                return;
+            }
 
             if (executionType !== newExecutionType) {
                 setActionType(null);
             }
             setExecutionType(newExecutionType);
         },
-        [canEdit, executionType]
+        [canEdit, executionType, isOnviProgram]
     );
 
     const validateForm = useCallback((): boolean => {
@@ -355,6 +377,12 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
                             descriptionKey="marketingCampaigns.behavioralDescription"
                             isSelected={executionType === CampaignExecutionType.BEHAVIORAL}
                             isDisabled={!canEdit}
+                            forceDisabled={!isOnviProgram}
+                            forceDisabledMessageKey={
+                                !isOnviProgram
+                                    ? 'marketingCampaigns.promocodeOnlyForOnvi'
+                                    : undefined
+                            }
                             onClick={() =>
                                 handleExecutionTypeChange(CampaignExecutionType.BEHAVIORAL)
                             }
@@ -366,8 +394,6 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
                     <div className="text-text01 text-sm font-semibold mb-4">
                         {t('marketingCampaigns.actionType')}
                     </div>
-
-
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {ACTION_TYPE_CONFIGS.map((config) => (
                             <ActionTypeCard
