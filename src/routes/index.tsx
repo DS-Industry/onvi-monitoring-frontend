@@ -47,6 +47,12 @@ const ForgotPassword = React.lazy(
 const Deposit = React.lazy(() => import('@/pages/Pos/Deposit'));
 const Programs = React.lazy(() => import('@/pages/Pos/Programs'));
 const DepositDevices = React.lazy(() => import('@/pages/Pos/DepositDevices'));
+const PosOverviewNetwork = React.lazy(
+  () => import('@/pages/Pos/Overview/PosOverviewNetwork')
+);
+const PosOverviewStation = React.lazy(
+  () => import('@/pages/Pos/Overview/PosOverviewStation')
+);
 const Dashboard = React.lazy(() => import('@/pages/Dashboard/Dashboard'));
 const NewsDetail = React.lazy(() => import('@/pages/Dashboard/NewsDetail'));
 const EquipmentFailure = React.lazy(
@@ -426,6 +432,21 @@ const routes: RouteItem[] = [
         name: 'deposits',
         isVisible: false,
         path: '/station/enrollments',
+        component: PosOverviewNetwork,
+        permissions: [
+          { action: 'manage', subject: 'Pos' },
+          { action: 'read', subject: 'Pos' },
+        ],
+        isSidebar: true,
+        isHr: false,
+        titleName: '',
+        subNav: [],
+        subMenu: false,
+      },
+      {
+        name: 'depositsTable',
+        isVisible: false,
+        path: '/station/enrollments/table',
         component: DepositDevices,
         permissions: [
           { action: 'manage', subject: 'Pos' },
@@ -453,6 +474,17 @@ const routes: RouteItem[] = [
         isVisible: false,
         path: '/station/enrollments/device',
         component: DepositDevice,
+        permissions: [
+          { action: 'manage', subject: 'Pos' },
+          { action: 'read', subject: 'Pos' },
+        ],
+        isSidebar: false,
+      },
+      {
+        name: 'posOverviewStation',
+        isVisible: false,
+        path: '/station/enrollments/:posId',
+        component: PosOverviewStation,
         permissions: [
           { action: 'manage', subject: 'Pos' },
           { action: 'read', subject: 'Pos' },
