@@ -10,11 +10,15 @@ import { DEFAULT_PAGE } from '@/utils/constants';
 type CityFilterMultiProps = {
   className?: string;
   countryParamKey?: string;
+  label?: string;
+  placeholder?: string;
 };
 
 const CityFilterMulti: React.FC<CityFilterMultiProps> = ({
   className = 'w-full sm:w-80',
   countryParamKey,
+  label,
+  placeholder,
 }) => {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -103,17 +107,17 @@ const CityFilterMulti: React.FC<CityFilterMultiProps> = ({
   const disabled = requiresCountry && countryId == null;
 
   return (
-    <div className="w-full sm:w-80">
+    <div className={className}>
       <label className="block mb-1 text-sm font-medium text-gray-700">
-        {t('pos.city')}
+        {label ?? t('pos.city')}
       </label>
       <Select
         mode="multiple"
         showSearch
         allowClear
         disabled={disabled}
-        className={className}
-        placeholder={t('filters.city.placeholder')}
+        className="w-full"
+        placeholder={placeholder ?? t('filters.city.placeholder')}
         value={cityIds.map(String)}
         onChange={handleChange}
         options={cities}

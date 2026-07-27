@@ -38,18 +38,20 @@ const CountryFilterMulti: React.FC<CountryFilterMultiProps> = ({
       cityIds: undefined,
       posIds: undefined,
       page: DEFAULT_PAGE,
+      targetCurrencyId: undefined,
+      currencyRate: undefined,
     });
   };
 
   return (
-    <div className="w-full sm:w-80">
+    <div className={className}>
       <label className="block mb-1 text-sm font-medium text-gray-700">
         {t('pos.country')}
       </label>
       <Select
         showSearch
         allowClear
-        className={className}
+        className="w-full"
         placeholder={t('filters.country.placeholder')}
         value={countryId}
         onChange={handleChange}
