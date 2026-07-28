@@ -1145,6 +1145,15 @@ export async function sendWarehouseTechExpenseReport(
   return response.data;
 }
 
+export async function cancelWarehouseTechExpenseReport(
+  reportId: number
+): Promise<TechExpenseActionResponse> {
+  const response: AxiosResponse<TechExpenseActionResponse> = await api.post(
+    `${EQUIPMENT.EXPENSE_REPORT}/report/cancel-warehouse/${reportId}`
+  );
+  return response.data;
+}
+
 export async function returnTechExpenseReport(
   reportId: number
 ): Promise<TechExpenseActionResponse> {
