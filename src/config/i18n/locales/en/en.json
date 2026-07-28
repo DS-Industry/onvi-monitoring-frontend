@@ -625,6 +625,8 @@
     "quantityComingOnWarehouse": "Quantity coming on warehouse",
     "isWriteOffFromWarehouse": "Warehouse completed",
     "sendToWarehouse": "Conduct in warehouse",
+    "cancelToWarehouse": "Cancel the warehouse conduction",
+    "cancelToWarehouseSuccess": "The warehouse has been successfully canceled",
     "carryingDocumentWarehouseAt": "Carrying document warehouse at",
     "equipmentType": "Type of equipment",
     "oilLimit": "Oil limit",

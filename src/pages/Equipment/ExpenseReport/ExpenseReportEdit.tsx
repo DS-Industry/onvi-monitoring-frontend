@@ -21,6 +21,7 @@ import {
   returnTechExpenseReport,
   deleteTechExpenseReport,
   TechExpenseReport,
+  cancelWarehouseTechExpenseReport,
 } from '@/services/api/equipment';
 import { getStatusTagRender } from '@/utils/tableUnits';
 
@@ -78,6 +79,7 @@ const ExpenseReportEdit: React.FC = () => {
 
   const isSent = reportData?.status === TechExpenseReportStatus.SENT;
   const canWarehouse = isSent && !reportData?.isWriteOffFromWarehouse;
+  const canCancelWarehouse = isSent && reportData?.isWriteOffFromWarehouse;
 
   const handleStartPeriodChange = (date: dayjs.Dayjs | undefined) => {
     setEditedStartPeriod(date ? date.toDate() : null);
@@ -140,6 +142,11 @@ const ExpenseReportEdit: React.FC = () => {
     () => sendWarehouseTechExpenseReport(reportId!)
   );
 
+  const { trigger: cancelWarehouseTrigger, isMutating: cancelWarehouseLoading } = useSWRMutation(
+    ['cancel-warehouse', reportId],
+    () => cancelWarehouseTechExpenseReport(reportId!)
+  );
+
   const { trigger: returnTrigger, isMutating: returnLoading } = useSWRMutation(
     ['return', reportId],
     () => returnTechExpenseReport(reportId!)
@@ -180,6 +187,18 @@ const ExpenseReportEdit: React.FC = () => {
       if (result) {
         mutate(['get-tech-expense-report', reportId]);
         showToast(t('equipment.isWriteOffFromWarehouse'), 'success');
+      }
+    } catch {
+      showToast(t('analysis.ERROR'), 'error');
+    }
+  };
+
+  const handleCancelToWarehouse = async () => {
+    try {
+      const result = await cancelWarehouseTrigger();
+      if (result) {
+        mutate(['get-tech-expense-report', reportId]);
+        showToast(t('equipment.cancelToWarehouseSuccess'), 'success');
       }
     } catch {
       showToast(t('analysis.ERROR'), 'error');
@@ -472,6 +491,13 @@ const ExpenseReportEdit: React.FC = () => {
                   {t('finance.return')}
                 </Button>
               </>
+            )}
+          </Can>
+          <Can requiredPermissions={[{ action: 'manage', subject: 'Incident' }, { action: 'update', subject: 'Incident' }]} userPermissions={userPermissions}>
+            {allowed => allowed && canCancelWarehouse && (
+              <Button onClick={handleCancelToWarehouse} loading={cancelWarehouseLoading} type="primary" danger>
+                {t('equipment.cancelToWarehouse')}
+              </Button>
             )}
           </Can>
         </div>

@@ -626,6 +626,8 @@
     "quantityComingOnWarehouse": "Приход по складу",
     "isWriteOffFromWarehouse": "Проведено на складе",
     "sendToWarehouse": "Провести на складе",
+    "cancelToWarehouse": "Отменить проведение по складу",
+    "cancelToWarehouseSuccess": "Проведение по складу успешно отменено",
     "carryingDocumentWarehouseAt": "Дата проведения документа по складу",
     "equipmentType": "Вид оборудования",
     "oilLimit": "Уставка масла",
