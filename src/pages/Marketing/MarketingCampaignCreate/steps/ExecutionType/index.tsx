@@ -367,6 +367,7 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
                         {t('marketingCampaigns.actionType')}
                     </div>
 
+
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                         {ACTION_TYPE_CONFIGS.map((config) => (
                             <ActionTypeCard
