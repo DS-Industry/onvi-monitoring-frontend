@@ -1387,16 +1387,6 @@ const routes: RouteItem[] = [
         isHr: true,
       },
       {
-        titleName: '',
-        name: 'replacing',
-        isVisible: true,
-        path: '/equipment/replacing/programs',
-        component: Default,
-        permissions: [{ action: 'hide', subject: 'Incident' }],
-        isSidebar: true,
-        subNav: [],
-      },
-      {
         name: 'objectConsumables',
         isVisible: true,
         path: '/equipment/object-consumables',
