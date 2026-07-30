@@ -11,7 +11,6 @@
     "legalEntities": "Legal Entitites",
     "station": "Station",
     "objectManagement": "Object Management",
-    "services": "Services",
     "deposits": "Washes overview",
     "depositsTable": "Deposits",
     "depositDevices": "Deposit Devices",
@@ -21,7 +20,6 @@
     "programDevice": "Program Device",
     "planAct": "Plan/Act",
     "cleaning": "Cleaning",
-    "simpleBoxes": "Simple Boxes",
     "hr": "Hr",
     "finance": "Finance",
     "analysis": "Analysis",
@@ -41,7 +39,6 @@
     "chemical": "Chemical Consumption",
     "technicalTasks": "Technical Tasks",
     "consumption": "Consumption Rate",
-    "replacing": "Replacing Programs",
     "dailyOptions": "Daily options technical services",
     "report": "Create Report",
     "create": "Create",
@@ -86,7 +83,6 @@
     "addSeg": "Add Segment",
     "createSeg": "Creating a new segment",
     "collection": "Collection",
-    "period": "Collection for the period",
     "employee": "Time sheet",
     "collectionCreation": "Collection (Creation)",
     "timeCreation": "Time sheet (Creation)",
@@ -115,7 +111,6 @@
     "reportFor": "Report for the period",
     "articles": "Articles",
     "direct": "Directory of articles",
-    "appo": "Directory of appointments",
     "savedSuccessfully": "Saved successfully",
     "appointment": "Directory of appointments",
     "createTask": "Create a task",
@@ -822,7 +817,8 @@
     "qty": "Qty",
     "return": "Return",
     "returnConfirm": "Return this sale? The warehouse write-off will be cancelled and the \"Sale\" income entry will be removed. The sale record will remain in the list.",
-    "returnSuccess": "Sale returned. Write-off cancelled, income entry removed."
+    "returnSuccess": "Sale returned. Write-off cancelled, income entry removed.",
+    "selectNomenclature": "Select a nomenclature"
   },
   "marketing": {
     "orderType": "Order type",
@@ -1685,7 +1681,7 @@
     "block": "Block"
   },
   "hr": {
-    "to": "To add a new employee to the database, click the «add employee» button",
+    "to": "To add a new employee to the database, click the «Add employee» button",
     "att": "Attention!",
     "if": "If you specify a value in the «Percentage» field, the employee will be paid a percentage of each car. If several employees work in a shift, each of them will be paid a percentage in proportion to their percentage. The total payment to all employees cannot exceed the highest percentage among all washers.",
     "ifThe": "If the required position is not in the list of positions, it can be added in the section HR/Positions",
