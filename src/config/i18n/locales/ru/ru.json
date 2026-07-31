@@ -802,7 +802,9 @@
     "centimeters": "в сантиметрах",
     "unitMeasurement": "Ед. измирения",
     "total": "Итого по всем автомойкам",
-    "contact": "Контакт"
+    "contact": "Контакт",
+    "noItemsError": "Добавьте хотя бы одну номенклатура",
+    "needReceiverWarehouse": "Выберите склад получатель"
   },
   "sale": {
     "create": "Добавление цены",

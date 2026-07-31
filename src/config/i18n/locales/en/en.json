@@ -801,7 +801,9 @@
     "centimeters": "in centimeters",
     "unitMeasurement": "Unit measurements",
     "total": "Total for all car washes",
-    "contact": "Contact"
+    "contact": "Contact",
+    "noItemsError": "Add at least one nomenclature",
+    "needReceiverWarehouse": "Select the recipient warehouse"
   },
   "sale": {
     "create": "Adding a price",
