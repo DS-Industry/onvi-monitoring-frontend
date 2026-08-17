@@ -94,6 +94,10 @@ export type DepositsSummaryResponse = {
   averageCheck: number;
 };
 
+export type DepositsRefundsResponse = {
+  refundSum: number;
+};
+
 export type DepositsComparisonItem = {
   posId: number;
   name: string;
@@ -130,6 +134,11 @@ export type LoyaltySummaryResponse = {
 export type LoyaltyCompositionResponse = {
   onviSum: number;
   yandexSum: number;
+};
+
+export type LoyaltyVisitsResponse = {
+  onviVisits: number;
+  cardVisits: number;
 };
 
 export type PlanFactSummaryResponse = {
@@ -236,6 +245,17 @@ export async function getStationDepositsSummary(
   return response.data;
 }
 
+export async function getStationDepositsRefunds(
+  posId: number,
+  params: OverviewDateRange
+): Promise<DepositsRefundsResponse> {
+  const response: AxiosResponse<DepositsRefundsResponse> = await api.get(
+    `${BASE}/${posId}/deposits/refunds`,
+    { params: serializeDateRange(params) }
+  );
+  return response.data;
+}
+
 export async function getDepositsComparison(
   params: OverviewNetworkParams
 ): Promise<DepositsComparisonResponse> {
@@ -273,6 +293,17 @@ export async function getStationLoyaltyComposition(
 ): Promise<LoyaltyCompositionResponse> {
   const response: AxiosResponse<LoyaltyCompositionResponse> = await api.get(
     `${BASE}/${posId}/loyalty/composition`,
+    { params: serializeDateRange(params) }
+  );
+  return response.data;
+}
+
+export async function getStationLoyaltyVisits(
+  posId: number,
+  params: OverviewDateRange
+): Promise<LoyaltyVisitsResponse> {
+  const response: AxiosResponse<LoyaltyVisitsResponse> = await api.get(
+    `${BASE}/${posId}/loyalty/visits`,
     { params: serializeDateRange(params) }
   );
   return response.data;
