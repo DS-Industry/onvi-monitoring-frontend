@@ -35,6 +35,7 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
   const lineColor = '#52c41a';
   const defaultPointColor = '#52c41a';
   const highlightPointColor = '#f44336';
+  const notMultipleColor = '#1890ff';
   const missedPointColor = '#bfbfbf';
   const axisColor = '#999';
   const labelColor = '#666';
@@ -257,12 +258,15 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
           const x = xCoords[index];
           const y = paddingTop + innerHeight - ((item.value - min) / range) * innerHeight;
           const isHovered = hoveredIndex === index;
-          const hasAdd = dataAdd[index]?.value > 0;
-          const pointColor = item.missedReport
-            ? missedPointColor
-            : hasAdd
-              ? highlightPointColor
-              : defaultPointColor;
+          let pointColor = defaultPointColor;
+          if (item.missedReport) {
+            pointColor = missedPointColor;
+          } else {
+            const addVal = dataAdd[index]?.value;
+            if (addVal !== undefined && addVal > 0) {
+              pointColor = (addVal % 20 !== 0) ? notMultipleColor : highlightPointColor;
+            }
+          }
           return (
             <g key={`level-${index}`}>
               <circle
