@@ -102,7 +102,14 @@ const PosOverviewStation: React.FC = () => {
       label: t('posOverview.tabs.overview'),
       content:
         activeTab === 'overview' ? (
-          <OverviewTab posId={posId} dateStart={dateStart} dateEnd={dateEnd} />
+          <OverviewTab
+            posId={posId}
+            dateStart={dateStart}
+            dateEnd={dateEnd}
+            isCustomBannerEnabled={posData?.props.isCustomBannerEnabled}
+            homeBannerUrl={posData?.props.homeBannerUrl}
+            headerBannerUrl={posData?.props.headerBannerUrl}
+          />
         ) : null,
     },
     {
