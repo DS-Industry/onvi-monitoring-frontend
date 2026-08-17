@@ -20,6 +20,8 @@ import { formatCompactMoney } from '../hooks/useOverviewFilters';
 import { useOverviewCurrency } from '../hooks/OverviewCurrencyContext';
 import { getGoalStatus } from '../utils/goalStatus';
 
+
+
 type OverviewTabProps = {
   posId: number;
   dateStart: string;
