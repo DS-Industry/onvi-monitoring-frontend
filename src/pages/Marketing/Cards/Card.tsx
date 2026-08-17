@@ -1,166 +1,148 @@
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import useSWR, { mutate } from 'swr';
+import useSWR from 'swr';
 import {
   getCardById,
-  updateCard,
-  getTiers,
-  UpdateCardRequest,
-  createEquiring,
-  EquiringType,
+  getClientById,
+  getClientCards,
+  getClientLoyaltyStats,
+  getPromocodes,
+  getUserKeyStatsByOrganizationId,
+  PromocodeFilterType,
 } from '@/services/api/marketing';
-import { Spin, Card as AntCard, Typography, Select, Button, message, Skeleton, Modal, Form, InputNumber, Input } from 'antd';
-import { ArrowLeftOutlined } from '@ant-design/icons';
-import { useToast } from '@/components/context/useContext';
-import { Can } from '@/permissions/Can';
-import useAuthStore from '@/config/store/authSlice';
+import { Spin, Typography, Empty } from 'antd';
+import { DoubleLeftOutlined } from '@ant-design/icons';
+import GenericTabs from '@/components/ui/Tabs/GenericTab';
+import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { useUser } from '@/hooks/useUserStore';
+import {
+  DEFAULT_PAGE,
+  DEFAULT_PAGE_SIZE,
+} from '@/utils/constants';
+import { cardPageSwr } from './cardPageSwr';
+import CardProfileSidebar from './CardProfileSidebar';
+import CardNotesTab from './CardNotesTab';
+import CardPromocodesTab from './CardPromocodesTab';
+import CardOrdersTab from './CardOrdersTab';
+import CardClientCardsTab from './CardClientCardsTab';
+import CardActivityTab from './CardActivityTab';
+import CardOverviewTab from './CardOverviewTab';
 
-const { Title, Text } = Typography;
-const { Option } = Select;
+const { Text } = Typography;
+
+type CardTab =
+  | 'overview'
+  | 'orders'
+  | 'cards'
+  | 'activity'
+  | 'promocodes'
+  | 'notes';
 
 const Card: React.FC = () => {
   const { t } = useTranslation();
   const { cardId: cardIdParam } = useParams<{ cardId: string }>();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { showToast } = useToast();
+  const user = useUser();
 
-  const userPermissions = useAuthStore(state => state.permissions);
   const cardId = cardIdParam ? Number(cardIdParam) : undefined;
   const fromOrders = searchParams.get('from') === 'orders';
+  const activeTab = (searchParams.get('tab') as CardTab) || 'overview';
 
-  const [selectedTierId, setSelectedTierId] = useState<number | undefined>(undefined);
-  const [selectedStatus, setSelectedStatus] = useState<'ACTIVE' | 'INACTIVE'>('ACTIVE');
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isEquiringModalOpen, setIsEquiringModalOpen] = useState(false);
-  const [isCreatingEquiring, setIsCreatingEquiring] = useState(false);
-  const [equiringForm] = Form.useForm<{ type: EquiringType; money: number; reason?: string }>();
-
-  const { data: card, isLoading } = useSWR(
+  const { data: card, isLoading: cardLoading } = useSWR(
     cardId ? ['get-card-by-id', cardId] : null,
     ([, id]) => getCardById(id),
-    {
-      shouldRetryOnError: false,
-    }
+    cardPageSwr
   );
 
-  const ltyProgramId = card?.cardTier?.ltyProgramId;
+  const clientId = card?.client?.id;
 
-  const { data: tiersData, isLoading: tiersLoading } = useSWR(
-    ltyProgramId ? ['get-tiers', ltyProgramId] : null,
-    ([, programId]) => getTiers({ programId }),
-    {
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      keepPreviousData: true,
-    }
+  const { data: clientDetail, isLoading: clientLoading } = useSWR(
+    clientId ? ['get-client-by-id', clientId] : null,
+    ([, id]) => getClientById(id),
+    cardPageSwr
   );
 
-  React.useEffect(() => {
-    if (card?.cardTier?.id) {
-      setSelectedTierId(card.cardTier.id);
-    }
-  }, [card]);
+  const { data: loyaltyStats, isLoading: loyaltyLoading } = useSWR(
+    clientId && user.organizationId
+      ? ['get-client-loyalty-stats', clientId]
+      : null,
+    () =>
+      getClientLoyaltyStats({
+        clientId: clientId!,
+        organizationId: user.organizationId!,
+      }),
+    cardPageSwr
+  );
 
-  React.useEffect(() => {
-    if (card?.status === 'INACTIVE') {
-      setSelectedStatus('INACTIVE');
-    } else {
-      setSelectedStatus('ACTIVE');
-    }
-  }, [card]);
+  const { data: keyStats, isLoading: keyStatsLoading } = useSWR(
+    clientId && user.organizationId
+      ? ['user-key-stats', user.organizationId, clientId]
+      : null,
+    () =>
+      getUserKeyStatsByOrganizationId({
+        clientId: clientId!,
+        organizationId: user.organizationId!,
+      }),
+    cardPageSwr
+  );
 
-  const handleUpdateCard = async () => {
-    if (!cardId) {
-      message.error('Card ID not found');
-      return;
-    }
+  const { data: clientCards, isLoading: cardsLoading } = useSWR(
+    clientId ? ['get-client-cards', clientId] : null,
+    ([, id]) => getClientCards(id),
+    cardPageSwr
+  );
 
-    const updatePayload: UpdateCardRequest = {};
+  const { data: promocodesData, isLoading: promocodesLoading } = useSWR(
+    clientId && user.organizationId
+      ? [
+          'card-personal-promocodes',
+          user.organizationId,
+          clientId,
+          DEFAULT_PAGE,
+          DEFAULT_PAGE_SIZE,
+        ]
+      : null,
+    () =>
+      getPromocodes({
+        organizationId: user.organizationId!,
+        filter: PromocodeFilterType.PERSONAL,
+        personalUserId: clientId,
+        page: DEFAULT_PAGE,
+        size: DEFAULT_PAGE_SIZE,
+      }),
+    cardPageSwr
+  );
 
-    if (selectedTierId !== undefined) {
-      const currentTierId = card?.cardTier?.id;
-      if (selectedTierId !== currentTierId) {
-        updatePayload.cardTierId = selectedTierId;
-      }
-    }
+  const profileLoading =
+    !!clientId &&
+    (clientLoading || loyaltyLoading || keyStatsLoading) &&
+    (!clientDetail || !loyaltyStats || !keyStats);
 
-    const currentStatus = card?.status === 'INACTIVE' ? 'INACTIVE' : 'ACTIVE';
-    if (selectedStatus !== currentStatus) {
-      updatePayload.status = selectedStatus === 'INACTIVE' ? 'INACTIVE' : null;
-    }
-
-    if (Object.keys(updatePayload).length === 0) {
-      message.info(t('marketing.noChanges') || 'No changes to save');
-      return;
-    }
-
-    setIsUpdating(true);
-    try {
-      await updateCard(cardId, updatePayload);
-      showToast(t('routes.savedSuccessfully') || 'Card updated successfully', 'success');
-      await mutate(['get-card-by-id', cardId]);
-    } catch (error) {
-      console.error('Failed to update card:', error);
-      showToast(t('marketing.cardUpdateError') || 'Failed to update card', 'error');
-    } finally {
-      setIsUpdating(false);
-    }
+  const handleTabChange = (key: string) => {
+    updateSearchParams(searchParams, setSearchParams, { tab: key });
   };
 
-  const handleOpenEquiringModal = () => {
-    equiringForm.setFieldsValue({ type: 'TOP_UP', money: undefined, reason: undefined });
-    setIsEquiringModalOpen(true);
+  const handleNavigateTab = (
+    tab: 'orders' | 'cards' | 'promocodes' | 'activity' | 'notes'
+  ) => {
+    handleTabChange(tab);
   };
 
-  const handleCloseEquiringModal = () => {
-    equiringForm.resetFields();
-    setIsEquiringModalOpen(false);
-  };
+  const tabLabels = useMemo(
+    () => [
+      { key: 'overview', label: t('marketing.cardTabOverview') },
+      { key: 'orders', label: t('marketing.cardTabOrders') },
+      { key: 'cards', label: t('marketing.cardTabCards') },
+      { key: 'activity', label: t('marketing.cardTabActivity') },
+      { key: 'promocodes', label: t('marketing.cardTabPromocodes') },
+      { key: 'notes', label: t('marketing.cardTabNotes') },
+    ],
+    [t]
+  );
 
-  const handleCreateEquiring = async () => {
-    if (!cardId || !card) {
-      message.error('Card ID not found');
-      return;
-    }
-
-    try {
-      const values = await equiringForm.validateFields();
-
-      if (values.type === 'DECREASE' && values.money > card.balance) {
-        showToast(
-          t('marketing.insufficientBalance'),
-          'error'
-        );
-        return;
-      }
-
-      setIsCreatingEquiring(true);
-      await createEquiring({
-        cardId,
-        type: values.type,
-        money: values.money,
-        reason: values.reason?.trim() ? values.reason.trim() : undefined,
-      });
-      showToast(t('routes.savedSuccessfully'), 'success');
-      await mutate(['get-card-by-id', cardId]);
-      handleCloseEquiringModal();
-    } catch (error: any) {
-      if (error?.errorFields) {
-        return;
-      }
-      const errorMessage =
-        error?.response?.data?.message ||
-        t('marketing.cardUpdateError');
-      showToast(errorMessage, 'error');
-      console.error('Failed to create equiring operation:', error);
-    } finally {
-      setIsCreatingEquiring(false);
-    }
-  };
-
-  if (isLoading) {
+  if (cardLoading && !card) {
     return (
       <div className="flex items-center justify-center w-full h-full min-h-[400px]">
         <Spin size="large" />
@@ -168,7 +150,7 @@ const Card: React.FC = () => {
     );
   }
 
-  if (!card) {
+  if (!card || !cardId) {
     return (
       <div className="flex items-center justify-center w-full h-full min-h-[400px]">
         <Text>{t('marketing.cardNotFound') || 'Card not found'}</Text>
@@ -178,224 +160,96 @@ const Card: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div
-        className="flex text-primary02 mb-5 cursor-pointer"
-        onClick={() => navigate(fromOrders ? '/marketing/marketing-transactions' : '/marketing/cards')}
-      >
-        <ArrowLeftOutlined />
-        <p className="ms-2">{t('login.back')}</p>
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          aria-label={t('login.back')}
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-primary02 bg-white text-primary02 hover:bg-blue-50 transition-colors"
+          onClick={() =>
+            navigate(
+              fromOrders
+                ? '/marketing/marketing-transactions'
+                : '/marketing/cards'
+            )
+          }
+        >
+          <DoubleLeftOutlined className="text-base" />
+        </button>
+        <h1 className="font-semibold text-text01 text-2xl sm:text-3xl m-0">
+          {t('routes.clients')}
+        </h1>
       </div>
 
-      <div className="font-semibold text-text01 text-2xl mb-6">
-        {t('marketing.card')}
-      </div>
+      <div className="flex flex-col lg:flex-row gap-4 items-start">
+        <div className="w-full lg:w-80 xl:w-96 shrink-0">
+          <CardProfileSidebar
+            cardId={cardId}
+            client={card.client ?? null}
+            clientDetail={clientDetail}
+            loyaltyStats={loyaltyStats}
+            keyStats={keyStats}
+            clientCards={clientCards}
+            promocodes={promocodesData?.data}
+            profileLoading={profileLoading}
+            cardsLoading={!!clientId && cardsLoading}
+            promocodesLoading={
+              !!clientId && !!user.organizationId && promocodesLoading
+            }
+            onNavigateTab={handleNavigateTab}
+          />
+        </div>
 
-      <AntCard className="max-w-2xl">
-        <div className="space-y-4">
+        <div className="flex-1 min-w-0 bg-white rounded-xl border border-gray-100 p-4 sm:p-6">
+          <GenericTabs
+            tabs={tabLabels}
+            activeKey={activeTab}
+            onChange={handleTabChange}
+            tabBarGutter={24}
+            tabBarStyle={{ marginBottom: 24 }}
+            type="line"
+            size="middle"
+            tabBarOnly
+          />
+
           <div>
-            <Text className="text-text02 text-sm">{t('marketing.cardNumber')}:</Text>
-            <Title level={4} className="mt-1 mb-0">
-              {card.number}
-            </Title>
-
-          </div>
-
-          {card.unqNumber && (
-            <div>
-              <Text className="text-text02 text-sm">{t('marketing.uniqueCardNumber')}:</Text>
-              <Title level={4} className="mt-1 mb-0">
-                {card.unqNumber}
-              </Title>
-            </div>
-          )}
-
-          <div>
-            <Text className="text-text02 text-sm">{t('marketing.type')}:</Text>
-            <Title level={4} className="mt-1 mb-0">
-              {card.type === 'VIRTUAL' ? t('marketing.virtual') || 'Virtual' : t('marketing.physical') || 'Physical'}
-            </Title>
-          </div>
-
-          <div>
-            <Text className="text-text02 text-sm">{t('marketing.balance')}:</Text>
-            <Title level={4} className="mt-1 mb-0">
-              {card.balance.toLocaleString('ru-RU', {
-                style: 'currency',
-                currency: 'RUB',
-                minimumFractionDigits: 2,
-              })}
-            </Title>
-          </div>
-
-          <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
-            {allowed => (
-              <>
-                <div>
-                  <Text className="text-text02 text-sm">{t('marketing.level')}:</Text>
-                  {tiersLoading ? (
-                    <div className="mt-2">
-                      <Skeleton.Input active style={{ width: '100%', height: 32 }} />
-                    </div>
-                  ) : allowed ? (
-                    <>
-                      <Select
-                        className="w-full mt-2"
-                        placeholder={t('marketing.selectTier') || 'Select Tier'}
-                        value={selectedTierId}
-                        onChange={setSelectedTierId}
-                        allowClear
-                      >
-                        {tiersData?.map(tier => (
-                          <Option key={tier.id} value={tier.id}>
-                            {tier.name} ({t('marketing.discount')} {Math.floor(tier.limitBenefit)}%)
-                          </Option>
-                        ))}
-                      </Select>
-                      {card.cardTier && (
-                        <Text className="text-text02 text-xs mt-1 block">
-                          {t('marketing.currentTier') || 'Current'}: {card.cardTier.name}
-                        </Text>
-                      )}
-                    </>
-                  ) : (
-                    <Title level={4} className="mt-1">
-                      {card.cardTier ? `${card.cardTier.name} (${Math.floor(card.cardTier.limitBenefit)}%)` : '-'}
-                    </Title>
-                  )}
-                </div>
-
-                <div>
-                  <Text className="text-text02 text-sm">{t('marketing.status') || 'Status'}:</Text>
-                  {allowed ? (
-                    <Select
-                      className="w-full mt-2"
-                      placeholder={t('marketing.selectStatus') || 'Select Status'}
-                      value={selectedStatus}
-                      onChange={setSelectedStatus}
-                    >
-                      <Option value="ACTIVE">{t('marketing.active')}</Option>
-                      <Option value="INACTIVE">{t('marketing.inactive')}</Option>
-                    </Select>
-                  ) : (
-                    <Title level={4} className="mt-1">
-                      {card.status === 'INACTIVE' ? t('marketing.inactive') : t('marketing.active')}
-                    </Title>
-                  )}
-                </div>
-              </>
+            {activeTab === 'overview' && (
+              <CardOverviewTab
+                card={card}
+                clientId={clientId}
+                organizationId={user.organizationId}
+                onNavigateTab={handleNavigateTab}
+              />
             )}
-          </Can>
-
-          {card.corporate && (
-            <div>
-              <h1 className="text-text02 text-sm">{t('marketing.corporationName')}:</h1>
-              <Title level={4} className="mt-1 mb-0">
-                {card.corporate.name}
-              </Title>
-              <Text className="text-text02 text-xs mt-1 block">
-                INN: {card.corporate.inn}
-              </Text>
-              <Text className="text-text02 text-xs mt-1 block">
-                {t('marketing.address')}: {card.corporate.address}
-              </Text>
-            </div>
-          )}
-
-          <div className="pt-4 border-t">
-            <div className="flex flex-wrap gap-3">
-              <Can requiredPermissions={[{ action: 'update', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
-                {allowed => allowed && (
-                  <Button
-                    type="primary"
-                    onClick={handleUpdateCard}
-                    loading={isUpdating}
-                    disabled={isUpdating || isCreatingEquiring}
-                  >
-                    {t('organizations.save')}
-                  </Button>
-                )}
-              </Can>
-              <Can requiredPermissions={[{ action: 'delete', subject: 'LTYProgram' }]} userPermissions={userPermissions}>
-                {allowed => allowed && (
-                  <Button
-                    onClick={handleOpenEquiringModal}
-                    disabled={isUpdating || isCreatingEquiring}
-                  >
-                    {t('marketing.addEquiring')}
-                  </Button>
-                )}
-              </Can>
-            </div>
+            {activeTab === 'orders' && <CardOrdersTab card={card} />}
+            {activeTab === 'cards' && (
+              <CardClientCardsTab
+                clientId={clientId}
+                routeCardId={cardId}
+                fallbackCard={card}
+                clientCards={clientCards}
+                cardsLoading={!!clientId && cardsLoading}
+              />
+            )}
+            {activeTab === 'activity' &&
+              (clientId ? (
+                <CardActivityTab
+                  clientId={clientId}
+                  organizationId={user.organizationId}
+                />
+              ) : (
+                <Empty description={t('marketing.noClientAttached')} />
+              ))}
+            {activeTab === 'promocodes' &&
+              (user.organizationId != null ? (
+                <CardPromocodesTab
+                  organizationId={user.organizationId}
+                  personalUserId={card.client?.id}
+                />
+              ) : null)}
+            {activeTab === 'notes' && <CardNotesTab clientId={clientId} />}
           </div>
         </div>
-      </AntCard>
-
-      <Modal
-        title={t('marketing.addEquiring')}
-        open={isEquiringModalOpen}
-        onCancel={handleCloseEquiringModal}
-        onOk={handleCreateEquiring}
-        okText={t('common.create')}
-        cancelText={t('constants.cancel')}
-        okButtonProps={{ loading: isCreatingEquiring, disabled: isUpdating }}
-        cancelButtonProps={{ disabled: isCreatingEquiring }}
-        destroyOnClose
-      >
-        <Form form={equiringForm} layout="vertical">
-          <Form.Item
-            name="type"
-            label={t('marketing.operationType')}
-            rules={[
-              {
-                required: true,
-                message: t('validation.required'),
-              },
-            ]}
-          >
-            <Select
-              options={[
-                { value: 'TOP_UP', label: t('marketing.topUp') },
-                { value: 'DECREASE', label: t('marketing.decrease') },
-              ]}
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="money"
-            label={t('marketing.amount')}
-            rules={[
-              {
-                required: true,
-                message: t('validation.required'),
-              },
-              {
-                validator: (_, value) => {
-                  if (typeof value !== 'number' || Number.isNaN(value) || value <= 0) {
-                    return Promise.reject(
-                      new Error(t('validation.positiveNumber'))
-                    );
-                  }
-                  return Promise.resolve();
-                },
-              },
-            ]}
-          >
-            <InputNumber className="w-full" min={0.01} precision={2} controls={false} />
-          </Form.Item>
-
-          <Form.Item
-            name="reason"
-            label={t('marketing.reason')}
-          >
-            <Input.TextArea
-              rows={3}
-              placeholder={t('marketing.reasonPlaceholder')}
-              maxLength={500}
-              showCount
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
+      </div>
     </div>
   );
 };

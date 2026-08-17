@@ -152,19 +152,10 @@ const SalaryCalculationCreation = React.lazy(
 const Notifications = React.lazy(
   () => import('@/pages/Notifications/Notifications')
 );
-const LoyaltyHubRequests = React.lazy(
-  () => import('@/pages/Marketing/LoyaltyHubRequests')
-);
-const LoyaltyParticipantRequests = React.lazy(
-  () => import('@/pages/Marketing/LoyaltyParticipantRequests')
-);
 const Cards = React.lazy(() => import('@/pages/Marketing/Cards'));
 const Card = React.lazy(() => import('@/pages/Marketing/Cards/Card'));
 const PromoCodeManagement = React.lazy(
   () => import('@/pages/Marketing/PromoCodeManagement')
-);
-const BalanceTransferRequests = React.lazy(
-  () => import('@/pages/Marketing/BalanceTransferRequests')
 );
 const EmployeeAdvanceCreation = React.lazy(
   () => import('@/pages/Hr/EmployeeAdvanceCreation')
@@ -1217,27 +1208,7 @@ const routes: RouteItem[] = [
         subMenu: false,
       },
       {
-        name: 'hubRequests',
-        isVisible: true,
-        path: '/marketing/hub-requests',
-        component: LoyaltyHubRequests,
-        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
-        isSidebar: true,
-        subNav: [],
-        subMenu: false,
-      },
-      {
-        name: 'participantRequests',
-        isVisible: true,
-        path: '/marketing/participant-requests',
-        component: LoyaltyParticipantRequests,
-        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
-        isSidebar: true,
-        subNav: [],
-        subMenu: false,
-      },
-      {
-        name: 'cards',
+        name: 'users',
         isVisible: true,
         path: '/marketing/cards',
         component: Cards,
@@ -1275,16 +1246,6 @@ const routes: RouteItem[] = [
         requiredTariffFeatures: ['LTYProgram', 'ONVI'],
         requiredTariffFeaturesMode: 'all',
         tariffFallback: 'placeholder',
-        isSidebar: true,
-        subNav: [],
-        subMenu: false,
-      },
-      {
-        name: 'balanceTransferRequests',
-        isVisible: true,
-        path: '/marketing/balance-transfer-requests',
-        component: BalanceTransferRequests,
-        permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: true,
         subNav: [],
         subMenu: false,

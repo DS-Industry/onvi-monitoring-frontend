@@ -112,6 +112,8 @@ type UpdatePosBody = {
   minSumOrder?: number | null;
   maxSumOrder?: number | null;
   stepSumOrder?: number | null;
+  homeBannerUrl?: string | null;
+  headerBannerUrl?: string | null;
 };
 
 interface AddressProps {
@@ -150,6 +152,9 @@ interface CarWashProps {
   minSumOrder: number;
   maxSumOrder: number;
   stepSumOrder: number;
+  isCustomBannerEnabled?: boolean;
+  homeBannerUrl?: string | null;
+  headerBannerUrl?: string | null;
   positionSalaryRates: {
     hrPositionId: number;
     hrPositionName: string;
@@ -458,6 +463,27 @@ export async function updateCarWash(
         'Content-Type': 'multipart/form-data',
       },
     }
+  );
+  return response.data;
+}
+
+export async function updatePosBannerUrls(
+  id: number,
+  body: { homeBannerUrl?: string | null; headerBannerUrl?: string | null }
+): Promise<Pos> {
+  const formData = new FormData();
+
+  if (body.homeBannerUrl != null) {
+    formData.append('homeBannerUrl', body.homeBannerUrl);
+  }
+  if (body.headerBannerUrl != null) {
+    formData.append('headerBannerUrl', body.headerBannerUrl);
+  }
+
+  // Do not set Content-Type manually — axios/browser must add the multipart boundary
+  const response: AxiosResponse<Pos> = await api.patch(
+    `user/pos/${id}`,
+    formData
   );
   return response.data;
 }
