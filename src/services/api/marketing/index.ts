@@ -743,6 +743,7 @@ export type GetCardsPaginatedPayload = {
   number?: string;
   type?: 'VIRTUAL' | 'PHYSICAL';
   isCorporate?: boolean;
+  search?: string;
   page?: number;
   size?: number;
 };
@@ -750,8 +751,16 @@ export type GetCardsPaginatedPayload = {
 export type CardTier = {
   id: number;
   name: string;
-  description: string;
+  description: string | null;
   limitBenefit: number;
+  ltyProgramId?: number;
+};
+
+export type CardClient = {
+  id: number;
+  name: string;
+  phone: string;
+  email: string | null;
 };
 
 export type CardItem = {
@@ -760,10 +769,11 @@ export type CardItem = {
   unqNumber: string;
   number: string;
   type: 'VIRTUAL' | 'PHYSICAL';
-  createdAt: string;
-  updatedAt: string;
-  cardTier?: CardTier;
+  createdAt: string | null;
+  updatedAt: string | null;
+  cardTier?: CardTier | null;
   isCorporate: boolean;
+  client: CardClient | null;
 };
 
 export type GetCardsPaginatedResponse = {
@@ -801,6 +811,12 @@ export type GetCardByIdResponse = {
     inn: string;
     address: string;
   } | null;
+  client: {
+    id: number;
+    name: string;
+    phone: string;
+    email: string | null;
+  } | null;
   status: 'INACTIVE' | null;
   limitBenefit: number | null;
 };
@@ -808,6 +824,101 @@ export type GetCardByIdResponse = {
 export async function getCardById(cardId: number): Promise<GetCardByIdResponse> {
   const response = await api.get(`user/loyalty/card/${cardId}`);
   return response.data;
+}
+
+export async function getClientCards(
+  clientId: number
+): Promise<GetCardByIdResponse[]> {
+  const response: AxiosResponse<GetCardByIdResponse[]> = await api.get(
+    `user/loyalty/client/${clientId}/cards`
+  );
+  return response.data;
+}
+
+export type ClientActivityPeriod = 'today' | 'week' | 'month' | 'custom';
+
+export type ClientActivityParams = {
+  period?: ClientActivityPeriod;
+  dateFrom?: string;
+  dateTo?: string;
+  posId?: number;
+};
+
+export type ClientActivityPoint = {
+  date: string;
+  value: number;
+};
+
+export type ClientActivityResponse = {
+  data: ClientActivityPoint[];
+  total: number;
+  period: string;
+};
+
+export async function getClientActivity(
+  clientId: number,
+  params?: ClientActivityParams
+): Promise<ClientActivityResponse> {
+  const response: AxiosResponse<ClientActivityResponse> = await api.get(
+    `user/loyalty/client/${clientId}/activity`,
+    { params }
+  );
+  return response.data;
+}
+
+export type ClientNoteAuthor = {
+  id: number;
+  name: string;
+  surname: string | null;
+};
+
+export type ClientNote = {
+  id: number;
+  content: string;
+  clientId: number;
+  authorId: number;
+  createdAt: string;
+  updatedAt: string;
+  author?: ClientNoteAuthor;
+};
+
+export async function getClientNotes(
+  clientId: number
+): Promise<ClientNote[]> {
+  const response: AxiosResponse<ClientNote[]> = await api.get(
+    `user/loyalty/client/${clientId}/notes`
+  );
+  return response.data;
+}
+
+export async function createClientNote(
+  clientId: number,
+  content: string
+): Promise<ClientNote> {
+  const response: AxiosResponse<ClientNote> = await api.post(
+    `user/loyalty/client/${clientId}/notes`,
+    { content }
+  );
+  return response.data;
+}
+
+export async function updateClientNote(
+  clientId: number,
+  noteId: number,
+  content: string
+): Promise<ClientNote> {
+  const response: AxiosResponse<ClientNote> = await api.patch(
+    `user/loyalty/client/${clientId}/notes/${noteId}`,
+    { content }
+  );
+  return response.data;
+}
+
+export async function deleteClientNote(
+  clientId: number,
+  noteId: number
+): Promise<void> {
+  await api.delete(`user/loyalty/client/${clientId}/notes/${noteId}`);
 }
 
 export type UpdateCardRequest = {

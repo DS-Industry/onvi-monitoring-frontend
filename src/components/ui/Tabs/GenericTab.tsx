@@ -5,8 +5,8 @@ const { TabPane } = Tabs;
 
 type TabItem = {
   key: string;
-  label: string;
-  content: React.ReactNode;
+  label: React.ReactNode;
+  content?: React.ReactNode;
 };
 
 type GenericTabsProps = {
@@ -18,6 +18,9 @@ type GenericTabsProps = {
   tabBarStyle?: React.CSSProperties;
   type?: 'line' | 'card';
   size?: 'large' | 'middle' | 'small';
+  /** When true, only the tab bar is shown; panel body is rendered by the parent. */
+  tabBarOnly?: boolean;
+  destroyInactiveTabPane?: boolean;
 };
 
 const GenericTabs: React.FC<GenericTabsProps> = ({
@@ -29,23 +32,30 @@ const GenericTabs: React.FC<GenericTabsProps> = ({
   tabBarStyle = { marginBottom: 32 },
   type = 'line',
   size = 'large',
+  tabBarOnly = false,
+  destroyInactiveTabPane = false,
 }) => {
   return (
-    <Tabs
-      defaultActiveKey={defaultActiveKey}
-      activeKey={activeKey}
-      onChange={onChange}
-      tabBarGutter={tabBarGutter}
-      tabBarStyle={tabBarStyle}
-      type={type}
-      size={size}
+    <div
+      className={tabBarOnly ? '[&_.ant-tabs-content-holder]:hidden' : undefined}
     >
-      {tabs.map(tab => (
-        <TabPane tab={tab.label} key={tab.key}>
-          {tab.content}
-        </TabPane>
-      ))}
-    </Tabs>
+      <Tabs
+        defaultActiveKey={defaultActiveKey}
+        activeKey={activeKey}
+        onChange={onChange}
+        tabBarGutter={tabBarGutter}
+        tabBarStyle={tabBarStyle}
+        type={type}
+        size={size}
+        destroyInactiveTabPane={destroyInactiveTabPane}
+      >
+        {tabs.map(tab => (
+          <TabPane tab={tab.label} key={tab.key}>
+            {tabBarOnly ? null : tab.content}
+          </TabPane>
+        ))}
+      </Tabs>
+    </div>
   );
 };
 

@@ -47,6 +47,8 @@ interface PromoCodeDrawerProps {
   editingPromo: PersonalPromocodeResponse | null;
   organizationId: number;
   onSuccess: () => void;
+  /** When set, create/edit is locked to PERSONAL for this client (type/client pickers hidden). */
+  lockedPersonalUserId?: number;
 }
 
 const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
@@ -55,6 +57,7 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
   editingPromo,
   organizationId,
   onSuccess,
+  lockedPersonalUserId,
 }) => {
   const { t } = useTranslation();
   const { showToast } = useToast();
@@ -78,8 +81,10 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
       }
     );
 
+  const isPersonalLocked = lockedPersonalUserId != null;
+
   const { data: clientsData, isLoading: clientsLoading } = useSWR(
-    promocodeType === PromocodeType.PERSONAL && isOpen
+    promocodeType === PromocodeType.PERSONAL && isOpen && !isPersonalLocked
       ? ['get-clients-for-promocode', organizationId, clientSearch]
       : null,
     async () => {
@@ -113,12 +118,15 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
   useEffect(() => {
     if (isOpen) {
       if (editingPromo) {
-        const initialPromocodeType = editingPromo.promocodeType as PromocodeType;
+        const initialPromocodeType = isPersonalLocked
+          ? PromocodeType.PERSONAL
+          : (editingPromo.promocodeType as PromocodeType);
         setPromocodeType(initialPromocodeType);
         form.setFieldsValue({
           code: editingPromo.code,
           promocodeType: initialPromocodeType,
-          personalUserId: editingPromo.personalUserId || undefined,
+          personalUserId:
+            lockedPersonalUserId ?? editingPromo.personalUserId ?? undefined,
           discountType: editingPromo.discountType,
           discountValue: editingPromo.discountValue,
           minOrderAmount: editingPromo.minOrderAmount,
@@ -132,16 +140,25 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
         });
       } else {
         form.resetFields();
-        form.setFieldsValue({
-          isActive: true,
-        });
-        setPromocodeType(undefined);
+        if (isPersonalLocked) {
+          setPromocodeType(PromocodeType.PERSONAL);
+          form.setFieldsValue({
+            isActive: true,
+            promocodeType: PromocodeType.PERSONAL,
+            personalUserId: lockedPersonalUserId,
+          });
+        } else {
+          form.setFieldsValue({
+            isActive: true,
+          });
+          setPromocodeType(undefined);
+        }
       }
     } else {
       setPromocodeType(undefined);
       setClientSearch('');
     }
-  }, [isOpen, editingPromo, form]);
+  }, [isOpen, editingPromo, form, isPersonalLocked, lockedPersonalUserId]);
 
   const formPromocodeType = Form.useWatch('promocodeType', form);
   useEffect(() => {
@@ -160,12 +177,18 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
 
     try {
       const values = await form.validateFields();
+      const resolvedType = isPersonalLocked
+        ? PromocodeType.PERSONAL
+        : values.promocodeType;
+      const resolvedPersonalUserId = isPersonalLocked
+        ? lockedPersonalUserId
+        : values.promocodeType === PromocodeType.PERSONAL
+          ? (values.personalUserId || null)
+          : undefined;
       const promoData: CreatePromocodeDto | UpdatePromocodeDto = {
         code: values.code,
-        promocodeType: values.promocodeType,
-        personalUserId: values.promocodeType === PromocodeType.PERSONAL
-          ? (values.personalUserId || null)
-          : undefined,
+        promocodeType: resolvedType,
+        personalUserId: resolvedPersonalUserId,
         discountType: values.discountType,
         discountValue: values.discountValue ? Number(values.discountValue) : undefined,
         minOrderAmount: values.minOrderAmount ? Number(values.minOrderAmount) : undefined,
@@ -271,35 +294,48 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
           </Space.Compact>
         </Form.Item>
 
-        <Form.Item
-          name="promocodeType"
-          label={t('constants.type')}
-          rules={[
-            { required: true, message: t('validation.required') },
-          ]}
-          className="w-80"
-        >
-          <Select
-            placeholder={t('constants.selectType')}
-            disabled={isCampaignPromocode}
+        {!isPersonalLocked && (
+          <Form.Item
+            name="promocodeType"
+            label={t('constants.type')}
+            rules={[
+              { required: true, message: t('validation.required') },
+            ]}
             className="w-80"
-            onChange={(value: PromocodeType) => {
-              setPromocodeType(value);
-              if (value !== PromocodeType.PERSONAL) {
-                form.setFieldsValue({ personalUserId: undefined });
-              }
-            }}
           >
-            <Option value={PromocodeType.STANDALONE}>
-              {t(`tables.${PromocodeType.STANDALONE}`)}
-            </Option>
-            <Option value={PromocodeType.PERSONAL}>
-              {t(`tables.${PromocodeType.PERSONAL}`)}
-            </Option>
-          </Select>
-        </Form.Item>
+            <Select
+              placeholder={t('constants.selectType')}
+              disabled={isCampaignPromocode}
+              className="w-80"
+              onChange={(value: PromocodeType) => {
+                setPromocodeType(value);
+                if (value !== PromocodeType.PERSONAL) {
+                  form.setFieldsValue({ personalUserId: undefined });
+                }
+              }}
+            >
+              <Option value={PromocodeType.STANDALONE}>
+                {t(`tables.${PromocodeType.STANDALONE}`)}
+              </Option>
+              <Option value={PromocodeType.PERSONAL}>
+                {t(`tables.${PromocodeType.PERSONAL}`)}
+              </Option>
+            </Select>
+          </Form.Item>
+        )}
 
-        {promocodeType === PromocodeType.PERSONAL && (
+        {isPersonalLocked && (
+          <>
+            <Form.Item name="promocodeType" hidden>
+              <Input />
+            </Form.Item>
+            <Form.Item name="personalUserId" hidden>
+              <Input />
+            </Form.Item>
+          </>
+        )}
+
+        {!isPersonalLocked && promocodeType === PromocodeType.PERSONAL && (
           <Form.Item
             name="personalUserId"
             label={t('marketing.personalUser')}
