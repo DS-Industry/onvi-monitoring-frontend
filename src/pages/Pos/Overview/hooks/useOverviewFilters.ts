@@ -69,3 +69,11 @@ export function formatCompactMoney(
   }
   return `${value.toLocaleString('ru-RU')} ${currencySymbol}`;
 }
+
+export function formatFullMoney(
+  value: number | null | undefined,
+  currencySymbol = '₽'
+): string {
+  if (value == null || isNaN(value)) return '—';
+  return `${value.toLocaleString('ru-RU')} ${currencySymbol}`;
+}
