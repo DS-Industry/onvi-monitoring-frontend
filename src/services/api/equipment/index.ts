@@ -11,6 +11,7 @@ enum EQUIPMENT {
   TECH_EXPENSE = 'user/tech-expense/consumables',
   EXPENSE_REPORT = 'user/tech-expense',
   TECH_PARAMS = 'user/device/tech-params',
+  DOWNTIME = 'user/device/downtime',
 }
 
 enum TECHTASKS {
@@ -1233,4 +1234,61 @@ export async function updateDeviceTechParams(
     `${EQUIPMENT.TECH_PARAMS}/${deviceId}`, 
     data
   );
+}
+
+export enum DowntimeType {
+  COIN = 'COIN',
+  PAPER = 'PAPER',
+  POS = 'POS',
+  DEVICE = 'DEVICE',
+}
+
+export interface DowntimeChannel {
+  type: DowntimeType;
+  idleFrom: string;
+  idleTo: string;
+  durationHours: number;
+  neighborOperCount: number;
+}
+
+export interface DowntimeIdlePeriod {
+  idleFrom: string;
+  idleTo: string;
+  durationHours: number;
+  neighborOperCount: number;
+}
+
+export interface DowntimeDevice {
+  deviceId: number;
+  deviceName: string;
+  deviceStatus: boolean;
+  channels: DowntimeChannel[];
+  idlePeriods: DowntimeIdlePeriod[];
+}
+
+export interface DowntimePos {
+  posId: number;
+  posName: string;
+  devices: DowntimeDevice[];
+}
+
+export interface DowntimeResponse {
+  pos: DowntimePos[];
+  totalCount: number;
+}
+
+export interface GetDowntimeParams {
+  dateStart: string;
+  dateEnd: string;
+  placementIds?: number[];
+  posIds?: number[];
+  downtimeType?: DowntimeType;
+  organizationId?: number;
+  page?: number;
+  size?: number;
+}
+
+export async function getDowntime(params: GetDowntimeParams): Promise<DowntimeResponse> {
+  const response = await api.get(EQUIPMENT.DOWNTIME, { params });
+  return response.data;
 }
