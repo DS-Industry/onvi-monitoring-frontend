@@ -70,6 +70,7 @@ const ObjectConsumables = React.lazy(() => import('@/pages/Equipment/ObjectConsu
 const ExpenseReport = React.lazy(() => import('@/pages/Equipment/ExpenseReport/ExpenseReport'));
 const ExpenseReportEdit = React.lazy(() => import('@/pages/Equipment/ExpenseReport/ExpenseReportEdit'));
 const EngineHours = React.lazy(() => import('@/pages/Equipment/EngineHours/index'));
+const IdlePaymentDevices = React.lazy(() => import('@/pages/Equipment/IdlePaymentDevices/index'));
 const InventoryCreation = React.lazy(
   () => import('@/pages/Warehouse/InventoryCreation')
 );
@@ -1391,6 +1392,18 @@ const routes: RouteItem[] = [
         isVisible: true,
         path: '/equipment/engine-hours',
         component: EngineHours,
+        permissions: [
+          { action: 'manage', subject: 'Incident' },
+          { action: 'read', subject: 'Incident' },
+        ],
+        isSidebar: true,
+        subNav: [],
+      },
+            {
+        name: 'idlePaymentDevices',
+        isVisible: true,
+        path: '/equipment/idle-payment-devices',
+        component: IdlePaymentDevices,
         permissions: [
           { action: 'manage', subject: 'Incident' },
           { action: 'read', subject: 'Incident' },

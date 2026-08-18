@@ -137,7 +137,8 @@
     "myReports": "Мои Отчеты",
     "percentageOfObjects": "Процент объектов",
     "deviceDataRawFileUpload": "Загрузка файла с операциями",
-    "engineHours": "Моточасы"
+    "engineHours": "Моточасы",
+    "idlePaymentDevices": "Простой платежных устройств"
   },
   "deviceDataRawFile": {
     "selectFiles": "Нажмите или перетащите файлы для загрузки",
@@ -638,7 +639,20 @@
     "reportFailure": "Заявить о поломке",
     "status": "Статус",
     "new": "Новый",
-    "resolved": "Решен"
+    "resolved": "Решен",
+    "paymentDevice": "Платежное устройство",
+    "idlePeriod": "Период простоя"
+  },
+  "downtime": {
+    "coin": "Монетник",
+    "paper": "Купюрник",
+    "pos": "Безналичная оплата",
+    "device": "Пост",
+    "idlePeriods": "Период простоя",
+    "totalHours": "Время простоя, ч",
+    "neighborOperCount": "Кол-во операций на других устройствах",
+    "channelType": "Тип",
+    "downtimeType": "Тип устройства"
   },
   "daily": {
     "noText": "В этом разделе отображаются отчеты по ежедневным параметрам",

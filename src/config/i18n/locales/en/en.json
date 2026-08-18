@@ -137,7 +137,8 @@
     "myReports": "My reports",
     "percentageOfObjects": "Percentage of objects",
     "deviceDataRawFileUpload": "Upload operations file",
-    "engineHours": "Engine hours"
+    "engineHours": "Engine hours",
+    "idlePaymentDevices": " Idle payment devices"
   },
   "deviceDataRawFile": {
     "selectFiles": "Click or drag files here to upload",
@@ -637,7 +638,20 @@
     "reportFailure": "Report a breakdown",
     "status": "Status",
     "new": "New",
-    "resolved": "Resolved"
+    "resolved": "Resolved",
+    "paymentDevice": "Payment device",
+    "idlePeriod": "Idle period"
+  },
+  "downtime": {
+    "coin": "Coin",
+    "paper": "Banknote",
+    "pos": "Cashless",
+    "device": "Device",
+    "idlePeriods": "Downtime period",
+    "totalHours": "Downtime, h",
+    "neighborOperCount": "Operations on other devices",
+    "channelType": "Type",
+    "downtimeType": "Device type"
   },
   "daily": {
     "noText": "This section displays reports on daily parameters",
