@@ -31,6 +31,7 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
     levelValue: number;
     addValue: number | null;
     missedReport?: boolean;
+    isNotMultipleOf20?: boolean;
   } | null>(
     data.length > 0
       ? {
@@ -38,6 +39,7 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
           levelValue: data[data.length - 1].value,
           addValue: dataAdd[dataAdd.length - 1]?.value ?? null,
           missedReport: data[data.length - 1].missedReport,
+          isNotMultipleOf20: dataAdd[dataAdd.length - 1]?.value !== undefined && dataAdd[dataAdd.length - 1]?.value % 20 !== 0,
         }
       : null
   );
@@ -49,6 +51,7 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
         levelValue: data[data.length - 1].value,
         addValue: dataAdd[dataAdd.length - 1]?.value ?? null,
         missedReport: data[data.length - 1].missedReport,
+        isNotMultipleOf20: dataAdd[dataAdd.length - 1]?.value !== undefined && dataAdd[dataAdd.length - 1]?.value % 20 !== 0,
       });
     }
   }, [visible, data, dataAdd]);
@@ -64,6 +67,7 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
       levelValue,
       addValue,
       missedReport,
+      isNotMultipleOf20: addValue !== null && addValue % 20 !== 0,
     });
   };
 
@@ -92,7 +96,7 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
             <div style={{ fontWeight: 'bold', fontSize: '14px', color: '#333' }}>
               {t('chemicalConsumption.period')}: {tooltipData.date}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '30px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '30px', flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <div
                   style={{
@@ -118,7 +122,7 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
                   style={{
                     width: '12px',
                     height: '12px',
-                    backgroundColor: '#f44336',
+                    backgroundColor: tooltipData.isNotMultipleOf20 ? '#1890ff' : '#f44336',
                     borderRadius: '2px',
                   }}
                 />
@@ -127,7 +131,7 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
                   style={{
                     fontWeight: 'bold',
                     fontSize: '14px',
-                    color: '#f44336',
+                    color: tooltipData.isNotMultipleOf20 ? '#1890ff' : '#f44336',
                   }}
                 >
                   {tooltipData.addValue !== null ? formatNumber(tooltipData.addValue) : '—'}
