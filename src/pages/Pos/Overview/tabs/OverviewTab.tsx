@@ -16,7 +16,7 @@ import OverviewKpiCard from '../components/OverviewKpiCard';
 import HorizontalBarList from '../components/HorizontalBarList';
 import GoalConversionBar from '../components/GoalConversionBar';
 import BannerUploadCard from '../components/BannerUploadCard';
-import { formatCompactMoney } from '../hooks/useOverviewFilters';
+import { formatCompactMoney, formatFullMoney } from '../hooks/useOverviewFilters';
 import { useOverviewCurrency } from '../hooks/OverviewCurrencyContext';
 import { getGoalStatus } from '../utils/goalStatus';
 
@@ -176,8 +176,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         />
         <OverviewKpiCard
           label={t('posOverview.refundSum')}
-          value={formatCompactMoney(
-            convert(depositsRefunds?.refundSum),
+          value={formatFullMoney(
+            convert(depositsRefunds?.refundSum), 
             displayCurrencySymbol
           )}
           loading={refundsLoading}
