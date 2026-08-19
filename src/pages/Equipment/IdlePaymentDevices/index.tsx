@@ -256,7 +256,7 @@ const IdlePaymentDevices: React.FC = () => {
             onExpand: handleExpand,
             rowExpandable: (record) => !!(record.channels && record.channels.length > 0),
           }}
-          scroll={{ x: 'max-content' }}
+          scroll={{ x: 'max-content' }} 
         />
       </div>
     </>
