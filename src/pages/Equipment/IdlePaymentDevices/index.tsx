@@ -129,7 +129,7 @@ const IdlePaymentDevices: React.FC = () => {
         if (!periods || periods.length === 0) return '-';
         return periods.map((p, idx) => (
           <div key={idx}>
-            {dayjs(p.idleFrom).format('HH:mm')} – {dayjs(p.idleTo).format('HH:mm')}
+            {dayjs(p.idleFrom).format('YYYY-MM-DD HH:mm')} – {dayjs(p.idleTo).format('YYYY-MM-DD HH:mm')}
           </div>
         ));
       },
@@ -173,7 +173,7 @@ const IdlePaymentDevices: React.FC = () => {
         dataIndex: 'idleFrom',
         key: 'idlePeriod',
         render: (_: any, record: any) =>
-          `${dayjs(record.idleFrom).format('HH:mm')} – ${dayjs(record.idleTo).format('HH:mm')}`,
+          `${dayjs(record.idleFrom).format('YYYY-MM-DD HH:mm')} – ${dayjs(record.idleTo).format('YYYY-MM-DD HH:mm')}`,
       },
       {
         title: t('downtime.totalHours'),
