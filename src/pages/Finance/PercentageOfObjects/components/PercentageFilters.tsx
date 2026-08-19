@@ -1,29 +1,50 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Select } from 'antd';
 import { useTranslation } from 'react-i18next';
+import useSWR from 'swr';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { DEFAULT_PAGE } from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
-import { SelectOptionString } from '../types';
+import { getPoses } from '@/services/api/equipment';
 
 type Props = {
   totalCount: number;
   searchParams: URLSearchParams;
   setSearchParams: (params: URLSearchParams) => void;
-  isPosFilterLoading: boolean;
-  posFilterOptions: SelectOptionString[];
   partnerSelectOptions: Array<{ value: number; label: string }>;
+  organizationId?: number;
+  city?: string;
 };
 
 const PercentageFilters: React.FC<Props> = ({
   totalCount,
   searchParams,
   setSearchParams,
-  isPosFilterLoading,
-  posFilterOptions,
   partnerSelectOptions,
+  organizationId,
+  city,
 }) => {
   const { t } = useTranslation();
+
+  const { data: posData, isLoading: isPosLoading } = useSWR(
+    organizationId ? ['get-pos', city, organizationId] : null,
+    () => getPoses({ 
+      placementId: city ? Number(city) : undefined, 
+      organizationId 
+    }),
+    {
+      revalidateOnFocus: false,
+      keepPreviousData: true,
+    }
+  );
+
+  const posOptions = useMemo(() => 
+    posData?.map(pos => ({
+      value: String(pos.id),
+      label: pos.name,
+    })) || [],
+    [posData]
+  );
 
   return (
     <GeneralFilters count={totalCount} display={['city']}>
@@ -36,8 +57,8 @@ const PercentageFilters: React.FC<Props> = ({
           allowClear
           placeholder={t('filters.pos.placeholder')}
           value={searchParams.get('posId') ?? undefined}
-          loading={isPosFilterLoading}
-          options={posFilterOptions}
+          loading={isPosLoading}
+          options={posOptions}
           optionFilterProp="label"
           filterOption={(input, option) =>
             (option?.label ?? '')
