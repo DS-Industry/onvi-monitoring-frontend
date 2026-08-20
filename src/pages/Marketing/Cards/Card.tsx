@@ -49,6 +49,9 @@ const Card: React.FC = () => {
   const cardId = cardIdParam ? Number(cardIdParam) : undefined;
   const fromOrders = searchParams.get('from') === 'orders';
   const activeTab = (searchParams.get('tab') as CardTab) || 'overview';
+  const loyaltyProgramParam = searchParams.get('loyaltyProgram')
+    ? Number(searchParams.get('loyaltyProgram'))
+    : undefined;
 
   const { data: card, isLoading: cardLoading } = useSWR(
     cardId ? ['get-card-by-id', cardId] : null,
@@ -196,6 +199,7 @@ const Card: React.FC = () => {
               !!clientId && !!user.organizationId && promocodesLoading
             }
             onNavigateTab={handleNavigateTab}
+            loyaltyProgramId={loyaltyProgramParam}
           />
         </div>
 
@@ -220,7 +224,14 @@ const Card: React.FC = () => {
                 onNavigateTab={handleNavigateTab}
               />
             )}
-            {activeTab === 'orders' && <CardOrdersTab card={card} />}
+            {activeTab === 'orders' && (
+              <CardOrdersTab
+                card={card}
+                clientCards={clientCards}
+                clientId={clientId}
+                loyaltyProgramId={loyaltyProgramParam}
+              />
+            )}
             {activeTab === 'cards' && (
               <CardClientCardsTab
                 clientId={clientId}
@@ -228,6 +239,7 @@ const Card: React.FC = () => {
                 fallbackCard={card}
                 clientCards={clientCards}
                 cardsLoading={!!clientId && cardsLoading}
+                loyaltyProgramId={loyaltyProgramParam}
               />
             )}
             {activeTab === 'activity' &&

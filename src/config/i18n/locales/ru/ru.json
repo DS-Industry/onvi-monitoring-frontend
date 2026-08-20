@@ -160,7 +160,8 @@
       "contractType": "Тип контракта",
       "sums": "Суммы",
       "bonuses": "Бонусы / Скидка / Кэшбэк",
-      "statuses": "Статусы"
+      "statuses": "Статусы",
+      "type": "Тип"
     },
     "expandedColumns": {
       "operationId": "ID операции",

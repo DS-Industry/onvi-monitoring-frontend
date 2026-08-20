@@ -36,6 +36,7 @@ type CardProfileSidebarProps = {
   promocodesLoading?: boolean;
   cardId?: number;
   onNavigateTab?: (tab: 'cards' | 'promocodes') => void;
+  loyaltyProgramId?: number;
 };
 
 function getInitials(name: string): string {
@@ -128,6 +129,7 @@ const CardProfileSidebar: React.FC<CardProfileSidebarProps> = ({
   promocodesLoading = false,
   cardId,
   onNavigateTab,
+  loyaltyProgramId,
 }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -152,6 +154,12 @@ const CardProfileSidebar: React.FC<CardProfileSidebarProps> = ({
   const status = clientDetail?.status;
   const cardsCount = clientCards?.length;
   const previewPromos = (promocodes ?? []).slice(0, 2);
+
+  const filteredClientCards = useMemo(() => {
+    if (!clientCards) return [];
+    if (!loyaltyProgramId) return clientCards;
+    return clientCards.filter((c) => c.cardTier?.ltyProgramId === loyaltyProgramId);
+  }, [clientCards, loyaltyProgramId]);
 
   const handleDelete = async () => {
     if (!clientId) {
@@ -376,11 +384,11 @@ const CardProfileSidebar: React.FC<CardProfileSidebarProps> = ({
           <div className="space-y-3">
             <ClientCardTileSkeleton compact count={2} />
           </div>
-        ) : !clientCards?.length ? (
+        ) : !filteredClientCards.length ? (
           <div className="text-sm text-text02">{t('table.noData')}</div>
         ) : (
           <div className="space-y-3">
-            {clientCards.map(item => (
+            {filteredClientCards.map((item) => (
               <ClientCardTile
                 key={item.id}
                 card={item}

@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import { Table, Typography, Input, Button } from 'antd';
+import { Table, Typography, Input, Button, Select } from 'antd';
 import { DownloadOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -9,6 +9,7 @@ import dayjs from 'dayjs';
 import {
   getCardsPaginated,
   GetCardsPaginatedPayload,
+  getLoyaltyPrograms,
 } from '@/services/api/marketing';
 import { useUser } from '@/hooks/useUserStore';
 import { usePermissions } from '@/hooks/useAuthStore';
@@ -44,10 +45,32 @@ const Cards: React.FC = () => {
   const unqNumberParam = searchParams.get('unqNumber') || '';
   const numberParam = searchParams.get('number') || '';
   const searchParam = searchParams.get('search') || '';
+  const loyaltyProgramParam = searchParams.get('loyaltyProgram')
+    ? Number(searchParams.get('loyaltyProgram'))
+    : undefined;
 
   const [unqNumberValue, setUnqNumberValue] = useState(unqNumberParam);
   const [numberValue, setNumberValue] = useState(numberParam);
   const [searchValue, setSearchValue] = useState(searchParam);
+  const [loyaltyProgramValue, setLoyaltyProgramValue] = useState<
+    number | undefined
+  >(loyaltyProgramParam);
+
+  const { data: loyaltyPrograms, isLoading: programsLoading } = useSWR(
+    user.organizationId ? ['get-loyalty-programs', user.organizationId] : null,
+    () => getLoyaltyPrograms(user.organizationId!),
+    { revalidateOnFocus: false }
+  );
+
+  useEffect(() => {
+    if (loyaltyPrograms && loyaltyPrograms.length > 0 && !loyaltyProgramParam) {
+      const firstProgramId = loyaltyPrograms[0].props.id;
+      setLoyaltyProgramValue(firstProgramId);
+      updateSearchParams(searchParams, setSearchParams, {
+        loyaltyProgram: String(firstProgramId),
+      });
+    }
+  }, [loyaltyPrograms, loyaltyProgramParam, searchParams, setSearchParams]);
 
   useEffect(() => {
     setUnqNumberValue(unqNumberParam);
@@ -60,6 +83,10 @@ const Cards: React.FC = () => {
   useEffect(() => {
     setSearchValue(searchParam);
   }, [searchParam]);
+
+  useEffect(() => {
+    setLoyaltyProgramValue(loyaltyProgramParam);
+  }, [loyaltyProgramParam]);
 
   const debouncedUpdateUnqNumber = useCallback(
     debounce((value: string) => {
@@ -90,6 +117,14 @@ const Cards: React.FC = () => {
     }, 500),
     [searchParams, setSearchParams]
   );
+
+  const handleLoyaltyProgramChange = (value: number) => {
+    setLoyaltyProgramValue(value);
+    updateSearchParams(searchParams, setSearchParams, {
+      loyaltyProgram: String(value),
+      page: String(DEFAULT_PAGE),
+    });
+  };
 
   const handleUnqNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -138,7 +173,7 @@ const Cards: React.FC = () => {
 
   const dataSource = useMemo(
     () =>
-      cardsData?.cards.map(card => ({
+      cardsData?.cards.map((card) => ({
         key: card.id.toString(),
         id: card.id,
         number: card.number,
@@ -164,14 +199,22 @@ const Cards: React.FC = () => {
       title: t('marketing.cardNumber'),
       dataIndex: 'number',
       key: 'number',
-      render: (text: string, record: (typeof dataSource)[0]) => (
-        <Text
-          style={{ color: '#2563eb', fontWeight: 500, cursor: 'pointer' }}
-          onClick={() => navigate(`/marketing/cards/card/${record.id}`)}
-        >
-          {text}
-        </Text>
-      ),
+      render: (text: string, record: (typeof dataSource)[0]) => {
+        const params = new URLSearchParams();
+        if (loyaltyProgramValue) {
+          params.set('loyaltyProgram', String(loyaltyProgramValue));
+        }
+        const queryString = params.toString();
+        const targetUrl = `/marketing/cards/card/${record.id}${queryString ? `?${queryString}` : ''}`;
+        return (
+          <Text
+            style={{ color: '#2563eb', fontWeight: 500, cursor: 'pointer' }}
+            onClick={() => navigate(targetUrl)}
+          >
+            {text}
+          </Text>
+        );
+      },
     },
     {
       title: t('marketing.uniqueCardNumber'),
@@ -319,6 +362,22 @@ const Cards: React.FC = () => {
             allowClear
             value={searchValue}
             onChange={handleSearchChange}
+          />
+        </div>
+        <div className="w-full sm:w-80">
+          <label className="block mb-1 text-sm font-medium text-gray-700">
+            {t('marketing.loyaltyProgram')}
+          </label>
+          <Select
+            className="w-full"
+            placeholder={t('marketing.selectLoyaltyProgram')}
+            value={loyaltyProgramValue}
+            onChange={handleLoyaltyProgramChange}
+            loading={programsLoading}
+            options={loyaltyPrograms?.map((program) => ({
+              label: program.props.name,
+              value: program.props.id,
+            }))}
           />
         </div>
       </div>
