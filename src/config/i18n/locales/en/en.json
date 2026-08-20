@@ -160,7 +160,8 @@
       "contractType": "Contract Type",
       "sums": "Amounts",
       "bonuses": "Bonuses / Discount / Cashback",
-      "statuses": "Statuses"
+      "statuses": "Statuses",
+      "type": "Type"
     },
     "expandedColumns": {
       "operationId": "Operation ID",
