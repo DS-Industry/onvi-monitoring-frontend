@@ -14,9 +14,6 @@
 Чеклист прогона: [qa-checklist.md](./qa-checklist.md).  
 HTTP-справка: [api-reference.md](./api-reference.md).
 
-Домен backend (полный репозиторий):  
-`C:\Bychenko\monitoring-system-backend` → `src/core/hr-core/`.
-
 ## Предусловия для теста
 
 1. План организации **SPACE**, **BUSINESS** или **CUSTOM**.
