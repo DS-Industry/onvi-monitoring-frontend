@@ -1,9 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { Button, Empty } from 'antd';
-import { ArrowLeftOutlined } from '@ant-design/icons';
-import { GetCardByIdResponse } from '@/services/api/marketing';
+import { Empty, Skeleton } from 'antd';
+import type { GetCardByIdResponse } from '@/services/api/marketing';
+import CardDetailsPanel from './CardDetailsPanel';
 import ClientCardTile from './ClientCardTile';
 import ClientCardTileSkeleton from './ClientCardTileSkeleton';
 
@@ -12,19 +11,19 @@ type CardClientCardsTabProps = {
   routeCardId: number;
   fallbackCard: GetCardByIdResponse;
   clientCards?: GetCardByIdResponse[];
-  cardsLoading: boolean;
+  cardsLoading?: boolean;
   loyaltyProgramId?: number;
 };
 
 const CardClientCardsTab: React.FC<CardClientCardsTabProps> = ({
   clientId,
+  routeCardId,
   fallbackCard,
   clientCards,
-  cardsLoading,
+  cardsLoading = false,
   loyaltyProgramId,
 }) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   const filteredCards = useMemo(() => {
     if (!clientCards) return [];
@@ -32,63 +31,86 @@ const CardClientCardsTab: React.FC<CardClientCardsTabProps> = ({
     return clientCards.filter((c) => c.cardTier?.ltyProgramId === loyaltyProgramId);
   }, [clientCards, loyaltyProgramId]);
 
-  const displayCards = clientId ? filteredCards : [fallbackCard];
+  const [selectedCardId, setSelectedCardId] = useState(routeCardId);
+
+  useEffect(() => {
+    setSelectedCardId(routeCardId);
+  }, [routeCardId]);
+
+  useEffect(() => {
+    if (!filteredCards.length) return;
+    const stillPresent = filteredCards.some((c) => c.id === selectedCardId);
+    if (!stillPresent) {
+      setSelectedCardId(filteredCards[0].id);
+    }
+  }, [filteredCards, selectedCardId]);
+
+  const selectedCard = useMemo(() => {
+    if (!clientId) return fallbackCard;
+    return (
+      filteredCards.find((c) => c.id === selectedCardId) ??
+      filteredCards[0] ??
+      fallbackCard
+    );
+  }, [clientId, filteredCards, selectedCardId, fallbackCard]);
 
   if (!clientId) {
-    return (
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Button
-            type="text"
-            icon={<ArrowLeftOutlined />}
-            onClick={() => navigate('/marketing/cards')}
-          >
-            {t('common.back')}
-          </Button>
-          <span className="text-lg font-semibold">{t('marketing.clientCards')}</span>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <ClientCardTile card={fallbackCard} />
-        </div>
-      </div>
-    );
+    return <CardDetailsPanel cardId={routeCardId} card={fallbackCard} />;
   }
 
   if (cardsLoading) {
     return (
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="text-lg font-semibold">{t('marketing.clientCards')}</span>
+      <div className="space-y-6">
+        <div className="text-lg font-semibold text-text01">
+          {t('marketing.clientCards')}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <ClientCardTileSkeleton />
-          <ClientCardTileSkeleton />
+          <ClientCardTileSkeleton count={4} />
+        </div>
+        <div className="border-t pt-4 space-y-3">
+          <Skeleton active paragraph={{ rows: 4 }} />
         </div>
       </div>
     );
   }
 
-  if (!displayCards.length) {
+  if (filteredCards.length === 0) {
     return (
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="text-lg font-semibold">{t('marketing.clientCards')}</span>
+      <div className="space-y-6">
+        <div className="text-lg font-semibold text-text01">
+          {t('marketing.clientCards')}
         </div>
-        <Empty description={t('marketing.noCardsFound')} />
+        <Empty description={t('table.noData')} />
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <span className="text-lg font-semibold">{t('marketing.clientCards')}</span>
+    <div className="space-y-6">
+      <div className="text-lg font-semibold text-text01">
+        {t('marketing.clientCards')}
       </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {displayCards.map((card) => (
-          <ClientCardTile key={card.id} card={card} />
+        {filteredCards.map((item) => (
+          <ClientCardTile
+            key={item.id}
+            card={item}
+            selected={item.id === selectedCardId}
+            onClick={() => setSelectedCardId(item.id)}
+          />
         ))}
       </div>
+
+      {filteredCards.length > 0 && (
+        <div className="border-t pt-4">
+          <CardDetailsPanel
+            cardId={selectedCard.id}
+            card={selectedCard}
+            clientId={clientId}
+          />
+        </div>
+      )}
     </div>
   );
 };
