@@ -1,0 +1,56 @@
+---
+description: "Tiered agent workflow (S/M/L). Lead evaluates Split; if yes, must spawn Task subagents. Use on /kickoff, /execute, BRD/FSD, or named tickets (BR-17)."
+alwaysApply: false
+---
+
+# Agent workflow (tiered)
+
+Pick a **tier** before spinning up extra agents. Do not run full BRD/FSD kickoff for tiny fixes.
+
+## Tiers
+
+| Tier | Trigger | Minimum loop |
+|------|---------|--------------|
+| **S** | Bug, copy, single file | One implementer (± optional `@code-reviewer`) |
+| **M** | One screen / one API / one FSD slice | `@business-requirements-agent` → short plan in chat → implementer → `@code-reviewer` |
+| **L** | Multi-track epic or `/kickoff` + BRD/FSD | `@multi-role-agent`; plan in chat; plan **file** only after OK |
+
+**Implementer by stack:** `mobile` → `@mobile-ui-agent`; web `frontend` → `@ui-component-agent`; `backend` → `@implementation-agent` / `@backend-api-agent`.
+
+## Ticket intake (M / L)
+
+Use `/kickoff <TICKET>` (e.g. `/kickoff Implement BR-17`):
+
+1. Read `docs/requirements/BRD.md` + `docs/requirements/FSD.md`. For UI: `DESIGN.md` + mockups in `docs/design/`
+2. Decompose + grade + assemble team (chat)
+3. Ask for verification
+4. On OK: write `docs/requirements/plans/<TICKET>.plan.md`
+5. Do **not** implement until `/execute <TICKET>` (or explicit “go”)
+
+Do **not** create plan files unsolicited. No plan dumps for tier **S**.
+
+## Split (lead decides, then must follow)
+
+Not bound to a wave number. Before implementer work on a **ready-set** (deps done):
+
+1. **Evaluate** and print: `Split: yes|no`, ready task IDs, why, tracks + globs + Task types (cap 3).
+2. **Yes** only if: ≥2 ready tasks, **disjoint globs** (never the same file), each track has a Task `subagent_type` (e.g. `generalPurpose` — not `@implementation-agent`), no shared types both must edit.
+3. If **yes**: spawn Task tool in **one** message (one call per track). Do not implement those tracks yourself.
+4. If **no**: one implementer. One tree / shared types (e.g. all under `services/billing/`) is `no`.
+5. Override yes→no only in chat with a reason. User `spawn` forces yes only if checks pass.
+
+Markdown agents are prompt instructions (`Follow .cursor/agents/<name>.md`). Waves are dependency order only.
+
+## Quality gate
+
+After implement + review: type-check (`{{CONFIG.testing.typeCheckCommand}}`). Single-file tests. Full lint/suite only with user confirmation.
+
+## Anti-patterns
+
+- Running **L** for a one-line bug
+- Spawning the full agent roster
+- Treating Expo as web React (or the reverse)
+- Implementing inside `/kickoff`
+- Inventing UI when `docs/design/` already has a mockup for that screen
+- Printing `Split: yes` then doing the tracks yourself
+- Two implementers on the same file

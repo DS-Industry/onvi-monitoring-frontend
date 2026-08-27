@@ -1,0 +1,154 @@
+# DESIGN.md — Design System & Visual Language
+
+> Design specification for **{{PROJECT_NAME}}**.
+> **Purpose:** single source of truth for generating screens.
+> Visual reference lives in [docs/design/](docs/design/).
+> Pair with [AGENTS.md](AGENTS.md) for agent behavior.
+
+When this file still contains `{{PLACEHOLDER}}` or `TBD`, `@cursor-setup-agent` (or a human) should fill it from the detected stack. Do **not** invent brand colors, screens, or copy. Leave `TBD` if unknown.
+
+## Status legend
+
+- **[TARGET]** — design we are building toward. Not fully in code yet.
+- **[CURRENT]** — what exists in the repo today (name the files).
+
+**State of the codebase (audited {{DATE}}):** TBD
+
+**UI:** {{UI_APPLICABLE}} — `yes` for mobile/web UI; `n/a` for backend-only (keep this file + `docs/design/` for later).
+
+---
+
+## 1. Product overview
+
+| | |
+|---|---|
+| **Name** | {{PROJECT_NAME}} |
+| **Product** | {{PRODUCT_ONE_LINER}} |
+| **Platforms** | {{PLATFORMS}} |
+| **Personality** | TBD |
+| **Feel** | TBD |
+| **Anti-goals** | TBD |
+
+**One-line mood:** TBD
+
+### Design DNA
+
+1. TBD
+2. TBD
+
+---
+
+## 2. Implementation stack [TARGET]
+
+Fill from detection. Do not list libraries that are not in the project (or explicitly planned).
+
+| Layer | Choice | Notes |
+|---|---|---|
+| UI kit | {{UI_KIT}} | gluestack-ui / shadcn / antd / RN primitives / n/a |
+| Styling | {{STYLING}} | NativeWind / Tailwind / StyleSheet / n/a |
+| Navigation | {{NAVIGATION}} | Expo Router / Next App Router / n/a |
+| Icons | TBD | one set; no mixed packs |
+| Theme | TBD | one provider — no second source of truth |
+
+Token source in code: {{TOKEN_FILE}} (hex values never in component files).
+
+### Migration checklist (CURRENT → TARGET)
+
+1. TBD
+2. TBD
+
+---
+
+## 3. Tokens
+
+### 3.1 Color
+
+| Token | Hex | Usage | Contrast notes |
+|---|---|---|---|
+| TBD | | | |
+
+Light + dark if the app has a theme switch. Map CURRENT tokens → TARGET when migrating.
+
+### 3.2 Typography
+
+| Role | Family | Size / line | Class / token |
+|---|---|---|---|
+| Display | TBD | | |
+| Body | TBD | | |
+| Caption | TBD | | |
+| Mono | TBD | | |
+
+Respect OS font scaling. Do not set `allowFontScaling={false}` on mobile.
+
+### 3.3 Shape, space, elevation
+
+| Token | Value | Class |
+|---|---|---|
+| Radius card / pill / media | TBD | |
+| Spacing scale | TBD | |
+| Screen padding | TBD | |
+| Shadows | TBD | |
+
+---
+
+## 4. Components
+
+### 4.1 Current library [CURRENT]
+
+| Component | Variants / API | Gaps vs target |
+|---|---|---|
+| TBD | | |
+
+### 4.2 Target patterns [TARGET]
+
+For each pattern: base primitive, states, a11y (label, 44×44 pt / 48×48 dp target).
+
+- **Buttons**
+- **Cards**
+- **Inputs / selection**
+- **Feedback** (toast, empty, loading)
+- **Navigation chrome**
+
+---
+
+## 5. Screens
+
+| ID | Screen | Route | Role | Primary CTA | States | Mockup |
+|---|---|---|---|---|---|---|
+| S1 | TBD | | | | empty / loading / error | [docs/design/](docs/design/) |
+
+One subsection per screen when known: layout (top→bottom), above-the-fold, navigation, conversion rules if any.
+
+**Navigation map:** tabs, sheets, modals — TBD
+
+---
+
+## 6. Mockups
+
+**All visual mockups live in [`docs/design/`](docs/design/).** Do not paste screenshots into this file.
+
+| File | Screen IDs | Format |
+|---|---|---|
+| [docs/design/README.md](docs/design/README.md) | index | markdown |
+| `docs/design/S1-<slug>.html` | S1 | HTML mockup (preferred) |
+| `docs/design/*.png` | optional | raster |
+
+If `docs/design/` is empty, this section still exists. Agents look there **before** inventing UI.
+
+---
+
+## 7. Motion, accessibility, do / don't
+
+- **Motion:** duration, reduced-motion fallback (replace springs/drifts with fades; keep the state change).
+- **A11y:** WCAG 2.1 AA; 44 pt / 48 dp targets; contrast computed not eyeballed; screen-reader labels in the product language; never encode state by hue alone.
+- **Do:** tokens only; one accent CTA per screen unless chrome is the exception.
+- **Don't:** hex in components; mixed icon packs; invent mockups when `docs/design/` has a file for that screen.
+
+---
+
+## 8. Reference index
+
+- Mockups: [docs/design/](docs/design/)
+- Agents: [AGENTS.md](AGENTS.md)
+- BRD / FSD: `docs/requirements/`
+- Token source in code: {{TOKEN_FILE}}

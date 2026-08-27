@@ -31,7 +31,6 @@ import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission.tsx';
 import {
   createPosPartnerReport,
-  getPosByCalculation,
   getPosCalculations,
   getPosPartnerReports,
   getWorkerPartners,
@@ -41,6 +40,7 @@ import {
   updatePosPartnerReport,
 } from '@/services/api/finance';
 import { getPresignedDownloadUrl, uploadFileWithPresignedUrl } from '@/services/api/s3';
+import { getPoses } from '@/services/api/equipment';
 import CreateProfitReportDrawer from './components/CreateProfitReportDrawer';
 
 interface PartnerDetail {
@@ -119,10 +119,7 @@ const ProfitCalculation: React.FC = () => {
   const [uploadingRowId, setUploadingRowId] = useState<number | null>(null);
   const [isCreatingReport, setIsCreatingReport] = useState(false);
   const [workerPartners, setWorkerPartners] = useState<WorkerPartnerResponse[]>([]);
-  const [isPosFilterLoading, setIsPosFilterLoading] = useState(false);
-  const [posFilterOptions, setPosFilterOptions] = useState<
-    Array<{ value: string; label: string }>
-  >([]);
+
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -139,30 +136,39 @@ const ProfitCalculation: React.FC = () => {
     void loadWorkerPartners();
   }, [user.organizationId]);
 
-  useEffect(() => {
-    const loadPosOptions = async () => {
-      if (!user.organizationId) return;
-      setIsPosFilterLoading(true);
-      try {
-        const calculatedPoses = await getPosByCalculation({
-          organizationId: user.organizationId,
-          isPosCalculation: true,
-        });
-        setPosFilterOptions(
-          calculatedPoses.map(pos => ({
-            value: String(pos.id),
-            label: pos.name,
-          }))
-        );
-      } catch (error) {
-        console.error('Error loading pos filter options:', error);
-      } finally {
-        setIsPosFilterLoading(false);
-      }
-    };
+  const { data: posData, isLoading: isLoadingPoses } = useSWR(
+    user.organizationId ? ['get-poses', placementId, user.organizationId] : null,
+    () => getPoses({
+      placementId,
+      organizationId: user.organizationId,
+    }),
+    {
+      revalidateOnFocus: false,
+      keepPreviousData: true,
+    }
+  );
 
-    void loadPosOptions();
-  }, [user.organizationId]);
+  const posFilterOptions = useMemo(() =>
+    posData?.map(pos => ({
+      value: String(pos.id),
+      label: pos.name,
+    })) || [],
+    [posData]
+  );
+
+  const prevCityRef = useRef(placementId);
+  useEffect(() => {
+    if (prevCityRef.current !== placementId) {
+      const currentPosId = searchParams.get('posId');
+      if (currentPosId) {
+        updateSearchParams(searchParams, setSearchParams, {
+          posId: undefined,
+          page: DEFAULT_PAGE,
+        });
+      }
+      prevCityRef.current = placementId;
+    }
+  }, [placementId, searchParams, setSearchParams]);
 
   const reportFilters = useMemo(
     () => ({
@@ -647,7 +653,7 @@ const ProfitCalculation: React.FC = () => {
             allowClear
             placeholder={t('filters.pos.placeholder')}
             value={searchParams.get('posId') ?? undefined}
-            loading={isPosFilterLoading}
+            loading={isLoadingPoses}
             options={posFilterOptions}
             optionFilterProp="label"
             filterOption={(input, option) =>

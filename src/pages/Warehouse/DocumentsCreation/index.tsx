@@ -41,15 +41,21 @@ interface TableRow {
   isDeleted?: boolean;
 }
 
+const parseWarehouseId = (param: string | null): number | null => {
+  if (!param || param === 'undefined' || param === '*') return null;
+  const num = Number(param);
+  return isNaN(num) ? null : num;
+};
+
 const DocumentsCreation: React.FC = () => {
   const [searchParams] = useSearchParams();
   const documentType = searchParams.get('document');
   const documentId = Number(searchParams.get('documentId'));
   const { t } = useTranslation();
-  const [warehouseId, setWarehouseId] = useState<number | string | null>(
-    searchParams.get('warehouseId') || '*'
+  const [warehouseId, setWarehouseId] = useState<number | null>(
+    parseWarehouseId(searchParams.get('warehouseId'))
   );
-  const [warehouseRecId, setWarehouseRecId] = useState(0);
+  const [warehouseRecId, setWarehouseRecId] = useState<number | null>(null);
   const [docId, setDocId] = useState(0);
   const [noOverhead, setNoOverHead] = useState('');
   const [selectedDate, setSelectedDate] = useState<string | null>(() => {
@@ -151,6 +157,8 @@ const DocumentsCreation: React.FC = () => {
         isMovingMetaData(metaData)
       ) {
         setWarehouseRecId(metaData.warehouseReceirId);
+      } else {
+        setWarehouseRecId(null);
       }
 
       const responsibleId = documentsData.responsibleId;
@@ -163,7 +171,8 @@ const DocumentsCreation: React.FC = () => {
 
       setTableData(tableData);
     } else {
-      setWarehouseId(searchParams.get('warehouseId') || null);
+      setWarehouseId(parseWarehouseId(searchParams.get('warehouseId')));
+      setWarehouseRecId(null);
       setNoOverHead(searchParams.get('name') || '');
 
       const carryingAtParam = searchParams.get('carryingAt') ?? '';
@@ -314,56 +323,63 @@ const DocumentsCreation: React.FC = () => {
     setTableData(prevData => [...prevData].sort((a, b) => b.id - a.id));
   };
 
-  const handleSubmitAction = async (action: 'save' | 'send') => {
-    const filteredTableData = tableData.filter(row => !row.isDeleted);
+const handleSubmitAction = async (action: 'save' | 'send') => {
+  const filteredTableData = tableData.filter(row => !row.isDeleted);
 
-    const detailValues =
-      filteredTableData?.map(data => {
-        const base = {
-          nomenclatureId: data.nomenclatureId,
-          quantity: Number(data.quantity),
-          comment: data.comment,
-        };
+  if (filteredTableData.length === 0) {
+    showToast(t('warehouse.noItemsError'), 'error');
+    return;
+  }
 
-        if (documentType === WarehouseDocumentType.MOVING) {
-          return {
-            ...base,
-            metaData: { warehouseReceirId: warehouseRecId },
-          };
-        }
-
-        if (documentType === WarehouseDocumentType.INVENTORY) {
-          return {
-            ...base,
-            metaData: {
-              oldQuantity: Number(data.oldQuantity),
-              deviation: Number(data.deviation),
-            },
-          };
-        }
-        return base;
-      }) || [];
-
-    const payload = {
-      warehouseId: warehouseId == null ? 0 : Number(warehouseId),
-      responsibleId: tableData.at(0)?.responsibleId || user.id,
-      carryingAt: dayjs(
-        selectedDate === null ? dayjs().toDate() : selectedDate
-      ).toDate(),
-      details: detailValues,
+  const detailValues = filteredTableData.map(data => {
+    const base = {
+      nomenclatureId: data.nomenclatureId,
+      quantity: Number(data.quantity),
+      comment: data.comment || '',
     };
 
-    let result;
-    if (action === 'save') {
-      result = await saveDoc(payload);
-    } else if (action === 'send') {
-      result = await sendDoc(payload);
+    if (documentType === WarehouseDocumentType.MOVING) {
+      if (warehouseRecId === null) {
+        showToast(t('warehouse.needReceiverWarehouse'), 'error');
+      }
+      return {
+        ...base,
+        metaData: { warehouseReceirId: warehouseRecId as number },
+      };
     }
 
-    if (result) {
-      navigate('/warehouse/documents');
+    if (documentType === WarehouseDocumentType.INVENTORY) {
+      return {
+        ...base,
+        metaData: {
+          oldQuantity: Number(data.oldQuantity ?? 0),
+          deviation: Number(data.deviation ?? 0),
+        },
+      };
     }
+    return base;
+  });
+
+  const payload = {
+    warehouseId: warehouseId == null ? 0 : Number(warehouseId),
+    responsibleId: tableData.at(0)?.responsibleId || user.id,
+    carryingAt: dayjs(
+      selectedDate === null ? dayjs().toDate() : selectedDate
+    ).toDate(),
+    details: detailValues,
   };
+
+  let result;
+  if (action === 'save') {
+    result = await saveDoc(payload);
+  } else if (action === 'send') {
+    result = await sendDoc(payload);
+  }
+
+  if (result) {
+    navigate('/warehouse/documents');
+  }
+};
 
   const handleDelete = async () => {
     setIsDeletingDocument(true);
@@ -463,7 +479,7 @@ const DocumentsCreation: React.FC = () => {
                         ?.toLowerCase()
                         .includes(input.toLowerCase())
                     }
-                    value={warehouseId}
+                    value={warehouseId ?? undefined}
                     onChange={value => setWarehouseId(value)}
                     style={{ width: '20rem' }}
                     options={warehouses.map(w => ({
@@ -487,7 +503,7 @@ const DocumentsCreation: React.FC = () => {
                           ?.toLowerCase()
                           .includes(input.toLowerCase())
                       }
-                      value={warehouseRecId}
+                      value={warehouseRecId ?? undefined}
                       onChange={value => setWarehouseRecId(value)}
                       style={{ width: '20rem' }}
                       options={warehouses.map(w => ({

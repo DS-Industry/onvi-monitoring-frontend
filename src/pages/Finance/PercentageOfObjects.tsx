@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Table,
@@ -44,7 +44,7 @@ import {
 import PercentageFilters from './PercentageOfObjects/components/PercentageFilters';
 import CreatePosCalculationModal from './PercentageOfObjects/components/CreatePosCalculationModal';
 import AddPartnerModal from './PercentageOfObjects/components/AddPartnerModal';
-import type { ObjectData, PartnerDetail, SelectOptionNumber, SelectOptionString } from './PercentageOfObjects/types';
+import type { ObjectData, PartnerDetail, SelectOptionNumber } from './PercentageOfObjects/types';
 
 interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
   editing: boolean;
@@ -123,8 +123,6 @@ const PercentageOfObjects: React.FC = () => {
 
   const [data, setData] = useState<ObjectData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [isPosFilterLoading, setIsPosFilterLoading] = useState(false);
-  const [posFilterOptions, setPosFilterOptions] = useState<SelectOptionString[]>([]);
   const [isCreatePosOptionsLoading, setIsCreatePosOptionsLoading] = useState(false);
   const [createPosOptions, setCreatePosOptions] = useState<SelectOptionNumber[]>([]);
   const [expandedRowKeys, setExpandedRowKeys] = useState<React.Key[]>([]);
@@ -230,26 +228,6 @@ const PercentageOfObjects: React.FC = () => {
     }),
   });
 
-  const loadPosOptions = useCallback(async () => {
-    if (!user.organizationId) return;
-    setIsPosFilterLoading(true);
-    try {
-      const calculatedPoses = await getPosByCalculation({
-        organizationId: user.organizationId,
-        isPosCalculation: true,
-      });
-      setPosFilterOptions(
-        calculatedPoses.map(pos => ({
-          value: String(pos.id),
-          label: pos.name,
-        }))
-      );
-    } catch (error) {
-      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
-    } finally {
-      setIsPosFilterLoading(false);
-    }
-  }, [t, user.organizationId]);
 
   const loadCreatePosOptions = useCallback(async () => {
     if (!user.organizationId) return;
@@ -286,44 +264,56 @@ const PercentageOfObjects: React.FC = () => {
     loadWorkerPartners();
   }, [user.organizationId]);
 
+  const prevCityRef = useRef(city);
   useEffect(() => {
-    loadPosOptions();
-  }, [loadPosOptions]);
+    if (prevCityRef.current !== city) {
+      const currentPosId = searchParams.get('posId');
+      if (currentPosId) {
+        updateSearchParams(searchParams, setSearchParams, {
+          posId: undefined,
+          page: DEFAULT_PAGE,
+        });
+      }
+      prevCityRef.current = city;
+    }
+  }, [city, searchParams, setSearchParams]);
 
   useEffect(() => {
+    let cancelled = false;
     const loadCalculations = async () => {
       setIsLoading(true);
       try {
         const response = await getPosCalculations({
           posId,
           partnerId,
+          placementId: city && !isNaN(Number(city)) ? Number(city) : undefined,
         });
-        const mappedData: ObjectData[] = response.map(mapCalculationToTableData);
-        setData(mappedData);
+        if (!cancelled) {
+          const mappedData = response.map(mapCalculationToTableData);
+          setData(mappedData);
+        }
       } catch (error) {
-        showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+        if (!cancelled) {
+          showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+        }
       } finally {
-        setIsLoading(false);
+        if (!cancelled) {
+          setIsLoading(false);
+        }
       }
     };
-
     loadCalculations();
-  }, [posId, partnerId]);
-
-  const filteredData = useMemo(() => {
-    return data.filter(item => {
-      const cityMatches = !city || item.city === city;
-      const posMatches = !posId || item.posId === posId;
-      return cityMatches && posMatches;
-    });
-  }, [data, city, posId]);
+    return () => {
+      cancelled = true;
+    };
+  }, [posId, partnerId, city]);
 
   const paginatedData = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
-    return filteredData.slice(start, start + pageSize);
-  }, [filteredData, currentPage, pageSize]);
+    return data.slice(start, start + pageSize);
+  }, [data, currentPage, pageSize]);
 
-  const totalCount = filteredData.length;
+  const totalCount = data.length;
   const currencyRender = getCurrencyRender();
 
   const isEditingParent = (record: ObjectData) => editingParentId === record.id;
@@ -445,7 +435,7 @@ const PercentageOfObjects: React.FC = () => {
 
       setData(prev => [createdItem, ...prev]);
 
-      await Promise.all([loadPosOptions(), loadCreatePosOptions()]);
+      await loadCreatePosOptions();
 
       setIsCreateModalOpen(false);
       createForm.resetFields();
@@ -765,9 +755,9 @@ const PercentageOfObjects: React.FC = () => {
         totalCount={totalCount}
         searchParams={searchParams}
         setSearchParams={setSearchParams}
-        isPosFilterLoading={isPosFilterLoading}
-        posFilterOptions={posFilterOptions}
         partnerSelectOptions={partnerSelectOptions}
+        organizationId={user.organizationId}
+        city={city}
       />
 
       {canViewPartnerReportTable && (

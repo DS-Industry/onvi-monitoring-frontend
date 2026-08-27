@@ -70,6 +70,7 @@ const ObjectConsumables = React.lazy(() => import('@/pages/Equipment/ObjectConsu
 const ExpenseReport = React.lazy(() => import('@/pages/Equipment/ExpenseReport/ExpenseReport'));
 const ExpenseReportEdit = React.lazy(() => import('@/pages/Equipment/ExpenseReport/ExpenseReportEdit'));
 const EngineHours = React.lazy(() => import('@/pages/Equipment/EngineHours/index'));
+const IdlePaymentDevices = React.lazy(() => import('@/pages/Equipment/IdlePaymentDevices/index'));
 const InventoryCreation = React.lazy(
   () => import('@/pages/Warehouse/InventoryCreation')
 );
@@ -152,19 +153,10 @@ const SalaryCalculationCreation = React.lazy(
 const Notifications = React.lazy(
   () => import('@/pages/Notifications/Notifications')
 );
-const LoyaltyHubRequests = React.lazy(
-  () => import('@/pages/Marketing/LoyaltyHubRequests')
-);
-const LoyaltyParticipantRequests = React.lazy(
-  () => import('@/pages/Marketing/LoyaltyParticipantRequests')
-);
 const Cards = React.lazy(() => import('@/pages/Marketing/Cards'));
 const Card = React.lazy(() => import('@/pages/Marketing/Cards/Card'));
 const PromoCodeManagement = React.lazy(
   () => import('@/pages/Marketing/PromoCodeManagement')
-);
-const BalanceTransferRequests = React.lazy(
-  () => import('@/pages/Marketing/BalanceTransferRequests')
 );
 const EmployeeAdvanceCreation = React.lazy(
   () => import('@/pages/Hr/EmployeeAdvanceCreation')
@@ -417,18 +409,6 @@ const routes: RouteItem[] = [
     ],
     subNav: [
       {
-        name: 'services',
-        isVisible: false,
-        path: '/station/services',
-        component: Default,
-        permissions: [{ action: 'manag', subject: 'Pos' }],
-        isSidebar: true,
-        isHr: false,
-        titleName: '',
-        subNav: [],
-        subMenu: false,
-      },
-      {
         name: 'deposits',
         isVisible: false,
         path: '/station/enrollments',
@@ -537,30 +517,6 @@ const routes: RouteItem[] = [
           { action: 'manage', subject: 'Pos' },
           { action: 'read', subject: 'Pos' },
         ],
-        isSidebar: true,
-        isHr: false,
-        titleName: '',
-        subNav: [],
-        subMenu: false,
-      },
-      {
-        name: 'cleaning',
-        isVisible: false,
-        path: '/station/cleaning',
-        component: Default,
-        permissions: [{ action: 'manag', subject: 'Pos' }],
-        isSidebar: true,
-        isHr: false,
-        titleName: '',
-        subNav: [],
-        subMenu: false,
-      },
-      {
-        name: 'simpleBoxes',
-        isVisible: false,
-        path: '/station/simpleBoxes',
-        component: Default,
-        permissions: [{ action: 'manag', subject: 'Pos' }],
         isSidebar: true,
         isHr: false,
         titleName: '',
@@ -778,18 +734,6 @@ const routes: RouteItem[] = [
         subMenu: false,
       },
       {
-        name: 'period',
-        isVisible: true,
-        path: '/finance/period',
-        component: Default,
-        permissions: [{ action: 'hide', subject: 'CashCollection' }],
-        isSidebar: true,
-        isHr: false,
-        titleName: '',
-        subNav: [],
-        subMenu: false,
-      },
-      {
         name: 'employee',
         isVisible: true,
         path: '/finance/timesheet',
@@ -860,18 +804,6 @@ const routes: RouteItem[] = [
               { action: 'manage', subject: 'ManagerPaper' },
               { action: 'read', subject: 'ManagerPaper' },
             ],
-            isSidebar: true,
-            isHr: false,
-            titleName: '',
-            subNav: [],
-            subMenu: false,
-          },
-          {
-            name: 'appo',
-            isVisible: true,
-            path: '/finance/financial/accounting/directory/appointments',
-            component: Default,
-            permissions: [{ action: 'hide', subject: 'ManagerPaper' }],
             isSidebar: true,
             isHr: false,
             titleName: '',
@@ -1277,27 +1209,7 @@ const routes: RouteItem[] = [
         subMenu: false,
       },
       {
-        name: 'hubRequests',
-        isVisible: true,
-        path: '/marketing/hub-requests',
-        component: LoyaltyHubRequests,
-        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
-        isSidebar: true,
-        subNav: [],
-        subMenu: false,
-      },
-      {
-        name: 'participantRequests',
-        isVisible: true,
-        path: '/marketing/participant-requests',
-        component: LoyaltyParticipantRequests,
-        permissions: [{ action: 'manage', subject: 'LTYProgram' }],
-        isSidebar: true,
-        subNav: [],
-        subMenu: false,
-      },
-      {
-        name: 'cards',
+        name: 'users',
         isVisible: true,
         path: '/marketing/cards',
         component: Cards,
@@ -1335,16 +1247,6 @@ const routes: RouteItem[] = [
         requiredTariffFeatures: ['LTYProgram', 'ONVI'],
         requiredTariffFeaturesMode: 'all',
         tariffFallback: 'placeholder',
-        isSidebar: true,
-        subNav: [],
-        subMenu: false,
-      },
-      {
-        name: 'balanceTransferRequests',
-        isVisible: true,
-        path: '/marketing/balance-transfer-requests',
-        component: BalanceTransferRequests,
-        permissions: [{ action: 'update', subject: 'LTYProgram' }],
         isSidebar: true,
         subNav: [],
         subMenu: false,
@@ -1447,16 +1349,6 @@ const routes: RouteItem[] = [
         isHr: true,
       },
       {
-        titleName: '',
-        name: 'replacing',
-        isVisible: true,
-        path: '/equipment/replacing/programs',
-        component: Default,
-        permissions: [{ action: 'hide', subject: 'Incident' }],
-        isSidebar: true,
-        subNav: [],
-      },
-      {
         name: 'objectConsumables',
         isVisible: true,
         path: '/equipment/object-consumables',
@@ -1500,6 +1392,18 @@ const routes: RouteItem[] = [
         isVisible: true,
         path: '/equipment/engine-hours',
         component: EngineHours,
+        permissions: [
+          { action: 'manage', subject: 'Incident' },
+          { action: 'read', subject: 'Incident' },
+        ],
+        isSidebar: true,
+        subNav: [],
+      },
+            {
+        name: 'idlePaymentDevices',
+        isVisible: true,
+        path: '/equipment/idle-payment-devices',
+        component: IdlePaymentDevices,
         permissions: [
           { action: 'manage', subject: 'Incident' },
           { action: 'read', subject: 'Incident' },

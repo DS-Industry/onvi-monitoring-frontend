@@ -1,0 +1,145 @@
+{
+  "$schema": "./project-schema.json",
+  "project": {
+    "name": "onvi-monitoring-frontend",
+    "description": "Frontend admin panel for Onvi monitoring",
+    "version": "0.0.0",
+    "repository": "https://github.com/DS-Industry/onvi-monitoring-frontend.git"
+  },
+  "cursor": {
+    "include": {
+      "patterns": [
+        "src/**",
+        "tests/**",
+        "e2e/**",
+        "public/**"
+      ],
+      "priorityFiles": [
+        "README.md",
+        "package.json",
+        "tsconfig.json",
+        "vite.config.ts",
+        "DESIGN.md",
+        "AGENTS.md"
+      ]
+    },
+    "exclude": {
+      "patterns": [
+        "node_modules/**",
+        "dist/**",
+        "build/**",
+        ".git/**",
+        "coverage/**"
+      ],
+      "largeFiles": [
+        "*.lock",
+        "*.map",
+        "*.min.js",
+        "*.min.css"
+      ],
+      "secrets": [
+        ".env",
+        ".env.*",
+        "*.pem",
+        "*.key",
+        "credentials.*"
+      ]
+    },
+    "tokenOptimization": {
+      "maxRuleLines": 300,
+      "maxSkillLines": 200,
+      "maxAgentLines": 150,
+      "contextLayers": {
+        "immediate": 2000,
+        "relevant": 5000,
+        "extended": 10000,
+        "reference": 20000
+      }
+    },
+    "models": {
+      "default": "claude-4-opus",
+      "complex": "claude-4-opus",
+      "simple": "claude-4-sonnet",
+      "fast": "claude-4-sonnet"
+    }
+  },
+  "paths": {
+    "source": "src",
+    "apiPath": "src/api",
+    "handlerBasePath": "N/A",
+    "commonPath": "src",
+    "eventsPath": "N/A",
+    "configPath": "src/config"
+  },
+  "domain": {
+    "entities": [],
+    "lifecycles": {},
+    "businessRules": []
+  },
+  "patterns": {
+    "handlerFlowSteps": 0,
+    "handlerFlow": [],
+    "errorHandling": "client-side",
+    "logging": "datadog-browser"
+  },
+  "techStack": {
+    "language": "TypeScript",
+    "runtime": "Node.js",
+    "framework": "React + Vite",
+    "cloud": "GitHub Pages",
+    "database": "N/A",
+    "orm": "N/A",
+    "testing": "Vitest + Playwright",
+    "linter": "ESLint",
+    "formatter": "Prettier",
+    "packageManager": "npm",
+    "containerization": "N/A",
+    "cicd": "GitHub Actions"
+  },
+  "testing": {
+    "coverageMinimum": 80,
+    "testCommand": "npm run test",
+    "typeCheckCommand": "npm run type-check",
+    "lintCommand": "npm run lint",
+    "coverageCommand": "npm run test:coverage"
+  },
+  "database": {
+    "softDeleteField": "N/A",
+    "timestampFields": {
+      "created": "N/A",
+      "updated": "N/A"
+    },
+    "naming": "N/A"
+  },
+  "packages": {
+    "internalPrefix": "N/A",
+    "registryUrl": "N/A"
+  },
+  "fileNames": {
+    "handlerEntry": "N/A",
+    "requestSchema": "N/A",
+    "responseSchema": "N/A"
+  },
+  "folderNames": {
+    "logic": "N/A",
+    "schemas": "N/A",
+    "common": "utils",
+    "services": "services",
+    "types": "types",
+    "utils": "utils",
+    "middleware": "N/A",
+    "models": "models",
+    "controllers": "N/A",
+    "routes": "routes"
+  },
+  "conventions": {
+    "branchPrefix": {
+      "feature": "feature/",
+      "bugfix": "fix/",
+      "hotfix": "hotfix/",
+      "release": "release/"
+    },
+    "commitFormat": "conventional",
+    "prTemplate": true
+  }
+}

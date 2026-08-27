@@ -1,9 +1,11 @@
 import React, { useMemo } from 'react';
-import useSWR from 'swr';
+import useSWR, { mutate as globalMutate } from 'swr';
 import { useTranslation } from 'react-i18next';
 import { Alert, Empty, Select, Spin } from 'antd';
 import LineChart from '@/components/ui/LineChart';
 import {
+  getStationDepositsRefunds,
+  getStationLoyaltyVisits,
   getStationPlanFactSummary,
   getStationRevenueSeries,
   getStationServiceStructure,
@@ -13,20 +15,32 @@ import { formatNumber } from '@/utils/tableUnits';
 import OverviewKpiCard from '../components/OverviewKpiCard';
 import HorizontalBarList from '../components/HorizontalBarList';
 import GoalConversionBar from '../components/GoalConversionBar';
-import { formatCompactMoney } from '../hooks/useOverviewFilters';
+import BannerUploadCard from '../components/BannerUploadCard';
+import { formatCompactMoney, formatFullMoney } from '../hooks/useOverviewFilters';
 import { useOverviewCurrency } from '../hooks/OverviewCurrencyContext';
 import { getGoalStatus } from '../utils/goalStatus';
+
+
+
+
+
 
 type OverviewTabProps = {
   posId: number;
   dateStart: string;
   dateEnd: string;
+  isCustomBannerEnabled?: boolean;
+  homeBannerUrl?: string | null;
+  headerBannerUrl?: string | null;
 };
 
 const OverviewTab: React.FC<OverviewTabProps> = ({
   posId,
   dateStart,
   dateEnd,
+  isCustomBannerEnabled = false,
+  homeBannerUrl,
+  headerBannerUrl,
 }) => {
   const { t } = useTranslation();
   const { convert, displayCurrencySymbol } = useOverviewCurrency();
@@ -65,6 +79,34 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
     { shouldRetryOnError: false, revalidateOnFocus: false }
   );
 
+  const {
+    data: loyaltyVisits,
+    isLoading: visitsLoading,
+    error: visitsError,
+  } = useSWR(
+    ['pos-overview-loyalty-visits', posId, dateStart, dateEnd],
+    () => getStationLoyaltyVisits(posId, dateRange),
+    {
+      shouldRetryOnError: false,
+      revalidateOnFocus: false,
+      dedupingInterval: 120_000,
+    }
+  );
+
+  const {
+    data: depositsRefunds,
+    isLoading: refundsLoading,
+    error: refundsError,
+  } = useSWR(
+    ['pos-overview-deposits-refunds', posId, dateStart, dateEnd],
+    () => getStationDepositsRefunds(posId, dateRange),
+    {
+      shouldRetryOnError: false,
+      revalidateOnFocus: false,
+      dedupingInterval: 120_000,
+    }
+  );
+
   const chartData =
     series?.points?.map(p => ({
       date: new Date(p.date),
@@ -77,7 +119,16 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
     [planFact?.fulfillmentPercent, dateStart, dateEnd]
   );
 
-  const error = summaryError || seriesError || structureError;
+  const error =
+    summaryError ||
+    seriesError ||
+    structureError ||
+    visitsError ||
+    refundsError;
+
+  const handleBannerUploaded = () => {
+    void globalMutate(['get-pos-by-id', posId]);
+  };
 
   return (
     <div>
@@ -90,7 +141,31 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
         />
       ) : null}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+      {isCustomBannerEnabled ? (
+        <div className="bg-white rounded-xl shadow-sm p-5 mb-6">
+          <div className="mb-4 text-base font-semibold text-text01">
+            {t('posOverview.customBanners')}
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <BannerUploadCard
+              posId={posId}
+              field="homeBannerUrl"
+              label={t('posOverview.homeBanner')}
+              imageUrl={homeBannerUrl}
+              onUploaded={handleBannerUploaded}
+            />
+            <BannerUploadCard
+              posId={posId}
+              field="headerBannerUrl"
+              label={t('posOverview.headerBanner')}
+              imageUrl={headerBannerUrl}
+              onUploaded={handleBannerUploaded}
+            />
+          </div>
+        </div>
+      ) : null}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
         <OverviewKpiCard
           label={t('posOverview.revenueMtd')}
           value={formatCompactMoney(
@@ -100,19 +175,27 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
           loading={summaryLoading}
         />
         <OverviewKpiCard
+          label={t('posOverview.refundSum')}
+          value={formatFullMoney(
+            convert(depositsRefunds?.refundSum), 
+            displayCurrencySymbol
+          )}
+          loading={refundsLoading}
+        />
+        <OverviewKpiCard
           label={t('posOverview.carsWashed')}
           value={formatNumber(summary?.carsWashed)}
           loading={summaryLoading}
         />
         <OverviewKpiCard
-          label={t('posOverview.payrollShare')}
-          value="—"
-          loading={summaryLoading}
+          label={t('posOverview.onviVisits')}
+          value={formatNumber(loyaltyVisits?.onviVisits)}
+          loading={visitsLoading}
         />
         <OverviewKpiCard
-          label={t('posOverview.activeClients')}
-          value="—"
-          loading={summaryLoading}
+          label={t('posOverview.cardVisits')}
+          value={formatNumber(loyaltyVisits?.cardVisits)}
+          loading={visitsLoading}
         />
       </div>
 
