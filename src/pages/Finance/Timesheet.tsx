@@ -172,6 +172,7 @@ const Timesheet: React.FC = () => {
       return {
         id: shift.props.id,
         title: `${
+          shift.props.workerFio ||
           employees.find(emp => emp.props.id === shift.props.workerId)?.props
             ?.name || t('tables.unknownWorker')
         }`,
