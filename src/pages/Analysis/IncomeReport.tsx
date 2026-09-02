@@ -118,7 +118,7 @@ const IncomeReport: React.FC = () => {
 
   const debouncedManagerSearchUpdate = useMemo(
     () => debounce((value: string) => {
-      setDebouncedManagerSearch(value.trim().toLowerCase());
+      setDebouncedManagerSearch(value.trim());
     }, 300),
     []
   );
