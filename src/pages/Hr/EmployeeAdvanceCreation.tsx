@@ -60,7 +60,7 @@ interface PaymentRecord {
 }
 
 const EmployeeAdvanceCreation: React.FC = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const placementId = searchParams.get('city');
   const hrPositionId = Number(searchParams.get('hrPositionId')) || undefined;
@@ -70,7 +70,6 @@ const EmployeeAdvanceCreation: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { showToast } = useToast();
   const user = useUser();
-  dayjs.locale(i18n.language);
 
   const screens = Grid.useBreakpoint();
 

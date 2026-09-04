@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 import './config/i18n/index.ts';
+import './config/dayjs';
 import './styles/components.css';
 
 import { datadogRum } from '@datadog/browser-rum';

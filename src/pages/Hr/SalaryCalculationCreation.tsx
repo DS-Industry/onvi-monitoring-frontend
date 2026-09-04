@@ -63,7 +63,7 @@ interface PaymentRecord {
 }
 
 const SalaryCalculationCreation: React.FC = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [paymentsData, setPaymentsData] = useState<PaymentRecord[]>([]);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -72,7 +72,6 @@ const SalaryCalculationCreation: React.FC = () => {
   const hrPositionId = Number(searchParams.get('hrPositionId')) || undefined;
   const { showToast } = useToast();
   const user = useUser();
-  dayjs.locale(i18n.language);
 
   const screens = Grid.useBreakpoint();
 
