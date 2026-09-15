@@ -25,6 +25,14 @@ import {
   ManagerParams,
   updateManagerPaper,
 } from '@/services/api/finance';
+import { getApiErrorMessage } from '@/services/api/finance/fintablo-errors';
+import PaperTypeField from './PaperTypeField';
+import {
+  applyGroupChange,
+  isPaperTypeSelected,
+  mapPaperTypeOptions,
+  shouldFetchPaperTypesByGroup,
+} from './paperGroupType';
 import TableSkeleton from '@/components/ui/Table/TableSkeleton';
 import useSWRMutation from 'swr/mutation';
 import MultilineInput from '@/components/ui/Input/MultilineInput';
@@ -55,10 +63,17 @@ import {
   DEFAULT_PAGE_SIZE,
   ALL_PAGE_SIZES,
   ManagerPaperGroup,
-  groups,
+  getPaperGroupLabel,
+  getWritablePaperGroupOptions,
 } from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import hasPermission from '@/permissions/hasPermission';
+import {
+  FINTABLO_PENDING_POLL_MS,
+  hasPendingFintabloSync,
+  type FintabloSyncStatus,
+} from '@/services/api/finance/fintablo';
+import FinTabloSyncCell from './FinTabloSyncCell';
 
 const { Title, Text } = Typography;
 const RESTRICTED_PAPER_TYPE_IDS = [64, 67];
@@ -82,10 +97,12 @@ interface DataType {
   eventDate: Dayjs;
   sum: number;
   comment: string;
+  fintabloSyncStatus?: FintabloSyncStatus | null;
+  fintabloLastError?: string | null;
 }
 
 type ManagerPaperBody = {
-  group: ManagerPaperGroup;
+  group?: ManagerPaperGroup;
   posId: number;
   paperTypeId: number;
   eventDate: Date;
@@ -112,6 +129,10 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const city = Number(searchParams.get('city')) || undefined;
+  const form = Form.useFormInstance();
+  const watchedGroup = Form.useWatch('group', form) as
+    | ManagerPaperGroup
+    | undefined;
   const { data: posData } = useSWR(
     [`get-pos`, city],
     () => getPoses({ placementId: city }),
@@ -124,12 +145,14 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   );
 
   const { data: paperTypeData } = useSWR(
-    [`get-paper-type`],
-    () => getAllManagerPaperTypes(),
+    dataIndex === 'paperTypeId' && shouldFetchPaperTypesByGroup(watchedGroup)
+      ? ['get-paper-type-by-group', watchedGroup]
+      : null,
+    () => getAllManagerPaperTypes(watchedGroup),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
-      keepPreviousData: true,
+      keepPreviousData: false,
       shouldRetryOnError: false,
     }
   );
@@ -138,62 +161,19 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
     posData?.map(item => ({ name: item.name, value: item.id })) || []
   ).sort((a, b) => a.name.localeCompare(b.name));
 
-  const paperTypes: { name: string; value: number }[] = (
-    paperTypeData?.map(item => ({
-      name: item.props.name,
-      value: item.props.id,
-    })) || []
-  ).sort((a, b) => a.name.localeCompare(b.name));
+  const paperTypes = mapPaperTypeOptions(paperTypeData);
 
-  const groups: { name: string; value: string }[] = [
-    { value: ManagerPaperGroup.RENT, name: t('finance.RENT') },
-    { value: ManagerPaperGroup.REVENUE, name: t('finance.REVENUE') },
-    { value: ManagerPaperGroup.WAGES, name: t('finance.WAGES') },
-    {
-      value: ManagerPaperGroup.INVESTMENT_DEVIDENTS,
-      name: t('finance.INVESTMENT_DEVIDENTS'),
-    },
-    {
-      value: ManagerPaperGroup.UTILITY_BILLS,
-      name: t('finance.UTILITY_BILLS'),
-    },
-    { value: ManagerPaperGroup.TAXES, name: t('finance.TAXES') },
-    {
-      value: ManagerPaperGroup.ACCOUNTABLE_FUNDS,
-      name: t('finance.ACCOUNTABLE_FUNDS'),
-    },
-    {
-      value: ManagerPaperGroup.REPRESENTATIVE_EXPENSES,
-      name: t('finance.REPRESENTATIVE_EXPENSES'),
-    },
-    {
-      value: ManagerPaperGroup.SALE_EQUIPMENT,
-      name: t('finance.SALE_EQUIPMENT'),
-    },
-    { value: ManagerPaperGroup.MANUFACTURE, name: t('finance.MANUFACTURE') },
-    { value: ManagerPaperGroup.OTHER, name: t('finance.OTHER') },
-    { value: ManagerPaperGroup.SUPPLIES, name: t('finance.SUPPLIES') },
-    { value: ManagerPaperGroup.P_C, name: t('finance.P_C') },
-    { value: ManagerPaperGroup.WAREHOUSE, name: t('finance.WAREHOUSE') },
-    { value: ManagerPaperGroup.CONSTRUCTION, name: t('finance.CONSTRUCTION') },
-    {
-      value: ManagerPaperGroup.MAINTENANCE_REPAIR,
-      name: t('finance.MAINTENANCE_REPAIR'),
-    },
-    {
-      value: ManagerPaperGroup.TRANSPORTATION_COSTS,
-      name: t('finance.TRANSPORTATION_COSTS'),
-    },
-  ];
-
-  const form = Form.useFormInstance();
+  const groups = getWritablePaperGroupOptions(key => t(key));
 
   const inputNode =
     dataIndex === 'group' ? (
       <SearchDropdownInput
         options={groups}
         value={form.getFieldValue(dataIndex)}
-        onChange={value => form.setFieldValue(dataIndex, value)}
+        onChange={value => {
+          form.setFieldValue(dataIndex, value);
+          form.setFieldValue('paperTypeId', undefined);
+        }}
         classname="w-80"
         noHeight={true}
       />
@@ -212,6 +192,8 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
         onChange={value => form.setFieldValue(dataIndex, value)}
         classname="w-44"
         noHeight={true}
+        isDisabled={!shouldFetchPaperTypesByGroup(watchedGroup)}
+        placeholder={t('finance.selectGroupFirst')}
       />
     ) : inputType === 'date' ? (
       <DatePicker
@@ -243,7 +225,17 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
       style={{ paddingLeft: '9px', paddingTop: '10px', paddingBottom: '10px' }}
     >
       {editing ? (
-        <Form.Item name={dataIndex} style={{ margin: 0 }}>
+        <Form.Item
+          name={dataIndex}
+          style={{ margin: 0 }}
+          rules={
+            dataIndex === 'paperTypeId'
+              ? [{ required: true, message: t('finance.selectArticle') }]
+              : dataIndex === 'group'
+                ? [{ required: true, message: t('finance.selectGroupFirst') }]
+                : undefined
+          }
+        >
           {inputNode}
         </Form.Item>
       ) : (
@@ -350,19 +342,22 @@ const FinancialCard: React.FC<FinancialCardProps> = ({
 
 const Articles: React.FC = () => {
   const { t } = useTranslation();
+  const writableGroups = useMemo(
+    () => getWritablePaperGroupOptions(key => t(key)),
+    [t]
+  );
   const [form] = Form.useForm();
   const [data, setData] = useState<DataType[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [editingKey, setEditingKey] = useState('');
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [isOpenModal, setIsOpenModal] = useState(false);
-  const [isStateOpen, setIsStateOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [searchText, setSearchText] = useState('');
   const { showToast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const user = useUser();
+  const userPermissions = usePermissions();
 
   const groupParam =
     (searchParams.get('group') as ManagerPaperGroup) || undefined;
@@ -426,6 +421,12 @@ const Articles: React.FC = () => {
       revalidateOnReconnect: false,
       keepPreviousData: true,
       shouldRetryOnError: false,
+      refreshInterval: latestData =>
+        hasPendingFintabloSync(
+          (latestData?.managerPapers ?? []).map(paper => paper.props)
+        )
+          ? FINTABLO_PENDING_POLL_MS
+          : 0,
     }
   );
 
@@ -518,13 +519,7 @@ const Articles: React.FC = () => {
     posData?.map(item => ({ name: item.name, value: item.id })) || []
   ).sort((a, b) => a.name.localeCompare(b.name));
 
-  const paperTypes: { name: string; value: number; type: string }[] = (
-    paperTypeData?.map(item => ({
-      name: item.props.name,
-      value: item.props.id,
-      type: item.props.type,
-    })) || []
-  ).sort((a, b) => a.name.localeCompare(b.name));
+  const paperTypes = mapPaperTypeOptions(paperTypeData);
 
   useEffect(() => {
     if (allManagersData && workerData) {
@@ -549,6 +544,8 @@ const Articles: React.FC = () => {
             sum: man.props.sum,
             comment: man.props.comment || '',
             createdByName: creator ? `${creator.name} ${creator.surname}` : '-',
+            fintabloSyncStatus: man.props.fintabloSyncStatus,
+            fintabloLastError: man.props.fintabloLastError,
           };
         }
       );
@@ -579,7 +576,11 @@ const Articles: React.FC = () => {
           eventDate: row.eventDate ? row.eventDate : item.eventDate,
         };
 
-        // Prepare API payload with correct types
+        if (!isPaperTypeSelected(updatedItem.paperTypeId)) {
+          showToast(t('finance.selectArticle'), 'error');
+          return;
+        }
+
         const apiPayload = {
           managerPaperId: item.id,
           group:
@@ -605,7 +606,6 @@ const Articles: React.FC = () => {
               : undefined,
         };
 
-        // Call the API
         const result = await updateManager(apiPayload);
 
         if (result) {
@@ -625,8 +625,9 @@ const Articles: React.FC = () => {
         setEditingKey('');
       }
     } catch (error) {
-      console.log('Update Failed:', error);
-      showToast(t('errors.other.failedToUpdateRecord'), 'error');
+      if (!getApiErrorMessage(error)) {
+        showToast(t('errors.other.failedToUpdateRecord'), 'error');
+      }
     }
   };
 
@@ -679,7 +680,7 @@ const Articles: React.FC = () => {
       dataIndex: 'group',
       width: '10%',
       editable: true,
-      render: (value: string) => groups.find(pos => pos.value === value)?.name,
+      render: (value: string) => getPaperGroupLabel(value, key => t(key)),
     },
     {
       title: t('warehouse.purpose'),
@@ -734,6 +735,33 @@ const Articles: React.FC = () => {
       dataIndex: 'comment',
       width: '15%',
       editable: true,
+    },
+    {
+      title: t('fintablo.syncColumn'),
+      dataIndex: 'fintabloSyncStatus',
+      width: '12%',
+      editable: false,
+      render: (_: unknown, record: DataType) => (
+        <Can
+          requiredPermissions={[
+            { action: 'manage', subject: 'ManagerPaper' },
+            { action: 'update', subject: 'ManagerPaper' },
+          ]}
+          userPermissions={userPermissions}
+        >
+          {canRetry => (
+            <FinTabloSyncCell
+              paperId={record.id}
+              fintabloSyncStatus={record.fintabloSyncStatus}
+              fintabloLastError={record.fintabloLastError}
+              canRetry={canRetry}
+              onRetried={() => {
+                mutate(swrKeyManagerData);
+              }}
+            />
+          )}
+        </Can>
+      ),
     },
     {
       title: t('table.headers.created'),
@@ -815,7 +843,7 @@ const Articles: React.FC = () => {
   });
 
   const defaultValues: ManagerPaperBody = {
-    group: ManagerPaperGroup.WAGES,
+    group: undefined,
     posId: 0,
     paperTypeId: 0,
     eventDate: new Date(),
@@ -825,6 +853,21 @@ const Articles: React.FC = () => {
   };
 
   const [formData, setFormData] = useState(defaultValues);
+
+  const { data: formPaperTypeData } = useSWR(
+    shouldFetchPaperTypesByGroup(formData.group)
+      ? ['get-paper-type-by-group', formData.group]
+      : null,
+    () => getAllManagerPaperTypes(formData.group),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      keepPreviousData: false,
+      shouldRetryOnError: false,
+    }
+  );
+
+  const formPaperTypes = mapPaperTypeOptions(formPaperTypeData);
 
   const { data: allWorkersData } = useSWR(
     formData.posId !== 0 ? [`get-all-workers`, formData.posId] : null,
@@ -849,8 +892,11 @@ const Articles: React.FC = () => {
 
   const { trigger: createManager, isMutating } = useSWRMutation(
     ['create-manager'],
-    async () =>
-      createManagerPaper(
+    async () => {
+      if (!formData.group || !isPaperTypeSelected(formData.paperTypeId)) {
+        return undefined;
+      }
+      return createManagerPaper(
         {
           group: formData.group,
           posId: formData.posId,
@@ -861,7 +907,8 @@ const Articles: React.FC = () => {
           comment: formData.comment,
         },
         selectedFile
-      )
+      );
+    }
   );
 
   const { trigger: updateManager, isMutating: updatingManager } =
@@ -904,6 +951,17 @@ const Articles: React.FC = () => {
     setValue(field, value);
   };
 
+  const handleGroupChange = (value: ManagerPaperGroup | undefined) => {
+    setFormData(prev => applyGroupChange(prev, value));
+    setValue('group', value);
+    setValue('paperTypeId', 0);
+  };
+
+  const handlePaperTypeSelect = (value: number) => {
+    setFormData(prev => ({ ...prev, paperTypeId: value }));
+    setValue('paperTypeId', value);
+  };
+
   const resetForm = () => {
     setFormData(defaultValues);
     reset();
@@ -911,6 +969,14 @@ const Articles: React.FC = () => {
   };
 
   const onSubmit = async () => {
+    if (!formData.group) {
+      showToast(t('finance.selectGroupFirst'), 'error');
+      return;
+    }
+    if (!isPaperTypeSelected(formData.paperTypeId)) {
+      showToast(t('finance.selectArticle'), 'error');
+      return;
+    }
     try {
       const result = await createManager();
       if (result) {
@@ -921,24 +987,10 @@ const Articles: React.FC = () => {
         throw new Error('Invalid response from API');
       }
     } catch (error) {
-      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
-      console.error('Error during form submission: ', error);
+      if (!getApiErrorMessage(error)) {
+        showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+      }
     }
-  };
-
-  const filteredOptions = useMemo(() => {
-    return paperTypes.filter(opt =>
-      opt.name.toLowerCase().includes(searchText.toLowerCase())
-    );
-  }, [searchText, paperTypes]);
-
-  const handleSelect = (value: number) => {
-    setFormData(prev => ({ ...prev, ['paperTypeId']: value }));
-    setValue('paperTypeId', value);
-  };
-
-  const handleConfirm = () => {
-    setIsStateOpen(false);
   };
 
   const handleFileChange = (info: UploadChangeParam<UploadFile>) => {
@@ -956,8 +1008,6 @@ const Articles: React.FC = () => {
       setSelectedFile(null);
     }
   };
-
-  const userPermissions = usePermissions();
 
   const allowed = hasPermission(
     [
@@ -993,53 +1043,9 @@ const Articles: React.FC = () => {
       </div>
 
       <Modal
-        open={isStateOpen}
-        onCancel={() => setIsStateOpen(false)}
-        footer={false}
-        className="w-full sm:w-[600px] max-h-[550px] overflow-y-auto"
-        maskClosable={false}
-      >
-        <div className="flex flex-row items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-text01 text-center sm:text-left">
-            {t('finance.addN')}
-          </h2>
-        </div>
-        <Input
-          placeholder="Search state type..."
-          value={searchText}
-          changeValue={e => setSearchText(e.target.value)}
-          classname="mb-3"
-        />
-
-        {/* Filtered List */}
-        <div className="max-h-48 overflow-y-auto border rounded p-2 space-y-1">
-          {filteredOptions.length > 0 ? (
-            filteredOptions.map(opt => (
-              <div
-                key={opt.value}
-                onClick={() => handleSelect(opt.value)}
-                className={`p-2 rounded cursor-pointer hover:bg-gray-100 ${
-                  formData.paperTypeId === opt.value ? 'text-primary02' : ''
-                }`}
-              >
-                {opt.name}
-              </div>
-            ))
-          ) : (
-            <div className="text-sm text-gray-400">No matches found.</div>
-          )}
-        </div>
-        <Button
-          disabled={!formData.paperTypeId}
-          handleClick={handleConfirm}
-          title={t('finance.confirm')}
-          classname="mt-4 w-full"
-        />
-      </Modal>
-      <Modal
         open={isOpenModal}
         onCancel={() => {
-          setIsOpenModal(false);
+          resetForm();
         }}
         footer={false}
         className="w-full sm:w-[600px] max-h-[550px] overflow-y-auto"
@@ -1055,14 +1061,14 @@ const Articles: React.FC = () => {
             <SearchDropdownInput
               title={t('finance.group')}
               classname="w-full"
-              placeholder="Выберите объект"
-              options={groups}
+              placeholder={t('finance.group')}
+              options={writableGroups}
               {...register('group', {
-                required: 'Group ID is required',
+                required: t('finance.selectGroupFirst'),
               })}
               value={formData.group}
               onChange={value => {
-                handleInputChange('group', value);
+                handleGroupChange(value);
               }}
               error={!!errors.group}
               errorText={errors.group?.message}
@@ -1083,25 +1089,12 @@ const Articles: React.FC = () => {
               error={!!errors.posId}
               errorText={errors.posId?.message}
             />
-            <Space.Compact className="w-full">
-              <div className="w-full">
-                <div className="text-sm text-text02">
-                  {t('finance.article')}
-                </div>
-                <div className="w-full border h-10 flex items-center justify-center">
-                  {paperTypes.find(
-                    paper => paper.value === formData.paperTypeId
-                  )?.name || ''}
-                </div>
-              </div>
-              <AntDButton
-                onClick={() => setIsStateOpen(true)}
-                type="primary"
-                className="h-10 mt-[20px]"
-              >
-                {t('finance.op')}
-              </AntDButton>
-            </Space.Compact>
+            <PaperTypeField
+              paperTypeId={formData.paperTypeId}
+              paperTypes={formPaperTypes}
+              disabled={!shouldFetchPaperTypesByGroup(formData.group)}
+              onSelect={handlePaperTypeSelect}
+            />
             <Space className="w-full">
               <div>
                 <div className="text-text02 text-sm">
@@ -1109,11 +1102,11 @@ const Articles: React.FC = () => {
                 </div>
                 <Tag
                   color={
-                    paperTypes.find(
+                    formPaperTypes.find(
                       paper => paper.value === formData.paperTypeId
                     )?.type === 'EXPENDITURE'
                       ? 'red'
-                      : paperTypes.find(
+                      : formPaperTypes.find(
                             paper => paper.value === formData.paperTypeId
                           )?.type === 'RECEIPT'
                         ? 'green'
@@ -1121,11 +1114,11 @@ const Articles: React.FC = () => {
                   }
                   className="h-10 w-40 flex items-center justify-center"
                 >
-                  {paperTypes.find(
+                  {formPaperTypes.find(
                     paper => paper.value === formData.paperTypeId
                   )?.type
                     ? t(
-                        `finance.${paperTypes.find(paper => paper.value === formData.paperTypeId)?.type}`
+                        `finance.${formPaperTypes.find(paper => paper.value === formData.paperTypeId)?.type}`
                       )
                     : ''}
                 </Tag>
@@ -1234,6 +1227,10 @@ const Articles: React.FC = () => {
                 title={t('organizations.save')}
                 form={true}
                 isLoading={isMutating}
+                disabled={
+                  !shouldFetchPaperTypesByGroup(formData.group) ||
+                  !isPaperTypeSelected(formData.paperTypeId)
+                }
               />
             </div>
           </div>

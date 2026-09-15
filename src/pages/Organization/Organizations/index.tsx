@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import useSWR from 'swr';
 import {
   getOrganization,
@@ -9,18 +9,23 @@ import {
 import { useTranslation } from 'react-i18next';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { getWorkers } from '@/services/api/equipment';
-import { Button, Table, Tooltip } from 'antd';
+import { Button, Table, Tag, Tooltip } from 'antd';
 import hasPermission from '@/permissions/hasPermission';
 import {
+  ApiOutlined,
   EditOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
 import { ColumnsType } from 'antd/es/table';
 import { getDateRender, getStatusTagRender } from '@/utils/tableUnits';
 import OrganizationDrawer from './OrganizationDrawer';
+import FinTabloOrgModal from './FinTabloOrgModal';
 import { useSearchParams } from 'react-router-dom';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { useUser } from '@/hooks/useUserStore';
+import { getOrganizationFinTablo } from '@/services/api/finance/fintablo';
+import useSubscriptionStore from '@/config/store/subscriptionSlice';
+import { canAccessTariff } from '@/subscription/tariffAccess';
 
 const Organization: React.FC = () => {
   const { t } = useTranslation();
@@ -94,6 +99,15 @@ const Organization: React.FC = () => {
   };
 
   const userPermissions = usePermissions();
+  const activeSubscription = useSubscriptionStore(
+    state => state.activeSubscription
+  );
+  const subscriptionStatus = useSubscriptionStore(state => state.status);
+  const hasManagerPaperTariff = canAccessTariff(
+    activeSubscription,
+    subscriptionStatus,
+    { requiredTariffFeatures: ['ManagerPaper'] }
+  ).allowed;
 
   const allowed = hasPermission(
     [
@@ -102,6 +116,38 @@ const Organization: React.FC = () => {
     ],
     userPermissions
   );
+
+  const canUpdateOrg = hasPermission(
+    [{ action: 'update', subject: 'Organization' }],
+    userPermissions
+  );
+
+  const orgIds = useMemo(
+    () => (data ?? []).map(item => item.id).sort((a, b) => a - b),
+    [data]
+  );
+
+  const { data: finTabloByOrgId, mutate: mutateFinTablo } = useSWR(
+    canUpdateOrg && hasManagerPaperTariff && orgIds.length
+      ? ['org-fintablo-statuses', orgIds]
+      : null,
+    async () => {
+      const entries = await Promise.all(
+        orgIds.map(async id => {
+          try {
+            const status = await getOrganizationFinTablo(id);
+            return [id, status.objectsEnabled] as const;
+          } catch {
+            return [id, false] as const;
+          }
+        })
+      );
+      return Object.fromEntries(entries) as Record<number, boolean>;
+    },
+    { shouldRetryOnError: false }
+  );
+
+  const [finTabloOrgId, setFinTabloOrgId] = useState<number | null>(null);
 
   const dateRender = getDateRender();
   const statusRender = getStatusTagRender(t);
@@ -152,24 +198,55 @@ const Organization: React.FC = () => {
     },
   ];
 
-  if (allowed) {
+  if (canUpdateOrg) {
+    columnsOrg.push({
+      title: t('fintablo.title'),
+      dataIndex: 'fintablo',
+      key: 'fintablo',
+      render: (_: unknown, record: OrganizationType) => {
+        const connected = finTabloByOrgId?.[record.id] === true;
+        return (
+          <Tag color={connected ? 'success' : 'default'}>
+            {connected ? t('fintablo.connected') : t('fintablo.disconnected')}
+          </Tag>
+        );
+      },
+    });
+  }
+
+  if (allowed || canUpdateOrg) {
     columnsOrg.push({
       title: t('table.columns.actions'),
       dataIndex: 'actions',
       key: 'actions',
       render: (_: unknown, record: OrganizationType) => (
-        <Tooltip title={t('actions.edit')}>
-          {record.organizationStatus === t(`tables.ACTIVE`) && (
-            <Button
-              type="text"
-              icon={
-                <EditOutlined className="text-blue-500 hover:text-blue-700" />
-              }
-              onClick={() => handleUpdate(record.id)}
-              style={{ height: '24px' }}
-            />
+        <div className="flex items-center">
+          {allowed && record.organizationStatus === t(`tables.ACTIVE`) && (
+            <Tooltip title={t('actions.edit')}>
+              <Button
+                type="text"
+                icon={
+                  <EditOutlined className="text-blue-500 hover:text-blue-700" />
+                }
+                onClick={() => handleUpdate(record.id)}
+                style={{ height: '24px' }}
+              />
+            </Tooltip>
           )}
-        </Tooltip>
+          {canUpdateOrg && (
+            <Tooltip title={t('fintablo.open')}>
+              <Button
+                type="text"
+                aria-label={t('fintablo.open')}
+                icon={
+                  <ApiOutlined className="text-blue-500 hover:text-blue-700" />
+                }
+                onClick={() => setFinTabloOrgId(record.id)}
+                style={{ height: '24px' }}
+              />
+            </Tooltip>
+          )}
+        </div>
       ),
     });
   }
@@ -220,6 +297,14 @@ const Organization: React.FC = () => {
         onEdit={onEdit}
         isOpen={drawerOpen}
         onClose={onClose}
+      />
+      <FinTabloOrgModal
+        open={finTabloOrgId != null}
+        organizationId={finTabloOrgId}
+        onClose={() => setFinTabloOrgId(null)}
+        onSaved={() => {
+          void mutateFinTablo();
+        }}
       />
     </>
   );
