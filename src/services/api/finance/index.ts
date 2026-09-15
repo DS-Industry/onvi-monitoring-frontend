@@ -1,6 +1,11 @@
 import { AxiosResponse } from 'axios';
 import api from '@/config/axiosConfig';
+import { ManagerPaperGroup } from '@/utils/constants';
 import { WorkerResponse } from '../equipment';
+import {
+  applyManagerPaperFintabloProps,
+  type FintabloSyncStatus,
+} from './fintablo';
 
 enum FINANCE {
   POST_CASH_COLLECTION = 'user/finance/cash-collection',
@@ -51,26 +56,6 @@ export enum StatusWorkDayShiftReport {
 export enum TypeWorkDayShiftReportCashOper {
   REFUND = 'REFUND',
   REPLENISHMENT = 'REPLENISHMENT',
-}
-
-enum ManagerPaperGroup {
-  RENT = 'RENT',
-  REVENUE = 'REVENUE',
-  WAGES = 'WAGES',
-  INVESTMENT_DEVIDENTS = 'INVESTMENT_DEVIDENTS',
-  UTILITY_BILLS = 'UTILITY_BILLS',
-  TAXES = 'TAXES',
-  ACCOUNTABLE_FUNDS = 'ACCOUNTABLE_FUNDS',
-  REPRESENTATIVE_EXPENSES = 'REPRESENTATIVE_EXPENSES',
-  SALE_EQUIPMENT = 'SALE_EQUIPMENT',
-  MANUFACTURE = 'MANUFACTURE',
-  OTHER = 'OTHER',
-  SUPPLIES = 'SUPPLIES',
-  P_C = 'P_C',
-  WAREHOUSE = 'WAREHOUSE',
-  CONSTRUCTION = 'CONSTRUCTION',
-  MAINTENANCE_REPAIR = 'MAINTENANCE_REPAIR',
-  TRANSPORTATION_COSTS = 'TRANSPORTATION_COSTS',
 }
 
 export enum ManagerPaperTypeClass {
@@ -409,6 +394,9 @@ type ManagerPaperResponse = {
     updatedAt: Date;
     reatedById: number;
     updatedById: number;
+    fintabloSyncStatus?: FintabloSyncStatus | null;
+    fintabloTransactionId?: string | null;
+    fintabloLastError?: string | null;
   };
 };
 
@@ -451,6 +439,9 @@ type ManagersResponse = {
       updatedAt: Date;
       createdById: number;
       updatedById: number;
+      fintabloSyncStatus?: FintabloSyncStatus | null;
+      fintabloTransactionId?: string | null;
+      fintabloLastError?: string | null;
     };
   }[];
   totalCount: number;
@@ -461,6 +452,7 @@ export type ManagerPaperTypeResponse = {
     id: number;
     name: string;
     type: ManagerPaperTypeClass;
+    group?: ManagerPaperGroup | null;
   };
 };
 
@@ -1041,7 +1033,14 @@ export async function getAllManagerPaper(
     FINANCE.MANAGER_PAPER,
     { params }
   );
-  return response.data;
+  const data = response.data;
+  return {
+    totalCount: data.totalCount,
+    managerPapers: (data.managerPapers ?? []).map(paper => ({
+      ...paper,
+      props: applyManagerPaperFintabloProps(paper.props),
+    })),
+  };
 }
 
 export async function deleteManagerPapers(
@@ -1052,11 +1051,12 @@ export async function deleteManagerPapers(
   return response.data;
 }
 
-export async function getAllManagerPaperTypes(): Promise<
-  ManagerPaperTypeResponse[]
-> {
+export async function getAllManagerPaperTypes(
+  group?: ManagerPaperGroup
+): Promise<ManagerPaperTypeResponse[]> {
   const response: AxiosResponse<ManagerPaperTypeResponse[]> = await api.get(
-    FINANCE.MANAGER_PAPER + '/type'
+    FINANCE.MANAGER_PAPER + '/type',
+    group ? { params: { group } } : undefined
   );
   return response.data;
 }

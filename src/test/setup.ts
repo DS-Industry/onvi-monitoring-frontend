@@ -2,7 +2,7 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
 import { afterEach } from 'vitest';
 
-if (!window.matchMedia) {
+if (typeof window !== 'undefined' && !window.matchMedia) {
   Object.defineProperty(window, 'matchMedia', {
     writable: true,
     value: (query: string) => ({
@@ -19,5 +19,7 @@ if (!window.matchMedia) {
 }
 
 afterEach(() => {
-  cleanup();
+  if (typeof document !== 'undefined') {
+    cleanup();
+  }
 });
