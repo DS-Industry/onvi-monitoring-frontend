@@ -1,14 +1,19 @@
-import i18n from '@/config/i18n';
-
 export const DEFAULT_PAGE = 1;
 export const DEFAULT_PAGE_SIZE = 15;
 export const ALL_PAGE_SIZES = ['15', '50', '100', '120'];
 export const MAX_LEVELS = 5;
 
 export enum ManagerPaperGroup {
+  AMS_REVENUE = 'AMS_REVENUE',
+  CASH_TO_VRN = 'CASH_TO_VRN',
   RENT = 'RENT',
-  REVENUE = 'REVENUE',
+  BANK_DEPOSIT = 'BANK_DEPOSIT',
+  PROFIT_WITHDRAWAL = 'PROFIT_WITHDRAWAL',
   WAGES = 'WAGES',
+  ACCOUNTABLE_ISSUE = 'ACCOUNTABLE_ISSUE',
+  OTHER_INCOME = 'OTHER_INCOME',
+  OTHER_EXPENSE = 'OTHER_EXPENSE',
+  REVENUE = 'REVENUE',
   INVESTMENT_DEVIDENTS = 'INVESTMENT_DEVIDENTS',
   UTILITY_BILLS = 'UTILITY_BILLS',
   TAXES = 'TAXES',
@@ -25,49 +30,76 @@ export enum ManagerPaperGroup {
   TRANSPORTATION_COSTS = 'TRANSPORTATION_COSTS',
 }
 
-export const groups: { name: string; value: string }[] = [
-  { value: ManagerPaperGroup.RENT, name: i18n.t('finance.RENT') },
-  { value: ManagerPaperGroup.REVENUE, name: i18n.t('finance.REVENUE') },
-  { value: ManagerPaperGroup.WAGES, name: i18n.t('finance.WAGES') },
-  {
-    value: ManagerPaperGroup.INVESTMENT_DEVIDENTS,
-    name: i18n.t('finance.INVESTMENT_DEVIDENTS'),
-  },
-  {
-    value: ManagerPaperGroup.UTILITY_BILLS,
-    name: i18n.t('finance.UTILITY_BILLS'),
-  },
-  { value: ManagerPaperGroup.TAXES, name: i18n.t('finance.TAXES') },
-  {
-    value: ManagerPaperGroup.ACCOUNTABLE_FUNDS,
-    name: i18n.t('finance.ACCOUNTABLE_FUNDS'),
-  },
-  {
-    value: ManagerPaperGroup.REPRESENTATIVE_EXPENSES,
-    name: i18n.t('finance.REPRESENTATIVE_EXPENSES'),
-  },
-  {
-    value: ManagerPaperGroup.SALE_EQUIPMENT,
-    name: i18n.t('finance.SALE_EQUIPMENT'),
-  },
-  { value: ManagerPaperGroup.MANUFACTURE, name: i18n.t('finance.MANUFACTURE') },
-  { value: ManagerPaperGroup.OTHER, name: i18n.t('finance.OTHER') },
-  { value: ManagerPaperGroup.SUPPLIES, name: i18n.t('finance.SUPPLIES') },
-  { value: ManagerPaperGroup.P_C, name: i18n.t('finance.P_C') },
-  { value: ManagerPaperGroup.WAREHOUSE, name: i18n.t('finance.WAREHOUSE') },
-  {
-    value: ManagerPaperGroup.CONSTRUCTION,
-    name: i18n.t('finance.CONSTRUCTION'),
-  },
-  {
-    value: ManagerPaperGroup.MAINTENANCE_REPAIR,
-    name: i18n.t('finance.MAINTENANCE_REPAIR'),
-  },
-  {
-    value: ManagerPaperGroup.TRANSPORTATION_COSTS,
-    name: i18n.t('finance.TRANSPORTATION_COSTS'),
-  },
-];
+export const WRITABLE_MANAGER_PAPER_GROUPS = [
+  ManagerPaperGroup.AMS_REVENUE,
+  ManagerPaperGroup.CASH_TO_VRN,
+  ManagerPaperGroup.RENT,
+  ManagerPaperGroup.BANK_DEPOSIT,
+  ManagerPaperGroup.PROFIT_WITHDRAWAL,
+  ManagerPaperGroup.WAGES,
+  ManagerPaperGroup.ACCOUNTABLE_ISSUE,
+  ManagerPaperGroup.OTHER_INCOME,
+  ManagerPaperGroup.OTHER_EXPENSE,
+] as const;
+
+export const ARCHIVE_MANAGER_PAPER_GROUPS = [
+  ManagerPaperGroup.REVENUE,
+  ManagerPaperGroup.INVESTMENT_DEVIDENTS,
+  ManagerPaperGroup.UTILITY_BILLS,
+  ManagerPaperGroup.TAXES,
+  ManagerPaperGroup.ACCOUNTABLE_FUNDS,
+  ManagerPaperGroup.REPRESENTATIVE_EXPENSES,
+  ManagerPaperGroup.SALE_EQUIPMENT,
+  ManagerPaperGroup.MANUFACTURE,
+  ManagerPaperGroup.OTHER,
+  ManagerPaperGroup.SUPPLIES,
+  ManagerPaperGroup.P_C,
+  ManagerPaperGroup.WAREHOUSE,
+  ManagerPaperGroup.CONSTRUCTION,
+  ManagerPaperGroup.MAINTENANCE_REPAIR,
+  ManagerPaperGroup.TRANSPORTATION_COSTS,
+] as const;
+
+const WRITABLE_MANAGER_PAPER_GROUP_SET = new Set<string>(
+  WRITABLE_MANAGER_PAPER_GROUPS
+);
+
+export function isWritableManagerPaperGroup(value: string): boolean {
+  return WRITABLE_MANAGER_PAPER_GROUP_SET.has(value);
+}
+
+export function getPaperGroupLabel(
+  value: string,
+  t: (key: string) => string
+): string {
+  const nameKey = `finance.paperGroup.${value}`;
+  const translated = t(nameKey);
+  const name = translated === nameKey ? value : translated;
+  if (isWritableManagerPaperGroup(value)) {
+    return name;
+  }
+  const suffixKey = 'finance.paperGroup.archiveSuffix';
+  const suffixTranslated = t(suffixKey);
+  const suffix = suffixTranslated === suffixKey ? 'архив' : suffixTranslated;
+  return `${name} (${suffix})`;
+}
+
+export function getWritablePaperGroupOptions(t: (key: string) => string) {
+  return WRITABLE_MANAGER_PAPER_GROUPS.map(value => ({
+    value,
+    name: getPaperGroupLabel(value, t),
+  }));
+}
+
+export function getAllPaperGroupOptions(t: (key: string) => string) {
+  return [
+    ...WRITABLE_MANAGER_PAPER_GROUPS,
+    ...ARCHIVE_MANAGER_PAPER_GROUPS,
+  ].map(value => ({
+    value,
+    name: getPaperGroupLabel(value, t),
+  }));
+}
 
 export enum ContractType {
   CORPORATE = 'CORPORATE',

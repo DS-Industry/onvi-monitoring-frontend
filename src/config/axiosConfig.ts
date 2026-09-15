@@ -2,6 +2,10 @@ import axios from 'axios';
 import useAuthStore from '@/config/store/authSlice';
 import i18n from '@/config/i18n';
 import { datadogLogs } from '@datadog/browser-logs';
+import {
+  getApiErrorMessage,
+  getFinTabloErrorMessage,
+} from '@/services/api/finance/fintablo-errors';
 let showToast: (
   message: string,
   type: 'success' | 'error' | 'info' | 'warning'
@@ -113,11 +117,19 @@ api.interceptors.response.use(
     }
 
     if (error.response) {
-      const errorCode = error.response.data?.code;
-      const errorMessage = errorCode
-        ? getTranslatedError(errorCode)
-        : 'An error occurred. Please try again.';
-      showToast(errorMessage, 'error');
+      const finTabloMessage = getFinTabloErrorMessage(error);
+      const apiMessage = getApiErrorMessage(error);
+      if (finTabloMessage) {
+        showToast(finTabloMessage, 'error');
+      } else if (apiMessage) {
+        showToast(apiMessage, 'error');
+      } else {
+        const errorCode = error.response.data?.code;
+        const errorMessage = errorCode
+          ? getTranslatedError(errorCode)
+          : 'An error occurred. Please try again.';
+        showToast(errorMessage, 'error');
+      }
     } else if (error.request) {
       showToast(i18n.t('errors.other.noResponseFromServer'), 'error');
     } else {
