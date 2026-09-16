@@ -69,6 +69,7 @@ Feature backend: `TechTask`. Chemistry-report — `ReadIncidentAbility`.
 | `patchProgramCoefficient` | PATCH | `user/equipment/rate/{id}` | **Сохранить** нормы |
 
 Query химии: `dateStart`, `dateEnd`, `posId`, `placementId`.  
+Ответ chemistry-report: `posChemistryProductions[]`, `chemistryAddLevels[]` (`code`, `level`, `add`, `drain`, `techTaskDate`).  
 PATCH body: `valueData[{ programTechRateId, literRate, concentration }]`.  
 Feature: `TechTask`. Rate GET — ReadIncident; PATCH — UpdateIncident.
 

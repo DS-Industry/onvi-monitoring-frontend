@@ -2638,6 +2638,7 @@
     "chartLevelTitle": "Уровень химии",
     "level": "Уровень",
     "filling": "Залив",
+    "drain": "Слив",
     "ReportIncomplete": "Отчет не заполнен"
   },
   "marketingCampaigns": {
