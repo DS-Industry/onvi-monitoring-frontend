@@ -2638,6 +2638,7 @@
     "chartLevelTitle": "Chemistry level",
     "level": "Level",
     "filling": "Filling",
+    "drain": "Drain",
     "ReportIncomplete": "The report is incomplete"
   },
   "marketingCampaigns": {
