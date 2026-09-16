@@ -653,7 +653,8 @@
     "totalHours": "Время простоя, ч",
     "neighborOperCount": "Кол-во операций на других устройствах",
     "channelType": "Тип",
-    "downtimeType": "Тип устройства"
+    "downtimeType": "Тип устройства",
+    "allTypes": "Все типы"
   },
   "daily": {
     "noText": "В этом разделе отображаются отчеты по ежедневным параметрам",
@@ -1723,7 +1724,9 @@
       "managerId": "ID менеджера",
       "placementId": "Регион",
       "yearMonth": "Расчетный месяц",
-      "posId": "Автомойка (POS)"
+      "posId": "Автомойка (POS)",
+      "downtimeType": "Тип устройства",
+      "minDowntimeHours": "Минимальный простой, ч"
     }
   },
   "roles": {

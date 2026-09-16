@@ -652,7 +652,8 @@
     "totalHours": "Downtime, h",
     "neighborOperCount": "Operations on other devices",
     "channelType": "Type",
-    "downtimeType": "Device type"
+    "downtimeType": "Device type",
+    "allTypes": "All types"
   },
   "daily": {
     "noText": "This section displays reports on daily parameters",
@@ -1722,7 +1723,9 @@
       "managerId": "Manager ID",
       "placementId": "Placement",
       "yearMonth": "Billing month",
-      "posId": "Car wash (POS)"
+      "posId": "Car wash (POS)",
+      "downtimeType": "Device type",
+      "minDowntimeHours": "Minimum downtime, h"
     }
   },
   "roles": {

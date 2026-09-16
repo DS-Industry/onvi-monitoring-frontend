@@ -9,7 +9,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { debounce } from 'lodash';
 
 import { getReportById, applyReport, ReportParam } from '@/services/api/reports';
-import { getDevices, getPoses } from '@/services/api/equipment';
+import { DowntimeType, getDevices, getPoses } from '@/services/api/equipment';
 import { getPlacement } from '@/services/api/device';
 // import { getWarehouses } from '@/services/api/warehouse';
 import { getOrganization } from '@/services/api/organization';
@@ -19,8 +19,20 @@ import { useUser } from '@/hooks/useUserStore';
 
 type FormValue = string | number | null;
 
+const DEFAULT_MIN_DOWNTIME_HOURS = 12;
+
+const downtimeTypeOptions = [
+  { labelKey: 'downtime.coin', value: DowntimeType.COIN },
+  { labelKey: 'downtime.paper', value: DowntimeType.PAPER },
+  { labelKey: 'downtime.pos', value: DowntimeType.POS },
+  { labelKey: 'downtime.device', value: DowntimeType.DEVICE },
+] as const;
+
 const isRequired = (param: ReportParam): boolean => {
   if (param.type === 'selectListManager' || param.name === 'managerId') {
+    return false;
+  }
+  if (param.type === 'selectListDeviceDowntimeType' || param.name === 'downtimeType') {
     return false;
   }
   if (param.required === undefined) return true;
@@ -109,7 +121,8 @@ const IncomeReport: React.FC = () => {
     if (reportData?.params?.params) {
       const initial: Record<string, FormValue> = {};
       reportData.params.params.forEach((param: ReportParam) => {
-        initial[param.name] = null;
+        initial[param.name] =
+          param.name === 'minDowntimeHours' ? DEFAULT_MIN_DOWNTIME_HOURS : null;
       });
       setFormValues(initial);
       setCachedSelectedPos(null);
@@ -201,6 +214,22 @@ const IncomeReport: React.FC = () => {
           showSearch
           value={value ?? undefined}
           onChange={(val) => handleInputChange(param.name, val)}
+          status={status}
+          className="w-64"
+        />
+      );
+    }
+    if (param.type === 'selectListDeviceDowntimeType' || param.name === 'downtimeType') {
+      return (
+        <Select
+          placeholder={t('downtime.allTypes')}
+          options={downtimeTypeOptions.map(opt => ({
+            label: t(opt.labelKey),
+            value: opt.value,
+          }))}
+          allowClear
+          value={value ?? undefined}
+          onChange={(val) => handleInputChange(param.name, val ?? null)}
           status={status}
           className="w-64"
         />
@@ -333,12 +362,26 @@ const IncomeReport: React.FC = () => {
       );
     }
     if (param.type === 'number') {
+      const isMinDowntimeHours = param.name === 'minDowntimeHours';
       return (
         <Input
           type="number"
+          min={isMinDowntimeHours ? 1 : undefined}
+          step={isMinDowntimeHours ? 1 : undefined}
           placeholder={param.description}
           value={value ?? undefined}
-          onChange={(e) => handleInputChange(param.name, e.target.value === '' ? null : Number(e.target.value))}
+          onChange={(e) => {
+            if (e.target.value === '') {
+              handleInputChange(param.name, isMinDowntimeHours ? DEFAULT_MIN_DOWNTIME_HOURS : null);
+              return;
+            }
+            const num = Number(e.target.value);
+            if (isMinDowntimeHours && num < 1) {
+              handleInputChange(param.name, 1);
+              return;
+            }
+            handleInputChange(param.name, num);
+          }}
           status={status}
           className="w-64"
         />
