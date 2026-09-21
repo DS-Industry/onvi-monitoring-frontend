@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Select } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
-import { DEFAULT_PAGE, groups } from '@/utils/constants';
+import { DEFAULT_PAGE, getAllPaperGroupOptions } from '@/utils/constants';
 
 const GroupFilter: React.FC = () => {
   const { t } = useTranslation();
@@ -18,7 +18,7 @@ const GroupFilter: React.FC = () => {
 
   const groupsData = [
     { label: t('warehouse.all'), value: '*' },
-    ...groups.map(item => ({
+    ...getAllPaperGroupOptions(key => t(key)).map(item => ({
       label: item.name,
       value: item.value,
     })),

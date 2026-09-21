@@ -28,7 +28,7 @@ import {
   UpOutlined,
   DownOutlined,
 } from '@ant-design/icons';
-import { groups } from '@/utils/constants';
+import { getAllPaperGroupOptions, getPaperGroupLabel } from '@/utils/constants';
 import TableUtils from '@/utils/TableUtils.tsx';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -99,6 +99,11 @@ const MonthlyExpanseEdit: React.FC = () => {
     [posData]
   );
 
+  const paperGroupOptions = useMemo(
+    () => getAllPaperGroupOptions(key => t(key)),
+    [t]
+  );
+
   const {
     data: managerPeriodData,
     isLoading: periodsLoading,
@@ -135,7 +140,7 @@ const MonthlyExpanseEdit: React.FC = () => {
       managerPeriodData.managerPaper?.map((item, idx) => ({
         id: item.paperTypeId,
         deviceId: managerPeriodData.id,
-        group: groups.find(g => g.value === item.group)?.name || item.group,
+        group: getPaperGroupLabel(item.group, key => t(key)),
         posName:
           poses.find(pos => pos.value === item.posId)?.name || 'Не указано',
         paperTypeId: item.paperTypeId,
@@ -152,7 +157,7 @@ const MonthlyExpanseEdit: React.FC = () => {
       periodData: period,
       expenseData: expenses,
     };
-  }, [groups, managerPeriodData, poses, t]);
+  }, [managerPeriodData, poses, t]);
 
   const [isLoading, setIsLoading] = useState(false);
   const [isReturning, setIsReturning] = useState(false);
@@ -266,7 +271,7 @@ const MonthlyExpanseEdit: React.FC = () => {
         title: t('finance.group'),
         dataIndex: 'group',
         key: 'group',
-        filters: groups.map(g => ({ text: g.name, value: g.name })),
+        filters: paperGroupOptions.map(g => ({ text: g.name, value: g.name })),
         onFilter: (value, record) => record.group === value,
         sorter: (a, b) => a.group.localeCompare(b.group),
       },
@@ -327,7 +332,7 @@ const MonthlyExpanseEdit: React.FC = () => {
         sorter: (a, b) => a.sum - b.sum,
       },
     ],
-    [t, groups, poses, tagRender, dateRender]
+    [t, paperGroupOptions, poses, tagRender, dateRender]
   );
 
   return (
