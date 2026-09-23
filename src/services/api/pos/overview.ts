@@ -134,6 +134,7 @@ export type LoyaltySummaryResponse = {
 export type LoyaltyCompositionResponse = {
   onviSum: number;
   yandexSum: number;
+  legalOperSum: number;
 };
 
 export type LoyaltyVisitsResponse = {

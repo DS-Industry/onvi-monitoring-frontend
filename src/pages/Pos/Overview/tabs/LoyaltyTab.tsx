@@ -148,6 +148,12 @@ const LoyaltyTab: React.FC<LoyaltyTabProps> = ({
                 value: convert(composition?.yandexSum) ?? 0,
                 color: '#00B35D',
               },
+              {
+                key: 'legal',
+                label: t('deposit.columns.legalOperSum'),
+                value: convert(composition?.legalOperSum) ?? 0,
+                color: '#2563EB',
+              },
             ]}
           />
         </div>

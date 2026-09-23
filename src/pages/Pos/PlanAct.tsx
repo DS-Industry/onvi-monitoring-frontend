@@ -27,6 +27,7 @@ interface PlanFact {
   virtualSumFact: number;
   yandexSumFact: number;
   onviSumFact: number;
+  legalOperSumFact: number;
   sumFact: number;
   completedPercent: number;
   notCompletedPercent: number;
@@ -202,6 +203,12 @@ const PlanAct: React.FC = () => {
       title: t('deposit.columns.onviSum'),
       dataIndex: 'onviSumFact',
       key: 'onviSumFact',
+      render: currencyRender,
+    },
+    {
+      title: t('deposit.columns.legalOperSum'),
+      dataIndex: 'legalOperSumFact',
+      key: 'legalOperSumFact',
       render: currencyRender,
     },
     {
