@@ -16,7 +16,7 @@ import OverviewKpiCard from '../components/OverviewKpiCard';
 import HorizontalBarList from '../components/HorizontalBarList';
 import GoalConversionBar from '../components/GoalConversionBar';
 import BannerUploadCard from '../components/BannerUploadCard';
-import { formatCompactMoney, formatFullMoney } from '../hooks/useOverviewFilters';
+import { formatFullMoney } from '../hooks/useOverviewFilters';
 import { useOverviewCurrency } from '../hooks/OverviewCurrencyContext';
 import { getGoalStatus } from '../utils/goalStatus';
 
@@ -168,7 +168,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
         <OverviewKpiCard
           label={t('posOverview.revenueMtd')}
-          value={formatCompactMoney(
+          value={formatFullMoney(
             convert(summary?.revenue),
             displayCurrencySymbol
           )}

@@ -336,6 +336,7 @@ type PlanFactResponse = {
     virtualSumFact: number;
     yandexSumFact: number;
     onviSumFact: number;
+    legalOperSumFact: number;
     sumFact: number;
     completedPercent: number;
     notCompletedPercent: number;
@@ -352,6 +353,7 @@ export type PlanFactMonthlyByPosResponse = {
     virtualSumFact: number;
     yandexSumFact: number;
     onviSumFact: number;
+    legalOperSumFact: number;
     sumFact: number;
     completedPercent: number;
     notCompletedPercent: number;
@@ -362,6 +364,7 @@ export type PlanFactMonthlyByPosResponse = {
     virtualSumFact: number;
     yandexSumFact: number;
     onviSumFact: number;
+    legalOperSumFact: number;
     sumFact: number;
     completedPercent: number;
     notCompletedPercent: number;
