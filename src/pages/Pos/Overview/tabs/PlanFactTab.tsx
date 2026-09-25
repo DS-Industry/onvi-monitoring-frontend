@@ -9,7 +9,7 @@ import {
 } from '@/services/api/pos/overview';
 import { formatNumber } from '@/utils/tableUnits';
 import OverviewKpiCard from '../components/OverviewKpiCard';
-import { formatCompactMoney } from '../hooks/useOverviewFilters';
+import { formatFullMoney } from '../hooks/useOverviewFilters';
 import { useOverviewCurrency } from '../hooks/OverviewCurrencyContext';
 import { getGoalStatus } from '../utils/goalStatus';
 
@@ -81,7 +81,7 @@ const PlanFactTab: React.FC<PlanFactTabProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <OverviewKpiCard
           label={t('posOverview.planForMonth')}
-          value={formatCompactMoney(
+          value={formatFullMoney(
             convert(summary?.plan),
             displayCurrencySymbol
           )}
@@ -89,7 +89,7 @@ const PlanFactTab: React.FC<PlanFactTabProps> = ({
         />
         <OverviewKpiCard
           label={t('posOverview.fact')}
-          value={formatCompactMoney(
+          value={formatFullMoney(
             convert(summary?.fact),
             displayCurrencySymbol
           )}
