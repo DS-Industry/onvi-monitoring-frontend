@@ -12,7 +12,7 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 import OverviewKpiCard from '../components/OverviewKpiCard';
 import StackedCompositionBar from '../components/StackedCompositionBar';
 import PeriodToggle from '../components/PeriodToggle';
-import { formatCompactMoney } from '../hooks/useOverviewFilters';
+import { formatFullMoney } from '../hooks/useOverviewFilters';
 import { useOverviewCurrency } from '../hooks/OverviewCurrencyContext';
 
 type LoyaltyTabProps = {
@@ -113,7 +113,7 @@ const LoyaltyTab: React.FC<LoyaltyTabProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <OverviewKpiCard
               label={t('posOverview.depositsSum')}
-              value={formatCompactMoney(
+              value={formatFullMoney(
                 convert(summary?.totalSum),
                 displayCurrencySymbol
               )}
