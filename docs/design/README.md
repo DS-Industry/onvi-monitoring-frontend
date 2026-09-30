@@ -6,7 +6,9 @@ Put **one file per screen**: `S<n>-<slug>.html` (preferred for design-mode gener
 
 | File | Screen IDs | Notes |
 |------|------------|-------|
-| *(add rows as mockups land)* | | |
+| `S2-fiscal-object-toggle.png` | S2 | Просмотр филиала, переключатель «Интеграция миниПК» |
+| `S3-fiscal-list.png` | S3 | Список «Связка с Казначеем» |
+| `S4-fiscal-card.png` | S4 | Карточка объекта, две истории |
 
 ## Rules
 
