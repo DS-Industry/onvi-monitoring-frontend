@@ -113,6 +113,14 @@ export async function getFiscalCard(
   return response.data;
 }
 
+export async function getFiscalIntegration(
+  posId: number
+): Promise<{ posId: number; enabled: boolean }> {
+  const response: AxiosResponse<{ posId: number; enabled: boolean }> =
+    await api.get(`${BASE}/${posId}/integration`);
+  return response.data;
+}
+
 export async function setFiscalIntegration(
   posId: number,
   enabled: boolean
