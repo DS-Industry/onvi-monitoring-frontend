@@ -11,10 +11,46 @@ import {
   patchPosFinTablo,
 } from '@/services/api/finance/fintablo';
 import { getFinTabloErrorMessage } from '@/services/api/finance/fintablo-errors';
+import { listFiscal, setFiscalIntegration } from '@/services/api/pos/fiscal';
 import { canAccessTariff } from '@/subscription/tariffAccess';
 
 const MANAGER_PAPER_TARIFF = {
   requiredTariffFeatures: ['ManagerPaper'],
+};
+
+const FISCAL_PAGE_SIZE = 100;
+const FISCAL_MAX_PAGES = 20;
+
+const todayBounds = (): { dateStart: Date; dateEnd: Date } => {
+  const dateStart = new Date();
+  dateStart.setHours(0, 0, 0, 0);
+  const dateEnd = new Date();
+  dateEnd.setHours(23, 59, 59, 999);
+  return { dateStart, dateEnd };
+};
+
+const readFiscalEnabled = async (
+  organizationId: number,
+  posId: number
+): Promise<boolean> => {
+  const { dateStart, dateEnd } = todayBounds();
+  for (let page = 1; page <= FISCAL_MAX_PAGES; page += 1) {
+    const result = await listFiscal({
+      organizationId,
+      dateStart,
+      dateEnd,
+      warning: 'all',
+      page,
+      size: FISCAL_PAGE_SIZE,
+    });
+    if (result.items.some(item => item.posId === posId)) {
+      return true;
+    }
+    if (page * FISCAL_PAGE_SIZE >= result.total) {
+      return false;
+    }
+  }
+  return false;
 };
 
 type FinTabloTabProps = {
@@ -38,6 +74,7 @@ const FinTabloTab = ({ organizationId, posId }: FinTabloTabProps) => {
 
   const [moneybagName, setMoneybagName] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
+  const [fiscalError, setFiscalError] = useState<string | null>(null);
 
   const canFetch = tariffAccess.allowed;
 
@@ -57,6 +94,21 @@ const FinTabloTab = ({ organizationId, posId }: FinTabloTabProps) => {
     }
     setMoneybagName(posState.moneybagName ?? '');
   }, [posState]);
+
+  const {
+    data: fiscalEnabled,
+    isLoading: fiscalLoading,
+    mutate: mutateFiscal,
+  } = useSWR(
+    canFetch ? ['pos-fiscal-integration', organizationId, posId] : null,
+    () => readFiscalEnabled(organizationId, posId),
+    { shouldRetryOnError: false }
+  );
+
+  const { trigger: patchFiscal, isMutating: fiscalPatching } = useSWRMutation(
+    ['patch-pos-fiscal-integration', posId],
+    async (_key, { arg }: { arg: boolean }) => setFiscalIntegration(posId, arg)
+  );
 
   const { trigger: patch, isMutating } = useSWRMutation(
     ['patch-pos-fintablo', posId],
@@ -84,6 +136,22 @@ const FinTabloTab = ({ organizationId, posId }: FinTabloTabProps) => {
       showToast(t('fintablo.saveSuccess'), 'success');
     } catch (caught) {
       setFormError(getFinTabloErrorMessage(caught) ?? null);
+    }
+  };
+
+  const handleFiscalToggle = async (next: boolean) => {
+    setFiscalError(null);
+    try {
+      const result = await patchFiscal(next);
+      await mutateFiscal(result.enabled, false);
+      showToast(
+        result.enabled ? t('fnWork.integrationOn') : t('fnWork.integrationOff'),
+        'success'
+      );
+    } catch (caught) {
+      setFiscalError(
+        caught instanceof Error ? caught.message : t('fnWork.loadError')
+      );
     }
   };
 
@@ -153,6 +221,26 @@ const FinTabloTab = ({ organizationId, posId }: FinTabloTabProps) => {
             disabled={enabled}
             readOnly={enabled}
           />
+        </div>
+        <div className="flex flex-col gap-2 border-t border-gray-200 pt-4">
+          {fiscalError ? (
+            <Alert type="error" showIcon message={fiscalError} />
+          ) : null}
+          <label className="flex items-center justify-between gap-4">
+            <span className="flex flex-col">
+              <span>{t('fnWork.integrationTitle')}</span>
+              <span className="text-sm text-text02">
+                {t('fnWork.integrationHint')}
+              </span>
+            </span>
+            <Switch
+              checked={fiscalEnabled === true}
+              onChange={checked => {
+                void handleFiscalToggle(checked);
+              }}
+              disabled={fiscalLoading || fiscalPatching}
+            />
+          </label>
         </div>
       </div>
     </>
