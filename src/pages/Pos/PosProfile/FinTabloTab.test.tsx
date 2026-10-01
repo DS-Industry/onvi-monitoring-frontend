@@ -5,7 +5,7 @@ import i18n from '@/config/i18n';
 import useSubscriptionStore from '@/config/store/subscriptionSlice';
 import type { OrganizationSubscriptionResponseDto } from '@/services/api/subscription';
 import { getPosFinTabloList } from '@/services/api/finance/fintablo';
-import { listFiscal, setFiscalIntegration } from '@/services/api/pos/fiscal';
+import { getFiscalIntegration, setFiscalIntegration } from '@/services/api/pos/fiscal';
 import FinTabloTab from './FinTabloTab';
 
 const showToast = vi.fn();
@@ -20,7 +20,7 @@ vi.mock('@/services/api/finance/fintablo', () => ({
 }));
 
 vi.mock('@/services/api/pos/fiscal', () => ({
-  listFiscal: vi.fn(),
+  getFiscalIntegration: vi.fn(),
   setFiscalIntegration: vi.fn(),
 }));
 
@@ -29,7 +29,7 @@ describe('FinTabloTab fiscal integration', () => {
     await i18n.changeLanguage('ru');
     showToast.mockReset();
     vi.mocked(getPosFinTabloList).mockReset();
-    vi.mocked(listFiscal).mockReset();
+    vi.mocked(getFiscalIntegration).mockReset();
     vi.mocked(setFiscalIntegration).mockReset();
     vi.mocked(getPosFinTabloList).mockResolvedValue([
       {
@@ -40,11 +40,9 @@ describe('FinTabloTab fiscal integration', () => {
         moneybagName: 'Счёт',
       },
     ]);
-    vi.mocked(listFiscal).mockResolvedValue({
-      page: 1,
-      size: 100,
-      total: 0,
-      items: [],
+    vi.mocked(getFiscalIntegration).mockResolvedValue({
+      posId: 5,
+      enabled: false,
     });
     useSubscriptionStore.setState({
       status: 'ready',
