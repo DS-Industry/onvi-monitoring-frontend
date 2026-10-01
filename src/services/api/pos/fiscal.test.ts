@@ -3,7 +3,7 @@
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import api from '@/config/axiosConfig';
-import { getFiscalCard, listFiscal, setFiscalIntegration } from './fiscal';
+import { getFiscalCard, getFiscalIntegration, listFiscal, setFiscalIntegration } from './fiscal';
 
 vi.mock('@/config/axiosConfig', () => ({
   default: {
@@ -61,6 +61,23 @@ describe('getFiscalCard', () => {
     expect(api.get).toHaveBeenCalledWith('/user/pos/fiscal/7', {
       params: { dateStart, dateEnd },
     });
+  });
+});
+
+describe('getFiscalIntegration', () => {
+  beforeEach(() => {
+    vi.mocked(api.get).mockReset();
+  });
+
+  it('should request the object flag when the branch tab opens', async () => {
+    vi.mocked(api.get).mockResolvedValue({
+      data: { posId: 7, enabled: false },
+    });
+
+    const result = await getFiscalIntegration(7);
+
+    expect(api.get).toHaveBeenCalledWith('/user/pos/fiscal/7/integration');
+    expect(result).toEqual({ posId: 7, enabled: false });
   });
 });
 
