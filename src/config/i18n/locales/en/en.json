@@ -138,7 +138,51 @@
     "percentageOfObjects": "Percentage of objects",
     "deviceDataRawFileUpload": "Upload operations file",
     "engineHours": "Engine hours",
-    "idlePaymentDevices": " Idle payment devices"
+    "idlePaymentDevices": " Idle payment devices",
+    "fnWork": "Fiscal drive"
+  },
+  "fnWork": {
+    "title": "Fiscal drive",
+    "cardTitle": "treasurer link",
+    "integrationTitle": "Mini PC integration",
+    "integrationHint": "The site appears in the treasurer link list",
+    "integrationOn": "Mini PC integration enabled",
+    "integrationOff": "Mini PC integration disabled",
+    "object": "Site",
+    "objectCredit": "Site deposit",
+    "miniPcCredit": "Mini PC deposit",
+    "objectSum": "Site deposit total",
+    "miniPcSum": "Mini PC deposit total",
+    "state": "Status",
+    "warning": "Warning",
+    "warningAll": "All",
+    "warningOnly": "With warning",
+    "warningEmpty": "—",
+    "receivedAt": "Received",
+    "creditCount_one": "{{count}} deposit",
+    "creditCount_few": "{{count}} deposits",
+    "creditCount_many": "{{count}} deposits",
+    "creditCount_other": "{{count}} deposits",
+    "fnMemoryOverflow": "Fiscal memory is full",
+    "fnResourceExhausted": "Fiscal memory resource exhausted",
+    "fnReplacementRequired": "Fiscal memory replacement required",
+    "ofdUnsent": "Unsent to OFD: {{count}}",
+    "objectHistoryTitle": "Site deposits",
+    "miniPcHistoryTitle": "Mini PC deposits",
+    "sumLabel": "Sum",
+    "countLabel": "Count",
+    "time": "Time",
+    "device": "Device",
+    "amount": "Amount",
+    "payment": "Payment",
+    "qr": "qr-code",
+    "cash": "Cash",
+    "cashless": "Cashless",
+    "objectTable": "Site",
+    "miniPcTable": "Mini PC",
+    "empty": "No data for the selected period",
+    "loadError": "Failed to load data",
+    "back": "Back"
   },
   "deviceDataRawFile": {
     "selectFiles": "Click or drag files here to upload",
@@ -678,7 +722,8 @@
     "totalHours": "Downtime, h",
     "neighborOperCount": "Operations on other devices",
     "channelType": "Type",
-    "downtimeType": "Device type"
+    "downtimeType": "Device type",
+    "allTypes": "All types"
   },
   "daily": {
     "noText": "This section displays reports on daily parameters",
@@ -1777,7 +1822,9 @@
       "managerId": "Manager ID",
       "placementId": "Placement",
       "yearMonth": "Billing month",
-      "posId": "Car wash (POS)"
+      "posId": "Car wash (POS)",
+      "downtimeType": "Device type",
+      "minDowntimeHours": "Minimum downtime, h"
     }
   },
   "roles": {
@@ -2698,6 +2745,7 @@
     "chartLevelTitle": "Chemistry level",
     "level": "Level",
     "filling": "Filling",
+    "drain": "Drain",
     "ReportIncomplete": "The report is incomplete"
   },
   "marketingCampaigns": {

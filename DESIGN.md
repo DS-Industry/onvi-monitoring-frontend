@@ -108,7 +108,9 @@ Token source in code: `tailwind.config.js` (hex values should not live in compon
 
 | ID | Screen | Route | Role | Primary CTA | States | Mockup |
 |---|---|---|---|---|---|---|
-| S1 | TBD | | | | empty / loading / error | [docs/design/](docs/design/) |
+| S2 | Включение интеграции миниПК на просмотре филиала | существующая вкладка финансов филиала | технический персонал организации | переключатель | включено / выключено | [S2-fiscal-object-toggle.png](docs/design/S2-fiscal-object-toggle.png) |
+| S3 | Связка с Казначеем | TBD | технический персонал организации | открыть карточку | пусто / предупреждение | [S3-fiscal-list.png](docs/design/S3-fiscal-list.png) |
+| S4 | Карточка связки объекта | TBD | технический персонал организации | нет | пустые таблицы | [S4-fiscal-card.png](docs/design/S4-fiscal-card.png) |
 
 **Navigation map:** TBD — see `src/routes` and `src/layout`
 
@@ -121,8 +123,9 @@ Token source in code: `tailwind.config.js` (hex values should not live in compon
 | File | Screen IDs | Format |
 |---|---|---|
 | [docs/design/README.md](docs/design/README.md) | index | markdown |
-| `docs/design/S1-<slug>.html` | S1 | HTML mockup (preferred) |
-| `docs/design/*.png` | optional | raster |
+| [docs/design/S2-fiscal-object-toggle.png](docs/design/S2-fiscal-object-toggle.png) | S2 | png |
+| [docs/design/S3-fiscal-list.png](docs/design/S3-fiscal-list.png) | S3 | png |
+| [docs/design/S4-fiscal-card.png](docs/design/S4-fiscal-card.png) | S4 | png |
 
 If `docs/design/` is empty, agents look there **before** inventing UI.
 

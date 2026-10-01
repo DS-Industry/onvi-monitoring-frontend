@@ -25,7 +25,6 @@ import FilterTechTasks from './FilterTechTasks';
 import dayjs from 'dayjs';
 import isBetween from 'dayjs/plugin/isBetween';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
-import 'dayjs/locale/ru';
 import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
 import { Can } from '@/permissions/Can';
@@ -36,7 +35,6 @@ import { TechTaskReadAllDisplay } from '@/types/techTaskDisplay';
 
 dayjs.extend(isBetween);
 dayjs.extend(isSameOrBefore);
-dayjs.locale('ru');
 
 const TechTasks: React.FC = () => {
   const { t } = useTranslation();

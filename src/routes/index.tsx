@@ -71,6 +71,8 @@ const ExpenseReport = React.lazy(() => import('@/pages/Equipment/ExpenseReport/E
 const ExpenseReportEdit = React.lazy(() => import('@/pages/Equipment/ExpenseReport/ExpenseReportEdit'));
 const EngineHours = React.lazy(() => import('@/pages/Equipment/EngineHours/index'));
 const IdlePaymentDevices = React.lazy(() => import('@/pages/Equipment/IdlePaymentDevices/index'));
+const FnWork = React.lazy(() => import('@/pages/Equipment/FnWork/index'));
+const FnWorkCard = React.lazy(() => import('@/pages/Equipment/FnWork/FnWorkCard'));
 const InventoryCreation = React.lazy(
   () => import('@/pages/Warehouse/InventoryCreation')
 );
@@ -1411,11 +1413,34 @@ const routes: RouteItem[] = [
         isSidebar: true,
         subNav: [],
       },
+      {
+        name: 'fnWork',
+        isVisible: true,
+        path: '/equipment/fn',
+        component: FnWork,
+        permissions: [
+          { action: 'read', subject: 'Pos' },
+        ],
+        isSidebar: true,
+        subNav: [],
+      },
+      {
+        name: 'fnWork',
+        isVisible: false,
+        path: '/equipment/fn/:posId',
+        component: FnWorkCard,
+        permissions: [
+          { action: 'read', subject: 'Pos' },
+        ],
+        isSidebar: false,
+        subNav: [],
+      },
     ],
     component: Default,
     isSidebar: true,
     requiredPlanCodes: BUSINESS_AND_UP,
     permissions: [
+      { action: 'read', subject: 'Pos' },
       { action: 'manage', subject: 'Incident' },
       { action: 'create', subject: 'Incident' },
       { action: 'read', subject: 'Incident' },

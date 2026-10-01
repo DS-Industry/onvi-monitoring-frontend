@@ -386,6 +386,7 @@ export interface PosChemistryAddLevel {
   code: string;
   level: number | null;
   add: number | null;
+  drain: number | null;
   techTaskDate: string;
 }
 

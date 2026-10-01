@@ -43,6 +43,7 @@ interface ExpandedData {
   chartDataRecalculated?: { period: string; value: number }[];
   levelChartData?: LevelChartPoint[];
   addChartData?: { date: string; value: number }[];
+  drainChartData?: { date: string; value: number }[];
 }
 
 const chemicalNameMap: Record<ConsumablesType, string> = {
@@ -152,6 +153,7 @@ const ChemicalConsumption: React.FC = () => {
     missedReport?: boolean;
   }[];
     dataAdd: { date: string; value: number }[];
+    dataDrain: { date: string; value: number }[];
   } | null>(null);
 
   useEffect(() => {
@@ -175,6 +177,7 @@ const ChemicalConsumption: React.FC = () => {
   ): {
     levelData: LevelChartPoint[];
     addData: { date: string; value: number }[];
+    drainData: { date: string; value: number }[];
   } => {
     const datesForCode = chemistryAddLevels
       .filter(item => item.code === code)
@@ -188,6 +191,7 @@ const ChemicalConsumption: React.FC = () => {
       return {
         levelData: [],
         addData: [],
+        drainData: [],
       };
     }
 
@@ -230,6 +234,7 @@ const ChemicalConsumption: React.FC = () => {
     const levelData: LevelChartPoint[] = [];
 
     const addData: { date: string; value: number }[] = [];
+    const drainData: { date: string; value: number }[] = [];
 
     let lastKnownLevel: number | null = null;
 
@@ -253,6 +258,13 @@ const ChemicalConsumption: React.FC = () => {
           value: item.add ?? 0,
         });
 
+        drainData.push({
+          date: dayjs(item.techTaskDate).format(
+            'DD.MM.YYYY HH:mm'
+          ),
+          value: item.drain ?? 0,
+        });
+
         return;
       }
 
@@ -269,12 +281,18 @@ const ChemicalConsumption: React.FC = () => {
           date: date.format('DD.MM.YYYY HH:mm'),
           value: 0,
         });
+
+        drainData.push({
+          date: date.format('DD.MM.YYYY HH:mm'),
+          value: 0,
+        });
       }
     });
 
     return {
       levelData,
       addData,
+      drainData,
     };
   };
 
@@ -316,7 +334,7 @@ const ChemicalConsumption: React.FC = () => {
       const name = chemicalNameMap[code];
       const chartDataFact = getChartDataForCategory(name, 'fact');
       const chartDataRecalculated = getChartDataForCategory(name, 'recalculated');
-      const { levelData, addData } = getLevelChartData(code);
+      const { levelData, addData, drainData } = getLevelChartData(code);
       return {
         category: t(`chemicalNames.${code}`, name),
         fact: totals[code]!.fact,
@@ -326,6 +344,7 @@ const ChemicalConsumption: React.FC = () => {
         chartDataRecalculated: chartDataRecalculated.length > 0 ? chartDataRecalculated : undefined,
         levelChartData: levelData.length > 0 ? levelData : undefined,
         addChartData: addData.length > 0 ? addData : undefined,
+        drainChartData: drainData.length > 0 ? drainData : undefined,
       };
     });
   };
@@ -494,6 +513,7 @@ const ChemicalConsumption: React.FC = () => {
                   category: record.category,
                   data: record.levelChartData!,
                   dataAdd: record.addChartData || [],
+                  dataDrain: record.drainChartData || [],
                 });
                 setLevelModalVisible(true);
               }}
@@ -508,6 +528,7 @@ const ChemicalConsumption: React.FC = () => {
               <MiniChartLevel
                 data={record.levelChartData}
                 dataAdd={record.addChartData}
+                dataDrain={record.drainChartData}
                 width={110}
                 height={32}
                 isLarge={false}
@@ -636,6 +657,7 @@ const ChemicalConsumption: React.FC = () => {
           category={selectedLevelData.category}
           data={selectedLevelData.data}
           dataAdd={selectedLevelData.dataAdd}
+          dataDrain={selectedLevelData.dataDrain}
         />
       )}
     </>

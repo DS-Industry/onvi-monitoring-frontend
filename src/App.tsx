@@ -24,6 +24,7 @@ import { ConfigProvider } from 'antd';
 import ruRU from 'antd/es/locale/ru_RU';
 import enUS from 'antd/es/locale/en_US';
 import { useTranslation } from 'react-i18next';
+import { syncDayjsLocale } from '@/config/dayjs';
 import type { TariffRequirements } from '@/subscription/tariffAccess';
 
 type ErrorFallbackProps = {
@@ -44,6 +45,11 @@ const App: React.FC = () => {
   const { i18n } = useTranslation();
 
   const antdLocale = i18n.language.startsWith('ru') ? ruRU : enUS;
+
+  useEffect(() => {
+    syncDayjsLocale(i18n.language);
+  }, [i18n.language]);
+
   const userPermissions = useAuthStore(state => state.permissions);
 
   useFirebaseMessaging();

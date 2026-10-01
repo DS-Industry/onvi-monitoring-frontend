@@ -41,14 +41,11 @@ import {
 } from '@/services/api/notifications';
 import TableSkeleton from '@/components/ui/Table/TableSkeleton';
 import dayjs from 'dayjs';
-import 'dayjs/locale/ru';
 import useFormHook from '@/hooks/useFormHook';
 import useSWRMutation from 'swr/mutation';
 import { useToast } from '@/components/context/useContext';
 import useBreakpoint from 'antd/es/grid/hooks/useBreakpoint';
 import NotificationSidebar from './NotificationsSidebar';
-
-dayjs.locale('ru');
 
 const { Sider, Content } = Layout;
 const { Text, Title, Paragraph } = Typography;

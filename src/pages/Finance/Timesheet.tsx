@@ -5,7 +5,6 @@ import useSWR from 'swr';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { getShifts, TypeWorkDay } from '@/services/api/finance';
 import dayjs from 'dayjs';
-import 'dayjs/locale/ru';
 import { getWorkers } from '@/services/api/hr';
 
 import { Calendar, dayjsLocalizer } from 'react-big-calendar';
@@ -20,8 +19,6 @@ import { useUser } from '@/hooks/useUserStore';
 import { Can } from '@/permissions/Can';
 import useAuthStore from '@/config/store/authSlice';
 import WeekendShiftInfoModal from './WeekendShiftInfoModal';
-
-dayjs.locale('ru');
 
 const Timesheet: React.FC = () => {
   const { t, i18n } = useTranslation();

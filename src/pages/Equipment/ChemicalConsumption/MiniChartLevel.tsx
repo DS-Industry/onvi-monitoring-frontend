@@ -11,6 +11,7 @@ type LevelChartPoint = {
 export interface MiniChartLevelProps {
   data: LevelChartPoint[];
   dataAdd?: { date: string; value: number }[];
+  dataDrain?: { date: string; value: number }[];
   width?: number;
   height?: number;
   isLarge?: boolean;
@@ -18,6 +19,7 @@ export interface MiniChartLevelProps {
     date: string,
     levelValue: number,
     addValue: number | null,
+    drainValue: number | null,
     missedReport?: boolean
   ) => void;
 }
@@ -25,6 +27,7 @@ export interface MiniChartLevelProps {
 const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
   data,
   dataAdd = [],
+  dataDrain = [],
   width = 110,
   height = 32,
   isLarge = false,
@@ -36,11 +39,16 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
   const defaultPointColor = '#52c41a';
   const highlightPointColor = '#f44336';
   const notMultipleColor = '#1890ff';
+  const drainPointColor = '#fa8c16';
   const missedPointColor = '#bfbfbf';
   const axisColor = '#999';
   const labelColor = '#666';
 
-  const allValues = [...data.map(d => d.value), ...dataAdd.map(d => d.value)];
+  const allValues = [
+    ...data.map(d => d.value),
+    ...dataAdd.map(d => d.value),
+    ...dataDrain.map(d => d.value),
+  ];
   if (!data || data.length < 2) {
     return (
       <div
@@ -106,10 +114,12 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
     setHoveredIndex(index);
     if (onPointHover && data[index]) {
       const addValue = dataAdd[index] ? dataAdd[index].value : null;
+      const drainValue = dataDrain[index] ? dataDrain[index].value : null;
       onPointHover(
         data[index].date,
         data[index].value,
         addValue,
+        drainValue,
         data[index].missedReport
       );
     }
@@ -263,8 +273,11 @@ const MiniChartLevel: React.FC<MiniChartLevelProps> = ({
             pointColor = missedPointColor;
           } else {
             const addVal = dataAdd[index]?.value;
+            const drainVal = dataDrain[index]?.value;
             if (addVal !== undefined && addVal > 0) {
               pointColor = (addVal % 20 !== 0) ? notMultipleColor : highlightPointColor;
+            } else if (drainVal !== undefined && drainVal > 0) {
+              pointColor = drainPointColor;
             }
           }
           return (

@@ -16,6 +16,7 @@ export interface ChartModalLevelProps {
   category: string;
   data: LevelChartPoint[];
   dataAdd: { date: string; value: number }[];
+  dataDrain: { date: string; value: number }[];
 }
 
 const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
@@ -24,12 +25,14 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
   category,
   data,
   dataAdd,
+  dataDrain,
 }) => {
   const { t } = useTranslation();
   const [tooltipData, setTooltipData] = useState<{
     date: string;
     levelValue: number;
     addValue: number | null;
+    drainValue: number | null;
     missedReport?: boolean;
     isNotMultipleOf20?: boolean;
   } | null>(
@@ -38,6 +41,7 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
           date: data[data.length - 1].date,
           levelValue: data[data.length - 1].value,
           addValue: dataAdd[dataAdd.length - 1]?.value ?? null,
+          drainValue: dataDrain[dataDrain.length - 1]?.value ?? null,
           missedReport: data[data.length - 1].missedReport,
           isNotMultipleOf20: dataAdd[dataAdd.length - 1]?.value !== undefined && dataAdd[dataAdd.length - 1]?.value % 20 !== 0,
         }
@@ -50,22 +54,25 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
         date: data[data.length - 1].date,
         levelValue: data[data.length - 1].value,
         addValue: dataAdd[dataAdd.length - 1]?.value ?? null,
+        drainValue: dataDrain[dataDrain.length - 1]?.value ?? null,
         missedReport: data[data.length - 1].missedReport,
         isNotMultipleOf20: dataAdd[dataAdd.length - 1]?.value !== undefined && dataAdd[dataAdd.length - 1]?.value % 20 !== 0,
       });
     }
-  }, [visible, data, dataAdd]);
+  }, [visible, data, dataAdd, dataDrain]);
 
   const handlePointHover = (
     date: string,
     levelValue: number,
     addValue: number | null,
+    drainValue: number | null,
     missedReport?: boolean
   ) => {
     setTooltipData({
       date,
       levelValue,
       addValue,
+      drainValue,
       missedReport,
       isNotMultipleOf20: addValue !== null && addValue % 20 !== 0,
     });
@@ -137,6 +144,26 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
                   {tooltipData.addValue !== null ? formatNumber(tooltipData.addValue) : '—'}
                 </span>
               </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div
+                  style={{
+                    width: '12px',
+                    height: '12px',
+                    backgroundColor: '#fa8c16',
+                    borderRadius: '2px',
+                  }}
+                />
+                <span style={{ fontSize: '13px' }}>{t('chemicalConsumption.drain')}:</span>
+                <span
+                  style={{
+                    fontWeight: 'bold',
+                    fontSize: '14px',
+                    color: '#fa8c16',
+                  }}
+                >
+                  {tooltipData.drainValue !== null ? formatNumber(tooltipData.drainValue) : '—'}
+                </span>
+              </div>
               {hasMissedReports && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <div
@@ -171,6 +198,7 @@ const ChartModalLevel: React.FC<ChartModalLevelProps> = ({
         <MiniChartLevel
           data={data}
           dataAdd={dataAdd}
+          dataDrain={dataDrain}
           width={600}
           height={250}
           isLarge={true}

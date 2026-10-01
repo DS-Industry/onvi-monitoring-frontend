@@ -262,7 +262,12 @@ const ShiftTab: React.FC = () => {
           <div>
             <p className="text-bold">{t('finance.shiftHours')}</p>
             <p className="font-bold text-[24px]">
-              {start.format('HH:mm')} - {end.format('HH:mm')}
+              <span className="text-gray-400 text-sm">{start.format('DD-MM-YYYY')}</span>
+              <span> {start.format('HH:mm')}</span>
+            </p>
+            <p className="font-bold text-[24px]">
+              <span className="text-gray-400 text-sm">{end.format('DD-MM-YYYY')}</span>
+              <span> {end.format('HH:mm')}</span>
             </p>
           </div>
           <div>
