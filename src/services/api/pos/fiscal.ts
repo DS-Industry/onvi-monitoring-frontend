@@ -23,7 +23,10 @@ const serializeDateRange = (params: FiscalDateRange) => ({
   dateEnd: toApiDate(params.dateEnd),
 });
 
-export type FiscalWarning = 'Расходится время' | 'Расходятся суммы';
+export type FiscalWarning =
+  | 'Расходится время'
+  | 'Расходятся суммы'
+  | 'Нарушение связи с ОФД';
 
 export type FiscalLastCredit = {
   deviceName: string;
@@ -85,6 +88,7 @@ export type FiscalCard = {
   objectSum: number;
   miniPcCount: number;
   miniPcSum: number;
+  state: FiscalStateView | null;
   objectHistory: FiscalHistoryRow[];
   miniPcHistory: FiscalMiniPcHistoryRow[];
 };
