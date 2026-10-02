@@ -26,7 +26,7 @@ const listItem = {
   objectLast: {
     deviceName: 'Пост 1',
     amount: 150,
-    operationTime: '2026-09-25T14:10:00',
+    operationTime: '2026-10-02T11:22:00.000Z',
     paymentType: 'PAPER',
   },
   miniPcLast: null,
@@ -76,9 +76,25 @@ describe('FnWork', () => {
 
     expect(await screen.findByText('Мойка Север')).toBeInTheDocument();
     expect(screen.getByText('Расходятся суммы')).toBeInTheDocument();
+    expect(screen.getByText('Расходятся суммы')).toHaveClass('text-errorFill');
     expect(screen.getByText('Память ФН переполнена')).toBeInTheDocument();
     expect(screen.getByText('Получено: 25.09.2026 14:12')).toBeInTheDocument();
     expect(screen.getByText('—')).toBeInTheDocument();
+    expect(screen.getByText('—')).not.toHaveClass('text-errorFill');
+  });
+
+  it('should show wall-clock operation time from a Z-suffixed string', async () => {
+    render(
+      <MemoryRouter
+        initialEntries={[
+          '/equipment/fn?dateStart=2026-10-02T00:00&dateEnd=2026-10-02T23:59&page=1&size=20',
+        ]}
+      >
+        <FnWork />
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByText('02.10.2026 11:22')).toBeInTheDocument();
   });
 
   it('should open the object card when the row is activated', async () => {
@@ -113,9 +129,23 @@ describe('FnWorkCard', () => {
       objectSum: 150,
       miniPcCount: 1,
       miniPcSum: 150,
+      state: {
+        statusLine: 'Смена открыта',
+        receivedAt: '2026-09-25T14:12:00',
+        treasurerLinkOpen: true,
+        shiftStatus: 'OPEN',
+        receiptAttemptSucceeded: true,
+        driverErrorStep: null,
+        driverErrorCode: null,
+        driverErrorText: null,
+        fnMemoryOverflow: false,
+        fnResourceExhausted: false,
+        fnReplacementRequired: false,
+        ofdUnsentDocumentsCount: 3,
+      },
       objectHistory: [
         {
-          operationTime: '2026-09-25T14:10:00',
+          operationTime: '2026-10-02T11:22:00.000Z',
           deviceName: 'Пост 1',
           amount: 150,
           paymentType: 'PAPER',
@@ -152,5 +182,23 @@ describe('FnWorkCard', () => {
     expect(screen.getByText('Наличные')).toBeInTheDocument();
     expect(screen.getByText('Безналичные')).toBeInTheDocument();
     expect(screen.queryByText('—')).not.toBeInTheDocument();
+  });
+
+  it('should show treasurer state with ofd unsent count and wall-clock time', async () => {
+    render(
+      <MemoryRouter
+        initialEntries={[
+          '/equipment/fn/4?dateStart=2026-09-25T00:00&dateEnd=2026-09-25T23:59',
+        ]}
+      >
+        <Routes>
+          <Route path="/equipment/fn/:posId" element={<FnWorkCard />} />
+        </Routes>
+      </MemoryRouter>
+    );
+
+    expect(await screen.findByText('Смена открыта')).toBeInTheDocument();
+    expect(screen.getByText('Неотправленных в ОФД: 3')).toBeInTheDocument();
+    expect(screen.getByText('11:22')).toBeInTheDocument();
   });
 });
