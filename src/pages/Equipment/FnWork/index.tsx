@@ -20,11 +20,20 @@ import {
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
 
+const WALL_CLOCK = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/;
+
 const formatMoney = (value: number): string =>
   `${new Intl.NumberFormat('ru-RU').format(value)} ₽`;
 
 const formatDateTime = (value: string): string =>
   dayjs(value).format('DD.MM.YYYY HH:mm');
+
+const formatOperationDateTime = (value: string): string => {
+  const match = value.match(WALL_CLOCK);
+  if (!match) return formatDateTime(value);
+  const [, year, month, day, hour, minute] = match;
+  return `${day}.${month}.${year} ${hour}:${minute}`;
+};
 
 const FnWork = () => {
   const { t } = useTranslation();
@@ -94,7 +103,7 @@ const FnWork = () => {
       <div>
         <div>{last.deviceName}</div>
         <div>{formatMoney(last.amount)}</div>
-        <div>{formatDateTime(last.operationTime)}</div>
+        <div>{formatOperationDateTime(last.operationTime)}</div>
       </div>
     );
   };
@@ -169,7 +178,12 @@ const FnWork = () => {
         return (
           <div>
             {record.warnings.map((warningText, index) => (
-              <div key={`${warningText}-${index}`}>{warningText}</div>
+              <div
+                key={`${warningText}-${index}`}
+                className="text-errorFill"
+              >
+                {warningText}
+              </div>
             ))}
           </div>
         );

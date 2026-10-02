@@ -11,12 +11,24 @@ import {
   getFiscalCard,
   type FiscalHistoryRow,
   type FiscalMiniPcHistoryRow,
+  type FiscalStateView,
 } from '@/services/api/pos/fiscal';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
 
+const WALL_CLOCK = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/;
+
 const formatMoney = (value: number): string =>
   `${new Intl.NumberFormat('ru-RU').format(value)} ₽`;
+
+const formatDateTime = (value: string): string =>
+  dayjs(value).format('DD.MM.YYYY HH:mm');
+
+const formatOperationTime = (value: string): string => {
+  const match = value.match(WALL_CLOCK);
+  if (!match) return dayjs(value).format('HH:mm');
+  return `${match[4]}:${match[5]}`;
+};
 
 const historyRowKey = (row: FiscalHistoryRow): string =>
   `${row.operationTime}|${row.deviceName}|${row.amount}`;
@@ -81,7 +93,7 @@ const FnWorkCard = () => {
     {
       title: t('fnWork.time'),
       key: 'operationTime',
-      render: (_, row: T) => dayjs(row.operationTime).format('HH:mm'),
+      render: (_, row: T) => formatOperationTime(row.operationTime),
     },
     {
       title: t('fnWork.device'),
@@ -109,6 +121,26 @@ const FnWorkCard = () => {
       render: (_, row) => (row.qr?.trim() ? row.qr : ''),
     },
   ];
+
+  const renderState = (state: FiscalStateView) => (
+    <div className="mb-6 text-base text-text01">
+      <div>{state.statusLine}</div>
+      <div>
+        {t('fnWork.receivedAt')}: {formatDateTime(state.receivedAt)}
+      </div>
+      {state.fnMemoryOverflow ? <div>{t('fnWork.fnMemoryOverflow')}</div> : null}
+      {state.fnResourceExhausted ? (
+        <div>{t('fnWork.fnResourceExhausted')}</div>
+      ) : null}
+      {state.fnReplacementRequired ? (
+        <div>{t('fnWork.fnReplacementRequired')}</div>
+      ) : null}
+      <div>{t('fnWork.ofdUnsent', { count: state.ofdUnsentDocumentsCount })}</div>
+      {state.driverErrorStep != null ? <div>{state.driverErrorStep}</div> : null}
+      {state.driverErrorCode != null ? <div>{state.driverErrorCode}</div> : null}
+      {state.driverErrorText != null ? <div>{state.driverErrorText}</div> : null}
+    </div>
+  );
 
   const title = data
     ? `${data.posName} — ${t('fnWork.cardTitle')}`
@@ -149,6 +181,8 @@ const FnWorkCard = () => {
 
       {!posIdInvalid && !error && data ? (
         <>
+          {data.state ? renderState(data.state) : null}
+
           <div className="mb-6 flex flex-col gap-2 text-base text-text01 sm:flex-row sm:justify-between">
             <div>
               {`${t('fnWork.objectHistoryTitle')}: ${t('fnWork.sumLabel')} ${formatMoney(data.objectSum)}, ${t('fnWork.countLabel')} ${data.objectCount}`}
