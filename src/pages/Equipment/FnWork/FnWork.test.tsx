@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import dayjs from 'dayjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import i18n from '@/config/i18n';
@@ -83,18 +84,47 @@ describe('FnWork', () => {
     expect(screen.getByText('—')).not.toHaveClass('text-errorFill');
   });
 
-  it('should show wall-clock operation time from a Z-suffixed string', async () => {
+  it('should show object time in local zone and mini-pc time as wall clock', async () => {
+    vi.mocked(listFiscal).mockResolvedValue({
+      page: 1,
+      size: 20,
+      total: 1,
+      items: [
+        {
+          ...listItem,
+          objectLast: {
+            ...listItem.objectLast,
+            operationTime: '2026-10-05T07:49:00.000Z',
+          },
+          miniPcLast: {
+            deviceName: 'Пост 1',
+            amount: 10,
+            operationTime: '2026-10-05T07:49:00.000Z',
+            paymentType: 'CASH',
+          },
+        },
+      ],
+    });
     render(
       <MemoryRouter
         initialEntries={[
-          '/equipment/fn?dateStart=2026-10-02T00:00&dateEnd=2026-10-02T23:59&page=1&size=20',
+          '/equipment/fn?dateStart=2026-10-05T00:00&dateEnd=2026-10-05T23:59&page=1&size=20',
         ]}
       >
         <FnWork />
       </MemoryRouter>
     );
 
-    expect(await screen.findByText('02.10.2026 11:22')).toBeInTheDocument();
+    const objectTime = dayjs('2026-10-05T07:49:00.000Z').format(
+      'DD.MM.YYYY HH:mm'
+    );
+    const wallClock = '05.10.2026 07:49';
+    if (objectTime === wallClock) {
+      expect(await screen.findAllByText(wallClock)).toHaveLength(2);
+      return;
+    }
+    expect(await screen.findByText(objectTime)).toBeInTheDocument();
+    expect(screen.getByText(wallClock)).toBeInTheDocument();
   });
 
   it('should open the object card when the row is activated', async () => {
@@ -199,6 +229,11 @@ describe('FnWorkCard', () => {
 
     expect(await screen.findByText('Смена открыта')).toBeInTheDocument();
     expect(screen.getByText('Неотправленных в ОФД: 3')).toBeInTheDocument();
-    expect(screen.getByText('11:22')).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        dayjs('2026-10-02T11:22:00.000Z').format('DD.MM.YYYY HH:mm')
+      )
+    ).toBeInTheDocument();
+    expect(screen.getByText('25.09.2026 14:12')).toBeInTheDocument();
   });
 });

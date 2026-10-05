@@ -35,6 +35,9 @@ const formatOperationDateTime = (value: string): string => {
   return `${day}.${month}.${year} ${hour}:${minute}`;
 };
 
+const formatObjectDateTime = (value: string): string =>
+  dayjs(value).format('DD.MM.YYYY HH:mm');
+
 const FnWork = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -97,13 +100,16 @@ const FnWork = () => {
     });
   };
 
-  const renderLast = (last: FiscalLastCredit | null) => {
+  const renderLast = (
+    last: FiscalLastCredit | null,
+    formatTime: (value: string) => string
+  ) => {
     if (!last) return t('fnWork.warningEmpty');
     return (
       <div>
         <div>{last.deviceName}</div>
         <div>{formatMoney(last.amount)}</div>
-        <div>{formatOperationDateTime(last.operationTime)}</div>
+        <div>{formatTime(last.operationTime)}</div>
       </div>
     );
   };
@@ -148,12 +154,13 @@ const FnWork = () => {
     {
       title: t('fnWork.objectCredit'),
       key: 'objectCredit',
-      render: (_, record) => renderLast(record.objectLast),
+      render: (_, record) => renderLast(record.objectLast, formatObjectDateTime),
     },
     {
       title: t('fnWork.miniPcCredit'),
       key: 'miniPcCredit',
-      render: (_, record) => renderLast(record.miniPcLast),
+      render: (_, record) =>
+        renderLast(record.miniPcLast, formatOperationDateTime),
     },
     {
       title: t('fnWork.objectSum'),
