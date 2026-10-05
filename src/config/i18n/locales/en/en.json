@@ -372,6 +372,8 @@
     "posEnabled": "Include object in integration",
     "moneybagName": "FinTablo account name",
     "moneybagNamePlaceholder": "Defaults to the object name",
+    "syncFromDate": "Send papers starting from",
+    "syncFromDateRequired": "Choose the date to start sending papers",
     "saveSuccess": "FinTablo settings saved",
     "open": "FinTablo",
     "syncColumn": "FinTablo",

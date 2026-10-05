@@ -372,6 +372,8 @@
     "posEnabled": "Включить объект в интеграцию",
     "moneybagName": "Имя счёта в Финтабло",
     "moneybagNamePlaceholder": "По умолчанию — имя объекта",
+    "syncFromDate": "Отправлять проводки с даты",
+    "syncFromDateRequired": "Укажите дату, с которой отправлять проводки",
     "saveSuccess": "Настройки Финтабло сохранены",
     "open": "Финтабло",
     "syncColumn": "Финтабло",
