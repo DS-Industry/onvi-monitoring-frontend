@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Alert, Input, Modal, Spin, Switch } from 'antd';
+import { Alert, DatePicker, Input, Modal, Spin, Switch } from 'antd';
+import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
@@ -41,6 +42,7 @@ const FinTabloTab = ({ organizationId, posId }: FinTabloTabProps) => {
   );
 
   const [moneybagName, setMoneybagName] = useState('');
+  const [syncFromDate, setSyncFromDate] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const [fiscalError, setFiscalError] = useState<string | null>(null);
 
@@ -58,9 +60,11 @@ const FinTabloTab = ({ organizationId, posId }: FinTabloTabProps) => {
   useEffect(() => {
     if (!posState) {
       setMoneybagName('');
+      setSyncFromDate('');
       return;
     }
     setMoneybagName(posState.moneybagName ?? '');
+    setSyncFromDate(posState.syncFromDate ?? '');
   }, [posState]);
 
   const {
@@ -80,10 +84,16 @@ const FinTabloTab = ({ organizationId, posId }: FinTabloTabProps) => {
 
   const { trigger: patch, isMutating } = useSWRMutation(
     ['patch-pos-fintablo', posId],
-    async (_key, { arg }: { arg: { enabled: boolean; moneybagName: string } }) =>
+    async (
+      _key,
+      {
+        arg,
+      }: { arg: { enabled: boolean; moneybagName: string; syncFromDate?: string } }
+    ) =>
       patchPosFinTablo(posId, {
         enabled: arg.enabled,
         moneybagName: arg.moneybagName,
+        syncFromDate: arg.syncFromDate,
       })
   );
 
@@ -93,6 +103,7 @@ const FinTabloTab = ({ organizationId, posId }: FinTabloTabProps) => {
       const result = await patch({
         enabled: nextEnabled,
         moneybagName,
+        syncFromDate: nextEnabled ? syncFromDate : undefined,
       });
       await mutate(
         current =>
@@ -124,6 +135,10 @@ const FinTabloTab = ({ organizationId, posId }: FinTabloTabProps) => {
   };
 
   const handleToggle = (checked: boolean) => {
+    if (checked && !syncFromDate) {
+      setFormError(t('fintablo.syncFromDateRequired'));
+      return;
+    }
     if (!checked && enabled) {
       modal.confirm({
         title: t('fintablo.disablePosConfirmTitle'),
@@ -177,6 +192,23 @@ const FinTabloTab = ({ organizationId, posId }: FinTabloTabProps) => {
             disabled={isMutating || !posState}
           />
         </label>
+        <div className="flex flex-col gap-1">
+          <label htmlFor="fintablo-sync-from-date">
+            {t('fintablo.syncFromDate')}
+          </label>
+          <DatePicker
+            id="fintablo-sync-from-date"
+            className="w-full"
+            value={syncFromDate ? dayjs(syncFromDate, 'YYYY-MM-DD') : null}
+            format="DD.MM.YYYY"
+            disabled={enabled || isMutating}
+            allowClear={!enabled}
+            onChange={value => {
+              setFormError(null);
+              setSyncFromDate(value ? value.format('YYYY-MM-DD') : '');
+            }}
+          />
+        </div>
         <div className="flex flex-col gap-1">
           <label htmlFor="fintablo-moneybag-name">
             {t('fintablo.moneybagName')}

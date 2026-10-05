@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import i18n from '@/config/i18n';
 import useSubscriptionStore from '@/config/store/subscriptionSlice';
 import type { OrganizationSubscriptionResponseDto } from '@/services/api/subscription';
-import { getPosFinTabloList } from '@/services/api/finance/fintablo';
+import { getPosFinTabloList, patchPosFinTablo } from '@/services/api/finance/fintablo';
 import { getFiscalIntegration, setFiscalIntegration } from '@/services/api/pos/fiscal';
 import FinTabloTab from './FinTabloTab';
 
@@ -29,6 +29,7 @@ describe('FinTabloTab fiscal integration', () => {
     await i18n.changeLanguage('ru');
     showToast.mockReset();
     vi.mocked(getPosFinTabloList).mockReset();
+    vi.mocked(patchPosFinTablo).mockReset();
     vi.mocked(getFiscalIntegration).mockReset();
     vi.mocked(setFiscalIntegration).mockReset();
     vi.mocked(getPosFinTabloList).mockResolvedValue([
@@ -38,6 +39,7 @@ describe('FinTabloTab fiscal integration', () => {
         enabled: true,
         moneybagId: null,
         moneybagName: 'Счёт',
+        syncFromDate: '2026-03-01',
       },
     ]);
     vi.mocked(getFiscalIntegration).mockResolvedValue({
@@ -76,5 +78,38 @@ describe('FinTabloTab fiscal integration', () => {
       'Интеграция миниПК включена',
       'success'
     );
+  });
+
+  it('should keep the sync date disabled while the object is enabled', async () => {
+    render(<FinTabloTab organizationId={9} posId={5} />);
+
+    const dateInput = await screen.findByLabelText('Отправлять проводки с даты');
+    expect(dateInput).toBeDisabled();
+    expect(dateInput).toHaveValue('01.03.2026');
+  });
+
+  it('should not enable the object when the sync date is empty', async () => {
+    const user = userEvent.setup();
+    vi.mocked(getPosFinTabloList).mockResolvedValue([
+      {
+        posId: 5,
+        name: 'Мойка',
+        enabled: false,
+        moneybagId: null,
+        moneybagName: null,
+        syncFromDate: null,
+      },
+    ]);
+
+    render(<FinTabloTab organizationId={11} posId={5} />);
+
+    const switches = await screen.findAllByRole('switch');
+    expect(switches[0]).toHaveAttribute('aria-checked', 'false');
+    await user.click(switches[0]);
+
+    expect(patchPosFinTablo).not.toHaveBeenCalled();
+    expect(
+      await screen.findByText('Укажите дату, с которой отправлять проводки')
+    ).toBeInTheDocument();
   });
 });
