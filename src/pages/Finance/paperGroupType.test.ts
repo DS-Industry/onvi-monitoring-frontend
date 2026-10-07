@@ -7,7 +7,9 @@ import { ManagerPaperGroup } from '@/utils/constants';
 import {
   applyGroupChange,
   isPaperTypeSelected,
+  isSystemPaperType,
   mapPaperTypeOptions,
+  resolvePaperGroup,
   shouldFetchPaperTypesByGroup,
 } from './paperGroupType';
 
@@ -58,6 +60,8 @@ describe('mapPaperTypeOptions', () => {
           name: 'Заработная плата',
           type: ManagerPaperTypeClass.EXPENDITURE,
           group: ManagerPaperGroup.WAGES,
+          organizationId: 1,
+          isVisible: true,
         },
       },
       {
@@ -66,13 +70,60 @@ describe('mapPaperTypeOptions', () => {
           name: 'Аванс',
           type: ManagerPaperTypeClass.EXPENDITURE,
           group: ManagerPaperGroup.WAGES,
+          organizationId: 1,
+          isVisible: true,
         },
       },
     ]);
 
     expect(options).toEqual([
-      { name: 'Аванс', value: 1, type: 'EXPENDITURE' },
-      { name: 'Заработная плата', value: 2, type: 'EXPENDITURE' },
+      {
+        name: 'Аванс',
+        value: 1,
+        type: 'EXPENDITURE',
+        group: ManagerPaperGroup.WAGES,
+      },
+      {
+        name: 'Заработная плата',
+        value: 2,
+        type: 'EXPENDITURE',
+        group: ManagerPaperGroup.WAGES,
+      },
     ]);
+  });
+});
+
+describe('resolvePaperGroup', () => {
+  it('should use OTHER_EXPENSE when expenditure has no group', () => {
+    expect(
+      resolvePaperGroup({
+        name: 'Аренда',
+        type: ManagerPaperTypeClass.EXPENDITURE,
+        group: null,
+      })
+    ).toBe(ManagerPaperGroup.OTHER_EXPENSE);
+  });
+
+  it('should use OTHER_INCOME when receipt has no group', () => {
+    expect(
+      resolvePaperGroup({
+        name: 'Прочее',
+        type: ManagerPaperTypeClass.RECEIPT,
+        group: null,
+      })
+    ).toBe(ManagerPaperGroup.OTHER_INCOME);
+  });
+
+  it('should keep AMS_REVENUE for system types', () => {
+    expect(
+      resolvePaperGroup({
+        name: 'Инкассация',
+        type: ManagerPaperTypeClass.RECEIPT,
+        group: null,
+      })
+    ).toBe(ManagerPaperGroup.AMS_REVENUE);
+    expect(isSystemPaperType('Продажа', ManagerPaperTypeClass.RECEIPT)).toBe(
+      true
+    );
   });
 });
