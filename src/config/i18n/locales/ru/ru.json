@@ -1590,6 +1590,7 @@
     "RECEIPT": "Приход",
     "EXPENDITURE": "Расход",
     "group": "Группа",
+    "paperTypeVisible": "Видимость",
     "paperGroup": {
       "AMS_REVENUE": "Выручка мойки инкассация",
       "CASH_TO_VRN": "Сдача в кассу ВРН",

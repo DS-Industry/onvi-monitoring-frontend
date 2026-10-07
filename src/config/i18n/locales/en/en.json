@@ -1589,6 +1589,7 @@
     "RECEIPT": "RECEIPT",
     "EXPENDITURE": "EXPENDITURE",
     "group": "Group",
+    "paperTypeVisible": "Visibility",
     "paperGroup": {
       "AMS_REVENUE": "Car wash collection revenue",
       "CASH_TO_VRN": "Cash handover to VRN",

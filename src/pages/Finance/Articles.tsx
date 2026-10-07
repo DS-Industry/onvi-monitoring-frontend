@@ -28,9 +28,10 @@ import {
 import { getApiErrorMessage } from '@/services/api/finance/fintablo-errors';
 import PaperTypeField from './PaperTypeField';
 import {
-  applyGroupChange,
   isPaperTypeSelected,
+  isRestrictedPaperTypeId,
   mapPaperTypeOptions,
+  resolvePaperGroup,
   shouldFetchPaperTypesByGroup,
 } from './paperGroupType';
 import TableSkeleton from '@/components/ui/Table/TableSkeleton';
@@ -76,7 +77,6 @@ import {
 import FinTabloSyncCell from './FinTabloSyncCell';
 
 const { Title, Text } = Typography;
-const RESTRICTED_PAPER_TYPE_IDS = [64, 67];
 
 interface FinancialCardProps {
   title: string;
@@ -127,6 +127,7 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   ...restProps
 }) => {
   const { t } = useTranslation();
+  const user = useUser();
   const [searchParams] = useSearchParams();
   const city = Number(searchParams.get('city')) || undefined;
   const form = Form.useFormInstance();
@@ -145,10 +146,16 @@ const EditableCell: React.FC<React.PropsWithChildren<EditableCellProps>> = ({
   );
 
   const { data: paperTypeData } = useSWR(
-    dataIndex === 'paperTypeId' && shouldFetchPaperTypesByGroup(watchedGroup)
-      ? ['get-paper-type-by-group', watchedGroup]
+    dataIndex === 'paperTypeId' &&
+      user.organizationId &&
+      shouldFetchPaperTypesByGroup(watchedGroup)
+      ? ['get-paper-type-by-group', watchedGroup, user.organizationId]
       : null,
-    () => getAllManagerPaperTypes(watchedGroup),
+    () =>
+      getAllManagerPaperTypes({
+        organizationId: user.organizationId!,
+        group: watchedGroup,
+      }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -342,10 +349,6 @@ const FinancialCard: React.FC<FinancialCardProps> = ({
 
 const Articles: React.FC = () => {
   const { t } = useTranslation();
-  const writableGroups = useMemo(
-    () => getWritablePaperGroupOptions(key => t(key)),
-    [t]
-  );
   const [form] = Form.useForm();
   const [data, setData] = useState<DataType[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -505,8 +508,11 @@ const Articles: React.FC = () => {
   );
 
   const { data: paperTypeData } = useSWR(
-    [`get-paper-type`],
-    () => getAllManagerPaperTypes(),
+    user.organizationId ? ['get-paper-type', user.organizationId] : null,
+    () =>
+      getAllManagerPaperTypes({
+        organizationId: user.organizationId!,
+      }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -519,7 +525,10 @@ const Articles: React.FC = () => {
     posData?.map(item => ({ name: item.name, value: item.id })) || []
   ).sort((a, b) => a.name.localeCompare(b.name));
 
-  const paperTypes = mapPaperTypeOptions(paperTypeData);
+  const paperTypes = useMemo(
+    () => mapPaperTypeOptions(paperTypeData),
+    [paperTypeData]
+  );
 
   useEffect(() => {
     if (allManagersData && workerData) {
@@ -556,10 +565,10 @@ const Articles: React.FC = () => {
 
   useEffect(() => {
     const restrictedKeys = data
-      .filter(item => RESTRICTED_PAPER_TYPE_IDS.includes(item.paperTypeId))
+      .filter(item => isRestrictedPaperTypeId(item.paperTypeId, paperTypes))
       .map(item => item.key);
     setSelectedRowKeys(prev => prev.filter(key => !restrictedKeys.includes(String(key))));
-  }, [data]);
+  }, [data, paperTypes]);
 
   const save = async (key: React.Key) => {
     try {
@@ -664,7 +673,7 @@ const Articles: React.FC = () => {
       setSelectedRowKeys(newSelectedRowKeys);
     },
     getCheckboxProps: (record: DataType) => ({
-      disabled: RESTRICTED_PAPER_TYPE_IDS.includes(record.paperTypeId), 
+      disabled: isRestrictedPaperTypeId(record.paperTypeId, paperTypes), 
     }),
   };
 
@@ -775,7 +784,10 @@ const Articles: React.FC = () => {
       width: '25%',
       render: (_: unknown, record: DataType) => {
         const editable = isEditing(record);
-        const isPaperTypeRestricted = RESTRICTED_PAPER_TYPE_IDS.includes(record.paperTypeId);
+        const isPaperTypeRestricted = isRestrictedPaperTypeId(
+          record.paperTypeId,
+          paperTypes
+        );
     
         return (
           <Can
@@ -855,10 +867,14 @@ const Articles: React.FC = () => {
   const [formData, setFormData] = useState(defaultValues);
 
   const { data: formPaperTypeData } = useSWR(
-    shouldFetchPaperTypesByGroup(formData.group)
-      ? ['get-paper-type-by-group', formData.group]
+    user.organizationId
+      ? ['get-paper-type-visible', user.organizationId]
       : null,
-    () => getAllManagerPaperTypes(formData.group),
+    () =>
+      getAllManagerPaperTypes({
+        organizationId: user.organizationId!,
+        visibleOnly: true,
+      }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -951,15 +967,12 @@ const Articles: React.FC = () => {
     setValue(field, value);
   };
 
-  const handleGroupChange = (value: ManagerPaperGroup | undefined) => {
-    setFormData(prev => applyGroupChange(prev, value));
-    setValue('group', value);
-    setValue('paperTypeId', 0);
-  };
-
   const handlePaperTypeSelect = (value: number) => {
-    setFormData(prev => ({ ...prev, paperTypeId: value }));
+    const selected = formPaperTypes.find(paper => paper.value === value);
+    const group = selected ? resolvePaperGroup(selected) : undefined;
+    setFormData(prev => ({ ...prev, paperTypeId: value, group }));
     setValue('paperTypeId', value);
+    setValue('group', group);
   };
 
   const resetForm = () => {
@@ -1059,21 +1072,6 @@ const Articles: React.FC = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col space-y-4 text-text02">
             <SearchDropdownInput
-              title={t('finance.group')}
-              classname="w-full"
-              placeholder={t('finance.group')}
-              options={writableGroups}
-              {...register('group', {
-                required: t('finance.selectGroupFirst'),
-              })}
-              value={formData.group}
-              onChange={value => {
-                handleGroupChange(value);
-              }}
-              error={!!errors.group}
-              errorText={errors.group?.message}
-            />
-            <SearchDropdownInput
               title={t('analysis.posId')}
               classname="w-full"
               placeholder="Выберите объект"
@@ -1092,10 +1090,10 @@ const Articles: React.FC = () => {
             <PaperTypeField
               paperTypeId={formData.paperTypeId}
               paperTypes={formPaperTypes}
-              disabled={!shouldFetchPaperTypesByGroup(formData.group)}
+              disabled={!user.organizationId}
               onSelect={handlePaperTypeSelect}
             />
-            <Space className="w-full">
+            <Space className="w-full" align="start">
               <div>
                 <div className="text-text02 text-sm">
                   {t('finance.articleType')}
@@ -1122,6 +1120,14 @@ const Articles: React.FC = () => {
                       )
                     : ''}
                 </Tag>
+              </div>
+              <div>
+                <div className="text-text02 text-sm">{t('finance.group')}</div>
+                <div className="h-10 min-w-40 border border-borderFill flex items-center justify-center px-3 text-text01">
+                  {formData.group
+                    ? getPaperGroupLabel(formData.group, key => t(key))
+                    : ''}
+                </div>
               </div>
               <DateInput
                 title={t('finance.dat')}
@@ -1228,8 +1234,7 @@ const Articles: React.FC = () => {
                 form={true}
                 isLoading={isMutating}
                 disabled={
-                  !shouldFetchPaperTypesByGroup(formData.group) ||
-                  !isPaperTypeSelected(formData.paperTypeId)
+                  !formData.group || !isPaperTypeSelected(formData.paperTypeId)
                 }
               />
             </div>

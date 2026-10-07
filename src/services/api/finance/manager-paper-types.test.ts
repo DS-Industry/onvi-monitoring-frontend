@@ -23,17 +23,27 @@ describe('getAllManagerPaperTypes', () => {
     mockedGet.mockResolvedValue({ data: [] });
   });
 
-  it('should omit group query when group is not passed', async () => {
-    await getAllManagerPaperTypes();
-
-    expect(mockedGet).toHaveBeenCalledWith('user/manager-paper/type', undefined);
-  });
-
-  it('should send group query when group is passed', async () => {
-    await getAllManagerPaperTypes(ManagerPaperGroup.WAGES);
+  it('should send organizationId when only organization is passed', async () => {
+    await getAllManagerPaperTypes({ organizationId: 4 });
 
     expect(mockedGet).toHaveBeenCalledWith('user/manager-paper/type', {
-      params: { group: ManagerPaperGroup.WAGES },
+      params: { organizationId: 4 },
+    });
+  });
+
+  it('should send group and visibility when they are passed', async () => {
+    await getAllManagerPaperTypes({
+      organizationId: 4,
+      group: ManagerPaperGroup.WAGES,
+      visibleOnly: true,
+    });
+
+    expect(mockedGet).toHaveBeenCalledWith('user/manager-paper/type', {
+      params: {
+        organizationId: 4,
+        group: ManagerPaperGroup.WAGES,
+        visibleOnly: true,
+      },
     });
   });
 });
