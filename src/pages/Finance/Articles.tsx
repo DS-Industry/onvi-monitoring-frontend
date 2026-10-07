@@ -1093,8 +1093,8 @@ const Articles: React.FC = () => {
               disabled={!user.organizationId}
               onSelect={handlePaperTypeSelect}
             />
-            <Space className="w-full" align="start">
-              <div>
+            <div className="grid w-full min-w-0 grid-cols-3 gap-3">
+              <div className="min-w-0">
                 <div className="text-text02 text-sm">
                   {t('finance.articleType')}
                 </div>
@@ -1110,7 +1110,7 @@ const Articles: React.FC = () => {
                         ? 'green'
                         : ''
                   }
-                  className="h-10 w-40 flex items-center justify-center"
+                  className="h-10 w-full m-0 flex items-center justify-center"
                 >
                   {formPaperTypes.find(
                     paper => paper.value === formData.paperTypeId
@@ -1121,9 +1121,9 @@ const Articles: React.FC = () => {
                     : ''}
                 </Tag>
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="text-text02 text-sm">{t('finance.group')}</div>
-                <div className="h-10 min-w-40 border border-borderFill flex items-center justify-center px-3 text-text01">
+                <div className="h-10 w-full min-w-0 border border-borderFill flex items-center justify-center px-2 text-text01 truncate">
                   {formData.group
                     ? getPaperGroupLabel(formData.group, key => t(key))
                     : ''}
@@ -1131,7 +1131,7 @@ const Articles: React.FC = () => {
               </div>
               <DateInput
                 title={t('finance.dat')}
-                classname="w-full sm:w-40"
+                classname="w-full min-w-0"
                 value={formData.eventDate ? dayjs(formData.eventDate) : null}
                 changeValue={eventDate =>
                   handleInputChange(
@@ -1145,7 +1145,7 @@ const Articles: React.FC = () => {
                 })}
                 helperText={errors.eventDate?.message || ''}
               />
-            </Space>
+            </div>
             <Input
               title={t('finance.sum')}
               type="number"
