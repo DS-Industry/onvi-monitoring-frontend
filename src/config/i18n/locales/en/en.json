@@ -1784,6 +1784,10 @@
     "sunday": "Sunday",
     "skip": "Skip"
   },
+  "serviceUnavailable": {
+    "title": "Service is temporarily unavailable",
+    "description": "The service is down right now. We are working to restore it. Please try again later."
+  },
   "time": {
     "hourShort": "h",
     "minuteShort": "min",
