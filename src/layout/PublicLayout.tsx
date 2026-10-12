@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { Suspense, useEffect } from 'react';
+import { Outlet } from 'react-router-dom';
 import { ContextProvider } from '@/components/context/Context.tsx';
-import ServiceUnavailable from '@/components/ServiceUnavailable';
+import Spin from 'antd/es/spin';
 import { setToastFunction } from '@/config/axiosConfig';
 import { useToast } from '@/hooks/useToast';
 
@@ -12,9 +13,24 @@ const PublicLayoutContent: React.FC = () => {
   }, [showToast]);
 
   return (
-    <main className="min-h-screen bg-white">
-      <ServiceUnavailable />
-    </main>
+    <Suspense
+        fallback={
+          <div
+            style={{
+              height: '100vh',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Spin size="large" />
+          </div>
+        }
+      >
+        <main>
+          <Outlet />
+        </main>
+    </Suspense>
   );
 };
 
