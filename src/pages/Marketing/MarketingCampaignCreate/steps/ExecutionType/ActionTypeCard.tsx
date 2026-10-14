@@ -43,8 +43,10 @@ const ActionTypeCard: React.FC<ActionTypeCardProps> = ({
         }
     };
 
+    // `!` because antd's hoverable Card sets a transparent border on hover, which
+    // hid the selection under the cursor and made the click look ignored.
     const borderColor = isSelected
-        ? 'border-primary02 border-2 shadow-md bg-[#F5FBFF]'
+        ? '!border-primary02 border-2 shadow-md bg-[#F5FBFF]'
         : isDisabled
             ? 'border-[#7A7D86] border-2 shadow-md bg-[#F5FBFF]'
             : 'border-gray-200';

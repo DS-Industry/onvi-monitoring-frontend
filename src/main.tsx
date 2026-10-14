@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { unstableSetRender } from 'antd';
 import App from './App.tsx';
 import './index.css';
 import './config/i18n/index.ts';
@@ -9,6 +10,17 @@ import './styles/components.css';
 import { datadogRum } from '@datadog/browser-rum';
 import { reactPlugin } from '@datadog/browser-rum-react';
 import { datadogLogs } from '@datadog/browser-logs';
+
+// antd v5 renders static message/notification/Modal.confirm through the legacy
+// ReactDOM.render, which React 19 removed; without this they silently show nothing.
+unstableSetRender((node, container) => {
+  const root = ReactDOM.createRoot(container);
+  root.render(node);
+  return async () => {
+    await new Promise(resolve => setTimeout(resolve, 0));
+    root.unmount();
+  };
+});
 
 const ENV = import.meta.env.VITE_MODE;
 

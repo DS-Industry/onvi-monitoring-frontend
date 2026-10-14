@@ -2,7 +2,10 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { InputNumber, Select } from 'antd';
 import { SpendMilestoneDiscountType } from '../../utils/spendMilestone';
-import { RegistrationPromocodePayload } from '../../utils/registrationCampaign';
+import {
+    RegistrationPromocodePayload,
+    validateRegistrationPayload,
+} from '../../utils/registrationCampaign';
 
 interface RegistrationPromocodeSectionProps {
     payload: RegistrationPromocodePayload;
@@ -26,6 +29,15 @@ const RegistrationPromocodeSection: React.FC<RegistrationPromocodeSectionProps> 
 
     const update = (patch: Partial<RegistrationPromocodePayload>) =>
         onChange({ ...payload, ...patch });
+
+    // No `max` on the input: clamping 150 to 100 silently saved a 100% discount.
+    // Out-of-range values stay visible and block "Next" with this message instead.
+    const validation = validateRegistrationPayload(payload);
+    const discountError =
+        validation.errorKey === 'validation.registrationPercentageRange' ||
+        validation.errorKey === 'validation.registrationDiscountValueRequired'
+            ? t(validation.errorKey)
+            : undefined;
 
     const getDiscountTypeLabel = (type: SpendMilestoneDiscountType) => {
         switch (type) {
@@ -73,12 +85,15 @@ const RegistrationPromocodeSection: React.FC<RegistrationPromocodeSectionProps> 
                     </div>
                     <InputNumber
                         min={0}
-                        max={payload.discountType === 'PERCENTAGE' ? 100 : undefined}
                         className="w-full"
                         value={payload.discountValue}
+                        status={discountError ? 'error' : undefined}
                         addonAfter={payload.discountType === 'PERCENTAGE' ? '%' : '₽'}
                         onChange={value => update({ discountValue: Number(value) || 0 })}
                     />
+                    {discountError && (
+                        <div className="text-errorFill text-xs mt-1">{discountError}</div>
+                    )}
                 </div>
 
                 <div>
