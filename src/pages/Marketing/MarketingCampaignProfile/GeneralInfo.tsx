@@ -1,10 +1,17 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { Link } from 'react-router-dom';
 import { CarOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import useSWR from 'swr';
 import type { MarketingCampaignResponse } from '@/services/api/marketing';
 import { ACTION_TYPE } from '@/services/api/marketing';
+import { getPlacement } from '@/services/api/device';
+import {
+  isRegistrationCampaign,
+  parseRegistrationPayload,
+} from '../MarketingCampaignCreate/utils/registrationCampaign';
 
 const ACTION_TYPE_LABEL_KEYS: Record<ACTION_TYPE, string> = {
   DISCOUNT: 'marketingCampaigns.discount',
@@ -49,6 +56,43 @@ const InfoRow: React.FC<{
   </div>
 );
 
+const DISCOUNT_TYPE_LABEL_KEYS: Record<string, string> = {
+  PERCENTAGE: 'marketingCampaigns.percentage',
+  FIXED_AMOUNT: 'marketingCampaigns.fixedAmount',
+  FREE_SERVICE: 'marketingCampaigns.freeService',
+};
+
+const getRegistrationFields = (
+  campaign: MarketingCampaignResponse,
+  regionName: string,
+  t: TFunction
+): InfoFieldItem[] => {
+  const payload = parseRegistrationPayload(campaign.actionPayload);
+  const discountValue =
+    payload.discountType === 'FREE_SERVICE'
+      ? t(DISCOUNT_TYPE_LABEL_KEYS.FREE_SERVICE)
+      : `${payload.discountValue} ${payload.discountType === 'PERCENTAGE' ? '%' : '₽'}`;
+  const formatRub = (value?: number) => (value !== undefined ? `${value} ₽` : '—');
+
+  return [
+    { label: t('pos.city'), value: regionName },
+    {
+      label: t('marketing.discountType'),
+      value: t(DISCOUNT_TYPE_LABEL_KEYS[payload.discountType] ?? payload.discountType),
+    },
+    { label: t('marketing.discountValue'), value: discountValue },
+    { label: t('marketingCampaigns.validDays'), value: payload.validDays },
+    {
+      label: t('marketingCampaigns.minOrderAmount'),
+      value: formatRub(payload.minOrderAmount),
+    },
+    {
+      label: t('marketingCampaigns.maxDiscountAmount'),
+      value: formatRub(payload.maxDiscountAmount),
+    },
+  ];
+};
+
 const GeneralInfo: React.FC<GeneralInfoProps> = ({ campaign, conditionsCount }) => {
   const { t } = useTranslation();
 
@@ -56,9 +100,21 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({ campaign, conditionsCount }) 
     ? t(`tables.${campaign.executionType}`)
     : '—';
 
-  const actionTypeLabel = campaign.actionType
-    ? t(ACTION_TYPE_LABEL_KEYS[campaign.actionType as ACTION_TYPE] ?? campaign.actionType)
-    : '—';
+  const isRegistration = isRegistrationCampaign(campaign);
+
+  // A registration campaign is stored as PROMOCODE_ISSUE, so name it explicitly.
+  const actionTypeLabel = isRegistration
+    ? t('marketingCampaigns.registration')
+    : campaign.actionType
+      ? t(ACTION_TYPE_LABEL_KEYS[campaign.actionType as ACTION_TYPE] ?? campaign.actionType)
+      : '—';
+
+  // Same SWR key as CityFilter, so the placements list is shared from cache.
+  const { data: placements } = useSWR(isRegistration ? 'get-city' : null, getPlacement, {
+    shouldRetryOnError: false,
+  });
+  const regionName =
+    placements?.find(item => item.id === campaign.placementId)?.region ?? '—';
 
   const dateRange =
     campaign.launchDate && campaign.endDate
@@ -107,28 +163,32 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({ campaign, conditionsCount }) 
       <InfoRow
         sectionTitle={t('marketingCampaigns.actionType')}
         fields={[
-          { label: t('marketingCampaigns.actionType'), value: executionTypeLabel },
-          { label: t('marketingCampaigns.triggerType'), value: actionTypeLabel },
+          { label: t('marketingCampaigns.actionType'), value: actionTypeLabel },
+          { label: t('marketingCampaigns.triggerType'), value: executionTypeLabel },
         ]}
       />
 
       <InfoRow
         sectionTitle={t('marketingCampaigns.participantsAndPrizes')}
         showDivider={false}
-        fields={[
-          {
-            label: t('marketingLoyalty.participatingBranches'),
-            value: campaign.posCount ?? '—',
-          },
-          {
-            label: t('marketingCampaigns.numberOfThresholds'),
-            value: conditionsCount,
-          },
-          {
-            label: t('marketingCampaigns.accumulationPeriod'),
-            value: '—',
-          },
-        ]}
+        fields={
+          isRegistration
+            ? getRegistrationFields(campaign, regionName, t)
+            : [
+                {
+                  label: t('marketingLoyalty.participatingBranches'),
+                  value: campaign.posCount ?? '—',
+                },
+                {
+                  label: t('marketingCampaigns.numberOfThresholds'),
+                  value: conditionsCount,
+                },
+                {
+                  label: t('marketingCampaigns.accumulationPeriod'),
+                  value: '—',
+                },
+              ]
+        }
       />
     </div>
   );
