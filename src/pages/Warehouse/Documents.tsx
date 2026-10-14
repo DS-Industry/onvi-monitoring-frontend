@@ -11,7 +11,10 @@ import {
   WarehouseDocumentType,
 } from '@/services/api/warehouse';
 import useSWRMutation from 'swr/mutation';
-import { updateSearchParams } from '@/utils/searchParamsUtils';
+import {
+  buildDocumentsListSearch,
+  updateSearchParams,
+} from '@/utils/searchParamsUtils';
 import { useToast } from '@/components/context/useContext';
 import GeneralFilters from '@/components/ui/Filter/GeneralFilters';
 import { Table, Button, Modal, Popconfirm } from 'antd';
@@ -69,6 +72,7 @@ const Documents: React.FC = () => {
 
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const documentsListSearch = buildDocumentsListSearch(searchParams);
 
   const filterParams = useMemo(
     () => ({
@@ -161,9 +165,18 @@ const Documents: React.FC = () => {
 
         if (result?.props) {
           const { id, name, carryingAt, status } = result.props;
-          navigate(
-            `/warehouse/documents/creation?documentId=${id}&document=${documentType}&name=${name}&carryingAt=${carryingAt}&warehouseId=${warehouseId}&status=${status}`
-          );
+          const creationParams = new URLSearchParams({
+            documentId: String(id),
+            document: documentType,
+            name: String(name ?? ''),
+            carryingAt: String(carryingAt ?? ''),
+            warehouseId: String(warehouseId ?? ''),
+            status: String(status ?? ''),
+          });
+          if (documentsListSearch) {
+            creationParams.set('returnTo', documentsListSearch);
+          }
+          navigate(`/warehouse/documents/creation?${creationParams.toString()}`);
         } else {
           console.error(
             'Document creation did not return expected data:',
@@ -239,17 +252,26 @@ const Documents: React.FC = () => {
       title: t('equipment.name'),
       dataIndex: 'name',
       key: 'name',
-      render: (text: string, record: Documents) => (
-        <Link
-          to={{
-            pathname: '/warehouse/documents/view',
-            search: `?documentId=${record.id}&document=${record.typeRaw}`,
-          }}
-          className="text-blue-500 hover:text-blue-700 font-semibold"
-        >
-          {text}
-        </Link>
-      ),
+      render: (text: string, record: Documents) => {
+        const viewParams = new URLSearchParams({
+          documentId: String(record.id),
+          document: record.typeRaw,
+        });
+        if (documentsListSearch) {
+          viewParams.set('returnTo', documentsListSearch);
+        }
+        return (
+          <Link
+            to={{
+              pathname: '/warehouse/documents/view',
+              search: `?${viewParams.toString()}`,
+            }}
+            className="text-blue-500 hover:text-blue-700 font-semibold"
+          >
+            {text}
+          </Link>
+        );
+      },
     },
     {
       title: t('marketing.date'),
