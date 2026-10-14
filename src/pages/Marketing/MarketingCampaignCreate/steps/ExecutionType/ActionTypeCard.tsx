@@ -1,29 +1,27 @@
 import React from 'react';
 import { Card } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { CampaignExecutionType, ACTION_TYPE } from '@/services/api/marketing';
+import { CampaignExecutionType } from '@/services/api/marketing';
 
 interface ActionTypeCardProps {
-    actionType: ACTION_TYPE;
     icon: React.ComponentType<{ style?: React.CSSProperties }>;
     titleKey: string;
     descriptionKey: string;
     requiredExecutionType: CampaignExecutionType;
-    selectedActionType: ACTION_TYPE | null;
+    isSelected: boolean;
     executionType: CampaignExecutionType | null;
     isEditable: boolean;
-    onSelect: (actionType: ACTION_TYPE) => void;
+    onSelect: () => void;
     forceDisabled?: boolean;
     forceDisabledMessageKey?: string;
 }
 
 const ActionTypeCard: React.FC<ActionTypeCardProps> = ({
-    actionType,
     icon,
     titleKey,
     descriptionKey,
     requiredExecutionType,
-    selectedActionType,
+    isSelected,
     executionType,
     isEditable,
     onSelect,
@@ -32,7 +30,6 @@ const ActionTypeCard: React.FC<ActionTypeCardProps> = ({
 }) => {
     const { t } = useTranslation();
 
-    const isSelected = selectedActionType === actionType;
     const isEnabledByExecutionType = executionType === requiredExecutionType;
     const isDisabled =
         forceDisabled || !executionType || !isEnabledByExecutionType;
@@ -42,7 +39,7 @@ const ActionTypeCard: React.FC<ActionTypeCardProps> = ({
         if (!executionType) return;
         if (!isEnabledByExecutionType) return;
         if (isEditable) {
-            onSelect(actionType);
+            onSelect();
         }
     };
 

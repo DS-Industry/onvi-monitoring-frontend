@@ -11,6 +11,7 @@ import {
     PercentageOutlined,
     BankOutlined,
     ScheduleOutlined,
+    UserAddOutlined,
 } from '@ant-design/icons';
 import { useToast } from '@/components/context/useContext';
 import useSWR from 'swr';
@@ -22,8 +23,13 @@ import {
     createMarketingCampaignAction,
     updateMarketingCampaignAction,
     ACTION_TYPE,
+    MarketingCampaignResponse,
 } from '@/services/api/marketing';
 import ActionTypeCard from './ActionTypeCard';
+import {
+    createDefaultRegistrationPayload,
+    isRegistrationCampaign,
+} from '../../utils/registrationCampaign';
 
 const ONVI_PROGRAM_ID = Number(import.meta.env.VITE_ONVI_PROGRAM_ID) || 0;
 
@@ -63,6 +69,14 @@ const ACTION_TYPE_CONFIGS = [
         descriptionKey: 'marketingCampaigns.spendMilestoneDescription',
         requiredExecutionType: CampaignExecutionType.BEHAVIORAL,
     },
+    {
+        id: 'registration',
+        actionType: 'PROMOCODE_ISSUE' as ACTION_TYPE,
+        icon: UserAddOutlined,
+        titleKey: 'marketingCampaigns.registration',
+        descriptionKey: 'marketingCampaigns.registrationDescription',
+        requiredExecutionType: CampaignExecutionType.BEHAVIORAL,
+    },
     // {
     //     id: 'cashback',
     //     actionType: 'CASHBACK_BOOST' as ACTION_TYPE,
@@ -80,6 +94,27 @@ const ACTION_TYPE_CONFIGS = [
     //     requiredExecutionType: CampaignExecutionType.BEHAVIORAL,
     // },
 ] as const;
+
+type ActionConfigId = (typeof ACTION_TYPE_CONFIGS)[number]['id'];
+
+const findActionConfig = (id: ActionConfigId | null) =>
+    ACTION_TYPE_CONFIGS.find(config => config.id === id);
+
+const resolveActionConfigId = (
+    campaign?: MarketingCampaignResponse
+): ActionConfigId | null => {
+    if (!campaign?.executionType || !campaign.actionType) return null;
+    if (isRegistrationCampaign(campaign)) return 'registration';
+
+    return (
+        ACTION_TYPE_CONFIGS.find(
+            config =>
+                config.id !== 'registration' &&
+                config.actionType === campaign.actionType &&
+                config.requiredExecutionType === campaign.executionType
+        )?.id ?? null
+    );
+};
 
 interface ExecutionTypeCardProps {
     executionType: CampaignExecutionType;
@@ -161,7 +196,8 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
     const { showToast } = useToast();
     const [executionType, setExecutionType] = useState<CampaignExecutionType | null>(null);
     const [isUpdating, setIsUpdating] = useState(false);
-    const [actionType, setActionType] = useState<ACTION_TYPE | null>(null);
+    const [actionConfigId, setActionConfigId] = useState<ActionConfigId | null>(null);
+    const actionType = findActionConfig(actionConfigId)?.actionType ?? null;
 
     const marketingCampaignId = useMemo(() => {
         const id = searchParams.get('marketingCampaignId');
@@ -203,8 +239,9 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
             setExecutionType(marketingCampaign.executionType as CampaignExecutionType);
         }
 
-        if (marketingCampaign.actionType) {
-            setActionType(marketingCampaign.actionType as ACTION_TYPE);
+        const configId = resolveActionConfigId(marketingCampaign);
+        if (configId) {
+            setActionConfigId(configId);
         }
     }, [marketingCampaign]);
 
@@ -232,7 +269,7 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
             }
 
             if (executionType !== newExecutionType) {
-                setActionType(null);
+                setActionConfigId(null);
             }
             setExecutionType(newExecutionType);
         },
@@ -275,10 +312,18 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
         }
 
         const hasExistingAction = Boolean(marketingCampaign?.actionType);
+        const initialConfigId = resolveActionConfigId(marketingCampaign);
         const isUnchanged =
-            hasExistingAction &&
-            marketingCampaign?.executionType === executionType &&
-            marketingCampaign?.actionType === actionType;
+            hasExistingAction && initialConfigId === actionConfigId;
+
+        // Registration campaigns are recognised by their payload, so it is set
+        // right away; switching away from registration clears it.
+        const payload =
+            actionConfigId === 'registration'
+                ? createDefaultRegistrationPayload()
+                : initialConfigId === 'registration'
+                  ? {}
+                  : undefined;
 
         if (isUnchanged) {
             navigateToNextStep();
@@ -296,11 +341,13 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
             if (hasExistingAction) {
                 await updateMarketingCampaignAction(marketingCampaignId, {
                     actionType: actionType!,
+                    ...(payload && { payload }),
                 });
             } else {
                 await createMarketingCampaignAction({
                     campaignId: marketingCampaignId,
                     actionType: actionType!,
+                    ...(payload && { payload }),
                 });
             }
 
@@ -321,6 +368,7 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
         validateForm,
         executionType,
         actionType,
+        actionConfigId,
         showToast,
         t,
         navigateToNextStep,
@@ -398,15 +446,14 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
                         {ACTION_TYPE_CONFIGS.map((config) => (
                             <ActionTypeCard
                                 key={config.id}
-                                actionType={config.actionType}
+                                isSelected={actionConfigId === config.id}
                                 icon={config.icon}
                                 titleKey={config.titleKey}
                                 descriptionKey={config.descriptionKey}
                                 requiredExecutionType={config.requiredExecutionType}
-                                selectedActionType={actionType}
                                 executionType={executionType}
                                 isEditable={canEdit}
-                                onSelect={setActionType}
+                                onSelect={() => setActionConfigId(config.id)}
                                 forceDisabled={
                                     config.id === 'promocode-transactional' && !isOnviProgram
                                 }
