@@ -122,7 +122,7 @@ const Programs: React.FC = () => {
         <Link
           to={{
             pathname: '/station/programs/device',
-            search: `?posId=${posId}&deviceId=${record.id}&dateStart=${dateStart}&dateEnd=${dateEnd}`,
+            search: `?posId=${posId}&deviceId=${record.id}&dateStart=${dateStart}&dateEnd=${dateEnd}${turningType ? `&turningType=${turningType}` : ''}`,
           }}
           className="text-primary02 hover:text-primary02_Hover font-semibold"
         >
