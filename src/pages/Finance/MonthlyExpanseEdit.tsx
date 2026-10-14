@@ -497,10 +497,27 @@ const MonthlyExpanseEdit: React.FC = () => {
                     columns={expenseColumns}
                     pagination={false}
                     summary={pageData => {
-                      const totalSum = pageData.reduce(
-                        (acc, item) => acc + (item.sum || 0),
-                        0
+                      const signedSum = pageData.reduce((acc, item) => {
+                        const value = Math.abs(Number(item.sum) || 0);
+                        if (item.paperTypeType === t('finance.EXPENDITURE')) {
+                          return acc - value;
+                        }
+                        if (item.paperTypeType === t('finance.RECEIPT')) {
+                          return acc + value;
+                        }
+                        return acc + (Number(item.sum) || 0);
+                      }, 0);
+                      const totalSum = Math.round(signedSum * 100) / 100;
+                      const formattedCurrency = TableUtils.createCurrencyFormat(
+                        formatNumber(Math.abs(totalSum), 'double')
                       );
+                      const totalDisplay =
+                        totalSum > 0
+                          ? `+${formattedCurrency}`
+                          : totalSum < 0
+                            ? `-${formattedCurrency}`
+                            : formattedCurrency;
+
                       return (
                         <Table.Summary fixed>
                           <Table.Summary.Row>
@@ -513,7 +530,17 @@ const MonthlyExpanseEdit: React.FC = () => {
                             <Table.Summary.Cell index={4} />
                             <Table.Summary.Cell index={5} />
                             <Table.Summary.Cell index={6}>
-                              <strong>{`${totalSum} ₽`}</strong>
+                              <strong
+                                className={
+                                  totalSum > 0
+                                    ? 'text-successFill'
+                                    : totalSum < 0
+                                      ? 'text-errorFill'
+                                      : undefined
+                                }
+                              >
+                                {totalDisplay}
+                              </strong>
                             </Table.Summary.Cell>
                           </Table.Summary.Row>
                         </Table.Summary>

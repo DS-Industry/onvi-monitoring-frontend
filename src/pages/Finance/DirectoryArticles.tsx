@@ -13,12 +13,19 @@ import {
   updateManagerPaperType,
 } from '@/services/api/finance';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
-import { Drawer, Button, Table } from 'antd';
+import { Drawer, Button, Switch, Table } from 'antd';
 import { PlusOutlined, EditOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { getStatusTagRender } from '@/utils/tableUnits';
 import { usePermissions } from '@/hooks/useAuthStore';
 import hasPermission from '@/permissions/hasPermission';
+import { useUser } from '@/hooks/useUserStore';
+import { isSystemPaperType } from './paperGroupType';
+import {
+  getAllPaperGroupOptions,
+  getPaperGroupLabel,
+  ManagerPaperGroup,
+} from '@/utils/constants';
 
 type PaperTypeRecord = ManagerPaperTypeResponse['props'] & {
   typeName: string;
@@ -26,12 +33,19 @@ type PaperTypeRecord = ManagerPaperTypeResponse['props'] & {
 
 const DirectoryArticles: React.FC = () => {
   const { t } = useTranslation();
+  const user = useUser();
   const [isEditMode, setIsEditMode] = useState(false);
   const [editPaperId, setEditPaperId] = useState<number>(0);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const paperTypeKey = user.organizationId
+    ? ['get-paper-type', user.organizationId]
+    : null;
   const { data: paperTypeData, isLoading: loadingPaperType } = useSWR(
-    [`get-manager-paper-type`],
-    () => getAllManagerPaperTypes(),
+    paperTypeKey,
+    () =>
+      getAllManagerPaperTypes({
+        organizationId: user.organizationId!,
+      }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
@@ -56,6 +70,18 @@ const DirectoryArticles: React.FC = () => {
       ...type.props,
       typeName: t(`finance.${type.props.type}`),
     })) || [];
+  const editingType = paperTypes.find(paper => paper.id === editPaperId);
+  const systemTypeLocked =
+    isEditMode &&
+    !!editingType &&
+    isSystemPaperType(editingType.name, editingType.type);
+  const groupOptions = [
+    { name: '-', value: '' },
+    ...getAllPaperGroupOptions(key => t(key)).map(option => ({
+      name: option.name,
+      value: option.value,
+    })),
+  ];
 
   const columns: ColumnsType<PaperTypeRecord> = [
     {
@@ -73,6 +99,19 @@ const DirectoryArticles: React.FC = () => {
       dataIndex: 'typeName',
       key: 'typeName',
       render: getStatusTag,
+    },
+    {
+      title: t('finance.group'),
+      dataIndex: 'group',
+      key: 'group',
+      render: (value: ManagerPaperGroup | null) =>
+        value ? getPaperGroupLabel(value, key => t(key)) : '-',
+    },
+    {
+      title: t('finance.paperTypeVisible'),
+      dataIndex: 'isVisible',
+      key: 'isVisible',
+      render: (value: boolean) => (value ? t('common.yes') : t('common.no')),
     },
     {
       key: 'actions',
@@ -93,6 +132,8 @@ const DirectoryArticles: React.FC = () => {
   const defaultValues = {
     name: '',
     type: '',
+    group: '' as ManagerPaperGroup | '',
+    isVisible: false,
   };
 
   const [formData, setFormData] = useState(defaultValues);
@@ -104,21 +145,25 @@ const DirectoryArticles: React.FC = () => {
     ['create-paper'],
     async () =>
       createManagerPaperType({
+        organizationId: user.organizationId!,
         name: formData.name,
         type: formData.type as ManagerPaperTypeClass,
+        group: formData.group || null,
       })
   );
 
   const { trigger: updatePaperType, isMutating: updatingPaperType } =
     useSWRMutation(['update-paper'], async () =>
       updateManagerPaperType({
-        id: editPaperId,
+        managerPaperTypeId: editPaperId,
         name: formData.name,
         type: formData.type as ManagerPaperTypeClass,
+        group: formData.group || null,
+        isVisible: formData.isVisible,
       })
     );
 
-  type FieldType = 'name' | 'type';
+  type FieldType = 'name' | 'type' | 'group';
 
   const handleInputChange = (field: FieldType, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -136,6 +181,8 @@ const DirectoryArticles: React.FC = () => {
       setFormData({
         name: paperToEdit.name,
         type: paperToEdit.type as ManagerPaperTypeClass,
+        group: (paperToEdit.group as ManagerPaperGroup) || '',
+        isVisible: paperToEdit.isVisible,
       });
     }
   };
@@ -153,7 +200,7 @@ const DirectoryArticles: React.FC = () => {
       if (editPaperId) {
         const result = await updatePaperType();
         if (result) {
-          mutate([`get-manager-paper-type`]);
+          mutate(paperTypeKey);
           resetForm();
         } else {
           throw new Error('Invalid response from API');
@@ -161,7 +208,7 @@ const DirectoryArticles: React.FC = () => {
       } else {
         const result = await createPap();
         if (result) {
-          mutate([`get-manager-paper-type`]);
+          mutate(paperTypeKey);
           resetForm();
         } else {
           throw new Error('Invalid response from API');
@@ -185,7 +232,12 @@ const DirectoryArticles: React.FC = () => {
           <Button
             icon={<PlusOutlined />}
             className="btn-primary"
-            onClick={() => setDrawerOpen(true)}
+            onClick={() => {
+              if (!user.organizationId) {
+                return;
+              }
+              setDrawerOpen(true);
+            }}
           >
             <span className="hidden sm:flex">{t('routes.add')}</span>
           </Button>
@@ -228,6 +280,7 @@ const DirectoryArticles: React.FC = () => {
               required: !isEditMode && 'Name is required',
             })}
             helperText={errors.name?.message || ''}
+            disabled={systemTypeLocked}
           />
           <DropdownInput
             title={`${t('finance.article')}*`}
@@ -244,7 +297,30 @@ const DirectoryArticles: React.FC = () => {
             onChange={value => handleInputChange('type', value)}
             error={!!errors.type}
             helperText={errors.type?.message || ''}
+            isDisabled={systemTypeLocked}
           />
+          <DropdownInput
+            title={t('finance.group')}
+            label="-"
+            classname="w-80"
+            options={groupOptions}
+            value={formData.group}
+            onChange={value => handleInputChange('group', value)}
+            isDisabled={systemTypeLocked}
+          />
+          {isEditMode && (
+            <div>
+              <div className="text-sm text-text02 mb-1">
+                {t('finance.paperTypeVisible')}
+              </div>
+              <Switch
+                checked={formData.isVisible}
+                onChange={checked =>
+                  setFormData(prev => ({ ...prev, isVisible: checked }))
+                }
+              />
+            </div>
+          )}
           <div className="flex space-x-4">
             <Button
               onClick={() => {

@@ -23,7 +23,7 @@ import HorizontalBarList from '../components/HorizontalBarList';
 import StackedCompositionBar from '../components/StackedCompositionBar';
 import PeriodToggle from '../components/PeriodToggle';
 import {
-  formatCompactMoney,
+  formatFullMoney,
   useOverviewNetworkFilters,
 } from '../hooks/useOverviewFilters';
 import { useOverviewCurrency } from '../hooks/OverviewCurrencyContext';
@@ -177,13 +177,7 @@ const DepositsTab: React.FC<DepositsTabProps> = ({
 
   const stationRow = stationRowData?.items?.[0];
   const cashSum = stationRow?.cashSum;
-  const cashlessSum =
-    stationRow != null
-      ? (stationRow.virtualSum || 0) +
-        (stationRow.cardSum || 0) +
-        (stationRow.onviSum || 0) +
-        (stationRow.yandexSum || 0)
-      : undefined;
+  const cashlessSum = stationRow?.virtualSum;
 
   const columns: ColumnsType<DepositsTableItem> = [
     {
@@ -287,7 +281,7 @@ const DepositsTab: React.FC<DepositsTabProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <OverviewKpiCard
               label={t('posOverview.depositsSum')}
-              value={formatCompactMoney(
+              value={formatFullMoney(
                 convert(summary?.totalSum),
                 displayCurrencySymbol
               )}
@@ -365,7 +359,7 @@ const DepositsTab: React.FC<DepositsTabProps> = ({
                   key: String(item.posId),
                   label: item.name,
                   value: convert(item.totalSum) ?? item.totalSum,
-                  displayValue: formatCompactMoney(
+                  displayValue: formatFullMoney(
                     convert(item.totalSum),
                     displayCurrencySymbol
                   ),

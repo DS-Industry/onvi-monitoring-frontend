@@ -20,7 +20,7 @@ import StationCard from './components/StationCard';
 import PeriodToggle from './components/PeriodToggle';
 import CurrencyConverterBar from './components/CurrencyConverterBar';
 import {
-  formatCompactMoney,
+  formatFullMoney,
   useOverviewNetworkFilters,
 } from './hooks/useOverviewFilters';
 import { useCurrencyConversion } from './hooks/useCurrencyConversion';
@@ -187,7 +187,7 @@ const PosOverviewNetwork: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
         <OverviewKpiCard
           label={t('posOverview.revenueMtd')}
-          value={formatCompactMoney(
+          value={formatFullMoney(
             conversion.convert(summary?.revenue),
             conversion.displayCurrencySymbol
           )}

@@ -372,6 +372,8 @@
     "posEnabled": "Включить объект в интеграцию",
     "moneybagName": "Имя счёта в Финтабло",
     "moneybagNamePlaceholder": "По умолчанию — имя объекта",
+    "syncFromDate": "Отправлять проводки с даты",
+    "syncFromDateRequired": "Укажите дату, с которой отправлять проводки",
     "saveSuccess": "Настройки Финтабло сохранены",
     "open": "Финтабло",
     "syncColumn": "Финтабло",
@@ -1588,6 +1590,7 @@
     "RECEIPT": "Приход",
     "EXPENDITURE": "Расход",
     "group": "Группа",
+    "paperTypeVisible": "Видимость",
     "paperGroup": {
       "AMS_REVENUE": "Выручка мойки инкассация",
       "CASH_TO_VRN": "Сдача в кассу ВРН",
@@ -2144,7 +2147,10 @@
     "spendMilestoneThresholdsNotAscending": "Пороги трат должны быть отсортированы по возрастанию",
     "spendMilestoneInvalidThreshold": "Порог трат не может быть отрицательным",
     "spendMilestoneInvalidDiscountValue": "Значение скидки не может быть отрицательным",
-    "spendMilestoneInvalidValidDays": "Срок действия промокода должен быть не менее 1 дня"
+    "spendMilestoneInvalidValidDays": "Срок действия промокода должен быть не менее 1 дня",
+    "registrationRegionRequired": "Выберите регион: кампания за регистрацию привязывается к региону",
+    "registrationDiscountValueRequired": "Укажите значение скидки больше 0",
+    "registrationPercentageRange": "Процент скидки должен быть от 0 до 100"
   },
   "table": {
     "noData": "Ничего не найдено",
@@ -2833,6 +2839,13 @@
     "spendThreshold": "Порог трат",
     "validDays": "Срок действия промокода (дней)",
     "addSpendTier": "Добавить уровень",
+    "registration": "Бонус за регистрацию",
+    "registrationDescription": "Приветственный промокод новому клиенту после выбора региона",
+    "registrationSettingUp": "Настройка приветственного промокода",
+    "registrationSettings": "Приветственный промокод",
+    "registrationSettingsDescription": "Новый клиент получает персональный промокод, когда выбирает регион кампании. Один промокод на клиента.",
+    "registrationCondition": "Регистрация",
+    "registrationRegionHint": "Регион кампании выбирается на шаге «География» — бонус получат только клиенты этого региона.",
     "noPromocodeLinked": "К этой кампании не привязан промокод",
     "points": "Бальная",
     "pointsDescription": "Возможность начисления баллов клиенту (ONVI)",

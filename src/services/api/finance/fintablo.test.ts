@@ -113,8 +113,16 @@ describe('buildPatchPosFinTabloBody', () => {
       buildPatchPosFinTabloBody({
         enabled: false,
         moneybagName: 'Касса',
+        syncFromDate: '2026-03-01',
       })
     ).toEqual({ enabled: false });
+
+    expect(
+      buildPatchPosFinTabloBody({
+        enabled: true,
+        syncFromDate: '2026-03-01',
+      })
+    ).toEqual({ enabled: true, syncFromDate: '2026-03-01' });
   });
 });
 

@@ -98,11 +98,13 @@ export type PosFinTabloResponse = {
   enabled: boolean;
   moneybagId: string | null;
   moneybagName?: string | null;
+  syncFromDate?: string | null;
 };
 
 export type PatchPosFinTabloBody = {
   enabled: boolean;
   moneybagName?: string;
+  syncFromDate?: string;
 };
 
 export function sanitizeOrganizationFinTabloResponse(
@@ -124,6 +126,11 @@ export function sanitizePosFinTabloResponse(
     name: data.name,
     enabled: Boolean(data.enabled),
     moneybagId: data.moneybagId ?? null,
+    syncFromDate:
+      typeof data.syncFromDate === 'string' &&
+      /^\d{4}-\d{2}-\d{2}$/.test(data.syncFromDate)
+        ? data.syncFromDate
+        : null,
   };
 
   if (typeof data.moneybagName === 'string') {
@@ -154,6 +161,9 @@ export function buildPatchPosFinTabloBody(
   const moneybagName = input.moneybagName?.trim();
   if (input.enabled && moneybagName) {
     body.moneybagName = moneybagName;
+  }
+  if (input.enabled && input.syncFromDate) {
+    body.syncFromDate = input.syncFromDate;
   }
   return body;
 }

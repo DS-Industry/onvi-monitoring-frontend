@@ -6,14 +6,19 @@ import useSWR from 'swr';
 import { getParam, updateSearchParams } from '@/utils/searchParamsUtils';
 import { DEFAULT_PAGE } from '@/utils/constants';
 import { getAllManagerPaperTypes } from '@/services/api/finance';
+import { useUser } from '@/hooks/useUserStore';
 
 const PaperTypeFilter: React.FC = () => {
   const { t } = useTranslation();
+  const user = useUser();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const { data: paperTypeData, isLoading } = useSWR(
-    'get-paper-type',
-    () => getAllManagerPaperTypes(),
+    user.organizationId ? ['get-paper-type', user.organizationId] : null,
+    () =>
+      getAllManagerPaperTypes({
+        organizationId: user.organizationId!,
+      }),
     {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,

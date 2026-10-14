@@ -2149,6 +2149,7 @@ export enum MarketingCampaignConditionType {
   VISIT_COUNT = 'VISIT_COUNT',
   PURCHASE_AMOUNT = 'PURCHASE_AMOUNT',
   PROMOCODE_ENTRY = 'PROMOCODE_ENTRY',
+  REGISTRATION = 'REGISTRATION',
 }
 
 export enum Weekday {
@@ -2307,6 +2308,7 @@ export type ACTION_TYPE =
 export type CreateMarketingCampaignActionDto = {
   campaignId: number;
   actionType: ACTION_TYPE;
+  payload?: Record<string, unknown>;
 };
 
 export async function createMarketingCampaignAction(

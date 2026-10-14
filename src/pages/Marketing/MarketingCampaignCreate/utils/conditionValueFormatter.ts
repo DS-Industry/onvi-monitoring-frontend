@@ -45,6 +45,9 @@ export const formatConditionValue = (
     case MarketingCampaignConditionType.BIRTHDAY:
       return t('marketing.birth');
 
+    case MarketingCampaignConditionType.REGISTRATION:
+      return t('marketingCampaigns.registrationCondition');
+
     default:
       return '';
   }

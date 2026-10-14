@@ -453,6 +453,8 @@ export type ManagerPaperTypeResponse = {
     name: string;
     type: ManagerPaperTypeClass;
     group?: ManagerPaperGroup | null;
+    organizationId: number;
+    isVisible: boolean;
   };
 };
 
@@ -578,14 +580,18 @@ type ManagerGraphResponse = {
 };
 
 type ManagerPaperTypeBody = {
+  organizationId: number;
   name: string;
   type: ManagerPaperTypeClass;
+  group?: ManagerPaperGroup | null;
 };
 
 type UpdateManagerPaperTypeBody = {
-  id: number;
+  managerPaperTypeId: number;
   name?: string;
   type?: ManagerPaperTypeClass;
+  group?: ManagerPaperGroup | null;
+  isVisible?: boolean;
 };
 
 type DeleteManagerPapersBody = {
@@ -1051,12 +1057,14 @@ export async function deleteManagerPapers(
   return response.data;
 }
 
-export async function getAllManagerPaperTypes(
-  group?: ManagerPaperGroup
-): Promise<ManagerPaperTypeResponse[]> {
+export async function getAllManagerPaperTypes(params: {
+  organizationId: number;
+  group?: ManagerPaperGroup;
+  visibleOnly?: boolean;
+}): Promise<ManagerPaperTypeResponse[]> {
   const response: AxiosResponse<ManagerPaperTypeResponse[]> = await api.get(
     FINANCE.MANAGER_PAPER + '/type',
-    group ? { params: { group } } : undefined
+    { params }
   );
   return response.data;
 }
