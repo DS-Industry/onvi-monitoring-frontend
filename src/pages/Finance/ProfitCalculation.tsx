@@ -652,6 +652,7 @@ const ProfitCalculation: React.FC = () => {
             showSearch
             allowClear
             placeholder={t('filters.pos.placeholder')}
+            className="w-full"
             value={searchParams.get('posId') ?? undefined}
             loading={isLoadingPoses}
             options={posFilterOptions}

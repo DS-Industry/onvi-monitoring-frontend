@@ -120,7 +120,7 @@ const GeneralFilters: React.FC<GeneralFiltersProps> = ({
               ref={contentRef}
               className="overflow-hidden transition-all duration-500 ease-in-out"
             >
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-4 max-sm:[&>*]:w-full">
                 {shouldShow('search') && <SearchInputFilter />}
                 {shouldShow('city') && <CityFilter />}
                 {shouldShow('organization') && <OrganizationFilter />}

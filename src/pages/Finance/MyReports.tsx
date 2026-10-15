@@ -276,6 +276,7 @@ const MyReports: React.FC = () => {
             showSearch
             allowClear
             placeholder={t('filters.pos.placeholder')}
+            className="w-full"
             value={searchParams.get('posId') ?? undefined}
             loading={isPosFilterLoading}
             options={posFilterOptions}

@@ -236,6 +236,7 @@ const ProgramDevices: React.FC = () => {
             {t('pos.turningType')}
           </label>
           <Select
+            className="w-full"
             placeholder={t('constants.all')}
             allowClear
             value={turningType}
