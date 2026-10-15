@@ -173,7 +173,7 @@ const PosOverviewStation: React.FC = () => {
     <OverviewCurrencyProvider value={conversion}>
       <div className="px-2 md:px-0">
         <div
-          className="mb-4 flex cursor-pointer items-center text-primary02 w-fit"
+          className="mb-6 md:mb-4 ml-12 md:ml-0 flex cursor-pointer items-center text-primary02 w-fit"
           onClick={() => navigate(backHref)}
         >
           <ArrowLeftOutlined />

@@ -399,7 +399,7 @@ const IncomeReport: React.FC = () => {
   };
 
   if (loadingReport) return <Skeleton active />;
-  if (!reportData) return <div>{t('errors.other.reportNotFound')}</div>;
+  if (!reportData) return <div className="ml-12 md:ml-0">{t('errors.other.reportNotFound')}</div>;
 
   return (
     <div>
