@@ -217,7 +217,7 @@ const OrganizationRequests: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <div className="ml-0 flex items-center space-x-2">
+      <div className="ml-12 md:ml-0 flex items-center space-x-2">
         <span className="text-xl sm:text-3xl font-normal text-text01">
           {t('routes.organizationRequests')}
         </span>

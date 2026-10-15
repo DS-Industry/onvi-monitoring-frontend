@@ -161,7 +161,7 @@ const MarketingCampaignStats: React.FC = () => {
       <div className="px-4 md:px-0">
         <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] lg:gap-x-10 lg:gap-y-8">
           <div
-            className="mb-4 flex shrink-0 cursor-pointer text-primary02 lg:col-start-1 lg:row-start-1 lg:mb-0 lg:self-center"
+            className="mb-4 ml-12 md:ml-0 flex shrink-0 cursor-pointer text-primary02 lg:col-start-1 lg:row-start-1 lg:mb-0 lg:self-center"
             onClick={() => navigate('/marketing/campaigns')}
           >
             <ArrowLeftOutlined />
@@ -185,7 +185,7 @@ const MarketingCampaignStats: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] lg:gap-x-10 lg:gap-y-8">
         <div className="mb-4 flex items-center gap-3 lg:mb-0 lg:contents">
           <div
-            className="flex shrink-0 cursor-pointer text-primary02 lg:col-start-1 lg:row-start-1 lg:self-center"
+            className="ml-12 md:ml-0 flex shrink-0 cursor-pointer text-primary02 lg:col-start-1 lg:row-start-1 lg:self-center"
             onClick={() => navigate(backPath)}
           >
             <ArrowLeftOutlined />
