@@ -2,6 +2,7 @@ import {
     CampaignExecutionType,
     MarketingCampaignResponse,
 } from '@/services/api/marketing';
+import { isRegistrationPayload } from './registrationCampaign';
 
 export type SpendCycle = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY' | 'ALL_TIME';
 
@@ -31,10 +32,14 @@ export const createEmptyTier = (): SpendMilestoneTier => ({
 });
 
 export const isSpendMilestoneCampaign = (
-    campaign?: Pick<MarketingCampaignResponse, 'executionType' | 'actionType'>
+    campaign?: Pick<
+        MarketingCampaignResponse,
+        'executionType' | 'actionType' | 'actionPayload'
+    >
 ): boolean =>
     campaign?.executionType === CampaignExecutionType.BEHAVIORAL &&
-    campaign?.actionType === 'PROMOCODE_ISSUE';
+    campaign?.actionType === 'PROMOCODE_ISSUE' &&
+    !isRegistrationPayload(campaign?.actionPayload);
 
 export const parseSpendMilestonePayload = (
     payload?: Record<string, unknown>

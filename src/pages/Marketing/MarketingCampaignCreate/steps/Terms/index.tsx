@@ -36,6 +36,14 @@ import {
     SpendMilestoneTier,
     validateSpendMilestoneTiers,
 } from '../../utils/spendMilestone';
+import RegistrationPromocodeSection from './RegistrationPromocodeSection';
+import {
+    areRegistrationPayloadsEqual,
+    isRegistrationCampaign,
+    parseRegistrationPayload,
+    RegistrationPromocodePayload,
+    validateRegistrationPayload,
+} from '../../utils/registrationCampaign';
 import { useRewardInitialization } from './useRewardInitialization';
 import { useUser } from '@/hooks/useUserStore';
 
@@ -160,6 +168,24 @@ const Terms: React.FC = () => {
         [marketingCampaign]
     );
 
+    const isRegistration = useMemo(
+        () => isRegistrationCampaign(marketingCampaign),
+        [marketingCampaign]
+    );
+
+    const [registrationPayload, setRegistrationPayload] =
+        useState<RegistrationPromocodePayload>(() => parseRegistrationPayload());
+    const [initialRegistrationPayload, setInitialRegistrationPayload] =
+        useState<RegistrationPromocodePayload | null>(null);
+
+    useEffect(() => {
+        if (!marketingCampaign || !isRegistration) return;
+
+        const payload = parseRegistrationPayload(marketingCampaign.actionPayload);
+        setRegistrationPayload(payload);
+        setInitialRegistrationPayload(prev => prev ?? payload);
+    }, [marketingCampaign, isRegistration]);
+
     const [spendCycle, setSpendCycle] = useState<SpendCycle>(DEFAULT_SPEND_CYCLE);
     const [tiers, setTiers] = useState<SpendMilestoneTier[]>([createEmptyTier()]);
     const [initialSpendMilestonePayload, setInitialSpendMilestonePayload] =
@@ -201,7 +227,7 @@ const Terms: React.FC = () => {
         isLoading,
         isValidating,
     } = useSWR(
-        marketingCampaignId && !isSpendMilestone
+        marketingCampaignId && !isSpendMilestone && !isRegistration
             ? ['get-marketing-conditions-by-id', marketingCampaignId]
             : null,
         () => getMarketingConditionsById(marketingCampaignId!),
@@ -444,6 +470,43 @@ const Terms: React.FC = () => {
         }
     };
 
+    const handleSaveRegistrationPromocode = async () => {
+        if (!marketingCampaignId) return;
+
+        if (
+            initialRegistrationPayload &&
+            areRegistrationPayloadsEqual(registrationPayload, initialRegistrationPayload)
+        ) {
+            navigateToNextStep();
+            return;
+        }
+
+        const validation = validateRegistrationPayload(registrationPayload);
+        if (!validation.valid && validation.errorKey) {
+            message.warning(t(validation.errorKey));
+            return;
+        }
+
+        try {
+            setIsUpdatingData(true);
+
+            await updateMarketingCampaignAction(marketingCampaignId, {
+                actionType: 'PROMOCODE_ISSUE',
+                payload: registrationPayload,
+            });
+
+            setInitialRegistrationPayload(registrationPayload);
+            await mutateCampaign();
+            navigateToNextStep();
+            showToast(t('tables.SAVED'), 'success');
+        } catch (error) {
+            console.error('Error updating registration promocode:', error);
+            showToast(t('common.somethingWentWrong'), 'error');
+        } finally {
+            setIsUpdatingData(false);
+        }
+    };
+
     const isRewardButtonDisabled = () => {
         if (!rewardValue || rewardValue <= 0) return true;
 
@@ -463,8 +526,15 @@ const Terms: React.FC = () => {
         [tiers]
     );
 
+    const isRegistrationButtonDisabled = useMemo(
+        () => !validateRegistrationPayload(registrationPayload).valid,
+        [registrationPayload]
+    );
+
+    const hasConditions = !isSpendMilestone && !isRegistration;
+
     const isPageLoading =
-        isLoadingMarketingCampaign || (!isSpendMilestone && (isLoading || isValidating));
+        isLoadingMarketingCampaign || (hasConditions && (isLoading || isValidating));
 
     if (isPageLoading) {
         return (
@@ -487,13 +557,15 @@ const Terms: React.FC = () => {
                     <div className="text-base03 text-md">
                         {isSpendMilestone
                             ? t('marketingCampaigns.spendMilestoneSettingUp')
-                            : t('marketingCampaigns.settingUp')}
+                            : isRegistration
+                              ? t('marketingCampaigns.registrationSettingUp')
+                              : t('marketingCampaigns.settingUp')}
                     </div>
                 </div>
             </div>
 
             {contextHolder}
-            {!isSpendMilestone && (
+            {hasConditions && (
                 <>
                     <ConditionModal
                         open={isModalOpen}
@@ -518,7 +590,12 @@ const Terms: React.FC = () => {
                 </>
             )}
 
-            {isSpendMilestone ? (
+            {isRegistration ? (
+                <RegistrationPromocodeSection
+                    payload={registrationPayload}
+                    onChange={setRegistrationPayload}
+                />
+            ) : isSpendMilestone ? (
                 <SpendMilestoneTiersSection
                     spendCycle={spendCycle}
                     tiers={tiers}
@@ -540,15 +617,20 @@ const Terms: React.FC = () => {
                 actionType={actionType}
                 marketingCampaign={marketingCampaign}
                 isSpendMilestone={isSpendMilestone}
+                isRegistration={isRegistration}
                 isUpdating={isUpdatingData}
                 isDisabled={
-                    isSpendMilestone
-                        ? isSpendMilestoneButtonDisabled
-                        : isRewardButtonDisabled()
+                    isRegistration
+                        ? isRegistrationButtonDisabled
+                        : isSpendMilestone
+                          ? isSpendMilestoneButtonDisabled
+                          : isRewardButtonDisabled()
                 }
                 onNext={
-                    isSpendMilestone
-                        ? handleSaveSpendMilestoneTiers
+                    isRegistration
+                        ? handleSaveRegistrationPromocode
+                        : isSpendMilestone
+                          ? handleSaveSpendMilestoneTiers
                         : actionType === 'PROMOCODE_ISSUE'
                           ? navigateToNextStep
                           : handleSaveReward

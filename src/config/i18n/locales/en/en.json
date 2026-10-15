@@ -2146,7 +2146,10 @@
     "spendMilestoneThresholdsNotAscending": "Spend thresholds must be sorted in ascending order",
     "spendMilestoneInvalidThreshold": "Spend threshold cannot be negative",
     "spendMilestoneInvalidDiscountValue": "Discount value cannot be negative",
-    "spendMilestoneInvalidValidDays": "Promocode validity must be at least 1 day"
+    "spendMilestoneInvalidValidDays": "Promocode validity must be at least 1 day",
+    "registrationRegionRequired": "Select a region: a registration campaign is bound to a region",
+    "registrationDiscountValueRequired": "Enter a discount value greater than 0",
+    "registrationPercentageRange": "Discount percentage must be between 0 and 100"
   },
   "table": {
     "noData": "No Data",
@@ -2830,6 +2833,13 @@
     "spendThreshold": "Spend threshold",
     "validDays": "Promocode validity (days)",
     "addSpendTier": "Add tier",
+    "registration": "Registration bonus",
+    "registrationDescription": "Welcome promocode for a new client after they pick a region",
+    "registrationSettingUp": "Welcome promocode setup",
+    "registrationSettings": "Welcome promocode",
+    "registrationSettingsDescription": "A new client gets a personal promocode when they pick the campaign region. One promocode per client.",
+    "registrationCondition": "Registration",
+    "registrationRegionHint": "The campaign region is chosen on the Geography step; only clients of that region get the bonus.",
     "noPromocodeLinked": "No promocode linked to this campaign",
     "points": "Points",
     "pointsDescription": "Possibility of accruing points to the client (ONVI)",
