@@ -6,6 +6,7 @@ import SegmentsDialog from '@/components/ui/Dialog/SegmentsDialog';
 import Button from '@/components/ui/Button/Button';
 import { PlusOutlined } from '@ant-design/icons';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import RequiredFieldsHint from '@/components/ui/RequiredFieldsHint';
 
 const columns = [
   { label: 'Тип клиента', key: 'clientType' },
@@ -116,11 +117,7 @@ const NewSegment: React.FC = () => {
       <div className="space-y-4">
         {/* Header Section */}
         <div>
-          <div className="flex font-semibold space-x-1">
-            <div className="text-text01">{t('routine.fields')}</div>
-            <div className="text-textError">*</div>
-            <div className="text-text01">{t('routine.are')}</div>
-          </div>
+          <RequiredFieldsHint />
           <div className="flex space-x-4">
             <Input title={t('marketing.segName')} classname="w-96" />
             <DropdownInput
