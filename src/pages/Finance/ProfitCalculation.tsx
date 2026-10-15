@@ -679,6 +679,7 @@ const ProfitCalculation: React.FC = () => {
             showSearch
             allowClear
             placeholder={t('finance.selectPartner')}
+            className="w-full sm:w-auto"
             value={searchParams.get('partnerId') ?? undefined}
             options={partnerSelectOptions.map(option => ({
               value: String(option.value),
