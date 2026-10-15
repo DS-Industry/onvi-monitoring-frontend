@@ -15,6 +15,7 @@ import { useUser } from '@/hooks/useUserStore';
 import { useSearchParams } from 'react-router-dom';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
 import { formatRussianPhone } from '@/utils/tableUnits';
+import RequiredFieldsHint from '@/components/ui/RequiredFieldsHint';
 
 type EmployeeCreationDrawerProps = {
   open: boolean;
@@ -138,15 +139,7 @@ const EmployeeCreationDrawer: React.FC<EmployeeCreationDrawerProps> = ({
       width={620}
     >
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-        <div className="mb-5 flex">
-          <span className="font-semibold text-sm text-text01">
-            {t('routine.fields')}
-          </span>
-          <span className="text-errorFill">*</span>
-          <span className="font-semibold text-sm text-text01">
-            {t('routine.are')}
-          </span>
-        </div>
+        <RequiredFieldsHint className="mb-5" />
         <div>
           <div className="flex">
             <div className="text-text02 text-sm">{t('roles.name')}</div>

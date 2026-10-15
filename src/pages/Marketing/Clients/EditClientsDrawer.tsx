@@ -34,6 +34,7 @@ import { useSearchParams } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { useForm, Controller, useWatch } from 'react-hook-form';
+import RequiredFieldsHint from '@/components/ui/RequiredFieldsHint';
 
 type ClientDrawerProps = {
   isOpen: boolean;
@@ -273,13 +274,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
         </div>
       ) : (
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <span className="font-semibold text-sm text-text01">
-            {t('routine.fields')}
-          </span>
-          <span className="text-errorFill">*</span>
-          <span className="font-semibold text-sm text-text01">
-            {t('routine.are')}
-          </span>
+          <RequiredFieldsHint />
           <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">
             {t('warehouse.basic')}
           </div>

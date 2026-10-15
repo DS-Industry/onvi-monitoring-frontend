@@ -38,6 +38,7 @@ import { useUser } from '@/hooks/useUserStore';
 import hasPermission from '@/permissions/hasPermission';
 import { usePermissions } from '@/hooks/useAuthStore';
 import { formatPhoneByCountry } from '@/utils/tableUnits';
+import RequiredFieldsHint from '@/components/ui/RequiredFieldsHint';
 
 const Employees: React.FC = () => {
   const { t } = useTranslation();
@@ -463,15 +464,7 @@ const Employees: React.FC = () => {
               onClose={() => setNotificationVisibleForm(false)}
             />
           )}
-          <div className="flex">
-            <span className="font-semibold text-sm text-text01">
-              {t('routine.fields')}
-            </span>
-            <span className="text-errorFill">*</span>
-            <span className="font-semibold text-sm text-text01">
-              {t('routine.are')}
-            </span>
-          </div>
+          <RequiredFieldsHint />
           <div className="font-semibold text-2xl text-text01">
             {t('warehouse.basic')}
           </div>
