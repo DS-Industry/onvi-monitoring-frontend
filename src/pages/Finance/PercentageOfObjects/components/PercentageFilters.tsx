@@ -55,6 +55,7 @@ const PercentageFilters: React.FC<Props> = ({
         <Select
           showSearch
           allowClear
+          className="w-full"
           placeholder={t('filters.pos.placeholder')}
           value={searchParams.get('posId') ?? undefined}
           loading={isPosLoading}
@@ -81,6 +82,7 @@ const PercentageFilters: React.FC<Props> = ({
         <Select
           showSearch
           allowClear
+          className="w-full"
           placeholder={t('finance.selectPartner')}
           value={searchParams.get('partnerId') ?? undefined}
           options={partnerSelectOptions.map(option => ({
