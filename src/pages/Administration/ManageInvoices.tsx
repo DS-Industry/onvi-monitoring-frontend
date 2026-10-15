@@ -302,7 +302,7 @@ const ManageInvoices: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <div className="ml-12 md:ml-0 flex items-center justify-between">
+      <div className="ml-12 md:ml-0 flex flex-wrap items-center justify-between gap-2">
         <span className="text-xl sm:text-3xl font-normal text-text01">
           {t('routes.invoices')}
         </span>
@@ -328,11 +328,13 @@ const ManageInvoices: React.FC = () => {
               columns={invoiceColumns}
               pagination={false}
               size="small"
+              scroll={{ x: 'max-content' }}
             />
           ),
           rowExpandable: record => !!record.invoices && record.invoices.length > 0,
         }}
         pagination={false}
+        scroll={{ x: 'max-content' }}
       />
       <Modal
         open={isModalOpen}
