@@ -131,13 +131,11 @@ const OrganizationRequests: React.FC = () => {
       title: t('organizations.name'),
       dataIndex: 'name',
       key: 'name',
-      ellipsis: true,
     },
     {
       title: t('organizations.address'),
       dataIndex: 'address',
       key: 'address',
-      ellipsis: true,
     },
     {
       title: t('organizations.status'),
@@ -238,6 +236,8 @@ const OrganizationRequests: React.FC = () => {
         loading={loading}
         dataSource={data}
         columns={columns}
+        scroll={{ x: 'max-content' }}
+        className="[&_.ant-table-cell]:whitespace-nowrap"
         pagination={{
           current: page,
           pageSize,
