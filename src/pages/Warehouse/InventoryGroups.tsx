@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import InventoryEmpty from '@/assets/NoInventory.png';
 import Input from '@/components/ui/Input/Input';
+import { renderRequiredMark } from '@/components/ui/renderRequiredMark';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
 import MultilineInput from '@/components/ui/Input/MultilineInput';
 import useSWR, { mutate } from 'swr';
@@ -351,7 +352,7 @@ const InventoryGroups: React.FC = () => {
       >
         <form className="w-full max-w-2xl mx-auto p-4 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <span className="font-semibold text-sm text-text01">
-            {t('warehouse.fields')}
+            {renderRequiredMark(t('warehouse.fields'))}
           </span>
           <Input
             title={t('profile.name')}
