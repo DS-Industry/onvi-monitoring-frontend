@@ -13,6 +13,7 @@ import {
   updateManagerPaperType,
 } from '@/services/api/finance';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
+import { renderRequiredMark } from '@/components/ui/renderRequiredMark';
 import { Drawer, Button, Switch, Table } from 'antd';
 import { PlusOutlined, EditOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
@@ -260,10 +261,13 @@ const DirectoryArticles: React.FC = () => {
         onClose={resetForm}
         open={drawerOpen}
         className="custom-drawer"
+        classNames={{
+          wrapper: 'max-sm:!w-full max-sm:!max-w-full',
+        }}
       >
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <span className="font-semibold text-sm text-text01">
-            {t('warehouse.fields')}
+            {renderRequiredMark(t('warehouse.fields'))}
           </span>
           <div className="font-semibold text-2xl mb-5 text-text01">
             {t('warehouse.basic')}
@@ -272,7 +276,7 @@ const DirectoryArticles: React.FC = () => {
             type={''}
             title={t('warehouse.supName')}
             label={t('warehouse.enterSup')}
-            classname="w-80"
+            classname="w-full sm:w-80"
             value={formData.name}
             changeValue={e => handleInputChange('name', e.target.value)}
             error={!!errors.name}
@@ -285,7 +289,7 @@ const DirectoryArticles: React.FC = () => {
           <DropdownInput
             title={`${t('finance.article')}*`}
             label={t('finance.articleType')}
-            classname="w-80"
+            classname="w-full sm:w-80"
             options={Object.values(ManagerPaperTypeClass).map(type => ({
               name: t(`finance.${type}`),
               value: type as ManagerPaperTypeClass,
@@ -302,7 +306,7 @@ const DirectoryArticles: React.FC = () => {
           <DropdownInput
             title={t('finance.group')}
             label="-"
-            classname="w-80"
+            classname="w-full sm:w-80"
             options={groupOptions}
             value={formData.group}
             onChange={value => handleInputChange('group', value)}

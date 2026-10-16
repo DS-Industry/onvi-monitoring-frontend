@@ -34,6 +34,7 @@ import { useSearchParams } from 'react-router-dom';
 import useSWR, { mutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { useForm, Controller, useWatch } from 'react-hook-form';
+import RequiredFieldsHint from '@/components/ui/RequiredFieldsHint';
 
 type ClientDrawerProps = {
   isOpen: boolean;
@@ -265,6 +266,9 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
       onClose={onClose}
       open={isOpen}
       className="custom-drawer"
+      classNames={{
+        wrapper: 'max-sm:!w-full max-sm:!max-w-full',
+      }}
       zIndex={9999}
     >
       {loadingClient ? (
@@ -273,13 +277,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
         </div>
       ) : (
         <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <span className="font-semibold text-sm text-text01">
-            {t('routine.fields')}
-          </span>
-          <span className="text-errorFill">*</span>
-          <span className="font-semibold text-sm text-text01">
-            {t('routine.are')}
-          </span>
+          <RequiredFieldsHint />
           <div className="font-semibold text-xl md:text-3xl mb-5 text-text01">
             {t('warehouse.basic')}
           </div>
@@ -343,6 +341,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
                 control={control}
                 render={({ field }) => (
                   <DatePicker
+                    className="w-full sm:w-96"
                     value={field.value ? dayjs(field.value) : undefined}
                     onChange={d => field.onChange(d ? d.toDate() : undefined)}
                     placeholder={t('finance.sel')}

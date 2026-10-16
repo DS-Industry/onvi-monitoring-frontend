@@ -14,3 +14,18 @@
 .btn-outline-danger {
   @apply bg-background02 text-red-500 hover:text-red-600 border border-red-500 hover:border-red-600 flex items-center px-4 sm:px-6 py-5;
 }
+
+/* Date+time picker is wider than a phone screen: stack time under the calendar */
+@media (max-width: 575px) {
+  .ant-picker-dropdown .ant-picker-datetime-panel {
+    flex-direction: column;
+  }
+  .ant-picker-dropdown .ant-picker-datetime-panel .ant-picker-time-panel {
+    border-inline-start: none;
+    border-top: 1px solid rgba(5, 5, 5, 0.06);
+  }
+  .ant-picker-dropdown .ant-picker-datetime-panel .ant-picker-time-panel-column {
+    flex: 1;
+    height: 160px;
+  }
+}

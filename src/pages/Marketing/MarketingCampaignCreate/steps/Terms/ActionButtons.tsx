@@ -10,6 +10,7 @@ interface ActionButtonsProps {
     actionType?: ACTION_TYPE;
     marketingCampaign?: MarketingCampaignResponse;
     isSpendMilestone?: boolean;
+    isRegistration?: boolean;
     isUpdating: boolean;
     isDisabled: boolean;
     onNext: () => void;
@@ -19,6 +20,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
     actionType,
     marketingCampaign,
     isSpendMilestone = false,
+    isRegistration = false,
     isUpdating,
     isDisabled,
     onNext,
@@ -37,7 +39,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
         return null;
     }
 
-    if (actionType === 'PROMOCODE_ISSUE' && !isSpendMilestone) {
+    if (actionType === 'PROMOCODE_ISSUE' && !isSpendMilestone && !isRegistration) {
         return (
             <div className="flex justify-end gap-2 mt-3">
                 <Button

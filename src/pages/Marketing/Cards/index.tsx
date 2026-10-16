@@ -308,7 +308,7 @@ const Cards: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between">
-        <div className="font-semibold text-text01 text-2xl">
+        <div className="ml-12 md:ml-0 font-semibold text-text01 text-2xl">
           {t('routes.users')}
         </div>
         {canUpdate && (

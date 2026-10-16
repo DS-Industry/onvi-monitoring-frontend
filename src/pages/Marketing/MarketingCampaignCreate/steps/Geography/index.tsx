@@ -15,6 +15,10 @@ import { updateSearchParams } from '@/utils/searchParamsUtils';
 
 import Spin from 'antd/es/spin';
 import CityFilter from '@/components/ui/Filter/CityFilter';
+import {
+  ensureRegistrationCondition,
+  isRegistrationCampaign,
+} from '../../utils/registrationCampaign';
 
 const Geography: React.FC = () => {
   const { t } = useTranslation();
@@ -41,6 +45,7 @@ const Geography: React.FC = () => {
   );
 
   const loyaltyProgramId = marketCampaignByIdData?.ltyProgramId || 0;
+  const isRegistration = isRegistrationCampaign(marketCampaignByIdData);
 
   const { data: participantsData = [], isLoading: participantsLoading } = useSWR(
     loyaltyProgramId ? [`get-devices`, loyaltyProgramId] : null,
@@ -108,6 +113,28 @@ const Geography: React.FC = () => {
     return city ? Number(city) : undefined;
   };
 
+  // A registration campaign must be bound to a region, and its REGISTRATION
+  // condition can only be added once that region is saved.
+  const prepareRegistrationCampaign = async (
+    placementId: number | undefined
+  ): Promise<boolean> => {
+    if (!placementId) {
+      message.warning(t('validation.registrationRegionRequired'));
+      return false;
+    }
+
+    try {
+      if (placementId !== marketCampaignByIdData?.placementId) {
+        await triggerUpdate({ placementId });
+      }
+      await ensureRegistrationCondition(marketingCampaignId);
+      return true;
+    } catch (error) {
+      message.error(t('marketing.errorCampaign'));
+      return false;
+    }
+  };
+
   const handleSaveAndExit = async () => {
     if (!marketingCampaignId || !loyaltyProgramId) {
       message.error(t('marketing.errorCampaign'));
@@ -125,6 +152,10 @@ const Geography: React.FC = () => {
     }
 
     const placementId = getSelectedCityId();
+
+    if (isRegistration && !(await prepareRegistrationCampaign(placementId))) {
+      return;
+    }
 
     if (editMode && initialPosIds) {
       const hasChanged =
@@ -172,6 +203,10 @@ const Geography: React.FC = () => {
     }
 
     const placementId = getSelectedCityId();
+
+    if (isRegistration && !(await prepareRegistrationCampaign(placementId))) {
+      return;
+    }
 
     if (editMode && initialPosIds) {
       const hasChanged =

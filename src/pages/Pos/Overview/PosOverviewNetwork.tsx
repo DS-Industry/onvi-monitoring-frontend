@@ -143,7 +143,7 @@ const PosOverviewNetwork: React.FC = () => {
   return (
     <div className="px-2 md:px-0">
       <div className="mb-5 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <h1 className="text-xl sm:text-3xl font-semibold text-text01 m-0">
+        <h1 className="ml-12 md:ml-0 text-xl sm:text-3xl font-semibold text-text01 m-0">
           {t('posOverview.networkTitle')}
         </h1>
         <div className="flex flex-wrap items-end gap-3">

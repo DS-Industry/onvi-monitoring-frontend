@@ -23,6 +23,7 @@ import {
   DEFAULT_PAGE_SIZE,
 } from '@/utils/constants';
 import { updateSearchParams } from '@/utils/searchParamsUtils';
+import { renderRequiredMark } from '@/components/ui/renderRequiredMark';
 import { useUser } from '@/hooks/useUserStore';
 
 type Warehouse = {
@@ -262,7 +263,7 @@ const Warehouse: React.FC = () => {
       >
         <form className="w-full max-w-2xl mx-auto p-4 space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <span className="font-semibold text-sm text-text01">
-            {t('warehouse.fields')}
+            {renderRequiredMark(t('warehouse.fields'))}
           </span>
           <Input
             title={t('profile.name')}
