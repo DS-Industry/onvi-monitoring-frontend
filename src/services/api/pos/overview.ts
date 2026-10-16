@@ -57,6 +57,7 @@ export type NetworkCardItem = {
   carsWashed: number;
   revenue: number;
   planFulfillmentPercent: number;
+  monthPlanFulfillmentPercent: number;
 };
 
 export type NetworkCardsResponse = {
