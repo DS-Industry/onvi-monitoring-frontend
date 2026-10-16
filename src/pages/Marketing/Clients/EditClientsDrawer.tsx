@@ -266,6 +266,9 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
       onClose={onClose}
       open={isOpen}
       className="custom-drawer"
+      classNames={{
+        wrapper: 'max-sm:!w-full max-sm:!max-w-full',
+      }}
       zIndex={9999}
     >
       {loadingClient ? (
@@ -338,6 +341,7 @@ const EditClientsDrawer: React.FC<ClientDrawerProps> = ({
                 control={control}
                 render={({ field }) => (
                   <DatePicker
+                    className="w-full sm:w-96"
                     value={field.value ? dayjs(field.value) : undefined}
                     onChange={d => field.onChange(d ? d.toDate() : undefined)}
                     placeholder={t('finance.sel')}
