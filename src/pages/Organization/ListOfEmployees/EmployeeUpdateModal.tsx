@@ -122,28 +122,18 @@ const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
           okButtonProps={{
             loading: isMutating,
           }}
-          footer={[
-            <Button key="cancel" onClick={onClose}>
-              {t('organizations.cancel')}
-            </Button>,
-            <Button
-              key="extra"
-              danger
-              loading={blocking}
-              onClick={handleBlockWorker}
-            >
-              {t('roles.block')}
-            </Button>,
-            <Button
-              key="ok"
-              type="primary"
-              loading={isMutating}
-              onClick={handleUpdateRole}
-            >
-              {t('organizations.save')}
-            </Button>,
-          ]}
-          className="sm:w-[552px] max-h-[90vh] overflow-auto"
+          footer={
+            <div className="flex flex-col items-end gap-3 sm:flex-row sm:justify-end sm:gap-2">
+              <Button onClick={onClose}>{t('organizations.cancel')}</Button>
+              <Button danger loading={blocking} onClick={handleBlockWorker}>
+                {t('roles.block')}
+              </Button>
+              <Button type="primary" loading={isMutating} onClick={handleUpdateRole}>
+                {t('organizations.save')}
+              </Button>
+            </div>
+          }
+          className="sm:w-[552px] max-h-[90vh] overflow-auto [&_.ant-modal-footer_.ant-btn+.ant-btn]:!ms-0"
         >
           <h2 className="text-2xl font-semibold text-text01 mb-4">
             {t('roles.role')}
