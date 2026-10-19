@@ -64,6 +64,45 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
   const [form] = Form.useForm();
   const [promocodeType, setPromocodeType] = useState<PromocodeType | undefined>(undefined);
   const [clientSearch, setClientSearch] = useState<string>('');
+  const [datetimeOpen, setDatetimeOpen] = useState(false);
+
+  useEffect(() => {
+    if (!datetimeOpen) return;
+
+    const media = window.matchMedia('(max-width: 575px)');
+    const root = document.documentElement;
+
+    const placePopupInsideScreen = () => {
+      if (!media.matches) {
+        root.style.removeProperty('--promo-picker-top');
+        root.style.removeProperty('--promo-picker-max-height');
+        return;
+      }
+
+      const viewport = window.visualViewport;
+      const top = (viewport?.offsetTop ?? 0) + 8;
+      const visibleHeight = viewport?.height ?? window.innerHeight;
+      root.style.setProperty('--promo-picker-top', `${top}px`);
+      root.style.setProperty(
+        '--promo-picker-max-height',
+        `${Math.max(visibleHeight - 16, 180)}px`
+      );
+    };
+
+    placePopupInsideScreen();
+    const viewport = window.visualViewport;
+    viewport?.addEventListener('resize', placePopupInsideScreen);
+    viewport?.addEventListener('scroll', placePopupInsideScreen);
+    media.addEventListener('change', placePopupInsideScreen);
+
+    return () => {
+      viewport?.removeEventListener('resize', placePopupInsideScreen);
+      viewport?.removeEventListener('scroll', placePopupInsideScreen);
+      media.removeEventListener('change', placePopupInsideScreen);
+      root.style.removeProperty('--promo-picker-top');
+      root.style.removeProperty('--promo-picker-max-height');
+    };
+  }, [datetimeOpen]);
 
   const { trigger: createPromoMutation, isMutating: isCreatingPromo } =
     useSWRMutation(
@@ -448,6 +487,8 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
             style={{ width: '100%' }}
             format="YYYY-MM-DD HH:mm"
             disabled={isCampaignPromocode}
+            popupClassName="promo-datetime-popup"
+            onOpenChange={setDatetimeOpen}
           />
         </Form.Item>
 
@@ -461,6 +502,8 @@ const PromoCodeDrawer: React.FC<PromoCodeDrawerProps> = ({
             style={{ width: '100%' }}
             format="YYYY-MM-DD HH:mm"
             disabled={isCampaignPromocode}
+            popupClassName="promo-datetime-popup"
+            onOpenChange={setDatetimeOpen}
           />
         </Form.Item>
 
