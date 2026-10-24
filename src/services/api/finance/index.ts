@@ -234,6 +234,7 @@ export type ShiftItem = {
     id: number;
     posId: number;
     workerId: number;
+    workerFio?: string;
     workDate: string;
     typeWorkDay: string;
     timeWorkedOut: string;
