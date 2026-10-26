@@ -100,7 +100,10 @@ const CreateTechTaskModal: React.FC<CreateTechTaskModalProps> = ({
         customPeriodDays: values.periodType === PeriodType.CUSTOM ? Number(values.customPeriodDays) : undefined,
         markdownDescription: values.authorComment,
         startDate: new Date(),
-        endSpecifiedDate: values.endDate ? dayjs(values.endDate).toDate() : undefined,
+        endSpecifiedDate:
+          values.type === TypeTechTask.REGULAR || !values.endDate
+            ? undefined
+            : dayjs(values.endDate).toDate(),
         techTaskItem: selectedTemplateItems.map(item => item.id),
         tagIds: values.tags.map((tagId: any) => Number(tagId)),
       };
