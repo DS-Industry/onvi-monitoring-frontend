@@ -94,6 +94,9 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
               if (value === TypeTechTask.ONETIME) {
                 form.setFieldsValue({ periodType: undefined, customPeriodDays: undefined });
               }
+              if (value === TypeTechTask.REGULAR) {
+                form.setFieldsValue({ endDate: undefined });
+              }
             }}
             placeholder={t('techTasks.selectWorkType')}
           >
@@ -150,22 +153,24 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
           </Form.Item>
         )}
 
-        <Form.Item 
-          name="endDate" 
-          label={
-            <span>
-              <CalendarOutlined className="mr-2" /> {t('techTasks.endDate')} 
-            </span>
-          }
-          rules={[{ required: true, message: t('techTasks.selectEndDate') }]}
-        >
-          <DatePicker
-            className="w-full"
-            placeholder={t('techTasks.endDate')}
-            size="large"
-            format="DD.MM.YYYY"
-          />
-        </Form.Item>
+        {workType !== TypeTechTask.REGULAR && (
+          <Form.Item
+            name="endDate"
+            preserve={false}
+            label={
+              <span>
+                <CalendarOutlined className="mr-2" /> {t('techTasks.endDate')}
+              </span>
+            }
+          >
+            <DatePicker
+              className="w-full"
+              placeholder={t('techTasks.endDate')}
+              size="large"
+              format="DD.MM.YYYY"
+            />
+          </Form.Item>
+        )}
 
         <Form.Item 
           name="tags" 
