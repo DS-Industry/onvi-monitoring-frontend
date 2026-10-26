@@ -1852,7 +1852,8 @@
     "select": "Select columns to display",
     "cols": "Columns in a table",
     "invent": "Inventory is empty. You can't add any item for the moment.",
-    "block": "Block"
+    "block": "Block",
+    "unblock": "Unblock"
   },
   "hr": {
     "to": "To add a new employee to the database, click the «Add employee» button",

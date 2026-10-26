@@ -907,6 +907,13 @@ export async function blockWorker(userId: number): Promise<WorkerBlockResponse> 
   return response.data;
 }
 
+export async function unblockWorker(userId: number): Promise<WorkerBlockResponse> {
+  const response: AxiosResponse<WorkerBlockResponse> = await api.patch(
+    `user/permission/worker/${userId}/unblock`
+  );
+  return response.data;
+}
+
 export async function deleteTechTask(id: number): Promise<void> {
   const response: AxiosResponse<void> = await api.delete(
     `user/tech-task/${id}`

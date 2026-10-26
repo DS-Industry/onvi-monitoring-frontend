@@ -4,7 +4,7 @@ import useSWR, { mutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { getRoles, updateRole } from '@/services/api/organization';
 import { Button, Modal, Select } from 'antd';
-import { blockWorker, getWorkers } from '@/services/api/equipment';
+import { blockWorker, getWorkers, StatusWorkers, unblockWorker } from '@/services/api/equipment';
 import { useUser } from '@/hooks/useUserStore';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
 import { useSearchParams } from 'react-router-dom';
@@ -50,6 +50,14 @@ const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
     async () => blockWorker(workerId)
   );
 
+  const { trigger: unblock, isMutating: unblocking } = useSWRMutation(
+    ['unblock-worker', workerId],
+    async () => unblockWorker(workerId)
+  );
+
+  const currentWorker = workerData?.find(work => work.id === workerId);
+  const isBlocked = currentWorker?.status === StatusWorkers.BLOCKED;
+
   useEffect(() => {
     if (workerId !== 0) {
       const worker = workerData?.find(work => work.id === workerId)?.name || '';
@@ -87,18 +95,33 @@ const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
     }
   };
 
+  const refreshWorkers = () => {
+    mutate([
+      'get-worker',
+      user.organizationId,
+      currentPage,
+      pageSize,
+      roleId,
+      status,
+      name,
+    ]);
+    mutate(['get-worker', user.organizationId]);
+  };
+
   const handleBlockWorker = async () => {
     try {
       await block();
-      mutate([
-        'get-worker',
-        user.organizationId,
-        currentPage,
-        pageSize,
-        roleId,
-        status,
-        name,
-      ]);
+      refreshWorkers();
+      onClose();
+    } catch (error) {
+      showToast(t('errors.other.unexpectedErrorOccurred'), 'error');
+    }
+  };
+
+  const handleUnblockWorker = async () => {
+    try {
+      await unblock();
+      refreshWorkers();
       onClose();
     } catch (error) {
       showToast(t('errors.other.unexpectedErrorOccurred'), 'error');
@@ -125,9 +148,15 @@ const EmployeeUpdateModal: React.FC<EmployeeUpdateModalProps> = ({
           footer={
             <div className="flex flex-col items-end gap-3 sm:flex-row sm:justify-end sm:gap-2">
               <Button onClick={onClose}>{t('organizations.cancel')}</Button>
-              <Button danger loading={blocking} onClick={handleBlockWorker}>
-                {t('roles.block')}
-              </Button>
+              {isBlocked ? (
+                <Button loading={unblocking} onClick={handleUnblockWorker}>
+                  {t('roles.unblock')}
+                </Button>
+              ) : (
+                <Button danger loading={blocking} onClick={handleBlockWorker}>
+                  {t('roles.block')}
+                </Button>
+              )}
               <Button type="primary" loading={isMutating} onClick={handleUpdateRole}>
                 {t('organizations.save')}
               </Button>
