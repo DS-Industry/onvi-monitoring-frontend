@@ -24,15 +24,11 @@ const formatMoney = (value: number): string =>
 const formatDateTime = (value: string): string =>
   dayjs(value).format('DD.MM.YYYY HH:mm');
 
-const formatWallClockDateTime = (value: string): string => {
+const formatOperationTime = (value: string): string => {
   const match = value.match(WALL_CLOCK);
-  if (!match) return formatDateTime(value);
-  const [, year, month, day, hour, minute] = match;
-  return `${day}.${month}.${year} ${hour}:${minute}`;
+  if (!match) return dayjs(value).format('HH:mm');
+  return `${match[4]}:${match[5]}`;
 };
-
-const formatObjectDateTime = (value: string): string =>
-  dayjs(value).format('DD.MM.YYYY HH:mm');
 
 const historyRowKey = (row: FiscalHistoryRow): string =>
   `${row.operationTime}|${row.deviceName}|${row.amount}`;
@@ -93,13 +89,11 @@ const FnWorkCard = () => {
     return paymentType;
   };
 
-  const historyColumns = <T extends FiscalHistoryRow>(
-    formatTime: (value: string) => string
-  ): ColumnsType<T> => [
+  const historyColumns = <T extends FiscalHistoryRow>(): ColumnsType<T> => [
     {
       title: t('fnWork.time'),
       key: 'operationTime',
-      render: (_, row: T) => formatTime(row.operationTime),
+      render: (_, row: T) => formatOperationTime(row.operationTime),
     },
     {
       title: t('fnWork.device'),
@@ -118,9 +112,9 @@ const FnWorkCard = () => {
     },
   ];
 
-  const objectColumns = historyColumns<FiscalHistoryRow>(formatObjectDateTime);
+  const objectColumns = historyColumns<FiscalHistoryRow>();
   const miniPcColumns: ColumnsType<FiscalMiniPcHistoryRow> = [
-    ...historyColumns<FiscalMiniPcHistoryRow>(formatWallClockDateTime),
+    ...historyColumns<FiscalMiniPcHistoryRow>(),
     {
       title: t('fnWork.qr'),
       key: 'qr',

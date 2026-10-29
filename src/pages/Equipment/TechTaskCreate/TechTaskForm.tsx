@@ -1,4 +1,5 @@
 import DateInput from '@/components/ui/Input/DateInput';
+import DateTimeInput from '@/components/ui/Input/DateTimeInput';
 import DropdownInput from '@/components/ui/Input/DropdownInput';
 import Input from '@/components/ui/Input/Input';
 import MultiInput from '@/components/ui/Input/MultiInput';
@@ -28,6 +29,13 @@ import { useSearchParams } from 'react-router-dom';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
 import { useToast } from '@/components/context/useContext';
 import RequiredFieldsHint from '@/components/ui/RequiredFieldsHint';
+import {
+  toTechTaskStartDate,
+  assertScheduleBeforeEnd,
+  endDateToUtcDate,
+  defaultScheduleStartInBusinessTz,
+} from '@/utils/techTaskDates';
+import { getTechTaskBusinessTimezone } from '@/config/techTaskTimezone';
 
 const { Option } = Select;
 
@@ -62,18 +70,18 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
   const posId = Number(searchParams.get('posId')) || undefined;
   const { showToast } = useToast();
 
-  const defaultValues: TechTaskBody = {
+  const createDefaultValues = (): TechTaskBody => ({
     name: '',
     posId: 0,
     type: TypeTechTask.REGULAR,
     periodType: undefined,
     customPeriodDays: undefined,
-    startDate: new Date(),
+    startDate: defaultScheduleStartInBusinessTz(),
     endSpecifiedDate: undefined,
     markdownDescription: undefined,
     techTaskItem: [],
     tagIds: [],
-  };
+  });
 
   const { data: poses } = useSWR([`get-pos`], () => getPoses({}), {
     revalidateOnFocus: false,
@@ -117,12 +125,19 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
 
   const [tagIds, setTagIds] = useState<number[]>([]);
   const [searchValue, setSearchValue] = useState('');
-  const [formData, setFormData] = useState(defaultValues);
+  const [formData, setFormData] = useState<TechTaskBody>(createDefaultValues);
   const [availableItems, setAvailableItems] = useState<Item[]>(techTask);
   const [selectedItems, setSelectedItems] = useState<Item[]>([]);
   const [selected, setSelected] = useState<number[]>([]);
   const [taskType, setTaskType] = useState<TypeTechTask>(TypeTechTask.REGULAR);
   const [periodType, setPeriodType] = useState<PeriodType | undefined>(undefined);
+
+  let businessTimezone: string | undefined;
+  try {
+    businessTimezone = getTechTaskBusinessTimezone();
+  } catch {
+    businessTimezone = undefined;
+  }
 
   const handlePeriodTypeChange = (value: PeriodType) => {
     setPeriodType(value);
@@ -141,10 +156,10 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
 
   const options = tagsData
     ? tagsData.map(tag => ({
-        id: tag.props.id,
-        name: tag.props.name,
-        color: '#A0AEC0',
-      }))
+      id: tag.props.id,
+      name: tag.props.name,
+      color: '#A0AEC0',
+    }))
     : [];
 
 
@@ -167,14 +182,14 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
       );
       setTaskType(techTaskToEdit.type);
       setPeriodType(techTaskToEdit.periodType);
-      
+
       setFormData({
         name: techTaskToEdit.name,
         posId: techTaskToEdit.posId,
         type: techTaskToEdit.type,
         periodType: techTaskToEdit.periodType,
         customPeriodDays: techTaskToEdit.customPeriodDays,
-        startDate: new Date(), 
+        startDate: techTaskToEdit.startDate,
         endSpecifiedDate:
           techTaskToEdit.endSpecifiedDate && techTaskToEdit.endSpecifiedDate,
         techTaskItem: techTaskItemNumber,
@@ -203,9 +218,15 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
         periodType: formData.type === TypeTechTask.REGULAR ? formData.periodType : undefined,
         customPeriodDays: formData.periodType === PeriodType.CUSTOM ? formData.customPeriodDays : undefined,
         markdownDescription: formData.markdownDescription,
-        startDate: new Date(), 
+        startDate: toTechTaskStartDate(
+          formData.type,
+          formData.type === TypeTechTask.REGULAR ? dayjs(formData.startDate) : null
+        ),
         endSpecifiedDate: formData.endSpecifiedDate
-          ? dayjs(formData.endSpecifiedDate).toDate()
+          ? endDateToUtcDate(
+            dayjs(formData.endSpecifiedDate),
+            getTechTaskBusinessTimezone()
+          )
           : undefined,
         techTaskItem: formData.techTaskItem,
         tagIds: tagIds,
@@ -219,7 +240,10 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
         techTaskId: techTaskToEdit?.id ?? 0,
         name: formData.name,
         endSpecifiedDate: formData.endSpecifiedDate
-          ? dayjs(formData.endSpecifiedDate).toDate()
+          ? endDateToUtcDate(
+            dayjs(formData.endSpecifiedDate),
+            getTechTaskBusinessTimezone()
+          )
           : undefined,
         markdownDescription: formData.markdownDescription,
         periodType: formData.type === TypeTechTask.REGULAR ? formData.periodType : undefined,
@@ -245,7 +269,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
     }
   );
 
-  type FieldType = keyof typeof defaultValues;
+  type FieldType = keyof TechTaskBody;
 
   const handleInputChange = (field: FieldType, value: string) => {
     const numericFields = ['posId', 'customPeriodDays'];
@@ -255,7 +279,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
   };
 
   const resetForm = () => {
-    setFormData(defaultValues);
+    setFormData(createDefaultValues());
     reset();
     onEdit();
     onClose();
@@ -265,6 +289,17 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
 
   const onSubmit = async () => {
     try {
+      if (!techTaskToEdit && formData.type === TypeTechTask.REGULAR) {
+        const scheduleStart = dayjs(formData.startDate);
+        if (!scheduleStart.isValid()) {
+          showToast(t('techTasks.selectScheduleStart'), 'error');
+          return;
+        }
+        if (formData.endSpecifiedDate) {
+          assertScheduleBeforeEnd(scheduleStart, dayjs(formData.endSpecifiedDate));
+        }
+      }
+
       const result = techTaskToEdit ? await updateTech() : await createTech();
       if (result) {
         mutate([`get-tech-tasks`, currentPage, pageSize, posId]);
@@ -273,7 +308,11 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
         showToast(t('errors.other.errorDuringFormSubmission'), 'error');
       }
     } catch (error) {
-      showToast(t('errors.other.errorDuringFormSubmission'), 'error');
+      const message =
+        error instanceof Error && error.message.includes('Schedule start')
+          ? t('techTasks.scheduleStartAfterEnd')
+          : t('errors.other.errorDuringFormSubmission');
+      showToast(message, 'error');
     }
   };
 
@@ -406,6 +445,11 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
               handleInputChange('periodType', '');
               handleInputChange('customPeriodDays', '');
               setPeriodType(undefined);
+            } else {
+              handleInputChange(
+                'startDate',
+                dayjs(defaultScheduleStartInBusinessTz()).format('YYYY-MM-DDTHH:mm')
+              );
             }
           }}
           error={!!errors.type}
@@ -443,6 +487,30 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
               changeValue={e => handleCustomPeriodChange(e.target.value)}
               classname="w-full"
             />
+          </div>
+        )}
+        {taskType === TypeTechTask.REGULAR && !techTaskToEdit && (
+          <div className="w-64">
+            <DateTimeInput
+              title={`${t('techTasks.scheduleStart')} *`}
+              classname="w-64"
+              value={
+                formData.startDate ? dayjs(formData.startDate) : undefined
+              }
+              changeValue={date =>
+                handleInputChange(
+                  'startDate',
+                  date ? date.format('YYYY-MM-DDTHH:mm') : ''
+                )
+              }
+            />
+            {businessTimezone && (
+              <p className="text-xs text-text02 mt-1">
+                {t('techTasks.scheduleTimezoneHint')}{' '}
+                <span className="font-medium">{businessTimezone}</span>{' '}
+                {t('techTasks.scheduleTimezoneHintSuffix')}
+              </p>
+            )}
           </div>
         )}
         <div>
@@ -500,11 +568,10 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
                     <div
                       key={item.id}
                       onClick={() => toggleSelection(item.id)}
-                      className={`border-b-[1px] text-text01 pl-3 p-1 cursor-pointer ${
-                        selected.includes(item.id)
-                          ? 'bg-background06'
-                          : 'hover:bg-background06'
-                      }`}
+                      className={`border-b-[1px] text-text01 pl-3 p-1 cursor-pointer ${selected.includes(item.id)
+                        ? 'bg-background06'
+                        : 'hover:bg-background06'
+                        }`}
                     >
                       <div className="font-light text-[11px]">{item.title}</div>
                     </div>
@@ -544,11 +611,10 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
                     <div
                       key={item.id}
                       onClick={() => toggleSelection(item.id)}
-                      className={`border-b-[1px] text-text01 pl-3 p-1 cursor-pointer ${
-                        selected.includes(item.id)
-                          ? 'bg-background06'
-                          : 'hover:bg-background06'
-                      }`}
+                      className={`border-b-[1px] text-text01 pl-3 p-1 cursor-pointer ${selected.includes(item.id)
+                        ? 'bg-background06'
+                        : 'hover:bg-background06'
+                        }`}
                     >
                       <div className="text-[11px] font-light">{item.title}</div>
                       <div className="text-[10px] font-light text-text01">
