@@ -2151,7 +2151,9 @@
     "spendMilestoneInvalidValidDays": "Срок действия промокода должен быть не менее 1 дня",
     "registrationRegionRequired": "Выберите регион: кампания за регистрацию привязывается к региону",
     "registrationDiscountValueRequired": "Укажите значение скидки больше 0",
-    "registrationPercentageRange": "Процент скидки должен быть от 0 до 100"
+    "registrationPercentageRange": "Процент скидки должен быть от 0 до 100",
+    "registrationPointsRequired": "Укажите целое количество баллов, не меньше 1",
+    "registrationPointsInvalidDuration": "Срок действия баллов должен быть не менее 1 дня"
   },
   "table": {
     "noData": "Ничего не найдено",
@@ -2843,6 +2845,15 @@
     "registrationSettingsDescription": "Новый клиент получает персональный промокод, когда выбирает регион кампании. Один промокод на клиента.",
     "registrationCondition": "Регистрация",
     "registrationRegionHint": "Регион кампании выбирается на шаге «География» — бонус получат только клиенты этого региона.",
+    "registrationPoints": "Баллы за регистрацию",
+    "registrationPointsDescription": "Подарочные баллы новому клиенту после выбора региона",
+    "registrationPointsSettingUp": "Настройка приветственных баллов",
+    "registrationPointsSettings": "Приветственные баллы",
+    "registrationPointsSettingsDescription": "Новый клиент получает баллы на карту сразу, когда выбирает регион кампании. Один раз на клиента.",
+    "registrationPointsAmount": "Количество баллов",
+    "registrationPointsDuration": "Срок действия баллов (дней)",
+    "registrationPointsDurationHint": "Если не указан — по правилам уровня карты",
+    "registrationPointsTierExpiry": "По правилам уровня карты",
     "noPromocodeLinked": "К этой кампании не привязан промокод",
     "points": "Бальная",
     "pointsDescription": "Возможность начисления баллов клиенту (ONVI)",
