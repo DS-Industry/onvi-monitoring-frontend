@@ -135,7 +135,7 @@ const ProgramDevices: React.FC = () => {
         <Link
           to={{
             pathname: '/station/programs/devices',
-            search: `?posId=${record.id}&dateStart=${dateStart}&dateEnd=${dateEnd}`,
+            search: `?posId=${record.id}&dateStart=${dateStart}&dateEnd=${dateEnd}${turningType ? `&turningType=${turningType}` : ''}`,
           }}
           className="text-primary02 hover:text-primary02_Hover font-semibold"
         >
@@ -236,6 +236,7 @@ const ProgramDevices: React.FC = () => {
             {t('pos.turningType')}
           </label>
           <Select
+            className="w-full"
             placeholder={t('constants.all')}
             allowClear
             value={turningType}

@@ -57,14 +57,12 @@ const IdlePaymentDevices: React.FC = () => {
       dateStart,
       dateEnd,
       organizationId: user.organizationId,
-      page: currentPage,
-      size: pageSize,
       downtimeType: downtimeTypeParam || DowntimeType.COIN,
     };
     if (cityIds.length) params.placementIds = cityIds;
     if (posIds.length) params.posIds = posIds;
     return params;
-  }, [dateStart, dateEnd, cityIds, posIds, downtimeTypeParam, user.organizationId, currentPage, pageSize]);
+  }, [dateStart, dateEnd, cityIds, posIds, downtimeTypeParam, user.organizationId]);
 
   const { data: response, isLoading } = useSWR(
     ['idle-payment-devices', queryParams],
@@ -212,7 +210,7 @@ const IdlePaymentDevices: React.FC = () => {
 
       <GeneralFilters
         display={['dateTime', 'reset', 'count']}
-        count={response?.totalCount || 0}
+        count={flatDevices.length}
       >
         <CityFilterMulti />
         <PosFilterMulti />
@@ -244,7 +242,7 @@ const IdlePaymentDevices: React.FC = () => {
           pagination={{
             current: currentPage,
             pageSize,
-            total: response?.totalCount || 0,
+            total: flatDevices.length,
             pageSizeOptions: ALL_PAGE_SIZES,
             showTotal: (total, range) =>
               `${range[0]}–${range[1]} ${t('equipment.of')} ${total}`,

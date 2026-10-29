@@ -163,7 +163,7 @@ const Card: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
+      <div className="ml-12 md:ml-0 flex items-center gap-3">
         <button
           type="button"
           aria-label={t('login.back')}

@@ -19,6 +19,7 @@ import { useUser } from '@/hooks/useUserStore';
 import { PlusOutlined } from '@ant-design/icons';
 import { UploadChangeParam, UploadFile } from 'antd/es/upload';
 import dayjs, { Dayjs } from 'dayjs';
+import RequiredFieldsHint from '@/components/ui/RequiredFieldsHint';
 
 type PosEditDrawerProps = {
   organizations: Organization[];
@@ -238,15 +239,7 @@ const PosEditDrawer: React.FC<PosEditDrawerProps> = ({
         className="w-full max-w-2xl mx-auto p-4"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div className="mb-5 flex">
-          <span className="font-semibold text-sm text-text01">
-            {t('routine.fields')}
-          </span>
-          <span className="text-errorFill">*</span>
-          <span className="font-semibold text-sm text-text01">
-            {t('routine.are')}
-          </span>
-        </div>
+        <RequiredFieldsHint className="mb-5" />
         <div className="grid grid-cols-1 gap-2">
           <div>
             <div className="flex">

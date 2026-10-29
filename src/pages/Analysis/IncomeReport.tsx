@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 import useSWRMutation from 'swr/mutation';
-import { Skeleton, Input, Select, DatePicker, Button } from 'antd';
+import { Skeleton, Input, Select, DatePicker, Button, Grid } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 import { debounce } from 'lodash';
@@ -43,6 +43,7 @@ const isRequired = (param: ReportParam): boolean => {
 const IncomeReport: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const screens = Grid.useBreakpoint();
   const [searchParams] = useSearchParams();
   const reportId = Number(searchParams.get('id'));
   const { showToast } = useToast();
@@ -245,6 +246,7 @@ const IncomeReport: React.FC = () => {
           onChange={(date: Dayjs | null) => handleInputChange(param.name, date ? date.format('YYYY-MM') : null)}
           status={status}
           className="w-64"
+          inputReadOnly={!screens.md}
         />
       );
     }
@@ -258,6 +260,7 @@ const IncomeReport: React.FC = () => {
           onChange={(date: Dayjs | null) => handleInputChange(param.name, date ? date.format('YYYY-MM-DD HH:mm:ss') : null)}
           status={status}
           className="w-64"
+          inputReadOnly={!screens.md}
         />
       );
     }
@@ -399,7 +402,7 @@ const IncomeReport: React.FC = () => {
   };
 
   if (loadingReport) return <Skeleton active />;
-  if (!reportData) return <div>{t('errors.other.reportNotFound')}</div>;
+  if (!reportData) return <div className="ml-12 md:ml-0">{t('errors.other.reportNotFound')}</div>;
 
   return (
     <div>

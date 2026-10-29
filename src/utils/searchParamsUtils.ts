@@ -66,3 +66,33 @@ export const getParam = (
 ): string | undefined => {
   return searchParams.get(key) || fallback;
 };
+
+const DOCUMENTS_LIST_FILTER_KEYS = [
+  'dateStart',
+  'dateEnd',
+  'page',
+  'size',
+  'warehouseId',
+  'city',
+] as const;
+
+export const buildDocumentsListSearch = (
+  searchParams: URLSearchParams
+): string => {
+  const params = new URLSearchParams();
+  DOCUMENTS_LIST_FILTER_KEYS.forEach(key => {
+    const value = searchParams.get(key);
+    if (value) {
+      params.set(key, value);
+    }
+  });
+  return params.toString();
+};
+
+export const documentsListPath = (searchParams: URLSearchParams): string => {
+  const returnTo = searchParams.get('returnTo');
+  if (!returnTo) {
+    return '/warehouse/documents';
+  }
+  return `/warehouse/documents?${returnTo}`;
+};

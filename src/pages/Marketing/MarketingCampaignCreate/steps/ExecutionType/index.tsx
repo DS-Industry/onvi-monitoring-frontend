@@ -12,6 +12,7 @@ import {
     BankOutlined,
     ScheduleOutlined,
     UserAddOutlined,
+    DollarOutlined,
 } from '@ant-design/icons';
 import { useToast } from '@/components/context/useContext';
 import useSWR from 'swr';
@@ -27,8 +28,11 @@ import {
 } from '@/services/api/marketing';
 import ActionTypeCard from './ActionTypeCard';
 import {
+    createDefaultRegistrationGiftPointsPayload,
     createDefaultRegistrationPayload,
-    isRegistrationCampaign,
+    isRegistrationGiftPointsCampaign,
+    isRegistrationPromocodeCampaign,
+    toGiftPointsActionPayload,
 } from '../../utils/registrationCampaign';
 
 const ONVI_PROGRAM_ID = Number(import.meta.env.VITE_ONVI_PROGRAM_ID) || 0;
@@ -77,6 +81,14 @@ const ACTION_TYPE_CONFIGS = [
         descriptionKey: 'marketingCampaigns.registrationDescription',
         requiredExecutionType: CampaignExecutionType.BEHAVIORAL,
     },
+    {
+        id: 'registration-points',
+        actionType: 'GIFT_POINTS' as ACTION_TYPE,
+        icon: DollarOutlined,
+        titleKey: 'marketingCampaigns.registrationPoints',
+        descriptionKey: 'marketingCampaigns.registrationPointsDescription',
+        requiredExecutionType: CampaignExecutionType.BEHAVIORAL,
+    },
     // {
     //     id: 'cashback',
     //     actionType: 'CASHBACK_BOOST' as ACTION_TYPE,
@@ -97,6 +109,11 @@ const ACTION_TYPE_CONFIGS = [
 
 type ActionConfigId = (typeof ACTION_TYPE_CONFIGS)[number]['id'];
 
+const REGISTRATION_CONFIG_IDS: ActionConfigId[] = ['registration', 'registration-points'];
+
+const isRegistrationConfigId = (id: ActionConfigId | null) =>
+    id !== null && REGISTRATION_CONFIG_IDS.includes(id);
+
 const findActionConfig = (id: ActionConfigId | null) =>
     ACTION_TYPE_CONFIGS.find(config => config.id === id);
 
@@ -104,12 +121,13 @@ const resolveActionConfigId = (
     campaign?: MarketingCampaignResponse
 ): ActionConfigId | null => {
     if (!campaign?.executionType || !campaign.actionType) return null;
-    if (isRegistrationCampaign(campaign)) return 'registration';
+    if (isRegistrationPromocodeCampaign(campaign)) return 'registration';
+    if (isRegistrationGiftPointsCampaign(campaign)) return 'registration-points';
 
     return (
         ACTION_TYPE_CONFIGS.find(
             config =>
-                config.id !== 'registration' &&
+                !isRegistrationConfigId(config.id) &&
                 config.actionType === campaign.actionType &&
                 config.requiredExecutionType === campaign.executionType
         )?.id ?? null
@@ -321,9 +339,11 @@ const ExecutionType: React.FC<ExecutionTypeProps> = ({ isEditable = true }) => {
         const payload =
             actionConfigId === 'registration'
                 ? createDefaultRegistrationPayload()
-                : initialConfigId === 'registration'
-                  ? {}
-                  : undefined;
+                : actionConfigId === 'registration-points'
+                  ? toGiftPointsActionPayload(createDefaultRegistrationGiftPointsPayload())
+                  : isRegistrationConfigId(initialConfigId)
+                    ? {}
+                    : undefined;
 
         if (isUnchanged) {
             navigateToNextStep();

@@ -1,14 +1,14 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Form, Input, Select, DatePicker, Avatar } from 'antd';
-import { 
-  CalendarOutlined, 
+import {
+  CalendarOutlined,
   CarOutlined,
-  ClockCircleOutlined, 
-  NumberOutlined, 
-  ToolOutlined, 
-  UnorderedListOutlined, 
-  UserOutlined 
+  ClockCircleOutlined,
+  NumberOutlined,
+  ToolOutlined,
+  UnorderedListOutlined,
+  UserOutlined
 } from '@ant-design/icons';
 import { useUser } from '@/hooks/useUserStore';
 import { getAvatarColorClasses } from '@/utils/avatarColors';
@@ -62,19 +62,19 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
     <div className="w-full lg:w-[450px] flex flex-col gap-4 lg:flex-shrink-0">
       <div className="border rounded-lg p-4 bg-[#F8F8FA] border-[#ACAEB3]">
         <h3 className="text-lg font-medium mb-4">{t('techTasks.information')}</h3>
-        
-        <Form.Item 
-          name="posIds" 
+
+        <Form.Item
+          name="posIds"
           label={
             <span>
-              <CarOutlined className="mr-2" /> {t('techTasks.carWashBranch')} 
+              <CarOutlined className="mr-2" /> {t('techTasks.carWashBranch')}
             </span>
           }
           rules={[{ required: true, message: t('techTasks.selectCarWash') }]}
         >
-          <Select 
+          <Select
             mode="multiple"
-            placeholder={t('techTasks.selectCarWash')} 
+            placeholder={t('techTasks.selectCarWash')}
             size="large"
             showSearch
             filterOption={(input, option) =>
@@ -86,17 +86,17 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
             ))}
           </Select>
         </Form.Item>
-        
-        <Form.Item 
-          name="type" 
+
+        <Form.Item
+          name="type"
           label={
             <span>
-              <ToolOutlined className="mr-2" /> {t('techTasks.workType')} 
+              <ToolOutlined className="mr-2" /> {t('techTasks.workType')}
             </span>
           }
           rules={[{ required: true, message: t('techTasks.selectWorkType') }]}
         >
-          <Select 
+          <Select
             size="large"
             onChange={(value: TypeTechTask) => {
               if (value === TypeTechTask.ONETIME) {
@@ -105,6 +105,9 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
                   customPeriodDays: undefined,
                   startDate: undefined,
                 });
+              }
+              if (value === TypeTechTask.REGULAR) {
+                form.setFieldsValue({ endDate: undefined });
               }
             }}
             placeholder={t('techTasks.selectWorkType')}
@@ -115,17 +118,17 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
         </Form.Item>
 
         {workType === TypeTechTask.REGULAR && (
-          <Form.Item 
-            name="periodType" 
+          <Form.Item
+            name="periodType"
             label={
               <span>
-                <ClockCircleOutlined className="mr-2" /> {t('techTasks.periodicity')} 
+                <ClockCircleOutlined className="mr-2" /> {t('techTasks.periodicity')}
               </span>
             }
             rules={[{ required: true, message: t('techTasks.selectPeriodicity') }]}
           >
-            <Select 
-              placeholder={t('techTasks.selectPeriodicity')} 
+            <Select
+              placeholder={t('techTasks.selectPeriodicity')}
               size="large"
               onChange={(value: PeriodType) => {
                 if (value !== PeriodType.CUSTOM) {
@@ -143,11 +146,11 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
         )}
 
         {workType === TypeTechTask.REGULAR && periodType === PeriodType.CUSTOM && (
-          <Form.Item 
-            name="customPeriodDays" 
+          <Form.Item
+            name="customPeriodDays"
             label={
               <span>
-                <NumberOutlined className="mr-2" /> {t('techTasks.daysCount')} 
+                <NumberOutlined className="mr-2" /> {t('techTasks.daysCount')}
               </span>
             }
             rules={[{ required: true, message: t('techTasks.enterDaysCount') }]}
@@ -202,11 +205,11 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
           </Form.Item>
         )}
 
-        <Form.Item 
-          name="endDate" 
+        <Form.Item
+          name="endDate"
           label={
             <span>
-              <CalendarOutlined className="mr-2" /> {t('techTasks.endDate')} 
+              <CalendarOutlined className="mr-2" /> {t('techTasks.endDate')}
             </span>
           }
           rules={[{ required: true, message: t('techTasks.selectEndDate') }]}
@@ -219,18 +222,18 @@ const CreateTechTaskInfoPanel: React.FC<CreateTechTaskInfoPanelProps> = ({
           />
         </Form.Item>
 
-        <Form.Item 
-          name="tags" 
+        <Form.Item
+          name="tags"
           label={
             <span>
-              <UnorderedListOutlined className="mr-2" /> {t('techTasks.tags')} 
+              <UnorderedListOutlined className="mr-2" /> {t('techTasks.tags')}
             </span>
           }
           rules={[{ required: true, message: t('techTasks.selectAtLeastOneTag') }]}
         >
-          <Select 
-            mode="multiple" 
-            placeholder={t('techTasks.selectTags')} 
+          <Select
+            mode="multiple"
+            placeholder={t('techTasks.selectTags')}
             size="large"
             showSearch
             filterOption={(input, option) =>

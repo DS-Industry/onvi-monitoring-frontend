@@ -8,6 +8,7 @@ import MultilineInput from '@/components/ui/Input/MultilineInput';
 import { UpOutlined, DownOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Drawer } from 'antd';
 import QuestionMarkIcon from '@icons/qustion-mark.svg?react';
+import RequiredFieldsHint from '@/components/ui/RequiredFieldsHint';
 
 const DailyReports: React.FC = () => {
   const { t } = useTranslation();
@@ -43,15 +44,7 @@ const DailyReports: React.FC = () => {
           <div className="text-text01 font-semibold text-2xl">
             {t('daily.report')}
           </div>
-          <div className="flex">
-            <span className="font-semibold text-sm text-text01">
-              {t('routine.fields')}
-            </span>
-            <span className="text-errorFill">*</span>
-            <span className="font-semibold text-sm text-text01">
-              {t('routine.are')}
-            </span>
-          </div>
+          <RequiredFieldsHint />
           <Input type="date" title={`${t('daily.date')} *`} classname="w-36" />
           <DropdownInput
             title={t('pos.city')}

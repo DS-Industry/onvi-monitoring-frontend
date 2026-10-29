@@ -28,6 +28,7 @@ import { ArrowDownOutlined, ArrowUpOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
 import { DEFAULT_PAGE, DEFAULT_PAGE_SIZE } from '@/utils/constants';
 import { useToast } from '@/components/context/useContext';
+import RequiredFieldsHint from '@/components/ui/RequiredFieldsHint';
 import {
   toTechTaskStartDate,
   assertScheduleBeforeEnd,
@@ -155,10 +156,10 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
 
   const options = tagsData
     ? tagsData.map(tag => ({
-        id: tag.props.id,
-        name: tag.props.name,
-        color: '#A0AEC0',
-      }))
+      id: tag.props.id,
+      name: tag.props.name,
+      color: '#A0AEC0',
+    }))
     : [];
 
 
@@ -181,7 +182,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
       );
       setTaskType(techTaskToEdit.type);
       setPeriodType(techTaskToEdit.periodType);
-      
+
       setFormData({
         name: techTaskToEdit.name,
         posId: techTaskToEdit.posId,
@@ -223,9 +224,9 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
         ),
         endSpecifiedDate: formData.endSpecifiedDate
           ? endDateToUtcDate(
-              dayjs(formData.endSpecifiedDate),
-              getTechTaskBusinessTimezone()
-            )
+            dayjs(formData.endSpecifiedDate),
+            getTechTaskBusinessTimezone()
+          )
           : undefined,
         techTaskItem: formData.techTaskItem,
         tagIds: tagIds,
@@ -240,9 +241,9 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
         name: formData.name,
         endSpecifiedDate: formData.endSpecifiedDate
           ? endDateToUtcDate(
-              dayjs(formData.endSpecifiedDate),
-              getTechTaskBusinessTimezone()
-            )
+            dayjs(formData.endSpecifiedDate),
+            getTechTaskBusinessTimezone()
+          )
           : undefined,
         markdownDescription: formData.markdownDescription,
         periodType: formData.type === TypeTechTask.REGULAR ? formData.periodType : undefined,
@@ -387,15 +388,7 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
       className="custom-drawer"
     >
       <form className="w-full max-w-2xl mx-auto p-4 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-        <div className="mb-5 flex">
-          <span className="font-semibold text-sm text-text01">
-            {t('routine.fields')}
-          </span>
-          <span className="text-errorFill">*</span>
-          <span className="font-semibold text-sm text-text01">
-            {t('routine.are')}
-          </span>
-        </div>
+        <RequiredFieldsHint className="mb-5" />
         <Input
           title={`${t('routine.title')} *`}
           label={t('routine.enter')}
@@ -575,11 +568,10 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
                     <div
                       key={item.id}
                       onClick={() => toggleSelection(item.id)}
-                      className={`border-b-[1px] text-text01 pl-3 p-1 cursor-pointer ${
-                        selected.includes(item.id)
-                          ? 'bg-background06'
-                          : 'hover:bg-background06'
-                      }`}
+                      className={`border-b-[1px] text-text01 pl-3 p-1 cursor-pointer ${selected.includes(item.id)
+                        ? 'bg-background06'
+                        : 'hover:bg-background06'
+                        }`}
                     >
                       <div className="font-light text-[11px]">{item.title}</div>
                     </div>
@@ -619,11 +611,10 @@ const TechTaskForm: React.FC<TechTaskFormProps> = ({
                     <div
                       key={item.id}
                       onClick={() => toggleSelection(item.id)}
-                      className={`border-b-[1px] text-text01 pl-3 p-1 cursor-pointer ${
-                        selected.includes(item.id)
-                          ? 'bg-background06'
-                          : 'hover:bg-background06'
-                      }`}
+                      className={`border-b-[1px] text-text01 pl-3 p-1 cursor-pointer ${selected.includes(item.id)
+                        ? 'bg-background06'
+                        : 'hover:bg-background06'
+                        }`}
                     >
                       <div className="text-[11px] font-light">{item.title}</div>
                       <div className="text-[10px] font-light text-text01">

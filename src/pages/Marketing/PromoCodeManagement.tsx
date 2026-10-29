@@ -15,7 +15,10 @@ const PromoCodeManagement: React.FC = () => {
 
   return (
     <div>
-      <Tabs defaultActiveKey="promocodes">
+      <Tabs
+        defaultActiveKey="promocodes"
+        className="[&>.ant-tabs-nav]:ml-12 md:[&>.ant-tabs-nav]:ml-0"
+      >
         <TabPane
           tab={
             <span>

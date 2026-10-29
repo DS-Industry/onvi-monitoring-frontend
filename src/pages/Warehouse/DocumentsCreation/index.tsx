@@ -18,6 +18,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { documentsListPath } from '@/utils/searchParamsUtils';
 import useSWR, { mutate } from 'swr';
 import useSWRMutation from 'swr/mutation';
 import { Button, DatePicker, Select, Skeleton } from 'antd';
@@ -49,6 +50,7 @@ const parseWarehouseId = (param: string | null): number | null => {
 
 const DocumentsCreation: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const backToDocuments = documentsListPath(searchParams);
   const documentType = searchParams.get('document');
   const documentId = Number(searchParams.get('documentId'));
   const { t } = useTranslation();
@@ -377,7 +379,7 @@ const handleSubmitAction = async (action: 'save' | 'send') => {
   }
 
   if (result) {
-    navigate('/warehouse/documents');
+    navigate(backToDocuments);
   }
 };
 
@@ -391,7 +393,7 @@ const handleSubmitAction = async (action: 'save' | 'send') => {
       );
 
       if (result) {
-        navigate('/warehouse/documents');
+        navigate(backToDocuments);
       }
     } catch (error) {
       showToast(t('success.recordDeleted'), 'error');
@@ -536,7 +538,7 @@ const handleSubmitAction = async (action: 'save' | 'send') => {
                   <div className="flex flex-col space-y-2 sm:space-y-0 sm:flex-row sm:space-x-3">
                     <Button
                       title={t('organizations.cancel')}
-                      onClick={() => navigate('/warehouse/documents')}
+                      onClick={() => navigate(backToDocuments)}
                     >
                       {t('organizations.cancel')}
                     </Button>

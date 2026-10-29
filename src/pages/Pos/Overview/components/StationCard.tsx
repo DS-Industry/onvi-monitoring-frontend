@@ -84,6 +84,14 @@ const StationCard: React.FC<StationCardProps> = ({
         </div>
         <div>
           <div className="text-xs text-text02 mb-1">
+            {t('posOverview.planCompletedMonth')}
+          </div>
+          <div className="text-lg font-semibold text-text01">
+            {formatNumber(item.monthPlanFulfillmentPercent, 'double')}%
+          </div>
+        </div>
+        <div>
+          <div className="text-xs text-text02 mb-1">
             {t('posOverview.downtime')}
           </div>
           <div className="text-lg font-semibold text-text01">—</div>

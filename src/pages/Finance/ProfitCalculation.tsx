@@ -652,6 +652,7 @@ const ProfitCalculation: React.FC = () => {
             showSearch
             allowClear
             placeholder={t('filters.pos.placeholder')}
+            className="w-full"
             value={searchParams.get('posId') ?? undefined}
             loading={isLoadingPoses}
             options={posFilterOptions}
@@ -678,6 +679,7 @@ const ProfitCalculation: React.FC = () => {
             showSearch
             allowClear
             placeholder={t('finance.selectPartner')}
+            className="w-full sm:w-auto"
             value={searchParams.get('partnerId') ?? undefined}
             options={partnerSelectOptions.map(option => ({
               value: String(option.value),

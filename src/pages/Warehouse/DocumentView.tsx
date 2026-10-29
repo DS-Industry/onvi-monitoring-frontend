@@ -255,8 +255,16 @@ const DocumentView: React.FC = () => {
               icon={<PlusOutlined />}
               className="btn-primary"
               onClick={() => {
+                const creationParams = new URLSearchParams({
+                  documentId: String(documentId),
+                  document: String(documentType),
+                });
+                const returnTo = searchParams.get('returnTo');
+                if (returnTo) {
+                  creationParams.set('returnTo', returnTo);
+                }
                 navigate(
-                  `/warehouse/documents/creation?documentId=${documentId}&document=${documentType}`
+                  `/warehouse/documents/creation?${creationParams.toString()}`
                 );
               }}
             >

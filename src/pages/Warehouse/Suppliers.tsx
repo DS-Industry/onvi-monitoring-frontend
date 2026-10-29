@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Input from '@/components/ui/Input/Input';
+import { renderRequiredMark } from '@/components/ui/renderRequiredMark';
 import useFormHook from '@/hooks/useFormHook';
 import { useToast } from '@/components/context/useContext';
 import useSWRMutation from 'swr/mutation';
@@ -246,39 +247,47 @@ const Suppliers: React.FC = () => {
           onSubmit={handleSubmit(onSubmit)}
         >
           <span className="font-semibold text-sm text-text01">
-            {t('warehouse.fields')}
+            {renderRequiredMark(t('warehouse.fields'))}
           </span>
           <div className="font-semibold text-2xl mb-5 text-text01">
             {t('warehouse.basic')}
           </div>
-          <Input
-            type={''}
-            title={t('warehouse.supName')}
-            label={t('warehouse.enterSup')}
-            classname="w-80"
-            value={formData.name}
-            changeValue={e => handleInputChange('name', e.target.value)}
-            error={!!errors.name}
-            {...register('name', { required: t('validation.nameRequired') })}
-            helperText={errors.name?.message || ''}
-          />
-          <Input
-            type={''}
-            title={`${t('profile.telephone')}*`}
-            label={t('warehouse.enterPhone')}
-            classname="w-80"
-            value={formatRussianPhone(formData.contact)}
-            changeValue={handlePhoneChange}
-            error={!!errors.contact}
-            {...register('contact', {
-              required: t('validation.phoneRequired'),
-              pattern: {
-                value: /^\+7\d{10}$/,
-                message: t('validation.phoneValidFormat'),
-              },
-            })}
-            helperText={errors.contact?.message || ''}
-          />
+          <div className="w-80">
+            <label className="text-sm text-text02">
+              {renderRequiredMark(t('warehouse.supName'))}
+            </label>
+            <Input
+              type={''}
+              label={t('warehouse.enterSup')}
+              classname="w-full"
+              value={formData.name}
+              changeValue={e => handleInputChange('name', e.target.value)}
+              error={!!errors.name}
+              {...register('name', { required: t('validation.nameRequired') })}
+              helperText={errors.name?.message || ''}
+            />
+          </div>
+          <div className="w-80">
+            <label className="text-sm text-text02">
+              {renderRequiredMark(`${t('profile.telephone')}*`)}
+            </label>
+            <Input
+              type={''}
+              label={t('warehouse.enterPhone')}
+              classname="w-full"
+              value={formatRussianPhone(formData.contact)}
+              changeValue={handlePhoneChange}
+              error={!!errors.contact}
+              {...register('contact', {
+                required: t('validation.phoneRequired'),
+                pattern: {
+                  value: /^\+7\d{10}$/,
+                  message: t('validation.phoneValidFormat'),
+                },
+              })}
+              helperText={errors.contact?.message || ''}
+            />
+          </div>
           <div className="flex space-x-4">
             <Button
               onClick={() => {
