@@ -37,11 +37,18 @@ import {
     validateSpendMilestoneTiers,
 } from '../../utils/spendMilestone';
 import RegistrationPromocodeSection from './RegistrationPromocodeSection';
+import RegistrationGiftPointsSection from './RegistrationGiftPointsSection';
 import {
+    areRegistrationGiftPointsPayloadsEqual,
     areRegistrationPayloadsEqual,
-    isRegistrationCampaign,
+    isRegistrationGiftPointsCampaign,
+    isRegistrationPromocodeCampaign,
+    parseRegistrationGiftPointsPayload,
     parseRegistrationPayload,
+    RegistrationGiftPointsPayload,
     RegistrationPromocodePayload,
+    toGiftPointsActionPayload,
+    validateRegistrationGiftPointsPayload,
     validateRegistrationPayload,
 } from '../../utils/registrationCampaign';
 import { useRewardInitialization } from './useRewardInitialization';
@@ -168,10 +175,17 @@ const Terms: React.FC = () => {
         [marketingCampaign]
     );
 
-    const isRegistration = useMemo(
-        () => isRegistrationCampaign(marketingCampaign),
+    const isRegistrationPromocode = useMemo(
+        () => isRegistrationPromocodeCampaign(marketingCampaign),
         [marketingCampaign]
     );
+
+    const isRegistrationGiftPoints = useMemo(
+        () => isRegistrationGiftPointsCampaign(marketingCampaign),
+        [marketingCampaign]
+    );
+
+    const isRegistration = isRegistrationPromocode || isRegistrationGiftPoints;
 
     const [registrationPayload, setRegistrationPayload] =
         useState<RegistrationPromocodePayload>(() => parseRegistrationPayload());
@@ -179,12 +193,27 @@ const Terms: React.FC = () => {
         useState<RegistrationPromocodePayload | null>(null);
 
     useEffect(() => {
-        if (!marketingCampaign || !isRegistration) return;
+        if (!marketingCampaign || !isRegistrationPromocode) return;
 
         const payload = parseRegistrationPayload(marketingCampaign.actionPayload);
         setRegistrationPayload(payload);
         setInitialRegistrationPayload(prev => prev ?? payload);
-    }, [marketingCampaign, isRegistration]);
+    }, [marketingCampaign, isRegistrationPromocode]);
+
+    const [giftPointsPayload, setGiftPointsPayload] =
+        useState<RegistrationGiftPointsPayload>(() =>
+            parseRegistrationGiftPointsPayload()
+        );
+    const [initialGiftPointsPayload, setInitialGiftPointsPayload] =
+        useState<RegistrationGiftPointsPayload | null>(null);
+
+    useEffect(() => {
+        if (!marketingCampaign || !isRegistrationGiftPoints) return;
+
+        const payload = parseRegistrationGiftPointsPayload(marketingCampaign.actionPayload);
+        setGiftPointsPayload(payload);
+        setInitialGiftPointsPayload(prev => prev ?? payload);
+    }, [marketingCampaign, isRegistrationGiftPoints]);
 
     const [spendCycle, setSpendCycle] = useState<SpendCycle>(DEFAULT_SPEND_CYCLE);
     const [tiers, setTiers] = useState<SpendMilestoneTier[]>([createEmptyTier()]);
@@ -507,6 +536,43 @@ const Terms: React.FC = () => {
         }
     };
 
+    const handleSaveRegistrationGiftPoints = async () => {
+        if (!marketingCampaignId) return;
+
+        if (
+            initialGiftPointsPayload &&
+            areRegistrationGiftPointsPayloadsEqual(giftPointsPayload, initialGiftPointsPayload)
+        ) {
+            navigateToNextStep();
+            return;
+        }
+
+        const validation = validateRegistrationGiftPointsPayload(giftPointsPayload);
+        if (!validation.valid && validation.errorKey) {
+            message.warning(t(validation.errorKey));
+            return;
+        }
+
+        try {
+            setIsUpdatingData(true);
+
+            await updateMarketingCampaignAction(marketingCampaignId, {
+                actionType: 'GIFT_POINTS',
+                payload: toGiftPointsActionPayload(giftPointsPayload),
+            });
+
+            setInitialGiftPointsPayload(giftPointsPayload);
+            await mutateCampaign();
+            navigateToNextStep();
+            showToast(t('tables.SAVED'), 'success');
+        } catch (error) {
+            console.error('Error updating registration gift points:', error);
+            showToast(t('common.somethingWentWrong'), 'error');
+        } finally {
+            setIsUpdatingData(false);
+        }
+    };
+
     const isRewardButtonDisabled = () => {
         if (!rewardValue || rewardValue <= 0) return true;
 
@@ -529,6 +595,11 @@ const Terms: React.FC = () => {
     const isRegistrationButtonDisabled = useMemo(
         () => !validateRegistrationPayload(registrationPayload).valid,
         [registrationPayload]
+    );
+
+    const isGiftPointsButtonDisabled = useMemo(
+        () => !validateRegistrationGiftPointsPayload(giftPointsPayload).valid,
+        [giftPointsPayload]
     );
 
     const hasConditions = !isSpendMilestone && !isRegistration;
@@ -557,9 +628,11 @@ const Terms: React.FC = () => {
                     <div className="text-base03 text-md">
                         {isSpendMilestone
                             ? t('marketingCampaigns.spendMilestoneSettingUp')
-                            : isRegistration
-                              ? t('marketingCampaigns.registrationSettingUp')
-                              : t('marketingCampaigns.settingUp')}
+                            : isRegistrationGiftPoints
+                              ? t('marketingCampaigns.registrationPointsSettingUp')
+                              : isRegistration
+                                ? t('marketingCampaigns.registrationSettingUp')
+                                : t('marketingCampaigns.settingUp')}
                     </div>
                 </div>
             </div>
@@ -590,7 +663,12 @@ const Terms: React.FC = () => {
                 </>
             )}
 
-            {isRegistration ? (
+            {isRegistrationGiftPoints ? (
+                <RegistrationGiftPointsSection
+                    payload={giftPointsPayload}
+                    onChange={setGiftPointsPayload}
+                />
+            ) : isRegistrationPromocode ? (
                 <RegistrationPromocodeSection
                     payload={registrationPayload}
                     onChange={setRegistrationPayload}
@@ -620,14 +698,18 @@ const Terms: React.FC = () => {
                 isRegistration={isRegistration}
                 isUpdating={isUpdatingData}
                 isDisabled={
-                    isRegistration
+                    isRegistrationGiftPoints
+                        ? isGiftPointsButtonDisabled
+                        : isRegistrationPromocode
                         ? isRegistrationButtonDisabled
                         : isSpendMilestone
                           ? isSpendMilestoneButtonDisabled
                           : isRewardButtonDisabled()
                 }
                 onNext={
-                    isRegistration
+                    isRegistrationGiftPoints
+                        ? handleSaveRegistrationGiftPoints
+                        : isRegistrationPromocode
                         ? handleSaveRegistrationPromocode
                         : isSpendMilestone
                           ? handleSaveSpendMilestoneTiers

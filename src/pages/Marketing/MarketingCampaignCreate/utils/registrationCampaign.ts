@@ -30,15 +30,31 @@ export const isRegistrationPayload = (payload?: Record<string, unknown>): boolea
     typeof payload?.discountType === 'string' &&
     payload?.validDays !== undefined;
 
-export const isRegistrationCampaign = (
-    campaign?: Pick<
-        MarketingCampaignResponse,
-        'executionType' | 'actionType' | 'actionPayload'
-    >
+type RegistrationCampaignFields = Pick<
+    MarketingCampaignResponse,
+    'executionType' | 'actionType' | 'actionPayload'
+>;
+
+export const isRegistrationPromocodeCampaign = (
+    campaign?: RegistrationCampaignFields
 ): boolean =>
     campaign?.executionType === CampaignExecutionType.BEHAVIORAL &&
     campaign?.actionType === 'PROMOCODE_ISSUE' &&
     isRegistrationPayload(campaign?.actionPayload);
+
+// Behavioral gift points are only offered as a registration bonus, so the
+// action type alone identifies the campaign before its REGISTRATION condition
+// exists.
+export const isRegistrationGiftPointsCampaign = (
+    campaign?: RegistrationCampaignFields
+): boolean =>
+    campaign?.executionType === CampaignExecutionType.BEHAVIORAL &&
+    campaign?.actionType === 'GIFT_POINTS';
+
+/** Registration campaign of either kind: a promocode or gift points. */
+export const isRegistrationCampaign = (campaign?: RegistrationCampaignFields): boolean =>
+    isRegistrationPromocodeCampaign(campaign) ||
+    isRegistrationGiftPointsCampaign(campaign);
 
 export const parseRegistrationPayload = (
     payload?: Record<string, unknown>
@@ -82,6 +98,61 @@ export const areRegistrationPayloadsEqual = (
     a: RegistrationPromocodePayload,
     b: RegistrationPromocodePayload
 ): boolean => JSON.stringify(a) === JSON.stringify(b);
+
+export type RegistrationGiftPointsPayload = {
+    points: number;
+    // Lifetime of the credited points; empty leaves it to the card tier.
+    durationDays?: number;
+};
+
+export const createDefaultRegistrationGiftPointsPayload =
+    (): RegistrationGiftPointsPayload => ({ points: 100 });
+
+export const parseRegistrationGiftPointsPayload = (
+    payload?: Record<string, unknown>
+): RegistrationGiftPointsPayload => {
+    const activationWindow = payload?.activationWindow as
+        | { durationDays?: number | null }
+        | undefined;
+    return {
+        points:
+            payload?.points !== undefined
+                ? Number(payload.points)
+                : createDefaultRegistrationGiftPointsPayload().points,
+        durationDays:
+            activationWindow?.durationDays !== undefined &&
+            activationWindow?.durationDays !== null
+                ? Number(activationWindow.durationDays)
+                : undefined,
+    };
+};
+
+/** The action payload the backend expects for GIFT_POINTS. */
+export const toGiftPointsActionPayload = (
+    payload: RegistrationGiftPointsPayload
+): Record<string, unknown> => ({
+    points: payload.points,
+    ...(payload.durationDays !== undefined && {
+        activationWindow: { durationDays: payload.durationDays },
+    }),
+});
+
+export const validateRegistrationGiftPointsPayload = (
+    payload: RegistrationGiftPointsPayload
+): { valid: boolean; errorKey?: string } => {
+    if (!Number.isInteger(payload.points) || payload.points < 1) {
+        return { valid: false, errorKey: 'validation.registrationPointsRequired' };
+    }
+    if (payload.durationDays !== undefined && payload.durationDays < 1) {
+        return { valid: false, errorKey: 'validation.registrationPointsInvalidDuration' };
+    }
+    return { valid: true };
+};
+
+export const areRegistrationGiftPointsPayloadsEqual = (
+    a: RegistrationGiftPointsPayload,
+    b: RegistrationGiftPointsPayload
+): boolean => a.points === b.points && a.durationDays === b.durationDays;
 
 // The backend accepts the REGISTRATION condition only after the campaign has a
 // placementId, so call this after the region is saved.

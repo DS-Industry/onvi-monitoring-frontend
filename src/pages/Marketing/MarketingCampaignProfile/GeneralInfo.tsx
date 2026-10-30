@@ -10,6 +10,8 @@ import { ACTION_TYPE } from '@/services/api/marketing';
 import { getPlacement } from '@/services/api/device';
 import {
   isRegistrationCampaign,
+  isRegistrationGiftPointsCampaign,
+  parseRegistrationGiftPointsPayload,
   parseRegistrationPayload,
 } from '../MarketingCampaignCreate/utils/registrationCampaign';
 
@@ -93,6 +95,23 @@ const getRegistrationFields = (
   ];
 };
 
+const getRegistrationGiftPointsFields = (
+  campaign: MarketingCampaignResponse,
+  regionName: string,
+  t: TFunction
+): InfoFieldItem[] => {
+  const payload = parseRegistrationGiftPointsPayload(campaign.actionPayload);
+
+  return [
+    { label: t('pos.city'), value: regionName },
+    { label: t('marketingCampaigns.registrationPointsAmount'), value: payload.points },
+    {
+      label: t('marketingCampaigns.registrationPointsDuration'),
+      value: payload.durationDays ?? t('marketingCampaigns.registrationPointsTierExpiry'),
+    },
+  ];
+};
+
 const GeneralInfo: React.FC<GeneralInfoProps> = ({ campaign, conditionsCount }) => {
   const { t } = useTranslation();
 
@@ -101,9 +120,13 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({ campaign, conditionsCount }) 
     : '—';
 
   const isRegistration = isRegistrationCampaign(campaign);
+  const isRegistrationGiftPoints = isRegistrationGiftPointsCampaign(campaign);
 
-  // A registration campaign is stored as PROMOCODE_ISSUE, so name it explicitly.
-  const actionTypeLabel = isRegistration
+  // A registration campaign is stored as PROMOCODE_ISSUE or GIFT_POINTS, so
+  // name it explicitly.
+  const actionTypeLabel = isRegistrationGiftPoints
+    ? t('marketingCampaigns.registrationPoints')
+    : isRegistration
     ? t('marketingCampaigns.registration')
     : campaign.actionType
       ? t(ACTION_TYPE_LABEL_KEYS[campaign.actionType as ACTION_TYPE] ?? campaign.actionType)
@@ -172,7 +195,9 @@ const GeneralInfo: React.FC<GeneralInfoProps> = ({ campaign, conditionsCount }) 
         sectionTitle={t('marketingCampaigns.participantsAndPrizes')}
         showDivider={false}
         fields={
-          isRegistration
+          isRegistrationGiftPoints
+            ? getRegistrationGiftPointsFields(campaign, regionName, t)
+            : isRegistration
             ? getRegistrationFields(campaign, regionName, t)
             : [
                 {

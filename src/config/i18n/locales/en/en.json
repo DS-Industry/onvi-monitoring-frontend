@@ -2150,7 +2150,9 @@
     "spendMilestoneInvalidValidDays": "Promocode validity must be at least 1 day",
     "registrationRegionRequired": "Select a region: a registration campaign is bound to a region",
     "registrationDiscountValueRequired": "Enter a discount value greater than 0",
-    "registrationPercentageRange": "Discount percentage must be between 0 and 100"
+    "registrationPercentageRange": "Discount percentage must be between 0 and 100",
+    "registrationPointsRequired": "Enter a whole number of points, at least 1",
+    "registrationPointsInvalidDuration": "Points must be valid for at least 1 day"
   },
   "table": {
     "noData": "No Data",
@@ -2842,6 +2844,15 @@
     "registrationSettingsDescription": "A new client gets a personal promocode when they pick the campaign region. One promocode per client.",
     "registrationCondition": "Registration",
     "registrationRegionHint": "The campaign region is chosen on the Geography step; only clients of that region get the bonus.",
+    "registrationPoints": "Registration points",
+    "registrationPointsDescription": "Gift points for a new client after they pick a region",
+    "registrationPointsSettingUp": "Welcome points setup",
+    "registrationPointsSettings": "Welcome points",
+    "registrationPointsSettingsDescription": "A new client gets points on their card as soon as they pick the campaign region. Once per client.",
+    "registrationPointsAmount": "Number of points",
+    "registrationPointsDuration": "Points validity (days)",
+    "registrationPointsDurationHint": "Leave empty to follow the card tier rules",
+    "registrationPointsTierExpiry": "Card tier rules",
     "noPromocodeLinked": "No promocode linked to this campaign",
     "points": "Points",
     "pointsDescription": "Possibility of accruing points to the client (ONVI)",
