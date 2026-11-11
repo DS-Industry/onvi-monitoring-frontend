@@ -1,5 +1,6 @@
 import axios from 'axios';
 import useAuthStore from '@/config/store/authSlice';
+import { getActiveHost, handleNetworkFailure } from '@/config/apiHost';
 import i18n from '@/config/i18n';
 import { datadogLogs } from '@datadog/browser-logs';
 import {
@@ -17,7 +18,7 @@ export const setToastFunction = (toastFunction: typeof showToast) => {
 
 const handleLogout = async () => {
   try {
-    await fetch(`${import.meta.env.VITE_API_URL}/user/auth/logout`, {
+    await fetch(`${getActiveHost()}/user/auth/logout`, {
       method: 'POST',
       credentials: 'include',
     });
@@ -32,13 +33,28 @@ const handleLogout = async () => {
   logout();
 };
 
+// Without a timeout axios waits until the browser gives up (tens of seconds),
+// so an unreachable host could not even be detected. Uploads get longer.
+const DEFAULT_TIMEOUT_MS = 30_000;
+const UPLOAD_TIMEOUT_MS = 120_000;
+const RETRYABLE_METHODS = new Set(['get', 'head', 'options']);
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: getActiveHost(),
   withCredentials: true,
+  timeout: DEFAULT_TIMEOUT_MS,
 });
 
 api.interceptors.request.use(
   config => {
+    // Resolved per request so a failover applies to the very next call.
+    config.baseURL = getActiveHost();
+    if (
+      config.data instanceof FormData &&
+      config.timeout === DEFAULT_TIMEOUT_MS
+    ) {
+      config.timeout = UPLOAD_TIMEOUT_MS;
+    }
     return config;
   },
   error => {
@@ -57,6 +73,24 @@ api.interceptors.response.use(
     return response;
   },
   async error => {
+    if (!error.response && error.config && !axios.isCancel(error)) {
+      // No HTTP response at all: the host was unreachable or timed out.
+      const failedHost = error.config.baseURL;
+      await handleNetworkFailure(failedHost);
+
+      // Retry once on the new host, idempotent methods only: for a POST we
+      // cannot know whether the server already processed it.
+      const method = (error.config.method || 'get').toLowerCase();
+      if (
+        getActiveHost() !== failedHost &&
+        RETRYABLE_METHODS.has(method) &&
+        !error.config._hostRetry
+      ) {
+        error.config._hostRetry = true;
+        return api(error.config);
+      }
+    }
+
     const url = error.config?.url;
     const method = error.config?.method;
     const status = error.response?.status || 'No Response';
