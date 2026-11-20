@@ -5,6 +5,7 @@ export const MAX_LEVELS = 5;
 
 export enum ManagerPaperGroup {
   AMS_REVENUE = 'AMS_REVENUE',
+  AMS_OTHER_REVENUE = 'AMS_OTHER_REVENUE',
   CASH_TO_VRN = 'CASH_TO_VRN',
   RENT = 'RENT',
   BANK_DEPOSIT = 'BANK_DEPOSIT',
@@ -32,6 +33,7 @@ export enum ManagerPaperGroup {
 
 export const WRITABLE_MANAGER_PAPER_GROUPS = [
   ManagerPaperGroup.AMS_REVENUE,
+  ManagerPaperGroup.AMS_OTHER_REVENUE,
   ManagerPaperGroup.CASH_TO_VRN,
   ManagerPaperGroup.RENT,
   ManagerPaperGroup.BANK_DEPOSIT,

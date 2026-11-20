@@ -26,10 +26,11 @@ function t(key: string): string {
 }
 
 describe('WRITABLE_MANAGER_PAPER_GROUPS', () => {
-  it('should contain exactly nine groups when listing form options', () => {
-    expect(WRITABLE_MANAGER_PAPER_GROUPS).toHaveLength(9);
+  it('should contain exactly ten groups when listing form options', () => {
+    expect(WRITABLE_MANAGER_PAPER_GROUPS).toHaveLength(10);
     expect([...WRITABLE_MANAGER_PAPER_GROUPS]).toEqual([
       ManagerPaperGroup.AMS_REVENUE,
+      ManagerPaperGroup.AMS_OTHER_REVENUE,
       ManagerPaperGroup.CASH_TO_VRN,
       ManagerPaperGroup.RENT,
       ManagerPaperGroup.BANK_DEPOSIT,
@@ -79,7 +80,7 @@ describe('getPaperGroupLabel', () => {
 describe('getWritablePaperGroupOptions', () => {
   it('should omit archive groups when used as form options', () => {
     const options = getWritablePaperGroupOptions(t);
-    expect(options).toHaveLength(9);
+    expect(options).toHaveLength(10);
     expect(options.map(option => option.value)).not.toContain(
       ManagerPaperGroup.REVENUE
     );
