@@ -1592,6 +1592,7 @@
     "paperTypeVisible": "Visibility",
     "paperGroup": {
       "AMS_REVENUE": "Car wash collection revenue",
+      "AMS_OTHER_REVENUE": "AMS other revenue",
       "CASH_TO_VRN": "Cash handover to VRN",
       "RENT": "Rent",
       "BANK_DEPOSIT": "Bank deposit",
