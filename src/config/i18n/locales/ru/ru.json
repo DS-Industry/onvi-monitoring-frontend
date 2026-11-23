@@ -1593,7 +1593,7 @@
     "paperTypeVisible": "Видимость",
     "paperGroup": {
       "AMS_REVENUE": "Выручка мойки инкассация",
-      "AMS_OTHER_REVENUE": "Выручка АМС прочие",
+      "AMS_OTHER_REVENUE": "Выручка АМС прочее",
       "CASH_TO_VRN": "Сдача в кассу ВРН",
       "RENT": "Аренда",
       "BANK_DEPOSIT": "Взнос на р/сч",
