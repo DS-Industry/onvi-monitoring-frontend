@@ -56,7 +56,6 @@ const EquipmentFailure: React.FC = () => {
   const [simpleDrawerOpen, setSimpleDrawerOpen] = useState(false);
   const [simpleFormData, setSimpleFormData] = useState({
     posId: 0,
-    workerId: 0,
     appearanceDate: '',
     comment: '',
   });
@@ -277,7 +276,7 @@ const EquipmentFailure: React.FC = () => {
     async () =>
       createSimpleIncident({
         posId: Number(simpleFormData.posId),
-        workerId: Number(simpleFormData.workerId),
+        workerId: Number(user.id), 
         appearanceDate: simpleFormData.appearanceDate,
         comment: simpleFormData.comment,
       })
@@ -318,7 +317,7 @@ const EquipmentFailure: React.FC = () => {
       if (result) {
         mutate(swrKey);
         setSimpleDrawerOpen(false);
-        setSimpleFormData({ posId: 0, workerId: 0, appearanceDate: '', comment: '' });
+        setSimpleFormData({ posId: 0, appearanceDate: '', comment: '' });
         showToast(t('success.recordCreated'), 'success');
       }
     } catch (error) {
@@ -326,47 +325,47 @@ const EquipmentFailure: React.FC = () => {
     }
   };
 
-const handleUpdate = (id: number) => {
-  setEditIncidentId(id);
-  setIsEditMode(true);
-  setDrawerOpen(true);
+  const handleUpdate = (id: number) => {
+    setEditIncidentId(id);
+    setIsEditMode(true);
+    setDrawerOpen(true);
 
-  const incidentToEdit = incidents.find(org => org.id === id);
-  if (!incidentToEdit) return;
+    const incidentToEdit = incidents.find(org => org.id === id);
+    if (!incidentToEdit) return;
 
-  setFormData({
-    posId: incidentToEdit.posId,
-    workerId: incidentToEdit.workerId,
-    appearanceDate: incidentToEdit.appearanceDate ? dayjs(incidentToEdit.appearanceDate).format('YYYY-MM-DDTHH:mm') : '',
-    startDate: incidentToEdit.startDate ? dayjs(incidentToEdit.startDate).format('YYYY-MM-DDTHH:mm') : '',
-    finishDate: incidentToEdit.finishDate ? dayjs(incidentToEdit.finishDate).format('YYYY-MM-DDTHH:mm') : '',
-    objectName: incidentToEdit.objectName || '',
-    equipmentKnotTypeDeviceId: incidentToEdit.equipmentKnotTypeDeviceId ?? undefined,
-    equipmentKnotId: incidentToEdit.equipmentKnotId ?? undefined,
-    incidentNameId: incidentToEdit.incidentNameId ?? undefined,
-    incidentReasonId: incidentToEdit.incidentReasonId ?? undefined,
-    incidentSolutionId: incidentToEdit.incidentSolutionId ?? undefined,
-    downtime: incidentToEdit.downtime === 'Да' ? 1 : 0,
-    comment: incidentToEdit.comment || '',
-    carWashDeviceProgramsTypeId: incidentToEdit.programId ?? undefined,
-  });
+    setFormData({
+      posId: incidentToEdit.posId,
+      workerId: incidentToEdit.workerId,
+      appearanceDate: incidentToEdit.appearanceDate ? dayjs(incidentToEdit.appearanceDate).format('YYYY-MM-DDTHH:mm') : '',
+      startDate: incidentToEdit.startDate ? dayjs(incidentToEdit.startDate).format('YYYY-MM-DDTHH:mm') : '',
+      finishDate: incidentToEdit.finishDate ? dayjs(incidentToEdit.finishDate).format('YYYY-MM-DDTHH:mm') : '',
+      objectName: incidentToEdit.objectName || '',
+      equipmentKnotTypeDeviceId: incidentToEdit.equipmentKnotTypeDeviceId ?? undefined,
+      equipmentKnotId: incidentToEdit.equipmentKnotId ?? undefined,
+      incidentNameId: incidentToEdit.incidentNameId ?? undefined,
+      incidentReasonId: incidentToEdit.incidentReasonId ?? undefined,
+      incidentSolutionId: incidentToEdit.incidentSolutionId ?? undefined,
+      downtime: incidentToEdit.downtime === 'Да' ? 1 : 0,
+      comment: incidentToEdit.comment || '',
+      carWashDeviceProgramsTypeId: incidentToEdit.programId ?? undefined,
+    });
 
-  if (incidentToEdit.equipmentKnotTypeDeviceId) {
-    setEquipmentTypeId(incidentToEdit.equipmentKnotTypeDeviceId);
-  } else {
-    setEquipmentTypeId(undefined);
-  }
+    if (incidentToEdit.equipmentKnotTypeDeviceId) {
+      setEquipmentTypeId(incidentToEdit.equipmentKnotTypeDeviceId);
+    } else {
+      setEquipmentTypeId(undefined);
+    }
 
-  if (!incidentToEdit.equipmentKnotTypeDeviceId) {
-    setFormData(prev => ({
-      ...prev,
-      equipmentKnotId: undefined,
-      incidentNameId: undefined,
-      incidentReasonId: undefined,
-      incidentSolutionId: undefined,
-    }));
-  }
-};
+    if (!incidentToEdit.equipmentKnotTypeDeviceId) {
+      setFormData(prev => ({
+        ...prev,
+        equipmentKnotId: undefined,
+        incidentNameId: undefined,
+        incidentReasonId: undefined,
+        incidentSolutionId: undefined,
+      }));
+    }
+  };
 
   const resetForm = () => {
     setFormData(defaultValues);
@@ -1039,7 +1038,7 @@ const handleUpdate = (id: number) => {
         size="large"
         onClose={() => {
           setSimpleDrawerOpen(false);
-          setSimpleFormData({ posId: 0, workerId: 0, appearanceDate: '', comment: '' });
+          setSimpleFormData({ posId: 0, appearanceDate: '', comment: '' });
         }}
         open={simpleDrawerOpen}
         className="custom-drawer"
@@ -1056,29 +1055,6 @@ const handleUpdate = (id: number) => {
               className="!w-72"
               value={simpleFormData.posId || undefined}
               onChange={value => handleSimpleInputChange('posId', value)}
-              showSearch
-              filterOption={(input, option) =>
-                (option?.label ?? '')
-                  .toString()
-                  .toLowerCase()
-                  .includes(input.toLowerCase())
-              }
-            />
-          </div>
-          <div>
-            <div className="flex">
-              <div className="text-text02 text-sm">{t('equipment.employee')}</div>
-              <span className="text-errorFill">*</span>
-            </div>
-            <Select
-              placeholder={t('warehouse.notSel')}
-              options={workerData?.map(item => ({
-                value: item.id,
-                label: `${item.name} ${item.surname}`,
-              }))}
-              className="!w-72"
-              value={simpleFormData.workerId || undefined}
-              onChange={value => handleSimpleInputChange('workerId', value)}
               showSearch
               filterOption={(input, option) =>
                 (option?.label ?? '')
@@ -1108,7 +1084,7 @@ const handleUpdate = (id: number) => {
             <Button
               onClick={() => {
                 setSimpleDrawerOpen(false);
-                setSimpleFormData({ posId: 0, workerId: 0, appearanceDate: '', comment: '' });
+                setSimpleFormData({ posId: 0, appearanceDate: '', comment: '' });
               }}
             >
               {t('organizations.cancel')}
